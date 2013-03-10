@@ -1,0 +1,128 @@
+body{
+	font-family:Arial,"simsun";
+}
+#fdp-doc-box {
+	width:924px;
+	margin:0 auto;
+	padding:50px 0 50px 0;
+	min-height:500px;
+	text-align:center;
+	background:-webkit-gradient(linear, left top, left bottom, from(#B0DDE5), to(#fefefe));
+	-webkit-border-radius:8px;
+}
+
+#fdp-doc-logo .fdp-logo-f{
+	width:80px;	
+	margin-right:-30px;
+}
+#fdp-doc-logo .fdp-logo-e{
+	width:80px;	
+}
+
+#fdp-doc-nav {
+	font-size:16px;
+	text-align:center;
+}
+#fdp-doc-nav .-d-list{
+	margin:0;
+	padding:0;
+	list-style:none;
+}
+#fdp-doc-nav .-d-normal{
+	color:#333;
+	display:inline;
+	cursor:pointer;
+	padding:5px;
+}
+#fdp-doc-nav .-d-normal:hover{
+	color:#f00;
+}
+#fe-doc {
+	margin-left:20px;
+}
+#fdp-doc-nav .-d-sub {
+	font-size:6px;
+	color:#48b;
+}
+#fdp-doc-nav .-d-sub span {
+	color:#f00;
+}
+#fdp-doc-nav .-d-selected{
+	border:1px solid #555;
+	-webkit-border-radius:5px 5px;
+	background:#444;
+	color:#ff0;
+}
+#fdp-doc-form {
+	padding:20px;
+}
+#fdp-doc-form .fdp-search-input {
+	width:400px;
+	height:22px;
+	line-height:22px;
+	padding:2px 34px 2px 2px;
+	border:2px solid #075;
+	-webkit-border-radius:5px 5px;
+}
+#fdp-doc-form .fdp-search-btn {
+	width:24px;
+	cursor:pointer;
+	margin: 0 0 -7px -40px;
+	border-left:1px solid #bbb;
+	padding-left:2px;
+	-webkit-opacity:0.5;
+}
+#fdp-doc-form .fdp-search-btn:hover {
+	-webkit-opacity:1;
+}
+#fdp-doc-rst-list {
+	text-align:left;
+	margin: 10px 25px 0;
+	font-size:14px;
+}
+#fdp-doc-rst-list dt{
+	color: #084A4D;
+	font-weight: bold;
+	line-height: 24px;
+	height: 24px;
+}
+#fdp-doc-rst-list dd{
+	display: block;
+	line-height: 26px;
+	position: relative;
+	padding: 0;
+	margin: 0;
+	text-indent: 0;
+	border: 0;
+}
+#fdp-doc-rst-list i{
+	font-style: normal;
+	color: #888;
+}
+#fdp-doc-rst-list a{
+	color: #37628B;
+	text-decoration: none;
+	height: 26px;
+}
+#fdp-doc-rst-list a:hover{
+	text-decoration:underline;
+}
+#fdp-doc-rst-list .-d-author{
+	color: #777;
+	font-style: normal;
+	display: block;
+	height: 26px;
+	overflow: hidden;
+	position: absolute;
+	right: 0px;
+	top: 0;
+	width: 250px;
+}
+#fdp-doc-rst-list .-d-no-result{
+	color:#b00;
+	font-weight:bold;
+}
+#fdp-doc-rst-list .-d-highlight{
+	color:#f00;
+}
+
