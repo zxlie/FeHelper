@@ -1,1 +1,0 @@
-baidu.namespace.register("baidu.log");baidu.log=(function(){var a=function(b,e){var d=109,f=2009,g="http://nsclick.baidu.com/v.gif?pid="+d+"&url="+encodeURIComponent(e)+"&type="+f+"&m="+b+"&_t="+Math.random();var i="imglog__"+(new Date()).getTime(),h=window[i]=new Image();h.onload=(h.onerror=function(){window[i]=null});h.src=g;h=null};return{track:a}})();
