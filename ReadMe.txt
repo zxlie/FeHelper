@@ -1,3 +1,6 @@
+本插件提供了chrome和sougou浏览器两个版本，其中sougou浏览器版本属于简版，只包含部分工具，代码较简单。
+下面列出Chrome插件的相关说明：
+
 1、扩展安装地址：
     https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh-cn&utm_source=chrome-ntp
 
