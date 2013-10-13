@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <head>
+        <title>代码美化工具</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="../static/css/fe-codebeautify.css" />
+        <script type="text/javascript" src="../static/js/core/jquery-1.5.min.js"></script>
+		<script type="text/javascript" src="../static/js/mod/mod_codebeautify.js"></script>
+    </head>
+    <body>
+        <div class="mod-code">
+            <div class="format-item clearfix">
+                <fieldset>
+                    <legend>代码美化：<span id="codeTitle">Javascript</span></legend>
+                    <textarea id="codeSource" placeholder="在这里粘贴您需要进行美化的Javascript代码"></textarea>
+                    <div class="btn-opts">
+                        <input id="codeTypeJs" name="codeType" type="radio" value="Javascript" checked>
+                        <label for="codeTypeJs">JS代码美化</label>
+                        <input id="codeTypeCss" name="codeType" type="radio" value="CSS">
+                        <label for="codeTypeCss">CSS代码美化</label>
+                        <input id="codeTypeHTML" name="codeType" type="radio" value="HTML">
+                        <label for="codeTypeHTML">HTML代码美化</label>
+                        <button id="btnFormat">格式化</button>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="rst-item">
+                <div id="jfContent"></div>
+            </div>
+        </div>
+    </body>
+</html>

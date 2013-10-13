@@ -1,0 +1,50 @@
+@import url("syntax-highlighter.css");
+
+html {
+    background:url(../img/baidufe_bj.gif);
+    font-size: 14px;
+    color:#333;
+}
+.mod-code {
+    width:980px;
+    margin:0 auto;
+    position: relative;
+}
+.mod-code .syntaxhighlighter {
+    max-height: 500px;
+    overflow-y: auto;
+}
+.mod-code fieldset {
+    border : 1px solid #bbb;
+    margin:0 0 10px;
+}
+.mod-code fieldset legend {
+    padding:0 5px;
+}
+.mod-code fieldset legend span {
+    color: #f00;
+    font-weight: bold;
+}
+.mod-code .format-item {
+    line-height: 16px;
+}
+.mod-code .format-item textarea{
+    width:945px;
+    height:120px;
+    padding:2px 5px;
+    margin:0 auto;
+    resize:none;
+}
+.mod-code .format-item button{
+    width:80px;
+    height:30px;
+    float: right;
+}
+.mod-code .rst-item {
+    position: relative;
+    padding-top:0px;
+}
+.mod-code .btn-opts {
+    line-height: 30px;
+    -webkit-user-select:none;
+}

@@ -1,0 +1,59 @@
+html {
+	background:url(../img/baidufe_bj.gif);
+	font-size: 14px;
+	color:#333;
+}
+#fieldset_marker {
+    width:780px;
+    padding:10px;
+    margin:5px auto;
+    line-height: 30px;
+    background: #fff;
+    font-size: 12px;
+}
+
+#tab0_url{
+    width: 350px;
+    height: 50px;
+}
+#tab1_text {
+    width:350px;
+    height:80px;
+}
+#confirm_button {
+    float: right;
+}
+label {
+    font-weight:bold;
+    vertical-align:top;
+}
+#tabs-5 label {
+    width: 100px;
+    text-align: right;
+    display: inline-block;
+}
+#tabs-5 input {
+    width: 300px;
+}
+
+#fieldset_qr {
+    width: 780px;
+    margin:5px auto;
+    background: #fff;
+    display: none;
+}
+#preview{
+    margin:20px;
+    text-align:center;
+}
+fieldset {
+    border: 1px solid #aaa;
+}
+legend {
+    font-size: 14px;
+    color: #b00;
+}
+textarea {
+    width: 350px;
+    height: 50px;
+}
