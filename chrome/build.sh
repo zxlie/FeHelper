@@ -9,7 +9,7 @@ cp online.manifest.json output/manifest.json
 
 #下载fcp代码，开始编译
 rm -rf fcp*
-cp /Users/zhaoxianlie/mycode/fcp/release/fcp.tar.gz . > /dev/null
+cp /Users/zhaoxianlie/sourceCode/fcp/release/fcp.tar.gz . > /dev/null
 tar zxf fcp.tar.gz > /dev/null
 php fcp/index.php $MOD_NAME
 

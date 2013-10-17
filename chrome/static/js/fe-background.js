@@ -55,6 +55,7 @@ var BgPageInstance = (function(){
         });
 	};
 
+    var notId=0;
 	/**
 	 * 提醒层 缓存
 	 * @type {Array}
@@ -72,7 +73,14 @@ var BgPageInstance = (function(){
 					message : "\u5BF9\u4E0D\u8D77\uFF0C\u68C0\u6D4B\u5931\u8D25"
 				});	
 			}else{
-				baidu.feNotification.notifyHtml("template/fehelper_wpo.html?" + JSON.stringify(wpoInfo));
+                if(webkitNotifications.createHTMLNotification) {
+                    baidu.feNotification.notifyHtml("template/fehelper_wpo.html?" + JSON.stringify(wpoInfo));
+                } else {
+                    chrome.tabs.create({
+                        url : "template/fehelper_wpo.html?" + JSON.stringify(wpoInfo),
+                        selected : true
+                    });
+                }
 			}
 		});
 	};

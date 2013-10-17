@@ -19,8 +19,8 @@ baidu.calcPageLoadTime = (function(){
 	   			complete: function( xhr,data ){
 			    	wpoInfo.header = {
 			    		"date" : xhr.getResponseHeader('Date'),
-			    		"contentEncoding" : xhr.getResponseHeader('Content-Encoding'),
-			    		"connection" : xhr.getResponseHeader('Connection'),
+                        "connection" : xhr.getResponseHeader('Connection'),
+                        "contentEncoding" : xhr.getResponseHeader('Content-Encoding'),
 			    		"contentLength" : xhr.getResponseHeader('Content-Length'),
 			    		"server" : xhr.getResponseHeader('Server'),
 			    		"vary" : xhr.getResponseHeader('Vary'),
@@ -61,7 +61,7 @@ baidu.calcPageLoadTime = (function(){
 			if(request.type == MSG_TYPE.GET_PAGE_WPO_INFO) {
 				(function check() {
 			        (document.readyState == "complete") ? getHttpHeaders() : setTimeout(check, 1000);
-			    })();				
+			    })();
 			}
 		});
 	};

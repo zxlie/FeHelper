@@ -17,7 +17,7 @@ baidu.feNotification = (function(){
 
 	    return notification;
 	};
-	
+
 	/**
 	 * 文本格式，可以设置一个图标和标题
 	 * @param {Object} options
@@ -35,7 +35,7 @@ baidu.feNotification = (function(){
 		}
 		//创建提醒
 	    var notification = webkitNotifications.createNotification(
-	        chrome.extension.getURL(options.icon),
+	        chrome.runtime.getURL(options.icon),
 	        options.title,
 	        options.message
 	    );

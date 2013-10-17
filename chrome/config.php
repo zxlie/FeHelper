@@ -28,6 +28,8 @@ return array(
 	'MOD_HTML_COMPRESS'           	=>	1 ,       //HTML文件是否启用压缩
 	'MOD_JS_COMPRESS'             	=>	1 ,       //JS文件是否启用压缩
 	'JS_COMPRESS_ENGINE'          	=>	'yui' ,   //JS压缩压缩引擎，可选：yui(default)、uglifyjs
+	'JS_COMPRESS_IGNORE_LIST'     	=>	array(    //不进行js压缩的文件列表
+	),
 	'MOD_CSS_COMPRESS'            	=>	1 ,       //CSS文件是否启用压缩
 	'MOD_SHA1_FILES'              	=>	0 ,       //给所有静态文件加戳或生成新文件,0：关闭，1：加戳，2：生成新文件
 	'MOD_OPTI_IMG'                	=>	0 ,       //是否优化图片
