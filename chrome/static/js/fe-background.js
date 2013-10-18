@@ -40,7 +40,7 @@ var BgPageInstance = (function(){
 			//正在准备数据，请稍等...
 			//显示桌面提醒
 			baidu.feNotification.notifyText({
-				message : "\u6B63\u5728\u51C6\u5907\u6570\u636E\uFF0C\u8BF7\u7A0D\u7B49..."
+				message : "正在准备数据，请稍等..."
 			});	
 		}
 	};
@@ -70,7 +70,7 @@ var BgPageInstance = (function(){
 			_notificationCache[tab.id].cancel();	
 			if(!wpoInfo) {
 				baidu.feNotification.notifyText({
-					message : "\u5BF9\u4E0D\u8D77\uFF0C\u68C0\u6D4B\u5931\u8D25"
+					message : "对不起，检测失败"
 				});	
 			}else{
                 if(webkitNotifications.createHTMLNotification) {
@@ -93,7 +93,7 @@ var BgPageInstance = (function(){
 		chrome.tabs.getSelected(null,function(tab){	
 			//显示桌面提醒
 			_notificationCache[tab.id] = baidu.feNotification.notifyText({
-					message : "\u6B63\u5728\u7EDF\u8BA1\uFF0C\u8BF7\u7A0D\u540E...",
+					message : "正在统计，请稍后...",
 					autoClose : false
 				});	
 	        chrome.tabs.sendMessage(tab.id,{
@@ -185,10 +185,10 @@ var BgPageInstance = (function(){
 	var _createContextMenu = function(){
 		_removeContextMenu();
 		baidu.contextMenuId = chrome.contextMenus.create({
-			title : "FeHelper-FE\u52A9\u624B"
+			title : "FeHelper-FE助手"
 		});
 		chrome.contextMenus.create({
-			title : "\u7F16\u7801\u68C0\u6D4B",
+			title : "编码检测",
 			parentId : baidu.contextMenuId,
 			onclick : function(info,tab) {
 				//编码检测
@@ -196,7 +196,7 @@ var BgPageInstance = (function(){
 			}
 		});
 		chrome.contextMenus.create({
-			title : "\u6805\u683C\u68C0\u6D4B",
+			title : "栅格检测",
 			parentId : baidu.contextMenuId,
 			onclick : function(info,tab) {
 				//执行栅格检测
@@ -204,7 +204,7 @@ var BgPageInstance = (function(){
 			}
 		});
 		chrome.contextMenus.create({
-			title : "\u7F51\u9875\u52A0\u8F7D\u8017\u65F6",
+			title : "网页加载耗时",
 			parentId : baidu.contextMenuId,
 			onclick : function(info,tab) {
 				//网页加载耗时

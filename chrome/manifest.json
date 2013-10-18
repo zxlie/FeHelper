@@ -1,6 +1,6 @@
 { 
 	"name": "WEB前端助手(FeHelper)", 
-	"version": "3.0",
+	"version": "3.1",
     "manifest_version": 2,
 	 
 	"default_locale": "zh_CN", 
@@ -48,7 +48,7 @@
     ],
 
 	"content_scripts": [{	
-		"matches":["http://*/*","https://*/*"],
+		"matches":["http://*/*","https://*/*","file://*/*"],
 		"js":[
 			"static/js/core/jquery-1.5.min.js",
 			"static/vendor/jquery-ui-1.8/js/jquery-ui-1.8.11.custom.min.js",

@@ -10,7 +10,7 @@ baidu.calcPageLoadTime = (function(){
 	 * @return {[type]}
 	 */
 	var getHttpHeaders = function(){
-		if(wpoInfo.header && wpoInfo.time) {
+		if(wpoInfo.header && wpoInfo.time && wpoInfo.pageInfo) {
 	    	sendWpoInfo();
 		}else{
 			$.ajax({
@@ -30,12 +30,24 @@ baidu.calcPageLoadTime = (function(){
 			    		"exprires" : xhr.getResponseHeader('Exprires'),
 			    		"lastModified" : xhr.getResponseHeader('Last-Modified')
 			    	};
+
+                    getPageInfo();
 			    	getPageLoadTime();
 			    	sendWpoInfo();
 			 	}
 			});
 		}
 	};
+
+    /**
+     * 页面相关信息
+     */
+    var getPageInfo = function(){
+        wpoInfo.pageInfo = {
+            title : document.title,
+            url : location.href
+        };
+    };
 
 	/**
 	 * 获取网页的加载时间
@@ -54,13 +66,29 @@ baidu.calcPageLoadTime = (function(){
 			wpo : wpoInfo
 		});
 	};
+
+    /**
+     * 提取wpo信息
+     */
+    var getWpoInfo = function(){
+        // 如果是网络地址，才去获取header
+        if(/^((http)|(https))\:\/\//.test(location.href)) {
+            getHttpHeaders();
+        }
+        // 否则只提取performance信息
+        else{
+            getPageInfo();
+            getPageLoadTime();
+            sendWpoInfo();
+        }
+    };
 	
 	var init = function(){
 		chrome.extension.onMessage.addListener(function(request,sender,callback){
 			// 获取页面相关性能数据
 			if(request.type == MSG_TYPE.GET_PAGE_WPO_INFO) {
 				(function check() {
-			        (document.readyState == "complete") ? getHttpHeaders() : setTimeout(check, 1000);
+			        (document.readyState == "complete") ? getWpoInfo() : setTimeout(check, 1000);
 			    })();
 			}
 		});

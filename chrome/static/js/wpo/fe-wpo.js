@@ -12,13 +12,20 @@ baidu.pageLoadTime = (function(){
 	 * 获取网页的加载时间
 	 */
 	var init = function(){
+        // 获得wpo信息
+        var wpoStr = decodeURIComponent(location.search.substring(1));
+        var wpo = JSON.parse(wpoStr);
+
+        // 页面信息
+        document.getElementById("pageTitle").innerHTML = wpo.pageInfo.title || "无";
+        document.getElementById("pageUrl").innerHTML = wpo.pageInfo.url || "无";
+
+        // 各阶段加载时间
 		 function set(id, value) {
             try{
 	           document.getElementById(id).innerHTML = value + ' ms';
             }catch(e){}
 	     }
-		 var wpoStr = decodeURIComponent(location.search.substring(1));
-         var wpo = JSON.parse(wpoStr);
          var t = wpo.time;
          var start = t.redirectStart == 0 ? t.fetchStart : t.redirectStart;
          set('dns', t.domainLookupEnd - t.domainLookupStart);
@@ -35,11 +42,16 @@ baidu.pageLoadTime = (function(){
          set('domCompleteTotal' , t.domComplete - start);
          set('loadTotal' , t.loadEventEnd - start);
 
+        // HTTP Header
          var h = wpo.header;
-         for(var key in h) {
-            try{
-              document.getElementById(key).innerHTML = h[key] || ' - ';
-            }catch(e){}
+         if(!h) {
+             document.getElementById("pageHeaderInfo").style.display = "none";
+         }else{
+             for(var key in h) {
+                 try{
+                     document.getElementById(key).innerHTML = h[key] || ' - ';
+                 }catch(e){}
+             }
          }
 	};
 	return {
