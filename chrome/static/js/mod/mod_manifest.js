@@ -33,3 +33,7 @@ importScript("js/grid/grid-main.js");
 importScript("js/fe-helper.js");
 importScript("js/notification/fe-notification.js");
 importScript("js/wpo/fe-calc-wpo.js");
+
+importScript("js/jsonformat/json-format-dealer.js");
+importScript("js/jsonformat/json-format-ent.js");
+importScript("js/jsonformat/contentscript-jsonformat.js");

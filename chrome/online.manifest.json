@@ -1,6 +1,6 @@
 {
     "name": "WEB前端助手(FeHelper)",
-    "version": "3.1",
+    "version": "3.2",
     "manifest_version": 2,
 
     "default_locale": "zh_CN",
@@ -37,6 +37,7 @@
     "web_accessible_resources": [
         "static/img/43.png",
         "static/img/baidufe_bj.png",
+        "static/img/baidufe_bj.gif",
         "static/img/grid.png",
         "static/img/fe-18.png",
         "static/img/fe-48.png",
@@ -44,6 +45,7 @@
         "static/img/pbar-ani.gif",
         "static/img/ui-icons_228ef1_256x240.png",
         "static/css/fe-helper.css",
+        "static/css/fe-jsonformat.css",
         "static/vendor/jquery-ui-1.8/css/jquery-ui-1.8.16.custom.hot_datauri.css"
     ],
 

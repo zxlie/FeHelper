@@ -82,3 +82,14 @@ html {
 	position: relative;
 	padding-top:30px;
 }
+.mod-contentscript {
+    width: auto;
+}
+#formatTips {
+    color: #888;
+    font-size: 14px;
+    display: block;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
