@@ -26,16 +26,24 @@ baidu.csJsonFormat = (function(){
 
 	var _init = function(){
 		$(function(){
-            var source = $.trim($('body>pre').html());
+            var source = $.trim($('body>pre').html()) || $.trim($('body').html());
+            var isJson = true;
+            var jsonObj = null;
             try{
-                var obj = JSON.parse(source);
-                if(obj != null) {
-                    $('body').html(_htmlFragment);
-                    _loadCss();
-                    JsonFormatEntrance.clear();
-                    JsonFormatEntrance.format(source);
-                }
+                jsonObj = JSON.parse(source);
             }catch(ex){
+                isJson = false;
+                try{
+                    jsonObj = new Function("return " + source)();
+                    isJson = true;
+                }catch(ex){
+                }
+            }
+            if(isJson && jsonObj) {
+                $('body').html(_htmlFragment);
+                _loadCss();
+                JsonFormatEntrance.clear();
+                JsonFormatEntrance.format(source);
             }
 		});
 	};
