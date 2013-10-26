@@ -36,16 +36,27 @@ baidu.csJsonFormat = (function(){
             if(!source) {
                 return;
             }
+
             var jsonObj = null;
             try{
                 jsonObj = new Function("return " + source)();
+
+                // 还要防止下面这种情况：  "{\"ret\":\"0\", \"msg\":\"ok\"}"
+                if(typeof jsonObj == "string") {
+                    // 再来一次
+                    jsonObj = new Function("return " + jsonObj)();
+                }
+
+                if(typeof jsonObj == "object") {
+                    $('body').html(_htmlFragment);
+                    _loadCss();
+                    JsonFormatEntrance.clear();
+                    // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
+                    source = JSON.stringify(jsonObj);
+                    JsonFormatEntrance.format(source);
+                }
             }catch(ex){
-            }
-            if(jsonObj && typeof jsonObj == "object") {
-                $('body').html(_htmlFragment);
-                _loadCss();
-                JsonFormatEntrance.clear();
-                JsonFormatEntrance.format(source);
+                return;
             }
 		});
 	};
