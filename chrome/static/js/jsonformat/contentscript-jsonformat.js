@@ -41,7 +41,7 @@ baidu.csJsonFormat = (function(){
                 jsonObj = new Function("return " + source)();
             }catch(ex){
             }
-            if(jsonObj) {
+            if(jsonObj && typeof jsonObj == "object") {
                 $('body').html(_htmlFragment);
                 _loadCss();
                 JsonFormatEntrance.clear();
