@@ -85,6 +85,7 @@ baidu.feOption = (function(){
 		var items = {};
 		items['opt_item_contextMenus'] = $('#opt_item_contextMenus').attr('checked');
 		items['opt_item_showfdpmenu'] = $('#opt_item_showfdpmenu').attr('checked');
+        items['opt_item_autojson'] = $('#opt_item_autojson').attr('checked');
 		items['opt_item_notification'] = $('#opt_item_notification').val();
 		_goSetOptions(items);
 	};
@@ -93,10 +94,11 @@ baidu.feOption = (function(){
 	 * 显示启动项
 	 */
 	var _show_opt_form_start = function(){
-		var optItems = ['opt_item_contextMenus',"opt_item_showfdpmenu","opt_item_notification"];
+		var optItems = ['opt_item_contextMenus',"opt_item_showfdpmenu",
+            "opt_item_autojson","opt_item_notification"];
 		_goGetOptions(optItems,function(opts){
 			$.each(optItems,function(i,item){
-				if(i == 2) {
+				if(i == 3) {
 					$('#' + item).val(opts[item]);
 				} else if(opts[item] === 'true') {
 					$('#' + item).attr('checked','checked');
@@ -183,7 +185,9 @@ baidu.feOption = (function(){
 		init : _init,
 		doSetOptions : _doSetOptions,
 		doGetOptions : _doGetOptions,
-		getOptionItem : _getOptionItem
+		getOptionItem : _getOptionItem,
+        getOptions : _goGetOptions,
+        setOptions : _goSetOptions
 	};
 })();
 

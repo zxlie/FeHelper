@@ -18,7 +18,8 @@
 
 importScript("js/core/core.js");
 importScript("js/core/fe-const.js");
-			
+importScript("js/fe-option.js");
+
 importScript("js/fcp/fcp-fl.js");
 importScript("js/fcp/css/fcp-css-analytic.js");
 importScript("js/fcp/css/fcp-css.js");

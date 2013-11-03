@@ -67,7 +67,10 @@ const MSG_TYPE = {
     //QR生成器
     QR_CODE : 'qrcode',
     //代码美化
-    CODE_BEAUTIFY : 'codebeautify'
+    CODE_BEAUTIFY : 'codebeautify',
+
+    //页面json代码自动格式化
+    AUTO_FORMART_PAGE_JSON : "opt_item_autojson"
 };
 
 /**

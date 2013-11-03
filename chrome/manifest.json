@@ -1,6 +1,6 @@
 { 
 	"name": "WEB前端助手(FeHelper)", 
-	"version": "3.5",
+	"version": "3.6",
     "manifest_version": 2,
 	 
 	"default_locale": "zh_CN", 
@@ -57,6 +57,7 @@
 			
 			"static/js/core/core.js",
 			"static/js/core/fe-const.js",
+            "static/js/fe-option.js",
 			
 			"static/js/fcp/fcp-fl.js",
 			"static/js/fcp/css/fcp-css-analytic.js",
