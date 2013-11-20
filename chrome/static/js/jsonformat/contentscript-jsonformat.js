@@ -16,8 +16,10 @@ baidu.csJsonFormat = (function(){
                     '<path d="M 150,0 a 150,150 0 0,1 106.066,256.066 l -35.355,-35.355 a -100,-100 0 0,0 -70.711,-170.711 z" fill="#3d7fe6"></path>',
                 '</svg>加载中...',
             '</div>',
+            '<div id="jfCallbackName_start" class="callback-name"></div>',
             '<div id="jfContent"></div>',
             '<pre id="jfContent_pre"></pre>',
+            '<div id="jfCallbackName_end" class="callback-name"></div>',
         '</div></div>'
     ].join('');
 
@@ -39,7 +41,12 @@ baidu.csJsonFormat = (function(){
             return;
         }
 
+        // JSONP形式下的callback name
+        var funcName = null;
+        // json对象
         var jsonObj = null;
+
+        // 下面校验给定字符串是否为一个合法的json
         try{
             jsonObj = new Function("return " + source)();
 
@@ -48,26 +55,46 @@ baidu.csJsonFormat = (function(){
                 // 再来一次
                 jsonObj = new Function("return " + jsonObj)();
             }
-
-            if(typeof jsonObj == "object") {
-                $('body').html(_htmlFragment);
-                _loadCss();
-                JsonFormatEntrance.clear();
-                // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
-                source = JSON.stringify(jsonObj);
-                JsonFormatEntrance.format(source);
-
-                // 允许禁用
-                $('#makeAutoJsonFormatOff').click(function(e){
-                    baidu.feOption.setOptions({
-                        "opt_item_autojson" : 'false'
-                    });
-                    alert("以后可以从FeHelper的选项页面中重新开启");
-                    window.location.reload(true);
-                });
-            }
         }catch(ex){
-            return;
+            // 再看看是不是jsonp的格式
+            var reg=/^([\w\.]+)\(\s*([\s\S]*)\s*\)$/igm;
+            var matches = reg.exec(source);
+            if(matches == null) {
+                return;
+            }
+
+            funcName = matches[1];
+            source = matches[2];
+            try{
+                jsonObj = new Function("return " + source)();
+            }catch(e){
+                return;
+            }
+        }
+
+        // 是json格式，可以进行JSON自动格式化
+        if(typeof jsonObj == "object") {
+            $('body').html(_htmlFragment);
+            _loadCss();
+            JsonFormatEntrance.clear();
+            // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
+            source = JSON.stringify(jsonObj);
+            JsonFormatEntrance.format(source);
+
+            // 如果是JSONP格式的，需要把方法名也显示出来
+            if(funcName != null) {
+                $('#jfCallbackName_start').html(funcName + '(');
+                $('#jfCallbackName_end').html(')');
+            }
+
+            // 允许禁用
+            $('#makeAutoJsonFormatOff').click(function(e){
+                baidu.feOption.setOptions({
+                    "opt_item_autojson" : 'false'
+                });
+                alert("以后可以从FeHelper的选项页面中重新开启");
+                window.location.reload(true);
+            });
         }
     };
 

@@ -93,3 +93,7 @@ html {
     top: 0px;
     left: 0px;
 }
+.mod-json .callback-name {
+    font-weight: bolder;
+    color: #a00;
+}
