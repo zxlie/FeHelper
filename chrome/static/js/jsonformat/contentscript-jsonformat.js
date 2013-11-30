@@ -74,11 +74,17 @@ baidu.csJsonFormat = (function(){
 
         // 是json格式，可以进行JSON自动格式化
         if(typeof jsonObj == "object") {
+            try{
+                // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
+                source = JSON.stringify(jsonObj);
+            }catch(ex){
+                // 通过JSON反解不出来的，一定有问题
+                return;
+            }
+
             $('body').html(_htmlFragment);
             _loadCss();
             JsonFormatEntrance.clear();
-            // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
-            source = JSON.stringify(jsonObj);
             JsonFormatEntrance.format(source);
 
             // 如果是JSONP格式的，需要把方法名也显示出来
