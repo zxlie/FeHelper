@@ -49,6 +49,11 @@ html {
 	background:url(../img/baidufe_bj.gif);
 	font-size: 14px;
 	color:#333;
+    direction: ltr;
+}
+html body {
+    background: inherit;
+    direction: inherit;
 }
 .mod-json {
 	width:980px;

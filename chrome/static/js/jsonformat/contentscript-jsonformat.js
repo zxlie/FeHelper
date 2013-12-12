@@ -56,6 +56,14 @@ baidu.csJsonFormat = (function(){
                 jsonObj = new Function("return " + jsonObj)();
             }
         }catch(ex){
+            // 如果body的内容还包含HTML标签，肯定不是合法的json了
+            var nodes = document.body.childNodes;
+            for(var i = 0,len = nodes.length;i < len;i++) {
+                if(nodes.nodeType != Node.TEXT_NODE) {
+                    return;
+                }
+            }
+
             // 再看看是不是jsonp的格式
             var reg=/^([\w\.]+)\(\s*([\s\S]*)\s*\)$/igm;
             var matches = reg.exec(source);
