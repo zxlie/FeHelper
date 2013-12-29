@@ -73,6 +73,9 @@ ul.fe-function-list li.-x-codebeautify b {
 ul.fe-function-list li.-x-tracker b {
     background-position:-193px -193px;
 }
+ul.fe-function-list li.-x-timestamp b {
+    background-position:0px -161px;
+}
 .fe-feedback {
 	font-size:12px;
 	border-top:1px dotted #ddd;

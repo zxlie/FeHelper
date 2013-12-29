@@ -68,6 +68,8 @@ const MSG_TYPE = {
     QR_CODE : 'qrcode',
     //代码美化
     CODE_BEAUTIFY : 'codebeautify',
+    // 时间转换
+    TIME_STAMP : 'timestamp',
 
     //页面json代码自动格式化
     AUTO_FORMART_PAGE_JSON : "opt_item_autojson"
