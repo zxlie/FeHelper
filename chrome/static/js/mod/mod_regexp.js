@@ -19,5 +19,4 @@
 
 importScript("js/core/core.js");
 importScript("js/core/fe-const.js");
-importScript("js/fdp/fdp-main.js");
-importScript("js/google_analytics.js");
+importScript("js/regexp/regexp.js");

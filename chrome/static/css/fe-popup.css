@@ -52,8 +52,8 @@ ul.fe-function-list li.-x-fcp b {
 ul.fe-function-list li.-x-grid b {
 	background-position:-113px -113px;
 }
-ul.fe-function-list li.-x-fdp b {
-	background-position:-162px -113px;
+ul.fe-function-list li.-x-regexp b {
+	background-position:-144px 0;
 }
 ul.fe-function-list li.-x-endecode b {
 	background-position:-113px -81px;
@@ -71,7 +71,7 @@ ul.fe-function-list li.-x-codebeautify b {
     background-position:-64px -145px;
 }
 ul.fe-function-list li.-x-tracker b {
-    background-position:-193px -193px;
+    background-position:-31px -64px;
 }
 ul.fe-function-list li.-x-timestamp b {
     background-position:0px -161px;

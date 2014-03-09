@@ -1,11 +1,11 @@
 { 
 	"name": "WEB前端助手(FeHelper)", 
-	"version": "4.0",
+	"version": "4.1",
     "manifest_version": 2,
 	 
 	"default_locale": "zh_CN", 
 
-    "description": "FE助手：包括字符串编解码、代码美化、JSON格式化、二维码生成器、编码规范检测、页面性能检测、栅格检测等",
+    "description": "FE助手：包括字符串编解码、代码美化、JSON格式化、正则表达式、时间转换工具、二维码生成器、编码规范检测、页面性能检测、栅格检测等",
 	"icons": { 
 		"16": "static/img/fe-16.png",
 		"48": "static/img/fe-48.png",

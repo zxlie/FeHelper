@@ -58,8 +58,7 @@ const MSG_TYPE = {
     JS_TRACKER : 'js_tracker',
 
     ////////////////////如下是popup中的menu，value和filename相同///////////////////
-    //进行FDP平台文件检索
-    FDP_HELPER : 'fdp',
+    REGEXP_TOOL : 'regexp',
     //字符串编解码
     EN_DECODE : 'endecode',
     //json查看器
