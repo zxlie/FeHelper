@@ -79,6 +79,7 @@ textarea {
 }
 #srcBackground {
     padding: 4px;
+    margin: 0;
     position: absolute;
     z-index: 1;
     width: 954px;
