@@ -34,10 +34,7 @@ baidu.csJsonFormat = (function () {
      * @private
      */
     var _getJsonText = function(){
-        var source;
-        if ($('body').children().length == 1) {
-            source = $.trim($('body>pre').html());
-        }
+        var source = $.trim($('body>pre:eq(0)').html());
         if (!source) {
             source = $.trim($('body').html())
         }
@@ -58,8 +55,14 @@ baidu.csJsonFormat = (function () {
                     return;
                 }
             } else if (nodes[i].nodeType == Node.ELEMENT_NODE) {
+                var tagName = nodes[i].tagName.toLowerCase();
+                var html = $.trim($(nodes[i]).html());
+                // 如果是pre标签，则看内容是不是和source一样，一样则continue
+                if(tagName === 'pre' && html  === source) {
+                    continue;
+                }
                 // 如果用户安装迅雷或者其他的插件，也回破坏页面结构，需要兼容一下
-                if (nodes[i].tagName.toLowerCase() === 'embed' && nodes[i].offsetWidth === 0) {
+                else if (tagName === 'embed' && nodes[i].offsetWidth === 0) {
                     continue;
                 } else {
                     return;
