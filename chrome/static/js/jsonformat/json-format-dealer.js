@@ -243,8 +243,7 @@ var JsonFormatDealer = (function () {
           case TYPE_STRING:
             // If string is a URL, get a link, otherwise get a span
               var innerStringEl = baseSpan.cloneNode(false),
-                  escapedString = JSON.stringify(value)
-              ;
+                  escapedString = JSON.stringify(value) ;
               escapedString = escapedString.substring(1, escapedString.length-1) ; // remove quotes
               if (value[0] === 'h' && value.substring(0, 4) === 'http') { // crude but fast - some false positives, but rare, and UX doesn't suffer terribly from them.
                 var innerStringA = document.createElement('A') ;

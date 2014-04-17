@@ -17,7 +17,7 @@ var Timestamp = (function(){
                 alert('请输入合法的Unix时间戳');
                 return;
             }
-            $('#txtDesDate').val((new Date(stamp * 1000)).toLocaleString());
+            $('#txtDesDate').val((new Date(parseInt(stamp,10))).toLocaleString());
         });
 
         $('#btnLocaleToStamp').click(function(e) {
@@ -37,7 +37,8 @@ var Timestamp = (function(){
                 alert('请输入合法的时间！');
                 return;
             }
-            $('#txtDesStamp').val((new Date(Date.UTC(year,month,day,hour,minute,second))).getTime() / 1000);
+            var dateString = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
+            $('#txtDesStamp').val(Date.parse(dateString));
         });
 	};
 
@@ -46,7 +47,7 @@ var Timestamp = (function(){
         var txtNowStamp = $('#txtNow');
         window.setInterval(function(){
             txtNowDate.val((new Date()).toLocaleString());
-            txtNowStamp.val(Math.round((new Date()).getTime() / 1000));
+            txtNowStamp.val(Math.round((new Date()).getTime()));
         },1000);
     };
 

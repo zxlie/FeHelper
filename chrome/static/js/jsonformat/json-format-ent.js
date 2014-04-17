@@ -277,6 +277,7 @@ var JsonFormatEntrance = (function() {
    * @return {[type]}
    */
   var format = function(jsonStr){
+
     // Send the contents of the PRE to the BG script
     // Add jfContent DIV, ready to display stuff
       jfContent = document.getElementById('jfContent');
