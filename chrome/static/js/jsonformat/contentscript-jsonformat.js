@@ -28,6 +28,12 @@ baidu.csJsonFormat = (function () {
         jQuery('<link id="_fehelper_fcp_css_" href="' + fcpCss + '" rel="stylesheet" type="text/css" />').appendTo('head');
     };
 
+    /**
+     * 将escape过的HTML再反解回来
+     * @param txt
+     * @return {String|XML}
+     * @private
+     */
     var _unEscapeHTML = function(txt) {
         return txt.replace(/&amp;/g,'&').replace(/&gt;/g,'>')
             .replace(/&lt;/g,'<').replace(/&quot;/g,'"')

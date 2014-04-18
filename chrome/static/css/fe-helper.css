@@ -61,6 +61,7 @@
 #fe-helper-main-tab .rst-content .x-tag{
 	color:#00f;
 	font-weight:bold;
+    word-wrap: break-word;
 }
 #fe-helper-main-tab .rst-content .x-attr{
 	color:#b00;

@@ -9,6 +9,9 @@ baidu.feNotification = (function(){
 	 * @param {string} notify_file 提醒页面路径：相对路径
 	 */
 	var notifyHtml = function(notify_file) {
+        if(!window.webkitNotifications) {
+            return;
+        }
 	    var encode = encodeURIComponent;
 	    var notification = webkitNotifications.createHTMLNotification(
 	        chrome.extension.getURL(notify_file)
@@ -27,6 +30,9 @@ baidu.feNotification = (function(){
 	 * @config {string} message 内容
 	 */
 	var notifyText = function(options){
+        if(!window.webkitNotifications) {
+            return;
+        }
 		if(!options.icon) {
 			options.icon = "static/img/fe-48.png";
 		}

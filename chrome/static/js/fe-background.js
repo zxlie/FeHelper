@@ -67,13 +67,15 @@ var BgPageInstance = (function(){
 	 */
 	var _showPageWpoInfo = function(wpoInfo){
 		chrome.tabs.getSelected(null,function(tab){
-			_notificationCache[tab.id].cancel();	
-			if(!wpoInfo) {
+            try{
+                _notificationCache[tab.id].cancel();
+            }catch (e){}
+            if(!wpoInfo) {
 				baidu.feNotification.notifyText({
 					message : "对不起，检测失败"
 				});	
 			}else{
-                if(webkitNotifications.createHTMLNotification) {
+                if(window.webkitNotifications && webkitNotifications.createHTMLNotification) {
                     baidu.feNotification.notifyHtml("template/fehelper_wpo.html?" + JSON.stringify(wpoInfo));
                 } else {
                     chrome.tabs.create({
