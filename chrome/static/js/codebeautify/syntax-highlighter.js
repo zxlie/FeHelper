@@ -2318,8 +2318,8 @@ sh.Highlighter.prototype = {
 		if (this.getParam('toolbar'))
 			attachEvent(findElement(div, '.toolbar'), 'click', sh.toolbar.handler);
 		
-		if (this.getParam('quick-code'))
-			attachEvent(findElement(div, '.code'), 'dblclick', quickCodeHandler);
+//		if (this.getParam('quick-code'))
+//			attachEvent(findElement(div, '.code'), 'dblclick', quickCodeHandler);
 		
 		return div;
 	},
