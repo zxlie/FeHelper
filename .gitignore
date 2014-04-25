@@ -1,0 +1,6 @@
+# 工程文件
+.idea
+
+#编译后的文件
+chrome/output
+chrome/output/fe-helper.zip
