@@ -122,6 +122,34 @@ var BgPageInstance = (function(){
     };
 
     /**
+     * 代码压缩工具
+     * @private
+     */
+    var _goCompressTool = function(){
+        var url = "http://www.baidufe.com/fehelper/codecompress.html";
+        chrome.tabs.getAllInWindow(null,function(tabs){
+            var isOpened = false;
+            var tabId ;
+            var reg = new RegExp("fehelper.*codecompress.html$","i");
+            for(var i = 0,len = tabs.length;i < len;i++){
+                if(reg.test(tabs[i].url)) {
+                    isOpened = true;
+                    tabId = tabs[i].id;
+                    break;
+                }
+            }
+            if(!isOpened) {
+                chrome.tabs.create({
+                    url : url,
+                    selected : true
+                });
+            } else {
+                chrome.tabs.update(tabId,{selected : true});
+            }
+        });
+    };
+
+    /**
      * 打开对应文件，运行该Helper
      * @param tab
      * @param file
@@ -175,6 +203,10 @@ var BgPageInstance = (function(){
                     //js tracker
                     case MSG_TYPE.JS_TRACKER:
                         _doJsTracker();
+                        break;
+                    //代码压缩
+                    case MSG_TYPE.CODE_COMPRESS:
+                        _goCompressTool();
                         break;
                 }
             }

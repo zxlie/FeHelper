@@ -76,6 +76,9 @@ ul.fe-function-list li.-x-tracker b {
 ul.fe-function-list li.-x-timestamp b {
     background-position:0px -161px;
 }
+ul.fe-function-list li.-x-codecompress b {
+    background-position:-65px -81px;
+}
 .fe-feedback {
 	font-size:12px;
 	border-top:1px dotted #ddd;

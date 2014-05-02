@@ -57,6 +57,8 @@ const MSG_TYPE = {
     //执行JS嗅探：Tracker，from 志龙（http://ucren.com)
     JS_TRACKER : 'js_tracker',
 
+    CODE_COMPRESS : 'code_compress',
+
     ////////////////////如下是popup中的menu，value和filename相同///////////////////
     REGEXP_TOOL : 'regexp',
     //字符串编解码
