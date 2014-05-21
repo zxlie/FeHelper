@@ -21,7 +21,7 @@ baidu.qrcode = (function(){
                 var qrOpt = {};
                 switch(current_tab){
                     case 0 :
-                        qrOpt.chl = "URL:" + $.trim($("#tabs-0 #tab0_url").attr("value"));
+                        qrOpt.chl = $.trim($("#tabs-0 #tab0_url").attr("value"));
                         break;
 
                     case 1 :
