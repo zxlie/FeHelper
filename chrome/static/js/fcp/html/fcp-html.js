@@ -213,6 +213,8 @@ baidu.html = (function(){
 		while((dom = dom.parentNode) && dom.nodeType === 1) {
 			//扩展屏蔽
 			if(dom.id === 'fe-helper-tab-box' || dom.id === 'fe-helper-pb-mask') return;
+            //忽略SVG节点
+            if(dom.tagName.toLowerCase() == 'svg') continue;
 			
 			if(dom.id) {	//如果该节点有id，则拼接id
 				curTag = dom.tagName.toLowerCase() + '<span style="color:red;">#' + dom.id + '</span>';
