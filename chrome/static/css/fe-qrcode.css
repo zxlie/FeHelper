@@ -57,3 +57,7 @@ textarea {
     width: 350px;
     height: 50px;
 }
+canvas {
+    border: 1px solid #ddd;
+    padding: 10px;
+}

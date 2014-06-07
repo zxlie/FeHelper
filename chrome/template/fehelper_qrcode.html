@@ -7,6 +7,8 @@
     <script type="text/javascript" src="../static/js/core/jquery-1.5.min.js"></script>
     <link rel="stylesheet" href="../static/vendor/jquery-ui-1.8/css/jquery-ui-1.8.16.custom.color_datauri.css" />
     <script type="text/javascript" src="../static/vendor/jquery-ui-1.8/js/jquery-ui-1.8.11.custom.min.js"></script>
+    <script type="text/javascript" src="../static/js/qrcode/jquery.colorpicker.js"></script>
+    <script type="text/javascript" src="../static/js/qrcode/jquery.qrcode.min.js"></script>
     <script type="text/javascript" src="../static/js/mod/mod_qrcode.js"></script>
 </head>
 <body>
@@ -97,10 +99,15 @@
 
         <div id="options">
             <input type="button" name="button" id="confirm_button" value="生成QR图"/>
-            <p>尺寸：
-                <input name="opt_width" type="text" id="opt_width" value="200" size="4" maxlength="4"/>
-                x
-                <input name="opt_height" type="text" id="opt_height" value="200" size="4" maxlength="4"/>
+            <p>
+                <span>尺寸：
+                    <input name="opt_width" type="text" id="opt_width" value="200" size="4" maxlength="4"/>
+                    x
+                    <input name="opt_height" type="text" id="opt_height" value="200" size="4" maxlength="4"/>
+                </span>
+                <span style="margin-left: 20px">
+                    颜色:<input type="text" id="opt_fc" value="#000000" size="10" readonly/>
+                </span>
             </p>
         </div>
         <div></div>
