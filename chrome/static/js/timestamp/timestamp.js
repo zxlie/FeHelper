@@ -17,7 +17,7 @@ var Timestamp = (function(){
                 alert('请输入合法的Unix时间戳');
                 return;
             }
-            $('#txtDesDate').val((new Date(parseInt(stamp,10))).toLocaleString());
+            $('#txtDesDate').val((new Date(parseInt(stamp,10))).format('yyyy-MM-dd HH:mm:ss'));
         });
 
         $('#btnLocaleToStamp').click(function(e) {

@@ -22,9 +22,9 @@ baidu.feOption = (function(){
 		var rst = {};
 		for(var i = 0,len = items.length;i < len;i++){
 			rst[items[i]] = window.localStorage.getItem(items[i]);
-		}
-		return rst;
-	};
+        }
+        return rst;
+    };
 	
 	/**
 	 * 向background-page发送请求，提取配置项

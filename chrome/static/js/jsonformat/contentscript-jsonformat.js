@@ -9,7 +9,6 @@ baidu.csJsonFormat = (function () {
         '<div class="mod-json mod-contentscript"><div class="rst-item">',
         '<div id="formatTips">本页JSON数据由FeHelper进行自动格式化，若有任何问题，点击这里提交 ',
         '<a href="http://www.baidufe.com/item/889639af23968ee688b9.html#comment" target="_blank">意见反馈</a>',
-        '&nbsp;&nbsp;或者&nbsp;&nbsp;<a href="#" id="makeAutoJsonFormatOff">禁用此功能</a>',
         '</div>',
         '<div id="formattingMsg">',
         '<svg id="spinner" width="16" height="16" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" version="1.1">',
@@ -94,6 +93,7 @@ baidu.csJsonFormat = (function () {
      */
     var _format = function () {
         var source = _getJsonText();
+        console.log('33333');
         if(!source) {
             return;
         }
@@ -150,25 +150,12 @@ baidu.csJsonFormat = (function () {
                 $('#jfCallbackName_start').html(funcName + '(');
                 $('#jfCallbackName_end').html(')');
             }
-
-            // 允许禁用
-            $('#makeAutoJsonFormatOff').click(function (e) {
-                baidu.feOption.setOptions({
-                    "opt_item_autojson":'false'
-                });
-                alert("以后可以从FeHelper的选项页面中重新开启");
-                window.location.reload(true);
-            });
         }
     };
 
     var _init = function () {
         $(function () {
-            baidu.feOption.getOptions(["opt_item_autojson"], function (opts) {
-                if (opts["opt_item_autojson"] != 'false') {
-                    _format();
-                }
-            });
+            _format();
         });
     };
 

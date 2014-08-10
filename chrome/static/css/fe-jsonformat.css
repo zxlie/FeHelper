@@ -17,6 +17,12 @@
 #jsonpCloser{margin-top:0}
 #formattedJson{padding-left:28px;padding-top:6px}pre{padding:36px 5px 5px 5px}
 .kvov{display:block;padding-left:20px;margin-left:-20px;position:relative}
+#jfContent .kvov .s a {
+    color:#00b;text-decoration: underline;
+}
+#jfContent .kvov .s a:hover {
+    color:#b00;
+}
 .collapsed{white-space:nowrap}.collapsed>.blockInner{display:none}
 .collapsed>.ell:after{content:"…";font-weight:bold}
 .collapsed>.ell{margin:0 4px;color:#888}
@@ -29,7 +35,7 @@
 .blockInner{display:block;padding-left:24px;border-left:1px dotted #bbb;margin-left:2px}
 #formattedJson,#jsonpOpener,#jsonpCloser{color:#333;font:13px/18px monospace}
 #formattedJson{color:#444}.b{font-weight:bold}.s{color:#0B7500;word-wrap:break-word}
-#jfContent a:link,jfContent a:visited{text-decoration:none;color:inherit}
+#jfContent a:link,#jfContent a:visited{text-decoration:none;color:inherit}
 #jfContent a:hover,#jfContent a:active{text-decoration:underline;color:#050}
 .bl,.nl,.n{font-weight:bold;color:#1A01CC}.k{color:black}
 #formattingMsg{font:13px "Lucida Grande", "Segoe UI", "Tahoma";padding:10px 0 0 8px;margin:0;color:#333;display:none;}
