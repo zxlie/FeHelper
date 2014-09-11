@@ -191,47 +191,43 @@ baidu.html = (function(){
 	 */
 	var _detectDomMaxDepth = function(dom){
 		//如果不是html节点，则直接退出
-		if(dom.nodeType !== 1) return;
+		if(dom.nodeType !== 1 || !dom.tagName) return;
 		
 		//扩展屏蔽
 		if(dom.id === 'fe-helper-tab-box' || dom.id === 'fe-helper-pb-mask') return;
 		
 		//最大深度记录
 		var maxDepth = _summaryInformation.DOM.maxDepth;
-		var depth = 1;
-		var curTag = '';
-		if(dom.id) {	//如果该节点有id，则拼接id
-			curTag = dom.tagName.toLowerCase() + '<span style="color:red;">#' + dom.id + '</span>';
-		} else if(dom.className) {	//没有id，但有class，则拼接class
-			curTag = dom.tagName.toLowerCase() + '<span style="color:green;">.' + dom.className.split(/\s+/).join('.') + '</span>';
-		} else {		//没有id也没有class，就只要标签名
-			curTag = dom.tagName.toLowerCase();
-		}
-		var xpath = curTag;
-		
+		var depth = 0;
+		var curTag , xpath = [];
+
 		//深度遍历
-		while((dom = dom.parentNode) && dom.nodeType === 1) {
+		do {
 			//扩展屏蔽
 			if(dom.id === 'fe-helper-tab-box' || dom.id === 'fe-helper-pb-mask') return;
             //忽略SVG节点
             if(dom.tagName.toLowerCase() == 'svg') continue;
-			
-			if(dom.id) {	//如果该节点有id，则拼接id
-				curTag = dom.tagName.toLowerCase() + '<span style="color:red;">#' + dom.id + '</span>';
-			} else if(dom.className) {	//没有id，但有class，则拼接class
-				curTag = dom.tagName.toLowerCase() + '<span style="color:green;">.' + dom.className.split(/\s+/).join('.') + '</span>';
-			} else {		//没有id也没有class，就只要标签名
-				curTag = dom.tagName.toLowerCase();
-			}
+
+            try{
+                if(dom.id) {	//如果该节点有id，则拼接id
+                    curTag = dom.tagName.toLowerCase() + '<span style="color:red;">#' + dom.id + '</span>';
+                } else if(dom.className) {	//没有id，但有class，则拼接class
+                    curTag = dom.tagName.toLowerCase() + '<span style="color:green;">.' + dom.className.split(/\s+/).join('.') + '</span>';
+                } else {		//没有id也没有class，就只要标签名
+                    curTag = dom.tagName.toLowerCase();
+                }
+            }catch(e){
+                continue;
+            }
 			
 			depth++;
-			xpath = curTag + '<span style="color:gray;">&gt;</span>' + xpath; 
-		}
+			xpath.unshift(curTag);
+		} while((dom = dom.parentNode) && dom.nodeType === 1);
 		
 		//判断当前这个dom节点是否为最大深度
 		if(depth > maxDepth.depth) {
 			maxDepth.depth = depth;
-			maxDepth.xpath = xpath;
+			maxDepth.xpath = xpath.join('<span style="color:gray;">&gt;</span>');
 		}
 	};
 	

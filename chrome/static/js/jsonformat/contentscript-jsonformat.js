@@ -28,32 +28,19 @@ baidu.csJsonFormat = (function () {
     };
 
     /**
-     * 将escape过的HTML再反解回来
-     * @param txt
-     * @return {String|XML}
-     * @private
-     */
-    var _unEscapeHTML = function(txt) {
-        return txt.replace(/&amp;/g,'&').replace(/&gt;/g,'>')
-            .replace(/&lt;/g,'<').replace(/&quot;/g,'"')
-            .replace(/&#39;/g,"'");
-    };
-
-    /**
      * 从页面提取JSON文本
      * @return {*}
      * @private
      */
     var _getJsonText = function(){
-        var source = $.trim($('body>pre:eq(0)').html());
+        var pre = $('body>pre:eq(0)')[0] || {textContent:""};
+        var source = $.trim(pre.textContent);
         if (!source) {
-            source = $.trim($('body').html())
+            source = $.trim(document.body.textContent || '')
         }
         if (!source) {
-            return;
+            return false;
         }
-        // jQuery的html方法是把内容编码后输出的，所以需要反解回去
-        source = _unEscapeHTML(source);
 
         // 如果body的内容还包含HTML标签，肯定不是合法的json了
         // 如果是合法的json，也只可能有一个text节点
@@ -69,7 +56,7 @@ baidu.csJsonFormat = (function () {
                 }
             } else if (nodes[i].nodeType == Node.ELEMENT_NODE) {
                 var tagName = nodes[i].tagName.toLowerCase();
-                var html = $.trim(_unEscapeHTML($(nodes[i]).html()));
+                var html = $.trim(nodes[i].textContent);
                 // 如果是pre标签，则看内容是不是和source一样，一样则continue
                 if(tagName === 'pre' && html  === source) {
                     continue;
@@ -93,7 +80,6 @@ baidu.csJsonFormat = (function () {
      */
     var _format = function () {
         var source = _getJsonText();
-        console.log('33333');
         if(!source) {
             return;
         }
