@@ -42,10 +42,8 @@ baidu.fePopup = (function(){
 	};
 
     var _init = function(){
-        chrome.runtime.getBackgroundPage(function(theBgPage){
-            bgPage = theBgPage;
-            _doInit();
-        });
+        bgPage = chrome.extension.getBackgroundPage();
+        _doInit();
     };
 	
 	return {
