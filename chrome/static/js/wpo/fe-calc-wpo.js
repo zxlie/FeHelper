@@ -84,7 +84,7 @@ baidu.calcPageLoadTime = (function(){
     };
 	
 	var init = function(){
-		chrome.extension.onMessage.addListener(function(request,sender,callback){
+		chrome.runtime.onMessage.addListener(function(request,sender,callback){
 			// 获取页面相关性能数据
 			if(request.type == MSG_TYPE.GET_PAGE_WPO_INFO) {
 				(function check() {

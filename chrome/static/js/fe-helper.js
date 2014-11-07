@@ -49,7 +49,7 @@ baidu.fehelper = (function(){
 	 * 执行栅格检测：在页面上显示栅格
 	 */
 	var _doGridDetect = function(){
-		chrome.extension.onMessage.addListener(function(request,sender,callback){
+		chrome.runtime.onMessage.addListener(function(request,sender,callback){
 			//browserAction被点击
 			if(request.type == MSG_TYPE.BROWSER_CLICKED && request.event == MSG_TYPE.GRID_DETECT) {
 				//加载css

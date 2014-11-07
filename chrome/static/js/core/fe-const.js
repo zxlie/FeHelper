@@ -59,6 +59,8 @@ const MSG_TYPE = {
 
     CODE_COMPRESS : 'code_compress',
 
+    FROM_POPUP : 'from_popup_action',
+
     ////////////////////如下是popup中的menu，value和filename相同///////////////////
     REGEXP_TOOL : 'regexp',
     //字符串编解码

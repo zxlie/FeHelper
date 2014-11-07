@@ -126,7 +126,8 @@ baidu.feOption = (function(){
 	 * 关闭配置页面
 	 */
 	var _closeTab = function(){
-		chrome.tabs.getSelected(null,function(tab){
+        chrome.tabs.query({active:true, currentWindow:true}, function (tabs) {
+            var tab = tabs[0];
 			chrome.tabs.remove(tab.id);
 		});
 	};

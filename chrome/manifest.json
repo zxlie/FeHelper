@@ -1,6 +1,6 @@
 { 
 	"name": "WEB前端助手(FeHelper)", 
-	"version": "5.3",
+	"version": "5.4",
     "manifest_version": 2,
 	 
 	"default_locale": "zh_CN", 
@@ -19,7 +19,7 @@
 	},
 
     "background": {
-        "persistent": false,
+        "persistent": true,
         "page": "template/fehelper_background.html"
     },
 	"options_page": "template/fehelper_options.html", 
@@ -78,14 +78,14 @@
             "static/js/jsonformat/json-format-ent.js",
             "static/js/jsonformat/contentscript-jsonformat.js"
 		],
-		"run_at":"document_end",
+		"run_at":"document_start",
 		"all_frames":false
 	},{
         "matches":["http://*.baidufe.com/fehelper/*","http://*.baidufe.com/fehelper"],
         "js":[
             "static/js/fe-contentscript-fehelper.js"
         ],
-        "run_at":"document_end",
+        "run_at":"document_start",
         "all_frames":false
     }],
     "content_security_policy": "script-src 'self' https://ssl.google-analytics.com 'unsafe-eval'; object-src 'self'",
