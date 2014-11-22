@@ -1,0 +1,88 @@
+html {
+	background:url(../img/baidufe_bj.gif);
+	font-size: 14px;
+}
+body{
+	font-family:Arial,"simsun";
+	color:#666;
+}
+
+.mod-imagebase64 {
+	width:980px;
+	margin:0 auto;
+}
+.mod-imagebase64 fieldset {
+	border : 1px solid #bbb;
+	padding:10px;
+	width:960px;
+	margin-bottom: 10px;
+    background: #fff;
+}
+.mod-imagebase64 fieldset legend {
+	padding:0 5px;
+	color:red;
+}
+
+.-e-x-container {
+	width:980px;
+	margin:0 auto;
+	padding:30px 0 50px 0;
+	min-height:400px;
+}
+table {
+    width:100%;
+    table-layout: fixed;
+}
+td {
+    width:50%;
+}
+td .x-panel {
+    width: 450px;
+    height:400px;
+    background: #fff url(../img/image_default.png) center 120px no-repeat;
+    border:4px dashed #ddd;
+    position: relative;
+    text-align: center;
+}
+td .x-panel .x-tips {
+    position: absolute;
+    top:280px;
+    left:26%;
+    color:#aaa;
+    text-align: center;
+}
+#upload {
+    font-size: 20px;
+    background: #00b7ee;
+    border-radius: 3px;
+    line-height: 44px;
+    height: 45px;
+    padding: 0 30px;
+    color: #fff;
+    display: inline-block;
+    margin: 5px auto 15px;
+    cursor: pointer;
+    box-shadow: 0 1px 1px rgba(0,0,0,.1);
+    text-decoration: none;
+}
+#upload:hover {
+    background: #00a2d4;
+}
+#preview {display: none;max-width: 260px;max-height: 260px;margin-top:10px;border:2px solid #ccc;}
+form {display: none}
+td textarea {
+    width: 470px;
+    height:405px;
+    padding:0;margin:0;
+    resize:none;outline:none;
+    background: #fcfcfc;
+    border:1px solid #ddd;
+}
+.-e-x-footer {
+	text-align:center;
+	font-size:12px;
+	margin-top:30px;
+	color:#00c;
+	padding:5px;
+	display:none;
+}

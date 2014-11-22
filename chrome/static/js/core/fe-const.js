@@ -73,6 +73,8 @@ const MSG_TYPE = {
     CODE_BEAUTIFY : 'codebeautify',
     // 时间转换
     TIME_STAMP : 'timestamp',
+    // 图片base64
+    IMAGE_BASE64 : 'imagebase64',
 
     //页面json代码自动格式化
     AUTO_FORMART_PAGE_JSON : "opt_item_autojson"
