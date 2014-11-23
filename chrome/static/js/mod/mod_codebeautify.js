@@ -17,10 +17,10 @@
 	}
 })( /*importend*/ )
 
-importScript("js/core/core.js");
 importScript("js/codebeautify/beautify.js");
 importScript("js/codebeautify/beautify-css.js");
 importScript("js/codebeautify/beautify-html.js");
-importScript("js/codebeautify/syntax-highlighter.js");
+importScript("js/core/core.js");
+/*importScript("js/codebeautify/syntax-highlighter.js");*/
 importScript("js/codebeautify/codebeautify.js");
 importScript("js/google_analytics.js");
