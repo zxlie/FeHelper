@@ -45,6 +45,22 @@ html {
     padding-top:0px;
 }
 .mod-code .btn-opts {
-    line-height: 30px;
     -webkit-user-select:none;
 }
+/* ref fe-endecode.css */
+.-e-btn {
+    float:right;
+    height:30px;
+    width:70px;
+    font-size:13px;
+    padding:5px;
+    cursor:pointer;
+    background: #f1f1f1;
+    border: 1px solid #aaa;
+    color: #b00;
+    margin-top: 6px;
+}
+.-e-x-btn .-e-btn:hover {
+    background: #fff;
+}
+/* ref fe-endecode.css END */

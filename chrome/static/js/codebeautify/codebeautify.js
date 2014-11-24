@@ -34,13 +34,16 @@ var CodeBeautify = (function(){
                 $('#jfContent').html(js);
             }else if(codeType == 'CSS') {
                 var css = css_beautify($('#codeSource').val());
-                css = '<pre class="brush: css;toolbar:false;">' + css + '</pre>';
+                css = '<pre class="brush: css;toolbar:true;">' + css + '</pre>';
                 $('#jfContent').html(css);
             }else if(codeType == 'HTML') {
                 var html = html_beautify($('#codeSource').val());
                 html = '<pre class="brush: html;toolbar:false;">' + html + '</pre>';
                 $('#jfContent').html(html);
             }
+
+            // 代码高亮
+            SyntaxHighlighter.defaults['toolbar'] = false;
             SyntaxHighlighter.highlight();
         });
     };
