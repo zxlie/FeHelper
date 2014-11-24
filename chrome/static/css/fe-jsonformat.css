@@ -125,3 +125,12 @@ html body {
     background: #fff;
 }
 /* ref fe-endecode.css END */
+
+#jfContent .x-hover {
+    outline:1px solid #cdc;
+    background: #f1f1f1;
+}
+#jfContent .x-outline {
+    outline:1px solid #6ac;
+    background: #f9f9f9;
+}

@@ -1,4 +1,5 @@
 @import url("syntax-highlighter.css");
+@import url('fe-common.css');
 
 html {
     background:url(../img/baidufe_bj.gif);

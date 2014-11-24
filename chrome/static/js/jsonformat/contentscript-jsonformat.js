@@ -32,7 +32,7 @@ baidu.csJsonFormat = (function () {
      * @return {*}
      * @private
      */
-    var _getJsonText = function(){
+    var _getJsonText = function () {
         var pre = $('body>pre:eq(0)')[0] || {textContent:""};
         var source = $.trim(pre.textContent);
         if (!source) {
@@ -58,7 +58,7 @@ baidu.csJsonFormat = (function () {
                 var tagName = nodes[i].tagName.toLowerCase();
                 var html = $.trim(nodes[i].textContent);
                 // 如果是pre标签，则看内容是不是和source一样，一样则continue
-                if(tagName === 'pre' && html  === source) {
+                if (tagName === 'pre' && html === source) {
                     continue;
                 }
                 // 如果用户安装迅雷或者其他的插件，也回破坏页面结构，需要兼容一下
@@ -80,7 +80,7 @@ baidu.csJsonFormat = (function () {
      */
     var _format = function () {
         var source = _getJsonText();
-        if(!source) {
+        if (!source) {
             return;
         }
 
@@ -127,6 +127,22 @@ baidu.csJsonFormat = (function () {
 
             $('body').html(_htmlFragment);
             _loadCss();
+
+            // 点击区块高亮
+            $('#jfContent').delegate('.kvov', 'click',function (e) {
+                $('#jfContent .kvov').removeClass('x-outline');
+                $(this).removeClass('x-hover').addClass('x-outline');
+                if (!$(e.target).is('.kvov .e')) {
+                    e.stopPropagation();
+                } else {
+                    $(e.target).parent().trigger('click');
+                }
+            }).delegate('.kvov', 'mouseover',function (e) {
+                    $(this).addClass('x-hover');
+                    return false;
+                }).delegate('.kvov', 'mouseout', function (e) {
+                    $(this).removeClass('x-hover');
+                });
 
             JsonFormatEntrance.clear();
             JsonFormatEntrance.format(source);
