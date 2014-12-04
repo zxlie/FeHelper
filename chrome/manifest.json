@@ -1,6 +1,6 @@
 { 
 	"name": "WEB前端助手(FeHelper)", 
-	"version": "5.6",
+	"version": "5.7",
     "manifest_version": 2,
 	 
 	"default_locale": "zh_CN", 
