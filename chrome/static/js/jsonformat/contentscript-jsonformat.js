@@ -152,38 +152,6 @@ baidu.csJsonFormat = (function () {
                 $('#jfCallbackName_start').html(funcName + '(');
                 $('#jfCallbackName_end').html(')');
             }
-
-            // 支持数据下载
-            _downloadJsonFile(jsonObj);
-        }
-    };
-
-    /**
-     * 下载数据
-     * @param json
-     * @private
-     */
-    var _downloadJsonFile = function (json) {
-        try {
-            window.webkitRequestFileSystem(window.TEMPORARY, 10 * 1024 * 1024, function (fs) {
-                var dir = (+new Date).toString(36);
-                var name = +new Date() + '.json';
-                fs.root.getDirectory(dir, {create:true}, function (dirEntry) {
-                    var file = dir + '/' + name;
-                    fs.root.getFile(file, {create:true}, function (fileEntry) {
-                        fileEntry.createWriter(function (fileWriter) {
-                            // 数据写入完成后显示下载链接
-                            fileWriter.onwriteend = function () {
-                                $('#optionBar').prepend('<a href="' + fileEntry.toURL() + '" id="btnDownload" target="_blank" ' +
-                                    'title="在新页面Ctrl+S保存到本地">下载JSON数据</a>');
-                            };
-                            var blob = new Blob([JSON.stringify(json, null, 8) ], {type:'application/octet-stream'});
-                            fileWriter.write(blob);
-                        });
-                    });
-                });
-            });
-        } catch (e) {
         }
     };
 

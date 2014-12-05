@@ -32,8 +32,8 @@ var Timestamp = (function(){
                 alert('年月日时分秒均不能为空！');
                 return;
             }
-            if(!parseInt(year,10) || !parseInt(month,10) || !parseInt(day,10) ||
-                !parseInt(hour,10) || !parseInt(minute,10) || !parseInt(second,10)) {
+            if(isNaN(parseInt(year,10)) || isNaN(parseInt(month,10)) || isNaN(parseInt(day,10)) ||
+                isNaN(parseInt(hour,10)) || isNaN(parseInt(minute,10)) || isNaN(parseInt(second,10))) {
                 alert('请输入合法的时间！');
                 return;
             }
