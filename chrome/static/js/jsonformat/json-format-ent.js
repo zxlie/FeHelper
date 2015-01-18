@@ -80,12 +80,15 @@ var JsonFormatEntrance = (function () {
 
                 // Create toggleFormat button
                 var buttonPlain = document.createElement('button'),
-                    buttonFormatted = document.createElement('button');
+                    buttonFormatted = document.createElement('button'),
+                    buttonCollapseAll = document.createElement('button');
                 buttonPlain.id = 'buttonPlain';
                 buttonPlain.innerText = '元数据';
                 buttonFormatted.id = 'buttonFormatted';
                 buttonFormatted.innerText = '格式化';
                 buttonFormatted.classList.add('selected');
+                buttonCollapseAll.id = 'buttonCollapseAll';
+                buttonCollapseAll.innerText = '折叠所有'
 
                 var plainOn = false;
                 buttonPlain.addEventListener('click', function () {
@@ -112,9 +115,23 @@ var JsonFormatEntrance = (function () {
                     }
                 }, false);
 
+                buttonCollapseAll.addEventListener('click', function () {
+                    // When collapaseAll button clicked...
+                    if (!plainOn) {
+                        if(buttonCollapseAll.innerText == '折叠所有'){
+                            buttonCollapseAll.innerText = '展开所有';
+                            collapse(document.getElementsByClassName('objProp'));
+                        }else{
+                            buttonCollapseAll.innerText = '折叠所有';
+                            expand(document.getElementsByClassName('objProp'));
+                        }
+                    }
+                }, false);
+
                 // Put it in optionBar
                 optionBar.appendChild(buttonPlain);
                 optionBar.appendChild(buttonFormatted);
+                optionBar.appendChild(buttonCollapseAll);
 
                 // Attach event handlers
                 document.addEventListener('click', generalClick, false);
@@ -144,7 +161,7 @@ var JsonFormatEntrance = (function () {
     var lastKvovIdGiven = 0;
 
     function collapse(elements) {
-        // console.log('elements', elements) ;
+        console.log('elements', elements) ;
 
         var el, i, blockInner, count;
 
