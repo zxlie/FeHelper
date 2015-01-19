@@ -79,40 +79,31 @@ var JsonFormatEntrance = (function () {
                 optionBar.id = 'optionBar';
 
                 // Create toggleFormat button
-                var buttonPlain = document.createElement('button'),
-                    buttonFormatted = document.createElement('button'),
+                var buttonFormatted = document.createElement('button'),
                     buttonCollapseAll = document.createElement('button');
-                buttonPlain.id = 'buttonPlain';
-                buttonPlain.innerText = '元数据';
                 buttonFormatted.id = 'buttonFormatted';
                 buttonFormatted.innerText = '格式化';
                 buttonFormatted.classList.add('selected');
                 buttonCollapseAll.id = 'buttonCollapseAll';
-                buttonCollapseAll.innerText = '折叠所有'
+                buttonCollapseAll.innerText = '折叠所有';
 
                 var plainOn = false;
-                buttonPlain.addEventListener('click', function () {
-                    // When plain button clicked...
-                    if (!plainOn) {
-                        plainOn = true;
-                        pre.style.display = "";
-                        jfContent.style.display = "none";
-
-                        buttonFormatted.classList.remove('selected');
-                        buttonPlain.classList.add('selected');
-                    }
-                }, false);
-
                 buttonFormatted.addEventListener('click', function () {
                     // When formatted button clicked...
                     if (plainOn) {
                         plainOn = false;
                         pre.style.display = "none";
                         jfContent.style.display = "";
-
-                        buttonFormatted.classList.add('selected');
-                        buttonPlain.classList.remove('selected');
+                        $(this).text('元数据');
+                    }else{
+                        plainOn = true;
+                        pre.style.display = "";
+                        jfContent.style.display = "none";
+                        $(this).text('格式化');
                     }
+
+                    $(this).parent().find('button').removeClass('selected');
+                    $(this).addClass('selected');
                 }, false);
 
                 buttonCollapseAll.addEventListener('click', function () {
@@ -125,11 +116,13 @@ var JsonFormatEntrance = (function () {
                             buttonCollapseAll.innerText = '折叠所有';
                             expand(document.getElementsByClassName('objProp'));
                         }
+
+                        $(this).parent().find('button').removeClass('selected');
+                        $(this).addClass('selected');
                     }
                 }, false);
 
                 // Put it in optionBar
-                optionBar.appendChild(buttonPlain);
                 optionBar.appendChild(buttonFormatted);
                 optionBar.appendChild(buttonCollapseAll);
 
@@ -161,8 +154,6 @@ var JsonFormatEntrance = (function () {
     var lastKvovIdGiven = 0;
 
     function collapse(elements) {
-        console.log('elements', elements) ;
-
         var el, i, blockInner, count;
 
         for (i = elements.length - 1; i >= 0; i--) {
@@ -313,7 +304,7 @@ var JsonFormatEntrance = (function () {
             pre.id = 'jfContent_pre';
             document.body.appendChild(pre);
         }
-        pre.innerHTML = jsonStr;
+        pre.innerHTML = JSON.stringify(JSON.parse(jsonStr),null,4);
         pre.style.display = "none";
 
         jfStyleEl = document.getElementById('jfStyleEl');
