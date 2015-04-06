@@ -17,28 +17,16 @@ var Timestamp = (function(){
                 alert('请输入合法的Unix时间戳');
                 return;
             }
-            $('#txtDesDate').val((new Date(parseInt(stamp,10))).format('yyyy-MM-dd HH:mm:ss'));
+            $('#txtDesDate').val((new Date(parseInt(stamp,10) * 1000)).format('yyyy-MM-dd HH:mm:ss'));
         });
 
         $('#btnLocaleToStamp').click(function(e) {
-            var year = $.trim($('#txtSrcYear').val());
-            var month = $.trim($('#txtSrcMonth').val());
-            var day = $.trim($('#txtSrcDay').val());
-            var hour = $.trim($('#txtSrcHour').val());
-            var minute = $.trim($('#txtSrcMinute').val());
-            var second = $.trim($('#txtSrcSecond').val());
-            if(year.length == 0 || month.length == 0 || day.length == 0 ||
-                hour.length == 0 || minute.length == 0 || second.length == 0 ) {
-                alert('年月日时分秒均不能为空！');
-                return;
+            var locale = $.trim($('#txtLocale').val());
+            locale = Date.parse(locale);
+            if(isNaN(locale)) {
+                alert('请输入合法的时间格式，如：2014-04-01 10:01:01，或：2014-01-01');
             }
-            if(isNaN(parseInt(year,10)) || isNaN(parseInt(month,10)) || isNaN(parseInt(day,10)) ||
-                isNaN(parseInt(hour,10)) || isNaN(parseInt(minute,10)) || isNaN(parseInt(second,10))) {
-                alert('请输入合法的时间！');
-                return;
-            }
-            var dateString = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
-            $('#txtDesStamp').val(Date.parse(dateString));
+            $('#txtDesStamp').val(locale / 1000);
         });
 	};
 
@@ -47,7 +35,7 @@ var Timestamp = (function(){
         var txtNowStamp = $('#txtNow');
         window.setInterval(function(){
             txtNowDate.val((new Date()).toLocaleString());
-            txtNowStamp.val(Math.round((new Date()).getTime()));
+            txtNowStamp.val(Math.round((new Date()).getTime() / 1000));
         },1000);
     };
 

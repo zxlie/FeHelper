@@ -33,7 +33,7 @@ baidu.csJsonFormat = (function () {
      * @private
      */
     var _getJsonText = function () {
-        var pre = $('body>pre:eq(0)')[0] || {textContent:""};
+        var pre = $('body>pre:eq(0)')[0] || {textContent: ""};
         var source = $.trim(pre.textContent);
         if (!source) {
             source = $.trim(document.body.textContent || '')
@@ -91,32 +91,34 @@ baidu.csJsonFormat = (function () {
 
         // 下面校验给定字符串是否为一个合法的json
         try {
-            jsonObj = new Function("return " + source)();
-
-            // 还要防止下面这种情况：  "{\"ret\":\"0\", \"msg\":\"ok\"}"
-            if (typeof jsonObj == "string") {
-                // 再来一次
-                jsonObj = new Function("return " + jsonObj)();
-            }
-        } catch (ex) {
             // 再看看是不是jsonp的格式
             var reg = /^([\w\.]+)\(\s*([\s\S]*)\s*\)$/igm;
             var matches = reg.exec(source);
-            if (matches == null) {
-                return;
+            if (matches != null) {
+                funcName = matches[1];
+                var newSource = matches[2];
+                jsonObj = new Function("return " + newSource)();
             }
+        } catch (ex) {
+            return;
+        }
 
-            funcName = matches[1];
-            source = matches[2];
-            try {
+        try {
+            if(jsonObj == null || typeof jsonObj != 'object') {
                 jsonObj = new Function("return " + source)();
-            } catch (e) {
-                return;
+
+                // 还要防止下面这种情况：  "{\"ret\":\"0\", \"msg\":\"ok\"}"
+                if (typeof jsonObj == "string") {
+                    // 再来一次
+                    jsonObj = new Function("return " + jsonObj)();
+                }
             }
+        } catch (e) {
+            return;
         }
 
         // 是json格式，可以进行JSON自动格式化
-        if (typeof jsonObj == "object") {
+        if (jsonObj != null && typeof jsonObj == "object") {
             try {
                 // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
                 source = JSON.stringify(jsonObj);
@@ -129,7 +131,7 @@ baidu.csJsonFormat = (function () {
             _loadCss();
 
             // 点击区块高亮
-            $('#jfContent').delegate('.kvov', 'click',function (e) {
+            $('#jfContent').delegate('.kvov', 'click', function (e) {
                 $('#jfContent .kvov').removeClass('x-outline');
                 $(this).removeClass('x-hover').addClass('x-outline');
                 if (!$(e.target).is('.kvov .e')) {
@@ -137,12 +139,12 @@ baidu.csJsonFormat = (function () {
                 } else {
                     $(e.target).parent().trigger('click');
                 }
-            }).delegate('.kvov', 'mouseover',function (e) {
-                    $(this).addClass('x-hover');
-                    return false;
-                }).delegate('.kvov', 'mouseout', function (e) {
-                    $(this).removeClass('x-hover');
-                });
+            }).delegate('.kvov', 'mouseover', function (e) {
+                $(this).addClass('x-hover');
+                return false;
+            }).delegate('.kvov', 'mouseout', function (e) {
+                $(this).removeClass('x-hover');
+            });
 
             JsonFormatEntrance.clear();
             JsonFormatEntrance.format(source);
@@ -164,7 +166,7 @@ baidu.csJsonFormat = (function () {
     };
 
     return {
-        init:_init
+        init: _init
     };
 })();
 

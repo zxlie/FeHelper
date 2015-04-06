@@ -223,30 +223,34 @@ var BgPageInstance = (function () {
     var _createContextMenu = function () {
         _removeContextMenu();
         baidu.contextMenuId = chrome.contextMenus.create({
-            title:"FeHelper-FE助手"
+            title:"FeHelper"
         });
         chrome.contextMenus.create({
-            title:"编码检测",
+            title:"JSON格式化",
             parentId:baidu.contextMenuId,
             onclick:function (info, tab) {
-                //编码检测
-                _doFcpDetect(tab);
+                _openFileAndRun(tab,'jsonformat');
             }
         });
         chrome.contextMenus.create({
-            title:"栅格检测",
+            title:"字符串编解码",
             parentId:baidu.contextMenuId,
             onclick:function (info, tab) {
-                //执行栅格检测
-                _doGridDetect(tab);
+                _openFileAndRun(tab,'endecode');
             }
         });
         chrome.contextMenus.create({
-            title:"网页加载耗时",
+            title:"二维码生成",
             parentId:baidu.contextMenuId,
             onclick:function (info, tab) {
-                //网页加载耗时
-                _getPageWpoInfo();
+                _openFileAndRun(tab,'qrcode');
+            }
+        });
+        chrome.contextMenus.create({
+            title:"代码美化工具",
+            parentId:baidu.contextMenuId,
+            onclick:function (info, tab) {
+                _openFileAndRun(tab,'codebeautify');
             }
         });
     };
@@ -266,7 +270,7 @@ var BgPageInstance = (function () {
     var _createOrRemoveContextMenu = function () {
 
         //管理右键菜单
-        if (baidu.feOption.getOptionItem('opt_item_contextMenus') === 'true') {
+        if (baidu.feOption.getOptionItem('opt_item_contextMenus') !== 'false') {
             _createContextMenu();
         } else {
             _removeContextMenu();
