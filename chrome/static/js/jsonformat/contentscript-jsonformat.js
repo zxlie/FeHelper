@@ -45,33 +45,27 @@ baidu.csJsonFormat = (function () {
         // 如果body的内容还包含HTML标签，肯定不是合法的json了
         // 如果是合法的json，也只可能有一个text节点
         var nodes = document.body.childNodes;
-        var json_text_detected = false;
+        var newSource = '';
         for (var i = 0, len = nodes.length; i < len; i++) {
             if (nodes[i].nodeType == Node.TEXT_NODE) {
-                if (!json_text_detected) {
-                    source = nodes[i].textContent;
-                    json_text_detected = true;
-                } else {
-                    return;
-                }
+                newSource += nodes[i].textContent;
             } else if (nodes[i].nodeType == Node.ELEMENT_NODE) {
                 var tagName = nodes[i].tagName.toLowerCase();
                 var html = $.trim(nodes[i].textContent);
                 // 如果是pre标签，则看内容是不是和source一样，一样则continue
                 if (tagName === 'pre' && html === source) {
                     continue;
-                }
-                // 如果用户安装迅雷或者其他的插件，也回破坏页面结构，需要兼容一下
-                else if (tagName === 'embed' && nodes[i].offsetWidth === 0) {
+                } else if (tagName === 'embed' && nodes[i].offsetWidth === 0) {
+                    // 如果用户安装迅雷或者其他的插件，也回破坏页面结构，需要兼容一下
                     continue;
                 } else {
-                    return;
+                    return false;
                 }
             } else {
-                return;
+                return false;
             }
         }
-        return source;
+        return newSource || source;
     };
 
     /**
@@ -104,7 +98,7 @@ baidu.csJsonFormat = (function () {
         }
 
         try {
-            if(jsonObj == null || typeof jsonObj != 'object') {
+            if (jsonObj == null || typeof jsonObj != 'object') {
                 jsonObj = new Function("return " + source)();
 
                 // 还要防止下面这种情况：  "{\"ret\":\"0\", \"msg\":\"ok\"}"
