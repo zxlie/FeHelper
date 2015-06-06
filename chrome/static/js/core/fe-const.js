@@ -61,6 +61,8 @@ const MSG_TYPE = {
 
     FROM_POPUP : 'from_popup_action',
 
+    TAB_CREATED_OR_UPDATED: 'tab_created_or_updated',
+
     ////////////////////如下是popup中的menu，value和filename相同///////////////////
     REGEXP_TOOL : 'regexp',
     //字符串编解码
@@ -218,7 +220,7 @@ const HTML_DEPRECATED_TAGS = {
     u: "定义下划线文本",
     xmp: "定义预格式文本",
     layer: "定义层"
-}
+};
 
 /**
  * 过时的HTML属性，HTML5已经不再支持
@@ -320,87 +322,3 @@ const SELF_CLOSING_TAGS = [
 	'col','input','img','br',
 	'hr','param','embed'
 ];
-
-/**
- * 限定HTML嵌套的最大深度为30
- * @type Number
- */
-const HTML_DOM_MAX_DEPTH = 30;
-
-/**
- * 统计项
- */
-const LOG = {
-	//选项页面：【打开】
-	options_page_opened			:	"m_20111124_options_page_opened",
-	//选项页面：【保存】
-	options_page_btnsave		:	"m_20111124_options_page_btnsave",
-	//选项页面：【关闭】
-	options_page_btnclose		:	"m_20111124_options_page_btnclose",
-	
-	//popup页面：【显示】
-	popup_page_show				:	"m_20111124_popup_page_show",
-	//popup页面：【编码规范检测】
-	popup_page_fcp				:	"m_20111124_popup_page_fcp",
-	//popup页面：【栅格规范检测】
-	popup_page_grid				:	"m_20111124_popup_page_grid",
-	//popup页面：【FE文档检索】
-	popup_page_fdp				:	"m_20111124_popup_page_fdp",
-	//popup页面：【字符串编解码】
-	popup_page_endecode			:	"m_20111124_popup_page_endecode",
-	//popup页面：【网页加载耗时】
-	popup_page_loadtime			:	"m_20111124_popup_page_loadtime",
-	
-	//编解码工具：【打开】
-	endecode_page_opened		:	"m_20111124_endecode_page_opened",
-	//编解码工具：【Unicode编码】
-	endecode_page_uniEncode		:	"m_20111124_endecode_page_uniEncode",
-	//编解码工具：【Unicode解码】
-	endecode_page_uniDecode		:	"m_20111124_endecode_page_uniDecode",
-	//编解码工具：【UTF-8编码】
-	endecode_page_utf8Encode	:	"m_20111124_endecode_page_utf8Encode",
-	//编解码工具：【UTF-8解码】
-	endecode_page_utf8Decode	:	"m_20111124_endecode_page_utf8Decode",
-	//编解码工具：【Base64编码】
-	endecode_page_base64Encode	:	"m_20111124_endecode_page_base64Encode",
-	//编解码工具：【base64解码】
-	endecode_page_base64Decode	:	"m_20111124_endecode_page_base64Decode",
-	//编解码工具：【转换】
-	endecode_page_btnchange		:	"m_20111124_endecode_page_btnchange",
-	//编解码工具：【清空】
-	endecode_page_btnclear		:	"m_20111124_endecode_page_btnclear",
-	
-	//文档检索：【打开】
-	fdp_page_opened				:	"m_20111124_fdp_page_opened",
-	//文档检索：【空间FE文档】
-	fdp_page_spacedoc			:	"m_20111124_fdp_page_spacedoc",
-	//文档检索：【大FE文档】
-	fdp_page_fedoc				:	"m_20111124_fdp_page_fedoc",
-	//文档检索：【检索】
-	fdp_page_btnsearch			:	"m_20111124_fdp_page_btnsearch",
-	
-	//编码规范检测：【显示层】
-	fcp_detect_show				:	"m_20111124_fcp_detect_show",
-	//编码规范检测：【关闭检测结果】
-	fcp_detect_close			:	"m_20111124_fcp_detect_close",
-	//编码规范检测：【最小化检测结果】
-	fcp_detect_min				:	"m_20111124_fcp_detect_min",
-	//编码规范检测：【最大化检测结果】
-	fcp_detect_max				:	"m_20111124_fcp_detect_max",
-	//编码规范检测：【更多HTML规范】
-	fcp_detect_morehtml			:	"m_20111124_fcp_detect_morehtml",
-	//编码规范检测：【更多css规范】
-	fcp_detect_morecss			:	"m_20111124_fcp_detect_morecss",
-	//编码规范检测：【更多js规范】
-	fcp_detect_morejs			:	"m_20111124_fcp_detect_morejs",
-	
-	//栅格检测：【显示层】
-	grid_detect_show			:	"m_20111124_grid_detect_show",
-	//栅格检测：【ESC】
-	grid_detect_esc				:	"m_20111124_grid_detect_esc",
-	//栅格检测：【关闭栅格】
-	grid_detect_btnclose		:	"m_20111124_grid_detect_btnclose",
-	
-	//每天使用人数【粗略统计】
-	fehelper_user_count			:	"m_20111124_fehelper_user_count"
-};

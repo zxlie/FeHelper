@@ -16,23 +16,15 @@
         <legend>选项</legend>
         <div id="tabs">
             <ul>
-                <li><a href="#tabs-0">网址</a></li>
                 <li><a href="#tabs-1">文本内容</a></li>
                 <li><a href="#tabs-2">电话号码</a></li>
                 <li><a href="#tabs-3">短信&amp;彩信</a></li>
                 <li><a href="#tabs-4">邮件地址</a></li>
                 <li><a href="#tabs-5">通讯录</a></li>
             </ul>
-            <div id="tabs-0">
-                <p>
-                    <label for="tab0_url">网址：</label>
-                    <textarea name="tab0_url" id="tab0_url" placeholder="在这里输入网址"></textarea>
-                </p>
-            </div>
             <div id="tabs-1">
                 <p>
-                    <label for="tab1_text">文字内容：</label>
-                    <textarea name="tab1_text" id="tab1_text" placeholder="在这里输入文字"></textarea>
+                    <textarea name="tab1_text" id="tab1_text" placeholder="可在这里输入文字、网址等"></textarea>
                 </p>
             </div>
             <div id="tabs-2">
@@ -100,13 +92,17 @@
         <div id="options">
             <input type="button" name="button" id="confirm_button" value="生成QR图"/>
             <p>
-                <span>尺寸：
-                    <input name="opt_width" type="text" id="opt_width" value="200" size="4" maxlength="4"/>
-                    x
-                    <input name="opt_height" type="text" id="opt_height" value="200" size="4" maxlength="4"/>
+                <span>
+                    尺寸：<input name="opt_width" type="text" id="opt_width" value="200" size="4" maxlength="4"/>
                 </span>
                 <span style="margin-left: 20px">
-                    颜色:<input type="text" id="opt_fc" value="#000000" size="10" readonly/>
+                    颜色：<input type="text" id="opt_fc" value="#000000" size="10" readonly/>
+                </span>
+                <span style="margin-left: 20px">
+                    图标：<input id="remove_icon" name="qr_icon" type="radio" value="0" checked><label for="remove_icon">不要</label>
+                    <input id="default_icon" name="qr_icon" type="radio" value="1"><label for="default_icon">默认</label>
+                    <input id="upload_icon" name="qr_icon" type="radio" value="2"><label for="upload_icon">上传</label>
+                    (提示:支持直接拖拽一个图标到页面)
                 </span>
             </p>
         </div>
@@ -119,5 +115,13 @@
         <div id="preview"></div>
     </fieldset>
 
+    <div class="x-logo">
+        <img src="../static/img/fe-48.png" alt="#" id="logo_default"/>
+        <img src="../static/img/fe-48.png" alt="#" id="logo"/>
+
+        <form action="#">
+            <input type="file" id="file" accept=".jpg,.jpeg,.gif,.png,.bmp">
+        </form>
+    </div>
 </body>
 </html>

@@ -141,3 +141,8 @@ html body {
     outline:1px solid #6ac;
     background: #f9f9f9;
 }
+#errorMsg {
+    margin-top: 10px;
+    float: left;
+    color: #f00;
+}

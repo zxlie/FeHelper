@@ -14,7 +14,7 @@
                 <fieldset>
                     <legend>JSON格式化查看：请在下面粘贴你的JSON字符串</legend>
                     <textarea id="jsonSource" placeholder="在这里粘贴您需要进行格式化的JSON代码"></textarea>
-                    <div><button id="btnFormat" class="-e-btn">格式化</button></div>
+                    <div><span id="errorMsg"></span><button id="btnFormat" class="-e-btn">格式化</button></div>
                 </fieldset>
             </div>
 
@@ -25,8 +25,10 @@
                     </svg>
                     加载中...
                 </div>
+                <div id="jfCallbackName_start" class="callback-name"></div>
                 <div id="jfContent"></div>
                 <pre id="jfContent_pre"></pre>
+                <div id="jfCallbackName_end" class="callback-name"></div>
             </div>
         </div>
     </body>

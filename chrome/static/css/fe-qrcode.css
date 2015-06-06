@@ -12,12 +12,8 @@ html {
     font-size: 12px;
 }
 
-#tab0_url{
-    width: 350px;
-    height: 50px;
-}
 #tab1_text {
-    width:350px;
+    width:700px;
     height:80px;
 }
 #confirm_button {
@@ -33,7 +29,7 @@ label {
     display: inline-block;
 }
 #tabs-5 input {
-    width: 300px;
+    width: 500px;
 }
 
 #fieldset_qr {
@@ -54,10 +50,18 @@ legend {
     color: #b00;
 }
 textarea {
-    width: 350px;
+    width: 600px;
     height: 50px;
 }
 canvas {
     border: 1px solid #ddd;
     padding: 10px;
+}
+.x-logo {
+    position: absolute;
+    left: -10000px;
+    top:-10000px;
+}
+#opt_fc {
+    width:56px;
 }

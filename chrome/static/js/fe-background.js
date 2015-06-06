@@ -6,10 +6,10 @@ var BgPageInstance = (function () {
 
     //各种元素的就绪情况
     var _readyState = {
-        css:false,
-        js:false,
-        html:true,
-        allDone:false
+        css: false,
+        js: false,
+        html: true,
+        allDone: false
     };
 
     //侦测的interval
@@ -33,14 +33,14 @@ var BgPageInstance = (function () {
         //所有元素都准备就绪
         if (_readyState.allDone) {
             chrome.tabs.sendMessage(tab.id, {
-                type:MSG_TYPE.BROWSER_CLICKED,
-                event:MSG_TYPE.FCP_HELPER_DETECT
+                type: MSG_TYPE.BROWSER_CLICKED,
+                event: MSG_TYPE.FCP_HELPER_DETECT
             });
         } else {
             //正在准备数据，请稍等...
             //显示桌面提醒
             baidu.feNotification.notifyText({
-                message:"正在准备数据，请稍等..."
+                message: "正在准备数据，请稍等..."
             });
         }
     };
@@ -50,8 +50,8 @@ var BgPageInstance = (function () {
      */
     var _doGridDetect = function (tab) {
         chrome.tabs.sendMessage(tab.id, {
-            type:MSG_TYPE.BROWSER_CLICKED,
-            event:MSG_TYPE.GRID_DETECT
+            type: MSG_TYPE.BROWSER_CLICKED,
+            event: MSG_TYPE.GRID_DETECT
         });
     };
 
@@ -65,7 +65,7 @@ var BgPageInstance = (function () {
      * 查看页面wpo信息
      */
     var _showPageWpoInfo = function (wpoInfo) {
-        chrome.tabs.query({active:true, currentWindow:true}, function (tabs) {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             var tab = tabs[0];
             try {
                 _notificationCache[tab.id].cancel();
@@ -73,15 +73,15 @@ var BgPageInstance = (function () {
             }
             if (!wpoInfo) {
                 baidu.feNotification.notifyText({
-                    message:"对不起，检测失败"
+                    message: "对不起，检测失败"
                 });
             } else {
                 if (window.webkitNotifications && webkitNotifications.createHTMLNotification) {
                     baidu.feNotification.notifyHtml("template/fehelper_wpo.html?" + JSON.stringify(wpoInfo));
                 } else {
                     chrome.tabs.create({
-                        url:"template/fehelper_wpo.html?" + JSON.stringify(wpoInfo),
-                        active:true
+                        url: "template/fehelper_wpo.html?" + JSON.stringify(wpoInfo),
+                        active: true
                     });
                 }
             }
@@ -93,15 +93,15 @@ var BgPageInstance = (function () {
      * @return {[type]}
      */
     var _getPageWpoInfo = function () {
-        chrome.tabs.query({active:true, currentWindow:true}, function (tabs) {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             var tab = tabs[0];
             //显示桌面提醒
             _notificationCache[tab.id] = baidu.feNotification.notifyText({
-                message:"正在统计，请稍后...",
-                autoClose:false
+                message: "正在统计，请稍后...",
+                autoClose: false
             });
             chrome.tabs.sendMessage(tab.id, {
-                type:MSG_TYPE.GET_PAGE_WPO_INFO
+                type: MSG_TYPE.GET_PAGE_WPO_INFO
             });
         });
     };
@@ -111,15 +111,15 @@ var BgPageInstance = (function () {
      * @private
      */
     var _doJsTracker = function () {
-        chrome.tabs.query({active:true, currentWindow:true}, function (tabs) {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             var tab = tabs[0];
             chrome.tabs.executeScript(tab.id, {
-                code:"void function(t,r,a,c,k){t.tracker_type='bm';t.tracker_uid='fehelper';"
-                    + "(k=t.TrackerGlobalEvent)?k.f(r):[(k=t[a]('script')).charset='utf-8',"
-                    + "k.src='http://www.ucren.com/'+c+'/'+c+'.js?'+Math.random(),"
-                    + "t.documentElement.appendChild(k)]}(document,'TrackerJSLoad','createElement','tracker') ",
-                allFrames:false,
-                runAt:'document_end'
+                code: "void function(t,r,a,c,k){t.tracker_type='bm';t.tracker_uid='fehelper';"
+                + "(k=t.TrackerGlobalEvent)?k.f(r):[(k=t[a]('script')).charset='utf-8',"
+                + "k.src='http://www.ucren.com/'+c+'/'+c+'.js?'+Math.random(),"
+                + "t.documentElement.appendChild(k)]}(document,'TrackerJSLoad','createElement','tracker') ",
+                allFrames: false,
+                runAt: 'document_end'
             });
         });
     };
@@ -130,7 +130,7 @@ var BgPageInstance = (function () {
      */
     var _goCompressTool = function () {
         var url = "http://www.baidufe.com/fehelper/codecompress.html";
-        chrome.tabs.query({windowId:chrome.windows.WINDOW_ID_CURRENT }, function (tabs) {
+        chrome.tabs.query({windowId: chrome.windows.WINDOW_ID_CURRENT}, function (tabs) {
             var isOpened = false;
             var tabId;
             var reg = new RegExp("fehelper.*codecompress.html$", "i");
@@ -143,23 +143,42 @@ var BgPageInstance = (function () {
             }
             if (!isOpened) {
                 chrome.tabs.create({
-                    url:url,
-                    active:true
+                    url: url,
+                    active: true
                 });
             } else {
-                chrome.tabs.update(tabId, {highlighted:true});
+                chrome.tabs.update(tabId, {highlighted: true});
             }
         });
+    };
+
+    /**
+     * 创建或更新成功执行的动作
+     * @param evt
+     * @param content
+     * @private
+     */
+    var _tabUpdatedCallback = function (evt, content) {
+        return function (newTab) {
+            if (content) {
+                chrome.tabs.sendMessage(newTab.id, {
+                    type: MSG_TYPE.TAB_CREATED_OR_UPDATED,
+                    content: content,
+                    event: evt
+                });
+            }
+        };
     };
 
     /**
      * 打开对应文件，运行该Helper
      * @param tab
      * @param file
+     * @param txt
      * @private
      */
-    var _openFileAndRun = function (tab, file) {
-        chrome.tabs.query({windowId:chrome.windows.WINDOW_ID_CURRENT }, function (tabs) {
+    var _openFileAndRun = function (tab, file, txt) {
+        chrome.tabs.query({windowId: chrome.windows.WINDOW_ID_CURRENT}, function (tabs) {
             var isOpened = false;
             var tabId;
             var reg = new RegExp("^chrome.*" + file + ".html$", "i");
@@ -172,11 +191,11 @@ var BgPageInstance = (function () {
             }
             if (!isOpened) {
                 chrome.tabs.create({
-                    url:'template/fehelper_' + file + '.html',
-                    active:true
-                });
+                    url: 'template/fehelper_' + file + '.html',
+                    active: true
+                }, _tabUpdatedCallback(file, txt));
             } else {
-                chrome.tabs.update(tabId, {highlighted:true});
+                chrome.tabs.update(tabId, {highlighted: true}, _tabUpdatedCallback(file, txt));
             }
         });
     };
@@ -185,7 +204,7 @@ var BgPageInstance = (function () {
      * 根据给定参数，运行对应的Helper
      */
     var _runHelper = function (config) {
-        chrome.tabs.query({active:true, currentWindow:true}, function (tabs) {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             var tab = tabs[0];
             // 如果是采用独立文件方式访问，直接打开该页面即可
             if (config.useFile == '1') {
@@ -223,34 +242,96 @@ var BgPageInstance = (function () {
     var _createContextMenu = function () {
         _removeContextMenu();
         baidu.contextMenuId = chrome.contextMenus.create({
-            title:"FeHelper"
+            title: "FeHelper",
+            contexts: ['page', 'selection', 'editable', 'link'],
+            documentUrlPatterns:['http://*/*','https://*/*']
         });
         chrome.contextMenus.create({
-            title:"JSON格式化",
-            parentId:baidu.contextMenuId,
-            onclick:function (info, tab) {
-                _openFileAndRun(tab,'jsonformat');
+            title: "JSON格式化",
+            contexts: ['page', 'selection', 'editable'],
+            parentId: baidu.contextMenuId,
+            onclick: function (info, tab) {
+                chrome.tabs.executeScript(tab.id, {
+                    code: '(' + (function () {
+                        return window.getSelection().toString();
+                    }).toString() + ')()',
+                    allFrames: false
+                }, function (txt) {
+                    _openFileAndRun(tab, 'jsonformat', txt);
+                });
             }
         });
         chrome.contextMenus.create({
-            title:"字符串编解码",
-            parentId:baidu.contextMenuId,
-            onclick:function (info, tab) {
-                _openFileAndRun(tab,'endecode');
+            type: 'separator',
+            contexts: ['all'],
+            parentId: baidu.contextMenuId
+        });
+        chrome.contextMenus.create({
+            title: "字符串编解码",
+            contexts: ['page', 'selection', 'editable'],
+            parentId: baidu.contextMenuId,
+            onclick: function (info, tab) {
+                chrome.tabs.executeScript(tab.id, {
+                    code: '(' + (function () {
+                        return window.getSelection().toString();
+                    }).toString() + ')()',
+                    allFrames: false
+                }, function (txt) {
+                    _openFileAndRun(tab, 'endecode', txt);
+                });
             }
         });
         chrome.contextMenus.create({
-            title:"二维码生成",
-            parentId:baidu.contextMenuId,
-            onclick:function (info, tab) {
-                _openFileAndRun(tab,'qrcode');
+            type: 'separator',
+            contexts: ['all'],
+            parentId: baidu.contextMenuId
+        });
+        chrome.contextMenus.create({
+            title: "生成二维码",
+            contexts: ['page', 'selection', 'editable', 'link'],
+            parentId: baidu.contextMenuId,
+            onclick: function (info, tab) {
+                chrome.tabs.executeScript(tab.id, {
+                    code: '(' + (function () {
+                        return window.getSelection().toString() || location.href;
+                    }).toString() + ')()',
+                    allFrames: false
+                }, function (txt) {
+                    _openFileAndRun(tab, 'qrcode', txt);
+                });
             }
         });
         chrome.contextMenus.create({
-            title:"代码美化工具",
-            parentId:baidu.contextMenuId,
-            onclick:function (info, tab) {
-                _openFileAndRun(tab,'codebeautify');
+            type: 'separator',
+            contexts: ['all'],
+            parentId: baidu.contextMenuId
+        });
+        chrome.contextMenus.create({
+            title: "代码格式化",
+            contexts: ['page', 'selection', 'editable'],
+            parentId: baidu.contextMenuId,
+            onclick: function (info, tab) {
+                chrome.tabs.executeScript(tab.id, {
+                    code: '(' + (function () {
+                        return window.getSelection().toString();
+                    }).toString() + ')()',
+                    allFrames: false
+                }, function (txt) {
+                    _openFileAndRun(tab, 'codebeautify', txt);
+                });
+            }
+        });
+        chrome.contextMenus.create({
+            type: 'separator',
+            contexts: ['all'],
+            parentId: baidu.contextMenuId
+        });
+        chrome.contextMenus.create({
+            title: "代码压缩",
+            contexts: ['page', 'selection', 'editable'],
+            parentId: baidu.contextMenuId,
+            onclick: function (info, tab) {
+                _goCompressTool();
             }
         });
     };
@@ -354,8 +435,8 @@ var BgPageInstance = (function () {
     };
 
     return {
-        init:_init,
-        runHelper:_runHelper
+        init: _init,
+        runHelper: _runHelper
     };
 })();
 

@@ -20,6 +20,7 @@
 importScript("js/codebeautify/beautify.js");
 importScript("js/codebeautify/beautify-css.js");
 importScript("js/codebeautify/beautify-html.js");
+importScript("js/core/fe-const.js");
 importScript("js/core/core.js");
 importScript("js/syntaxhighlighter/shCore.js");
 importScript("js/syntaxhighlighter/shBrushCss.js");
