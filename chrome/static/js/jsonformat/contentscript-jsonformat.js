@@ -82,6 +82,7 @@ baidu.csJsonFormat = (function () {
         var funcName = null;
         // json对象
         var jsonObj = null;
+        var newSource = '';
 
         // 下面校验给定字符串是否为一个合法的json
         try {
@@ -90,7 +91,7 @@ baidu.csJsonFormat = (function () {
             var matches = reg.exec(source);
             if (matches != null) {
                 funcName = matches[1];
-                var newSource = matches[2];
+                newSource = matches[2];
                 jsonObj = new Function("return " + newSource)();
             }
         } catch (ex) {
@@ -115,7 +116,11 @@ baidu.csJsonFormat = (function () {
         if (jsonObj != null && typeof jsonObj == "object") {
             try {
                 // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
-                source = JSON.stringify(jsonObj);
+                newSource = JSON.stringify(jsonObj);
+                // 如果newSource的长度比原source长度短很多的话，猜测应该是格式化错了，需要撤销操作
+                if(newSource.length * 2 < source.length) {
+                    return ;
+                }
             } catch (ex) {
                 // 通过JSON反解不出来的，一定有问题
                 return;
@@ -141,7 +146,7 @@ baidu.csJsonFormat = (function () {
             });
 
             JsonFormatEntrance.clear();
-            JsonFormatEntrance.format(source);
+            JsonFormatEntrance.format(newSource);
 
             // 如果是JSONP格式的，需要把方法名也显示出来
             if (funcName != null) {

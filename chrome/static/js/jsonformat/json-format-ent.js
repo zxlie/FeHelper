@@ -107,6 +107,10 @@ var JsonFormatEntrance = (function () {
                 }, false);
 
                 buttonCollapseAll.addEventListener('click', function () {
+                    // 如果内容还没有格式化过，需要再格式化一下
+                    if(plainOn) {
+                        buttonFormatted.click();
+                    }
                     // When collapaseAll button clicked...
                     if (!plainOn) {
                         if(buttonCollapseAll.innerText == '折叠所有'){
