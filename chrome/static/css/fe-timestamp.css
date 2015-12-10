@@ -1,5 +1,5 @@
 html {
-	background:url(../img/baidufe_bj.gif);
+    background:#f9f9f9;
 	font-size: 14px;
 }
 body{
@@ -31,7 +31,6 @@ body{
     height: 26px;
     line-height: 26px;
     padding:0 5px ;
-    font-size: 16px;
 }
 
 #txtNowDate,#txtNow,#txtDesStamp,#txtDesDate {
@@ -44,7 +43,6 @@ body{
     height: 26px;
     line-height: 26px;
     padding:0 5px ;
-    font-size: 16px;
 }
 
 .-e-btn {

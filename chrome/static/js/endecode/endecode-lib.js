@@ -52,7 +52,7 @@ baidu.endecode = (function () {
      * @param {Object} text
      */
     var _uniDecode = function (text) {
-        text = text.replace(/\\/g, "%").replace('%u0025', '%25');
+        text = text.replace(/\\/g, "%").replace('%U','%u').replace('%u0025', '%25');
 
         text = unescape(text.toString().replace(/%2B/g, "+"));
         var matches = text.match(/(%u00([0-9A-F]{2}))/gi);

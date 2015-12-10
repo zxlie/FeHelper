@@ -23,7 +23,7 @@
 #jsonpOpener,#jsonpCloser{padding:4px 0 0 8px;color:black;margin-bottom:-6px}
 #jsonpCloser{margin-top:0}
 #formattedJson{padding-left:28px;padding-top:6px}pre{padding:36px 5px 5px 5px}
-.kvov{display:block;padding-left:20px;margin-left:-20px;position:relative}
+.kvov{display:block;padding-left:20px;margin-left:-20px;position:relative;padding-top: 2px;}
 #jfContent .kvov .s a {
     color:#00b;text-decoration: underline;
 }
@@ -31,7 +31,7 @@
     color:#b00;
 }
 .collapsed{white-space:nowrap}.collapsed>.blockInner{display:none}
-.collapsed>.ell:after{content:"…";font-weight:bold}
+.collapsed>.ell:after{content:"\2026";font-weight:bold}
 .collapsed>.ell{margin:0 4px;color:#888}
 .collapsed .kvov{display:inline}
 .e{width:20px;height:18px;display:block;position:absolute;left:-2px;top:1px;z-index:5;
@@ -59,7 +59,7 @@
 }
 
 html {
-    background:url(../img/baidufe_bj.gif);
+    background: #f9f9f9;
     font-size: 14px;
     color:#333;
     direction: ltr;
@@ -67,6 +67,7 @@ html {
 html body {
     background: inherit;
     direction: inherit;
+    cursor: default;
 }
 .mod-json {
     width:980px;
@@ -90,6 +91,7 @@ html body {
     padding:2px 5px;
     margin:0 auto;
     resize:none;
+    border-color: #ccc;
 }
 .mod-json .format-item button{
     width:80px;
@@ -135,11 +137,13 @@ html body {
 
 #jfContent .x-hover {
     outline:1px solid #cdc;
-    background: #f1f1f1;
+    background: #fff;
 }
 #jfContent .x-outline {
-    outline:1px solid #6ac;
-    background: #f9f9f9;
+    outline:1px solid #8ac;
+    box-shadow: rgba(100, 100, 100, 0.4) -3px 3px 5px;
+    font-weight: bold;
+    background-color: #fffff8;
 }
 #errorMsg {
     margin-top: 10px;

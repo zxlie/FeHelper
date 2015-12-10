@@ -133,6 +133,7 @@ var JsonFormatDealer = (function () {
 
   // Template elements
     var templates,
+        baseDiv = document.createElement('div'),
         baseSpan = document.createElement('span') ;
     
     function getSpanBoth(innerText,className) {
@@ -151,10 +152,15 @@ var JsonFormatDealer = (function () {
       span.className = className ;
       return span ;
     }
+    function getDivClass(className) {
+        var span = baseDiv.cloneNode(false) ;
+        span.className = className ;
+        return span ;
+    }
 
     // Create template nodes
       var templatesObj = {
-        t_kvov: getSpanClass('kvov'),
+        t_kvov: getDivClass('kvov'),
         t_exp: getSpanClass('e'),
         t_key: getSpanClass('k'),
         t_string: getSpanClass('s'),
