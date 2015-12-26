@@ -27,4 +27,3 @@ importScript("js/syntaxhighlighter/shBrushCss.js");
 importScript("js/syntaxhighlighter/shBrushJScript.js");
 importScript("js/syntaxhighlighter/shBrushXml.js");
 importScript("js/codebeautify/codebeautify.js");
-importScript("js/google_analytics.js");

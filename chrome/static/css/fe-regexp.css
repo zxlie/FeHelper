@@ -1,153 +1,115 @@
+@import url("bootstrap.min.css");
+
 html {
-    background:#f9f9f9;
-	font-size: 14px;
+    font-size:14px
 }
-body{
-	font-family:Arial,"simsun";
-	color:#666;
+body {
+    background-color: #eee;
+    font-family:Arial, "simsun";
+    color:#666
 }
-
-.mod-regexp {
-	width:980px;
-	margin:0 auto;
-}
-.mod-regexp fieldset {
-	border : 1px solid #bbb;
-	padding:10px;
-	width:960px;
-	margin-bottom: 10px;
-}
-.mod-regexp fieldset legend {
-	padding:0 5px;
-	color:red;
-}
-
-.-e-x-container {
-	width:980px;
-	margin:0 auto;
-	padding:10px 0 20px 0;
-	min-height:80px;
-}
-.-e-x-radio label:hover {
-	color:#333;
-	cursor:pointer;
-}
-textarea {
-    width:954px;
-    font-size: 14px;
-    resize: none;
-    padding: 4px;
-    font: 100% "courier new",monospace;
-    overflow-y: hidden;
-}
-.-e-x-btn  {
+.pannel-select{
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 255px;
     height: 30px;
-    line-height: 30px;
-    margin-top: 10px;
 }
-.-e-x-btn .-e-x-radio {
-	float:left;
-	font-size:14px;
+.reglist_select{
+    padding: 0 0;
+    height: 24px;
 }
-.-e-x-btn .-e-btn {
-	float:right;
-	height:30px;
-	width:70px;
-	font-size:13px;
-	padding:5px;
-	cursor:pointer;
-    background: #f1f1f1;
-    border: 1px solid #aaa;
-    color: #b00;
+.reg_link{
+    display: inline-block;
+    float: right;
+    text-align: right;
+    font-size: 12px;
+    margin-top: 4px;
 }
-.-e-x-btn .-e-btn:hover {
-    background: #fff;
+.reg_pre{
+    border: none;
+    background: transparent;
 }
-.-e-x-btn .-e-clear-btn {
-	margin-left:20px;
-	font-weight:normal;
-    color: #666;
+.reg_reg_input{
+    resize:none;
 }
-.-e-x-rst {
-    margin: 20px 0;
+.reg_textarea{
+    padding: 0;
+    width: 954px;
+    resize: none;
+    font: 100%"courier new", monospace;
+}
+#srcWrapper{
+    padding: 12px;
+}
+.wrapper #srcBackground{
+    padding: 0;
+}
+.mod-regexp {
+    width: 980px;
+    margin: 0 auto;
+    padding: 0;
+    background: #FFF;
 }
 #srcWrapper {
-    background: #fff;
-    border: 1px solid #aaa;
-    min-height: 50px;
-    position: relative;
+    background:#fff;
+    border:1px solid #ccc;
+    min-height:50px;
+    position:relative;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 }
+
 #srcBackground {
-    padding: 4px;
-    margin: 0;
-    position: absolute;
-    z-index: 1;
-    width: 954px;
+    padding:4px;
+    margin:0;
+    position:absolute;
+    z-index:1;
+    width:954px;
     word-break: break-all;
-    line-height: 14px;
+    line-height:14px;
 }
-#srcBackground i,#srcBackground b{
-    font-style: normal;
-    font-weight: normal;
-    font-size: 14px;
-    margin: 0;
-    padding: 0;
+#srcBackground i, #srcBackground b {
     font: 100% "courier new",monospace;
-    background: #fff;
-    color: #fff;
+    font-style:normal;
+    font-weight:normal;
+    font-size:14px;
+    margin:0;
+    padding:0;
+    background:#fff;
+    color:#fff
 }
 #srcBackground b {
-    background: #dd0;
-    color: #dd0;
+    background:#dd0;
+    color:#dd0
 }
 #srcCode {
-    background: transparent;
-    margin: 0;
-    border: none;
-    font-size: 14px;
-    position: absolute;
-    z-index: 2;
-    outline: none;
-    overflow-y: hidden;
+    background:transparent;
+    margin:0;
+    border:none;
+    font-size:14px;
+    position:relative;
+    z-index:2;
+    outline:none;
+    overflow-y:hidden
 }
+
 #rstCount {
-    color: #f00;
+    color:#f00
 }
 #rstCode {
-    padding: 3px;
-}
-table {
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
-}
-td,th {
-    border: 1px solid #aaa;
-    background: #fff;
-    padding-left: 5px;
-}
-tr:nth-child(2n+1) td{
-    background: #deedf7;
-}
-tr:hover td {
-    background: #f7f7ba;
-}
-td.num,th.num {
-    width: 30px;
-}
-th {
-    background: #2c4359;
-    color: #fff;
-}
-th.num {
-    font-weight: bold;
+    padding:3px
 }
 #regTip {
-    font-size: 12px;
-    color: #d00;
-    display: none;
+    font-size:12px;
+    color:#d00;
+    display:none
 }
 .x-tip {
-    font-size: 12px;
-    color: #00b;
+    font-size:12px;
+    color:#00b
 }

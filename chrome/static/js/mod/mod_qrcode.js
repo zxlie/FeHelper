@@ -21,4 +21,3 @@ importScript("js/core/core.js");
 importScript("js/core/fe-const.js");
 importScript("js/endecode/endecode-lib.js");
 importScript("js/qrcode/fe-qrcode.js");
-importScript("js/google_analytics.js");

@@ -1,70 +1,26 @@
-html {
-    background:#f9f9f9;
-	font-size: 14px;
-}
-body{
-	font-family:Arial,"simsun";
-	color:#666;
-}
+@import url("bootstrap.min.css");
 
-.mod-timestamp {
-	width:950px;
-	margin:20px auto 0;
+.mod-timestamp{
+    width:950px;
+    margin:20px auto 0;
     padding:5px 15px;
-    background: #fff;
-    border: 1px solid #bbb;
+    background:#fff;
+    border:1px solid #bbb
 }
-.mod-timestamp fieldset {
-	border : 1px solid #bbb;
-	margin: 20px 0 50px;
+.mod-timestamp .x-input div{
+    margin:5px 0
 }
-.mod-timestamp fieldset legend {
-	padding:0 5px;
-	color:#000000;
+#txtNowDate,#txtNow,#txtDesStamp,#txtSrcStamp,#txtDesDate,#txtLocale{
+    width:300px;
 }
-.mod-timestamp .x-input div {
-    margin: 5px 0;
+#txtNowDate,#txtNow,#txtDesStamp,#txtDesDate{
+    color:#666;
+    font-weight:500
 }
-
-#txtNowDate,#txtNow,#txtDesStamp,#txtSrcStamp,#txtDesDate,#txtLocale {
-    width: 300px;
-    height: 26px;
-    line-height: 26px;
-    padding:0 5px ;
+#txtSrcYear,#txtSrcMonth,#txtSrcDay,#txtSrcHour,#txtSrcMinute,#txtSrcSecond{
+    width:40px;
 }
 
-#txtNowDate,#txtNow,#txtDesStamp,#txtDesDate {
-    color: #f00;
-    font-weight: bold;
-}
-
-#txtSrcYear,#txtSrcMonth,#txtSrcDay,#txtSrcHour,#txtSrcMinute,#txtSrcSecond {
-    width: 40px;
-    height: 26px;
-    line-height: 26px;
-    padding:0 5px ;
-}
-
-.-e-btn {
-	height:30px;
-	width:70px;
-	font-size:13px;
-	padding:5px;
-	cursor:pointer;
-    background: #f1f1f1;
-    border: 1px solid #aaa;
-    color: #b00;
-    margin: 0 10px;
-}
-.-e-btn:hover {
-    background: #fff;
-}
-
-.-e-x-footer {
-	text-align:center;
-	font-size:12px;
-	margin-top:30px;
-	color:#00c;
-	padding:5px;
-	display:none;
+.mod-time-input{
+    width: 80px;
 }

@@ -1,3 +1,5 @@
+@import url("bootstrap.min.css");
+
 #jfContent{-webkit-user-select:text;margin:0;}
 #optionBar{-webkit-user-select:none;display:block;position:absolute;top:0px;right:0px}
 #buttonFormatted,#buttonPlain,#btnDownload,#buttonCollapseAll{-webkit-border-radius:2px;-webkit-box-shadow:0px 1px 3px rgba(0,0,0,0.1);
@@ -59,39 +61,13 @@
 }
 
 html {
-    background: #f9f9f9;
     font-size: 14px;
     color:#333;
     direction: ltr;
 }
 html body {
-    background: inherit;
     direction: inherit;
     cursor: default;
-}
-.mod-json {
-    width:980px;
-    margin:0 auto;
-    position: relative;
-}
-.mod-json fieldset {
-    border : 1px solid #bbb;
-    margin:0 0 10px;
-}
-.mod-json fieldset legend {
-    padding:0 5px;
-    color:red;
-}
-.mod-json .format-item {
-    line-height: 16px;
-}
-.mod-json .format-item textarea{
-    width:945px;
-    height:120px;
-    padding:2px 5px;
-    margin:0 auto;
-    resize:none;
-    border-color: #ccc;
 }
 .mod-json .format-item button{
     width:80px;
@@ -113,27 +89,13 @@ html body {
     top: 0px;
     left: 0px;
 }
+#jsonSource {
+    height: 120px;
+}
 .mod-json .callback-name {
     font-weight: bolder;
     color: #a00;
 }
-/* ref fe-endecode.css */
-.-e-btn {
-    float:right;
-    height:30px;
-    width:70px;
-    font-size:13px;
-    padding:5px;
-    cursor:pointer;
-    background: #f1f1f1;
-    border: 1px solid #aaa;
-    color: #b00;
-    margin-top: 6px;
-}
-.-e-x-btn .-e-btn:hover {
-    background: #fff;
-}
-/* ref fe-endecode.css END */
 
 #jfContent .x-hover {
     outline:1px solid #cdc;
@@ -149,4 +111,7 @@ html body {
     margin-top: 10px;
     float: left;
     color: #f00;
+}
+#btnDownload{
+    width: 102px;
 }

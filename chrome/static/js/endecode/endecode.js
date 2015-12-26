@@ -25,9 +25,34 @@ baidu.ed = (function () {
             rstCode.val(baidu.endecode.base64Encode(baidu.endecode.utf8Encode(srcText)));
         } else if (jQuery("#base64Decode").attr("checked") == true) {
             rstCode.val(baidu.endecode.utf8Decode(baidu.endecode.base64Decode(srcText)));
-        } else {
+        } else if (jQuery("#md5Encode").attr("checked") == true) {
             rstCode.val(hex_md5(srcText));
+        } else if (jQuery("#html2js").attr("checked") == true) {
+            rstCode.val(html2js(srcText));
         }
+    };
+
+    /**
+     * 将html代码拼接为js代码
+     * @returns {string}
+     */
+    var html2js = function (txt) {
+        var htmlArr = txt.replace(/\\/g, "\\\\").replace(/\\/g, "\\/").replace(/\'/g, "\\\'").split('\n');
+        var len = htmlArr.length;
+        var outArr = [];
+        outArr.push("var htmlCodes = [\n");
+        jQuery.each(htmlArr, function (index, value) {
+            if (value !== "") {
+                if (index === len - 1) {
+                    outArr.push("\'" + value + "\'");
+                } else {
+                    outArr.push("\'" + value + "\',\n");
+                }
+            }
+
+        });
+        outArr.push("\n].join(\"\");");
+        return outArr.join("");
     };
 
     /**

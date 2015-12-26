@@ -20,7 +20,6 @@
 importScript("js/core/core.js");
 importScript("js/core/fe-const.js");
 importScript("js/fe-option.js");
-importScript("js/google_analytics.js");
 
 jQuery(function(){
     baidu.feOption.init();

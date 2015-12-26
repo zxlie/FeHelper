@@ -5,116 +5,62 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="../static/css/fe-qrcode.css" />
     <script type="text/javascript" src="../static/js/core/jquery-1.5.min.js"></script>
-    <link rel="stylesheet" href="../static/vendor/jquery-ui-1.8/css/jquery-ui-1.8.16.custom.color_datauri.css" />
     <script type="text/javascript" src="../static/vendor/jquery-ui-1.8/js/jquery-ui-1.8.11.custom.min.js"></script>
     <script type="text/javascript" src="../static/js/qrcode/jquery.colorpicker.js"></script>
     <script type="text/javascript" src="../static/js/qrcode/jquery.qrcode.min.js"></script>
     <script type="text/javascript" src="../static/js/mod/mod_qrcode.js"></script>
 </head>
 <body>
-    <fieldset id="fieldset_marker">
-        <legend>选项</legend>
-        <div id="tabs">
-            <ul>
-                <li><a href="#tabs-1">文本内容</a></li>
-                <li><a href="#tabs-2">电话号码</a></li>
-                <li><a href="#tabs-3">短信&amp;彩信</a></li>
-                <li><a href="#tabs-4">邮件地址</a></li>
-                <li><a href="#tabs-5">通讯录</a></li>
-            </ul>
-            <div id="tabs-1">
-                <p>
-                    <textarea name="tab1_text" id="tab1_text" placeholder="可在这里输入文字、网址等"></textarea>
-                </p>
-            </div>
-            <div id="tabs-2">
-                <p>
-                    <label for="tab2_telno">电话号码：</label>
-                    <input name="tab2_telno" type="text" id="tab2_telno" size="20" maxlength="50"/>
-                </p>
-            </div>
-            <div id="tabs-3">
-                <p>
-                    <label for="tab3_telno">号码：</label>
-                    <input name="tab3_telno" type="text" id="tab3_telno" size="30"/>
 
-                    <br/>
-                    <label for="tab3_message">信息：</label>
-                    <textarea name="tab3_message" cols="30" rows="4" id="tab3_message"></textarea>
-
-                    <br/>
-                    <label for="smsto">类型：</label>
-                    <input name="tab3_type" type="radio" id="smsto" value="SMSTO" checked="checked"/>
-                    <label for="smsto">短信</label>
-                    <input name="tab3_type" type="radio" id="mmsto" value="MMSTO"/>
-                    <label for="mmsto">彩信</label>
-                </p>
-            </div>
-            <div id="tabs-4">
-                <p>
-                    <label for="tab4_email">邮件地址：</label>
-                    <input name="tab4_email" type="text" id="tab4_email" size="30" maxlength="200"/>
-                </p>
-            </div>
-            <div id="tabs-5">
-                <p>
-                    <label for="tab5_FormattedName">姓　名：</label>
-                    <input type="text" name="tab5_FormattedName" id="tab5_FormattedName"/>
-
-                    <br/>
-                    <label for="tab5_Telephone">电　话：</label>
-                    <input type="text" name="tab5_Telephone" id="tab5_Telephone"/>
-
-                    <br/>
-                    <label for="tab5_Email">邮件地址：</label>
-                    <input type="text" name="tab5_Email" id="tab5_Email"/>
-
-                    <br/>
-                    <label for="tab5_Organization">公司名称：</label>
-                    <input type="text" name="tab5_Organization" id="tab5_Organization"/>
-
-                    <br/>
-                    <label for="tab5_Title">职　位：</label>
-                    <input type="text" name="tab5_Title" id="tab5_Title"/>
-
-                    <br/>
-                    <label for="tab5_Address">联系地址：</label>
-                    <input type="text" name="tab5_Address" id="tab5_Address"/>
-
-                    <br/>
-                    <label for="tab5_URL">网站地址：</label>
-                    <input type="text" name="tab5_URL" id="tab5_URL"/>
-                    <br/>
-                </p>
+    <div class="wrapper">
+        <div class="panel panel-default" style="margin-bottom: 0px;">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a href="http://www.baidufe.com" target="_blank" class="x-a-high">
+                        <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：二维码生成器</h3>
             </div>
         </div>
 
-        <div id="options">
-            <input type="button" name="button" id="confirm_button" value="生成QR图"/>
-            <p>
-                <span>
+        <div class="panel-body mod-json">
+
+            <div class="row">
+                <textarea class="form-control mod-textarea" id="codeSource" placeholder="在这里填写需要生成二维码的任意内容"></textarea>
+            </div>
+
+            <div class="row ui-mt-10">
+
+                <div class="ui-d-ib x-sizes">
                     尺寸：<input name="opt_width" type="text" id="opt_width" value="200" size="4" maxlength="4"/>
-                </span>
-                <span style="margin-left: 20px">
+                </div>
+                <div class="ui-d-ib x-colors">
                     颜色：<input type="text" id="opt_fc" value="#000000" size="10" readonly/>
-                </span>
-                <span style="margin-left: 20px">
-                    图标：<input id="remove_icon" name="qr_icon" type="radio" value="0" checked><label for="remove_icon">不要</label>
-                    <input id="default_icon" name="qr_icon" type="radio" value="1"><label for="default_icon">默认</label>
-                    <input id="upload_icon" name="qr_icon" type="radio" value="2"><label for="upload_icon">上传</label>
+                </div>
+
+                <div class="radio ui-d-ib x-icons">
+                    图标：<label><input id="remove_icon" name="qr_icon" type="radio" value="0" checked>不要</label>
+                </div>
+
+                <div class="radio ui-d-ib ui-ml-10">
+                    <label><input id="default_icon" name="qr_icon" type="radio" value="1">默认</label>
+                </div>
+
+                <div class="radio ui-d-ib ui-ml-10">
+                    <label><input id="upload_icon" name="qr_icon" type="radio" value="2">上传</label>
                     (提示:支持直接拖拽一个图标到页面)
-                </span>
-            </p>
+                </div>
+
+                <button id="confirm_button" class="btn btn-success ui-fl-r">生成QR图</button>
+            </div>
+
+            <div class="row ui-mt-20">
+                <h4>结果</h4>
+                <hr class="x-hr"/>
+                <div id="preview"></div>
+            </div>
+
         </div>
-        <div></div>
-    </fieldset>
 
-    <fieldset id="fieldset_qr">
-        <legend>结果</legend>
-
-        <div id="preview"></div>
-    </fieldset>
-
+    </div>
     <div class="x-logo">
         <img src="../static/img/fe-48.png" alt="#" id="logo_default"/>
         <img src="../static/img/fe-48.png" alt="#" id="logo"/>

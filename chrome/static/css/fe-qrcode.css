@@ -1,57 +1,14 @@
-html {
-    background:#f9f9f9;
-	font-size: 14px;
-	color:#333;
-}
-#fieldset_marker {
-    width:780px;
-    padding:10px;
-    margin:5px auto;
-    line-height: 30px;
-    background: #fff;
-    font-size: 12px;
+@import url("bootstrap.min.css");
+
+.row .x-sizes {
+    margin-right: 20px;
 }
 
-#tab1_text {
-    width:700px;
-    height:80px;
+.row .x-colors {
+    margin-right: 20px;
 }
-#confirm_button {
-    float: right;
-}
-label {
-    font-weight:bold;
-    vertical-align:top;
-}
-#tabs-5 label {
-    width: 100px;
-    text-align: right;
-    display: inline-block;
-}
-#tabs-5 input {
-    width: 500px;
-}
-
-#fieldset_qr {
-    width: 780px;
-    margin:5px auto;
-    background: #fff;
-    display: none;
-}
-#preview{
-    margin:20px;
-    text-align:center;
-}
-fieldset {
-    border: 1px solid #aaa;
-}
-legend {
-    font-size: 14px;
-    color: #b00;
-}
-textarea {
-    width: 600px;
-    height: 50px;
+#codeSource {
+    height: 100px;
 }
 canvas {
     border: 1px solid #ddd;
@@ -62,6 +19,10 @@ canvas {
     left: -10000px;
     top:-10000px;
 }
-#opt_fc {
-    width:56px;
+hr.x-hr  {
+    margin: 2px 0;
+}
+#preview {
+    padding: 5px;
+    text-align: center;
 }

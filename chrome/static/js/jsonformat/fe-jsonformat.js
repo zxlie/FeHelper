@@ -5,18 +5,14 @@ baidu.jsonformat = (function () {
 
     "use strict";
 
-    // 在页面还没加载完成，但消息已经过来的时候，不能使用jquery
-    var _g = function(id){
-        return document.getElementById(id);
-    };
-
     /**
      * 执行format操作
      * @private
      */
     var _format = function () {
-        _g('errorMsg').innerHTML = '';
-        var source = _g('jsonSource').value;
+        $('#errorMsg').html('');
+        $('#modJsonResult').hide();
+        var source = $('#jsonSource').val();
         if (!source) {
             return;
         }
@@ -37,7 +33,7 @@ baidu.jsonformat = (function () {
                 jsonObj = new Function("return " + newSource)();
             }
         } catch (ex) {
-            _g('errorMsg').innerHTML = ex;
+            $('#errorMsg').html(ex.message);
             return;
         }
 
@@ -52,7 +48,7 @@ baidu.jsonformat = (function () {
                 }
             }
         } catch (ex) {
-            _g('errorMsg').innerHTML = ex;
+            $('#errorMsg').html(ex.message);
             return;
         }
 
@@ -68,6 +64,8 @@ baidu.jsonformat = (function () {
 
             JsonFormatEntrance.clear();
             JsonFormatEntrance.format(source);
+
+            $('#modJsonResult').show();
 
             // 如果是JSONP格式的，需要把方法名也显示出来
             if (funcName != null) {

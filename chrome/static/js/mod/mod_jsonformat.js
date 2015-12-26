@@ -22,4 +22,3 @@ importScript("js/core/fe-const.js");
 importScript("js/jsonformat/json-format-dealer.js");
 importScript("js/jsonformat/json-format-ent.js");
 importScript("js/jsonformat/fe-jsonformat.js");
-importScript("js/google_analytics.js");

@@ -10,8 +10,8 @@ $.fn.extend({
     textareaAutoHeight:function (options) {
         this._options = {
             minHeight:0,
-            maxHeight:1000
-        }
+            maxHeight:100000
+        };
 
         this.init = function () {
             for (var p in options) {
@@ -69,8 +69,8 @@ baidu.regexp = (function () {
     }
 
     var _buildTable = function (rstArray) {
-        var tbl = ['<table>'];
-        tbl.push('<tr><th class="num">序号</th><th>匹配结果</th><th>在原字符串中的位置</th></tr>')
+        var tbl = ["<table class='table table-bordered table-striped table-condensed table-hover'>"];
+        tbl.push('<tr class="active"><th class="num">序号</th><th>匹配结果</th><th>在原字符串中的位置</th></tr>')
         $.each(rstArray, function (i, item) {
             tbl.push('<tr id="' + TR_ID_PREFIX + item.index + '" data-index="' + item.index + '">');
             tbl.push('<td class="num">' + (i + 1) + '</td>'
@@ -78,7 +78,7 @@ baidu.regexp = (function () {
                 + '<td class="index">' + item.index + '</td>');
             tbl.push('</tr>');
         });
-        tbl.push('</table>')
+        tbl.push('</table>');
         return tbl.join('');
     };
 
@@ -139,15 +139,15 @@ baidu.regexp = (function () {
     };
 
     var _emptyTable = function (message) {
-        var tbl = ['<table>'];
-        tbl.push('<tr><th class="num">序号</th><th>匹配结果</th></tr>')
+        var tbl = ["<table class='table table-bordered table-striped table-condensed table-hover'>"];
+        tbl.push('<tr class="active"><th class="num">序号</th><th>匹配结果</th></tr>');
         tbl.push('<tr><td colspan="2">' + message + '</td></tr>');
         tbl.push('</table>')
         return tbl.join('');
     };
 
     var _dealRegMatch = function (e) {
-        srcWrapperElm.height(srcElm.height());
+        srcWrapperElm.height(srcElm.height() + 24);
 
         var regTxt = regElm.val().trim();
         var srcTxt = srcElm.val().trim();
@@ -180,7 +180,7 @@ baidu.regexp = (function () {
             } else {
                 rstElm.html(_buildTable(rst));
                 rstCount.html(rst.length + '个');
-                _highlight(srcTxt, rst);
+                _highlight(srcElm.val(), rst);
             }
         }
     };
@@ -198,6 +198,7 @@ baidu.regexp = (function () {
             // 输入框自适应高度
             regElm.textareaAutoHeight({minHeight:34});
             srcElm.textareaAutoHeight({minHeight:50});
+            srcBackgroundElm.textareaAutoHeight({minHeight:50});
 
             // 监听两个输入框的按键、paste、change事件
             $('#regText,#srcCode').keyup(_dealRegMatch).change(_dealRegMatch)

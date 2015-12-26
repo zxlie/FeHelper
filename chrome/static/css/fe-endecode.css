@@ -1,39 +1,8 @@
-html {
-	background:#f9f9f9;
-	font-size: 14px;
-}
-body{
-    font-family: Tahoma, arial, simsun;
-	color:#666;
-}
+@import url("bootstrap.min.css");
 
-.mod-endecode {
-	width:980px;
-	margin:0 auto;
+#srcText {
+    height: 100px;
 }
-.mod-endecode fieldset {
-	border : 1px solid #bbb;
-	padding:10px;
-	width:960px;
-	margin-bottom: 10px;
-}
-.mod-endecode fieldset legend {
-	padding:0 5px;
-	color:red;
-}
-.-e-x-rst {
-    margin: 20px 0;
-	display:none;
-}
-.zxl-ta-rst {
-	width:980px;
-	height:100px;
-}
-.-e-x-footer {
-	text-align:center;
-	font-size:12px;
-	margin-top:30px;
-	color:#00c;
-	padding:5px;
-	display:none;
+#rstCode {
+    height: 280px;
 }

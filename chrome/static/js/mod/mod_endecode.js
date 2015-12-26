@@ -22,4 +22,3 @@ importScript("js/core/fe-const.js");
 importScript("js/endecode/endecode-lib.js");
 importScript("js/endecode/md5.js");
 importScript("js/endecode/endecode.js");
-importScript("js/google_analytics.js");

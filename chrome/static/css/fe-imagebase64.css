@@ -1,5 +1,6 @@
+@import url("bootstrap.min.css");
+
 html {
-    background:#f9f9f9;
 	font-size: 14px;
 }
 body{
@@ -10,24 +11,6 @@ body{
 .mod-imagebase64 {
 	width:980px;
 	margin:0 auto;
-}
-.mod-imagebase64 fieldset {
-	border : 1px solid #bbb;
-	padding:10px;
-	width:960px;
-	margin-bottom: 10px;
-    background: #fff;
-}
-.mod-imagebase64 fieldset legend {
-	padding:0 5px;
-	color:red;
-}
-
-.-e-x-container {
-	width:980px;
-	margin:0 auto;
-	padding:30px 0 50px 0;
-	min-height:400px;
 }
 table {
     width:100%;
@@ -71,7 +54,7 @@ td .x-panel .x-tips {
 #preview {display: none;max-width: 260px;max-height: 260px;margin-top:10px;border:2px solid #ccc;}
 form {display: none}
 td textarea {
-    width: 470px;
+    width: 490px;
     height:405px;
     padding:0;margin:0;
     resize:none;outline:none;
