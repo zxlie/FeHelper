@@ -11,6 +11,9 @@ http://www.baidufe.com/fehelper
 #### 2）、webstore地址
 https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh-cn&utm_source=chrome-ntp
 
+#### 3）、用户反馈渠道
+http://www.baidufe.com/fehelper/feedback.html
+
 ### 2、扩展目前功能：
     a）、网页兼容性检测
     b）、编码规范检测

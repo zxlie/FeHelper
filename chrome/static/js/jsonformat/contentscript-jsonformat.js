@@ -8,7 +8,7 @@ baidu.csJsonFormat = (function () {
     var _htmlFragment = [
         '<div class="mod-json mod-contentscript"><div class="rst-item">',
         '<div id="formatTips">本页JSON数据由FeHelper进行自动格式化，若有任何问题，点击这里提交 ',
-        '<a href="http://www.baidufe.com/item/889639af23968ee688b9.html#comment" target="_blank">意见反馈</a>',
+        '<a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank">意见反馈</a>',
         '</div>',
         '<div id="formattingMsg">',
         '<svg id="spinner" width="16" height="16" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" version="1.1">',

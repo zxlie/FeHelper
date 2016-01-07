@@ -135,7 +135,7 @@ baidu.qrcode = (function () {
      * @private
      */
     var _bindEvents = function () {
-        $("#confirm_button").button().click(function () {
+        $("#confirm_button").click(function () {
             _createQrCode();
         });
 
