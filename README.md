@@ -6,7 +6,7 @@ Web前端助手--FeHelper
 ## 一、官网地址
 http://www.baidufe.com/fehelper
 
-![Web前端助手-FeHelper](http://static.baidufe.com/fehelper/static/img/fehelper/menu.png)
+![Web前端助手-FeHelper](/zxlie/FeHelper/screenshot/menu.png)
 
 ## 二、扩展安装地址：
 ### 1、官方安装地址

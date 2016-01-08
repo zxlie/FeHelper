@@ -6,3 +6,5 @@ chrome/output
 *.zip
 
 chrome/output/fe-helper.zip
+
+.DS_Store
