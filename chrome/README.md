@@ -1,12 +1,12 @@
-Web前端助手--FeHelper
+Web前端助手（FeHelper）
 =============================
 
-> 本插件提供了chrome和sougou浏览器两个版本，其中sougou浏览器版本属于简版，只包含部分工具，代码较简单。搜狗版本基本不需要维护！
+> 本插件提供了chrome和sougou浏览器两个版本，其中sougou浏览器版本属于简版，只包含部分工具，代码较简单
 
 ## 一、官网地址
 http://www.baidufe.com/fehelper
 
-![Web前端助手-FeHelper](http://static.baidufe.com/fehelper/static/img/fehelper/menu.png)
+![Web前端助手-FeHelper](/screenshot/menu.png)
 
 ## 二、扩展安装地址：
 ### 1、官方安装地址
