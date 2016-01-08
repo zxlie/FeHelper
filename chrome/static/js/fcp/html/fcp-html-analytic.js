@@ -38,7 +38,7 @@ baidu.htmlAnalytic = function(){
 	 * @var array
 	 */
 	this.singleTag = [
-		"br", "input", "link", "meta", "!doctype", "basefont", "base", 
+		"br", "input", "link", "meta", "!doctype", "basefont", "base", "col",
 		"area", "hr", "wbr", "param", "img", "isindex", "?xml", "embed"
 	];
 	
