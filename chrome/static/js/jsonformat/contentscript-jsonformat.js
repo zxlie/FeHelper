@@ -69,6 +69,29 @@ baidu.csJsonFormat = (function () {
     };
 
     /**
+     * 此方法用于将Unicode码解码为正常字符串
+     * @param {Object} text
+     */
+    var _uniDecode = function (text) {
+        text = text.replace(/\\/g, "%").replace('%U','%u').replace('%u0025', '%25');
+
+        text = unescape(text.toString().replace(/%2B/g, "+"));
+        var matches = text.match(/(%u00([0-9A-F]{2}))/gi);
+        if (matches) {
+            for (var matchid = 0; matchid < matches.length; matchid++) {
+                var code = matches[matchid].substring(1, 3);
+                var x = Number("0x" + code);
+                if (x >= 128) {
+                    text = text.replace(matches[matchid], code);
+                }
+            }
+        }
+        text = unescape(text.toString().replace(/%2B/g, "+"));
+
+        return text;
+    };
+
+    /**
      * 执行format操作
      * @private
      */
@@ -118,7 +141,8 @@ baidu.csJsonFormat = (function () {
                 // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
                 newSource = JSON.stringify(jsonObj);
                 // 如果newSource的长度比原source长度短很多的话，猜测应该是格式化错了，需要撤销操作
-                if(newSource.length * 2 < source.length) {
+                // 这里一定要unicode decode一下，要不然会出现误判
+                if(newSource.length * 2 < (_uniDecode(source)).length) {
                     return ;
                 }
             } catch (ex) {
