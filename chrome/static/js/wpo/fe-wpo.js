@@ -14,7 +14,7 @@ baidu.pageLoadTime = (function(){
 	var init = function(){
         // 获得wpo信息
         var wpoStr = decodeURIComponent(location.search.substring(1));
-        var wpo = JSON.parse(wpoStr);
+        var wpo = JSON.parse(decodeURIComponent(atob(wpoStr)));
 
         // 页面信息
         document.getElementById("pageTitle").innerHTML = wpo.pageInfo.title || "无";

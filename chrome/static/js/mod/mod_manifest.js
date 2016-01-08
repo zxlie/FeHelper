@@ -30,9 +30,7 @@ importScript("js/fcp/js/fcp-js.js");
 importScript("js/fcp/fcp-tabs.js");
 importScript("js/fcp/fcp-main.js");
 			
-importScript("js/grid/grid-main.js");
 importScript("js/fe-helper.js");
-importScript("js/notification/fe-notification.js");
 importScript("js/wpo/fe-calc-wpo.js");
 
 importScript("js/jsonformat/json-format-dealer.js");

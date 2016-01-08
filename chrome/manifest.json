@@ -1,6 +1,6 @@
 {
     "name": "WEB前端助手(FeHelper)",
-    "version": "7.3",
+    "version": "7.4",
     "manifest_version": 2,
 
     "default_locale": "zh_CN",
@@ -41,7 +41,6 @@
         "static/img/43.png",
         "static/img/baidufe_bj.png",
         "static/img/baidufe_bj.gif",
-        "static/img/grid.png",
         "static/img/fe-18.png",
         "static/img/fe-48.png",
         "static/img/fe-128.png",
@@ -77,9 +76,7 @@
                 "static/js/fcp/fcp-tabs.js",
                 "static/js/fcp/fcp-main.js",
 
-                "static/js/grid/grid-main.js",
                 "static/js/fe-helper.js",
-                "static/js/notification/fe-notification.js",
                 "static/js/wpo/fe-calc-wpo.js",
 
                 "static/js/jsonformat/json-format-dealer.js",

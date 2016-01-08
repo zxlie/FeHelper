@@ -12,6 +12,34 @@ var BgPageInstance = (function () {
         allDone: false
     };
 
+    /**
+     * 文本格式，可以设置一个图标和标题
+     * @param {Object} options
+     * @config {string} type notification的类型，可选值：html、text
+     * @config {string} icon 图标
+     * @config {string} title 标题
+     * @config {string} message 内容
+     */
+    var notifyText = function (options) {
+        if (!window.Notification) {
+            return;
+        }
+        if (!options.icon) {
+            options.icon = "static/img/fe-48.png";
+        }
+        if (!options.title) {
+            options.title = "温馨提示";
+        }
+
+        chrome.notifications.create('',{
+            type:'basic',
+            title:options.title,
+            iconUrl: chrome.runtime.getURL(options.icon),
+            message:options.message
+        });
+
+    };
+
     //侦测的interval
     var _detectInterval = null;
 
@@ -37,9 +65,8 @@ var BgPageInstance = (function () {
                 event: MSG_TYPE.FCP_HELPER_DETECT
             });
         } else {
-            //正在准备数据，请稍等...
             //显示桌面提醒
-            baidu.feNotification.notifyText({
+            notifyText({
                 message: "正在准备数据，请稍等..."
             });
         }
@@ -56,34 +83,19 @@ var BgPageInstance = (function () {
     };
 
     /**
-     * 提醒层 缓存
-     * @type {Array}
-     */
-    var _notificationCache = [];
-
-    /**
      * 查看页面wpo信息
      */
     var _showPageWpoInfo = function (wpoInfo) {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            var tab = tabs[0];
-            try {
-                _notificationCache[tab.id].cancel();
-            } catch (e) {
-            }
             if (!wpoInfo) {
-                baidu.feNotification.notifyText({
+                notifyText({
                     message: "对不起，检测失败"
                 });
             } else {
-                if (window.webkitNotifications && webkitNotifications.createHTMLNotification) {
-                    baidu.feNotification.notifyHtml("template/fehelper_wpo.html?" + JSON.stringify(wpoInfo));
-                } else {
-                    chrome.tabs.create({
-                        url: "template/fehelper_wpo.html?" + JSON.stringify(wpoInfo),
-                        active: true
-                    });
-                }
+                chrome.tabs.create({
+                    url: "template/fehelper_wpo.html?" + btoa(encodeURIComponent(JSON.stringify(wpoInfo))),
+                    active: true
+                });
             }
         });
     };
@@ -96,10 +108,6 @@ var BgPageInstance = (function () {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             var tab = tabs[0];
             //显示桌面提醒
-            _notificationCache[tab.id] = baidu.feNotification.notifyText({
-                message: "正在统计，请稍后...",
-                autoClose: false
-            });
             chrome.tabs.sendMessage(tab.id, {
                 type: MSG_TYPE.GET_PAGE_WPO_INFO
             });

@@ -21,5 +21,4 @@ importScript("js/core/core.js");
 importScript("js/core/fe-const.js");
 importScript("js/core/network.js");
 importScript("js/fe-option.js");
-importScript("js/notification/fe-notification.js");
 importScript("js/fe-background.js");
