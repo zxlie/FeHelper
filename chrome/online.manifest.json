@@ -1,6 +1,6 @@
 {
     "name": "WEB前端助手(FeHelper)",
-    "version": "7.1",
+    "version": "7.2",
     "manifest_version": 2,
 
     "default_locale": "zh_CN",
@@ -48,7 +48,7 @@
         "static/img/pbar-ani.gif",
         "static/img/ui-icons_228ef1_256x240.png",
         "static/css/fe-helper.css",
-        "static/css/fe-jsonformat.css",
+        "static/css/fe-jsonformat-content.css",
         "static/vendor/jquery-ui-1.8/css/jquery-ui-1.8.16.custom.hot_datauri.css"
     ],
 

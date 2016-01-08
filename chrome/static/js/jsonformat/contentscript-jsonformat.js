@@ -23,7 +23,7 @@ baidu.csJsonFormat = (function () {
     ].join('');
 
     var _loadCss = function () {
-        var fcpCss = chrome.extension.getURL('static/css/fe-jsonformat.css');
+        var fcpCss = chrome.extension.getURL('static/css/fe-jsonformat-content.css');
         jQuery('<link id="_fehelper_fcp_css_" href="' + fcpCss + '" rel="stylesheet" type="text/css" />').appendTo('head');
     };
 
