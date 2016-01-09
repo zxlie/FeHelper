@@ -31,11 +31,11 @@ var BgPageInstance = (function () {
             options.title = "温馨提示";
         }
 
-        chrome.notifications.create('',{
-            type:'basic',
-            title:options.title,
+        chrome.notifications.create('', {
+            type: 'basic',
+            title: options.title,
             iconUrl: chrome.runtime.getURL(options.icon),
-            message:options.message
+            message: options.message
         });
 
     };
@@ -252,7 +252,7 @@ var BgPageInstance = (function () {
         baidu.contextMenuId = chrome.contextMenus.create({
             title: "FeHelper",
             contexts: ['page', 'selection', 'editable', 'link'],
-            documentUrlPatterns:['http://*/*','https://*/*']
+            documentUrlPatterns: ['http://*/*', 'https://*/*']
         });
         chrome.contextMenus.create({
             title: "JSON格式化",
@@ -342,6 +342,19 @@ var BgPageInstance = (function () {
                 _goCompressTool();
             }
         });
+        chrome.contextMenus.create({
+            type: 'separator',
+            contexts: ['all'],
+            parentId: baidu.contextMenuId
+        });
+        chrome.contextMenus.create({
+            title: "页面取色器",
+            contexts: ['page', 'selection', 'editable'],
+            parentId: baidu.contextMenuId,
+            onclick: function (info, tab) {
+                _showColorPicker();
+            }
+        });
     };
 
     /**
@@ -364,6 +377,42 @@ var BgPageInstance = (function () {
         } else {
             _removeContextMenu();
         }
+    };
+
+    /**
+     * 显示color picker
+     * @private
+     */
+    var _showColorPicker = function () {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            var tab = tabs[0];
+            var tabid = tab.id;
+            var port = chrome.tabs.connect(tabid, {name: "popupshown"});
+            chrome.tabs.sendMessage(tabid, {enableColorPicker: true}, function (response) {
+                chrome.tabs.sendMessage(tabid, {doPick: true}, function (r) {
+                });
+            });
+        });
+    };
+
+    /**
+     * 将网页截成一张图，实现取色
+     * @param callback
+     * @private
+     */
+    var _drawColorPicker = function (callback) {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            var tab = tabs[0];
+            var tabid = tab.id;
+            chrome.tabs.captureVisibleTab(null, {format: 'png'}, function (dataUrl) {
+                chrome.tabs.sendMessage(tabid, {
+                    setPickerImage: true,
+                    pickerImage: dataUrl
+                }, function (response) {
+                    callback && callback();
+                });
+            });
+        });
     };
 
     /**
@@ -428,6 +477,10 @@ var BgPageInstance = (function () {
             else if (request.type == MSG_TYPE.FROM_POPUP) {
                 _runHelper(request.config);
             }
+            // color picker
+            else if (request.type == "color-picker:newImage") {
+                _drawColorPicker(callback);
+            }
 
             return true;
         });
@@ -444,7 +497,8 @@ var BgPageInstance = (function () {
 
     return {
         init: _init,
-        runHelper: _runHelper
+        runHelper: _runHelper,
+        showColorPicker: _showColorPicker
     };
 })();
 

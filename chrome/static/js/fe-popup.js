@@ -10,10 +10,15 @@ $(function () {
         var msgType = $(this).attr('data-msgtype');
         var isUseFile = $(this).attr('data-usefile');
 
-        bgPage.BgPageInstance.runHelper({
-            msgType:MSG_TYPE[msgType],
-            useFile:isUseFile
-        });
+        if (msgType == 'COLOR_PICKER') {
+            bgPage.BgPageInstance.showColorPicker();
+        } else {
+            bgPage.BgPageInstance.runHelper({
+                msgType: MSG_TYPE[msgType],
+                useFile: isUseFile
+            });
+        }
+
         window.close();
     });
 });

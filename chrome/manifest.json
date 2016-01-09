@@ -5,7 +5,7 @@
 
     "default_locale": "zh_CN",
 
-    "description": "FE助手：包括字符串编解码、代码压缩、美化、JSON格式化、正则表达式、时间转换工具、二维码生成器、编码规范检测、页面性能检测、栅格检测等",
+    "description": "FE助手：包括字符串编解码、代码压缩、美化、JSON格式化、正则表达式、时间转换工具、二维码生成器、编码规范检测、页面性能检测、页面取色等",
     "icons": {
         "16": "static/img/fe-16.png",
         "48": "static/img/fe-48.png",
@@ -46,6 +46,8 @@
         "static/img/fe-128.png",
         "static/img/pbar-ani.gif",
         "static/img/ui-icons_228ef1_256x240.png",
+        "static/img/crosshair.png",
+        "static/img/close.png",
         "static/css/fe-helper.css",
         "static/css/fe-jsonformat-content.css",
         "static/vendor/jquery-ui-1.8/css/jquery-ui-1.8.16.custom.hot_datauri.css"
@@ -78,6 +80,9 @@
 
                 "static/js/fe-helper.js",
                 "static/js/wpo/fe-calc-wpo.js",
+
+                "static/js/colorpicker/elem-tool.js",
+                "static/js/colorpicker/colorpicker.js",
 
                 "static/js/jsonformat/json-format-dealer.js",
                 "static/js/jsonformat/json-format-ent.js",

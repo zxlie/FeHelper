@@ -33,6 +33,9 @@ importScript("js/fcp/fcp-main.js");
 importScript("js/fe-helper.js");
 importScript("js/wpo/fe-calc-wpo.js");
 
+importScript("js/colorpicker/elem-tool.js");
+importScript("js/colorpicker/colorpicker.js");
+
 importScript("js/jsonformat/json-format-dealer.js");
 importScript("js/jsonformat/json-format-ent.js");
 importScript("js/jsonformat/contentscript-jsonformat.js");
