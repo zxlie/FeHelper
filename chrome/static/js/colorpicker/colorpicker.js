@@ -315,10 +315,10 @@ FeHelper.ColorPicker = (function () {
 
         setTimeout(function () {
             try {
-                chrome.runtime.sendMessage({type: 'color-picker:newImage'}, function (response) {
+                chrome.runtime.sendMessage({type: MSG_TYPE.COLOR_PICKER}, function (response) {
                 });
             } catch (e) {
-                exitAndDetach();
+                console.log('有错误发生，可提交此反馈到官网！',e);
             }
         }, 255);
     }

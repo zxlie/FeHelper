@@ -1,11 +1,11 @@
 {
     "name": "WEB前端助手(FeHelper)",
-    "version": "7.4",
+    "version": "7.5",
     "manifest_version": 2,
 
     "default_locale": "zh_CN",
 
-    "description": "FE助手：包括字符串编解码、代码压缩、美化、JSON格式化、正则表达式、时间转换工具、二维码生成器、编码规范检测、页面性能检测、页面取色等",
+    "description": "FE助手：包括字符串编解码、代码压缩、美化、JSON格式化、正则表达式、时间转换工具、二维码生成器、编码规范检测、页面性能检测、页面取色、Js覆盖率检测等",
     "icons": {
         "16": "static/img/fe-16.png",
         "48": "static/img/fe-48.png",
@@ -38,10 +38,7 @@
     ],
 
     "web_accessible_resources": [
-        "static/img/43.png",
-        "static/img/baidufe_bj.png",
-        "static/img/baidufe_bj.gif",
-        "static/img/fe-18.png",
+        "static/img/fe-16.png",
         "static/img/fe-48.png",
         "static/img/fe-128.png",
         "static/img/pbar-ani.gif",
@@ -50,7 +47,25 @@
         "static/img/close.png",
         "static/css/fe-helper.css",
         "static/css/fe-jsonformat-content.css",
-        "static/vendor/jquery-ui-1.8/css/jquery-ui-1.8.16.custom.hot_datauri.css"
+        "static/vendor/jquery-ui-1.8/jquery-ui.hot.css",
+        "static/css/js-tracker.css",
+
+
+        "static/js/tracker/tracker.js",
+        "static/js/tracker/util.js",
+        "static/js/tracker/path.js",
+        "static/js/tracker/promise.js",
+        "static/js/tracker/event.js",
+        "static/js/tracker/status-pool.js",
+        "static/js/tracker/plugin.js",
+        "static/js/tracker/code.js",
+        "static/js/tracker/combocodegen.js",
+        "static/js/tracker/decorate.js",
+        "static/js/tracker/token.js",
+        "static/js/tracker/view.js",
+        "static/js/tracker/general.js",
+        "static/js/tracker/watch.js",
+        "static/js/tracker/inject.js"
     ],
 
     "content_scripts": [
@@ -62,7 +77,7 @@
             ],
             "js": [
                 "static/js/core/jquery-1.5.min.js",
-                "static/vendor/jquery-ui-1.8/js/jquery-ui-1.8.11.custom.min.js",
+                "static/vendor/jquery-ui-1.8/jquery-ui.min.js",
 
                 "static/js/core/core.js",
                 "static/js/core/fe-const.js",
@@ -86,9 +101,25 @@
 
                 "static/js/jsonformat/json-format-dealer.js",
                 "static/js/jsonformat/json-format-ent.js",
-                "static/js/jsonformat/contentscript-jsonformat.js"
+                "static/js/jsonformat/contentscript-jsonformat.js",
+
+                "static/js/tracker/tracker.js",
+                "static/js/tracker/util.js",
+                "static/js/tracker/path.js",
+                "static/js/tracker/promise.js",
+                "static/js/tracker/event.js",
+                "static/js/tracker/status-pool.js",
+                "static/js/tracker/plugin.js",
+                "static/js/tracker/code.js",
+                "static/js/tracker/combocodegen.js",
+                "static/js/tracker/decorate.js",
+                "static/js/tracker/token.js",
+                "static/js/tracker/view.js",
+                "static/js/tracker/general.js",
+                "static/js/tracker/watch.js",
+                "static/js/tracker/main.js"
             ],
-            "run_at": "document_start",
+            "run_at": "document_end",
             "all_frames": false
         },
         {

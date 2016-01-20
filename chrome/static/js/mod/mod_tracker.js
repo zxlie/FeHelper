@@ -2,8 +2,7 @@
 	var scripts = document.getElementsByTagName('script'),
 		length = scripts.length,
 		src = scripts[length - 1].src,
-		pos = src.indexOf('/static/'),
-		scriptPath = src.substr(0, pos) + '/static/';
+		scriptPath = chrome.extension.getURL('static/');
 	if (!window.importScriptList) window.importScriptList = {};
 	window.importScript = function (filename) {
 		if (!filename) return;
@@ -17,13 +16,18 @@
 	}
 })( /*importend*/ )
 
-importScript("js/codebeautify/beautify.js");
-importScript("js/codebeautify/beautify-css.js");
-importScript("js/codebeautify/beautify-html.js");
-importScript("js/core/fe-const.js");
-importScript("js/core/core.js");
-importScript("vendor/syntaxhighlighter/shCore.js");
-importScript("vendor/syntaxhighlighter/shBrushCss.js");
-importScript("vendor/syntaxhighlighter/shBrushJScript.js");
-importScript("vendor/syntaxhighlighter/shBrushXml.js");
-importScript("js/codebeautify/codebeautify.js");
+importScript("js/tracker/tracker.js");
+importScript("js/tracker/util.js");
+importScript("js/tracker/path.js");
+importScript("js/tracker/promise.js");
+importScript("js/tracker/event.js");
+importScript("js/tracker/status-pool.js");
+importScript("js/tracker/plugin.js");
+importScript("js/tracker/code.js");
+importScript("js/tracker/combocodegen.js");
+importScript("js/tracker/decorate.js");
+importScript("js/tracker/token.js");
+importScript("js/tracker/view.js");
+importScript("js/tracker/general.js");
+importScript("js/tracker/watch.js");
+importScript("js/tracker/main.js");

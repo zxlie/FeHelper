@@ -27,7 +27,41 @@ find . -type d -name ".svn" | xargs rm -rf
 rm -rf static.uncompress
 cd ../ && mv output $MOD_NAME && mkdir output && mv $MOD_NAME output
 
+# 扫描所有的文件
+function scandir(){
+
+    for f in $(ls $1) ;do
+        abspath=$1"/"$f
+        if [[ -d $abspath ]];then
+            scandir $abspath
+        elif [[ -f $abspath ]];then
+            echo $abspath
+        fi
+    done
+}
+
+# 冗余文件清理
+cd output/fe-helper
+rootpath=$(pwd)
+cd static
+# 待清理的目录
+cleandir="js css img"
+for d in $cleandir;do
+
+    thefiles=$(scandir $d)
+
+    for f in $thefiles;do
+        result=$(grep $f -rl $rootpath)
+        if [[ x"$result" == x ]];then
+            rm -f $f
+            echo "清理文件成功：static/$f"
+        fi
+    done
+done
+
 #生成zip包
-cd output
+cd $rootpath/../
 zip -r $MOD_NAME.zip $MOD_NAME/ > /dev/null
-cd ../
+
+echo ""
+echo "生成压缩包成功，可发布到Chrome web store了！"

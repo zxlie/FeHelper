@@ -106,7 +106,7 @@ baidu.jsonformat = (function () {
         chrome.runtime.onMessage.addListener(function (request, sender, callback) {
             if (request.type == MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event == 'jsonformat') {
                 if (request.content) {
-                    _g('jsonSource').value = (request.content);
+                    document.getElementById('jsonSource').value = (request.content);
                     _format();
                 }
             }

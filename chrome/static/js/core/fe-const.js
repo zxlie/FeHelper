@@ -79,7 +79,10 @@ const MSG_TYPE = {
     IMAGE_BASE64 : 'imagebase64',
 
     //页面json代码自动格式化
-    AUTO_FORMART_PAGE_JSON : "opt_item_autojson"
+    AUTO_FORMART_PAGE_JSON : "opt_item_autojson",
+
+    //页面取色器
+    COLOR_PICKER : "color-picker:newImage"
 };
 
 /**

@@ -73,16 +73,6 @@ var BgPageInstance = (function () {
     };
 
     /**
-     * 执行栅格检测
-     */
-    var _doGridDetect = function (tab) {
-        chrome.tabs.sendMessage(tab.id, {
-            type: MSG_TYPE.BROWSER_CLICKED,
-            event: MSG_TYPE.GRID_DETECT
-        });
-    };
-
-    /**
      * 查看页面wpo信息
      */
     var _showPageWpoInfo = function (wpoInfo) {
@@ -120,15 +110,11 @@ var BgPageInstance = (function () {
      */
     var _doJsTracker = function () {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            var tab = tabs[0];
-            chrome.tabs.executeScript(tab.id, {
-                code: "void function(t,r,a,c,k){t.tracker_type='bm';t.tracker_uid='fehelper';"
-                + "(k=t.TrackerGlobalEvent)?k.f(r):[(k=t[a]('script')).charset='utf-8',"
-                + "k.src='http://www.ucren.com/'+c+'/'+c+'.js?'+Math.random(),"
-                + "t.documentElement.appendChild(k)]}(document,'TrackerJSLoad','createElement','tracker') ",
-                allFrames: false,
-                runAt: 'document_end'
+
+            chrome.tabs.sendMessage(tabs[0].id, {
+                type: MSG_TYPE.JS_TRACKER
             });
+
         });
     };
 
@@ -169,11 +155,13 @@ var BgPageInstance = (function () {
     var _tabUpdatedCallback = function (evt, content) {
         return function (newTab) {
             if (content) {
-                chrome.tabs.sendMessage(newTab.id, {
-                    type: MSG_TYPE.TAB_CREATED_OR_UPDATED,
-                    content: content,
-                    event: evt
-                });
+                setTimeout(function () {
+                    chrome.tabs.sendMessage(newTab.id, {
+                        type: MSG_TYPE.TAB_CREATED_OR_UPDATED,
+                        content: content,
+                        event: evt
+                    });
+                }, 300)
             }
         };
     };
@@ -216,16 +204,13 @@ var BgPageInstance = (function () {
             var tab = tabs[0];
             // 如果是采用独立文件方式访问，直接打开该页面即可
             if (config.useFile == '1') {
-                _openFileAndRun(tab, config.msgType);
+                var content = config.msgType == MSG_TYPE.QR_CODE ? tab.url : '';
+                _openFileAndRun(tab, config.msgType, content);
             } else {
                 switch (config.msgType) {
                     //fcphelper检测
                     case MSG_TYPE.FCP_HELPER_DETECT:
                         _doFcpDetect(tab);
-                        break;
-                    //栅格检测
-                    case MSG_TYPE.GRID_DETECT:
-                        _doGridDetect(tab);
                         break;
                     //查看网页加载时间
                     case MSG_TYPE.SHOW_PAGE_LOAD_TIME:
@@ -255,18 +240,31 @@ var BgPageInstance = (function () {
             documentUrlPatterns: ['http://*/*', 'https://*/*']
         });
         chrome.contextMenus.create({
-            title: "JSON格式化",
-            contexts: ['page', 'selection', 'editable'],
+            title: "生成二维码",
+            contexts: ['page', 'selection', 'editable', 'link'],
             parentId: baidu.contextMenuId,
             onclick: function (info, tab) {
                 chrome.tabs.executeScript(tab.id, {
                     code: '(' + (function () {
-                        return window.getSelection().toString();
+                        return window.getSelection().toString() || location.href;
                     }).toString() + ')()',
                     allFrames: false
                 }, function (txt) {
-                    _openFileAndRun(tab, 'jsonformat', txt);
+                    _openFileAndRun(tab, 'qrcode', txt);
                 });
+            }
+        });
+        chrome.contextMenus.create({
+            type: 'separator',
+            contexts: ['all'],
+            parentId: baidu.contextMenuId
+        });
+        chrome.contextMenus.create({
+            title: "页面取色器",
+            contexts: ['page', 'selection', 'editable'],
+            parentId: baidu.contextMenuId,
+            onclick: function (info, tab) {
+                _showColorPicker();
             }
         });
         chrome.contextMenus.create({
@@ -295,17 +293,17 @@ var BgPageInstance = (function () {
             parentId: baidu.contextMenuId
         });
         chrome.contextMenus.create({
-            title: "生成二维码",
-            contexts: ['page', 'selection', 'editable', 'link'],
+            title: "JSON格式化",
+            contexts: ['page', 'selection', 'editable'],
             parentId: baidu.contextMenuId,
             onclick: function (info, tab) {
                 chrome.tabs.executeScript(tab.id, {
                     code: '(' + (function () {
-                        return window.getSelection().toString() || location.href;
+                        return window.getSelection().toString();
                     }).toString() + ')()',
                     allFrames: false
                 }, function (txt) {
-                    _openFileAndRun(tab, 'qrcode', txt);
+                    _openFileAndRun(tab, 'jsonformat', txt);
                 });
             }
         });
@@ -335,24 +333,11 @@ var BgPageInstance = (function () {
             parentId: baidu.contextMenuId
         });
         chrome.contextMenus.create({
-            title: "代码压缩",
+            title: "Js覆盖率检测",
             contexts: ['page', 'selection', 'editable'],
             parentId: baidu.contextMenuId,
             onclick: function (info, tab) {
-                _goCompressTool();
-            }
-        });
-        chrome.contextMenus.create({
-            type: 'separator',
-            contexts: ['all'],
-            parentId: baidu.contextMenuId
-        });
-        chrome.contextMenus.create({
-            title: "页面取色器",
-            contexts: ['page', 'selection', 'editable'],
-            parentId: baidu.contextMenuId,
-            onclick: function (info, tab) {
-                _showColorPicker();
+                _doJsTracker();
             }
         });
     };
@@ -478,7 +463,7 @@ var BgPageInstance = (function () {
                 _runHelper(request.config);
             }
             // color picker
-            else if (request.type == "color-picker:newImage") {
+            else if (request.type == MSG_TYPE.COLOR_PICKER) {
                 _drawColorPicker(callback);
             }
 
