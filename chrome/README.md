@@ -26,6 +26,7 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 * 页面编码规范检测工具
 * 时间（戳）转换工具
 * 正则表达式测试工具
+* Js执行覆盖率检测工具
 
 ### 三、用户反馈渠道
 http://www.baidufe.com/fehelper/feedback.html
