@@ -39,7 +39,7 @@ Tracker.Inject = function (window, document) {
             return result;
         };
 
-        // 判断距离上一次出队列是否已经大于200ms
+        // 判断距离上一次出队列是否已经大于100ms
         var timesUp = function () {
             return (new Date().getTime() - _lastPopTime) >= 100;
         };

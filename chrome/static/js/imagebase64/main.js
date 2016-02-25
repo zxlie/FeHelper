@@ -34,7 +34,7 @@ var ImageBase64 = (function () {
         //监听paste事件
         document.onpaste = function(event){
             var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-            for (index in items) {
+            for (var index in items) {
               var item = items[index];
               if (item.kind === 'file') {
                 var blob = item.getAsFile();
