@@ -12,6 +12,12 @@ body{
 	width:980px;
 	margin:0 auto;
 }
+
+.tips{
+	color:#ff6666;
+	margin-left: 10px;
+}
+
 table {
     width:100%;
     table-layout: fixed;
