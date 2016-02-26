@@ -32,23 +32,19 @@ var ImageBase64 = (function () {
         });
 
         //监听paste事件
-        document.onpaste = function(event){
+        document.onpaste = function (event) {
             var items = (event.clipboardData || event.originalEvent.clipboardData).items;
             for (var index in items) {
-              var item = items[index];
-              if (item.kind === 'file') {
-                var blob = item.getAsFile();
-                var reader = new FileReader();
-                reader.onload = function(event){
-                  $('#preview').attr('src', event.target.result).show();
-                  $('#result').val(event.target.result);
-                };
-                reader.readAsDataURL(blob);
-              }
+                var item = items[index];
+                if (/image\//.test(item.type)) {
+                    var file = item.getAsFile();
+                    _getDataUri(file);
+                    break;
+                }
             }
         };
 
-        $(document).bind('drop',function (e) {
+        $(document).bind('drop', function (e) {
             e.preventDefault();
             e.stopPropagation();
             var files = e.originalEvent.dataTransfer.files;
@@ -60,9 +56,9 @@ var ImageBase64 = (function () {
                 }
             }
         }).bind('dragover', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            });
+            e.preventDefault();
+            e.stopPropagation();
+        });
     };
 
     $(function () {

@@ -14,8 +14,9 @@ body{
 }
 
 .tips{
-	color:#ff6666;
-	margin-left: 10px;
+	color:#aaa;
+	margin: 10px 0;
+    font-size: 12px;
 }
 
 table {
@@ -57,7 +58,7 @@ td .x-panel .x-tips {
 #upload:hover {
     background: #00a2d4;
 }
-#preview {display: none;max-width: 260px;max-height: 260px;margin-top:10px;border:2px solid #ccc;}
+#preview {display: none;max-width: 260px;max-height: 260px;margin-top:10px;}
 form {display: none}
 td textarea {
     width: 490px;
