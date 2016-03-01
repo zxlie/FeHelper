@@ -55,7 +55,7 @@ baidu.csJsonFormat = (function () {
                 // 如果是pre标签，则看内容是不是和source一样，一样则continue
                 if (tagName === 'pre' && html === source) {
                     continue;
-                } else if (tagName === 'embed' && nodes[i].offsetWidth === 0) {
+                } else if (nodes[i].offsetWidth === 0 || nodes[i].offsetHeight === 0 || !html) {
                     // 如果用户安装迅雷或者其他的插件，也回破坏页面结构，需要兼容一下
                     continue;
                 } else {

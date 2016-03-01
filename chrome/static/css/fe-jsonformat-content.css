@@ -65,7 +65,6 @@ html {
 }
 html body {
     direction: inherit;
-    cursor: default;
 }
 .mod-json .format-item button{
     width:80px;
