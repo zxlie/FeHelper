@@ -4,12 +4,28 @@
  */
 var ImageBase64 = (function () {
 
+    var sizeFormat = function (num) {
+        if(isNaN(num)) {
+            return '暂无数据';
+        }
+        num = +num;
+        if (num < 1024) {
+            return num + ' B';
+        } else if (num < 1024 * 1024) {
+            return (num / 1024).toFixed(2) + ' KB';
+        } else {
+            return (num / 1024 / 1024).toFixed(2) + ' MB';
+        }
+    };
+
     var _getDataUri = function (file) {
         var reader = new FileReader();
         reader.onload = function (evt) {
             $('#result').val(evt.target.result);
             $('#preview').attr('src', evt.target.result).show();
             $('td .x-panel').css('background-image', 'none');
+            $('#sizeOri').html(sizeFormat(file.size));
+            $('#sizeBase').html(sizeFormat(evt.target.result.length));
         };
         reader.readAsDataURL(file);
     };

@@ -1,6 +1,6 @@
 {
     "name": "WEB前端助手(FeHelper)",
-    "version": "7.9",
+    "version": "8.0",
     "manifest_version": 2,
 
     "default_locale": "zh_CN",
@@ -124,8 +124,8 @@
         },
         {
             "matches": [
-                "http://*.baidufe.com/fehelper/*",
-                "http://*.baidufe.com/fehelper"
+                "https://*.baidufe.com/fehelper/*",
+                "https://*.baidufe.com/fehelper"
             ],
             "js": [
                 "static/js/fe-contentscript-fehelper.js"
@@ -135,6 +135,6 @@
         }
     ],
     "content_security_policy": "script-src 'self' https://ssl.google-analytics.com 'unsafe-eval'; object-src 'self'",
-    "homepage_url": "http://www.baidufe.com/fehelper"
+    "homepage_url": "https://www.baidufe.com/fehelper"
 
 }

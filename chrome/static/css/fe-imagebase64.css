@@ -62,7 +62,7 @@ td .x-panel .x-tips {
 form {display: none}
 td textarea {
     width: 490px;
-    height:405px;
+    height:360px;
     padding:0;margin:0;
     resize:none;outline:none;
     background: #fcfcfc;
@@ -75,4 +75,12 @@ td textarea {
 	color:#00c;
 	padding:5px;
 	display:none;
+}
+.x-result-info .x-title{
+    color: #aaa;
+    font-size: 12px;
+}
+#sizeOri,#sizeBase {
+    color: #600;
+    font-style: italic;
 }
