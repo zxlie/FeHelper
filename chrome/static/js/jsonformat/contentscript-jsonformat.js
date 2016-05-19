@@ -7,9 +7,6 @@ baidu.csJsonFormat = (function () {
 
     var _htmlFragment = [
         '<div class="mod-json mod-contentscript"><div class="rst-item">',
-        '<div id="formatTips">本页JSON数据由FeHelper进行自动格式化，若有任何问题，点击这里提交 ',
-        '<a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank">意见反馈</a>',
-        '</div>',
         '<div id="formattingMsg">',
         '<svg id="spinner" width="16" height="16" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" version="1.1">',
         '<path d="M 150,0 a 150,150 0 0,1 106.066,256.066 l -35.355,-35.355 a -100,-100 0 0,0 -70.711,-170.711 z" fill="#3d7fe6"></path>',
@@ -143,6 +140,12 @@ baidu.csJsonFormat = (function () {
                 // 如果newSource的长度比原source长度短很多的话，猜测应该是格式化错了，需要撤销操作
                 // 这里一定要unicode decode一下，要不然会出现误判
                 if(newSource.length * 2 < (_uniDecode(source)).length) {
+                    return ;
+                }
+                // 直接replace掉所有\w之外的字符，再和原内容比较
+                var r_ns = newSource.replace(/[^\w]/gm,'');
+                var r_os = _uniDecode(source).replace(/[^\w]/gm,'');
+                if(r_ns < r_os) {
                     return ;
                 }
             } catch (ex) {
