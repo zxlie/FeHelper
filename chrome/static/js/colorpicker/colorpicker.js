@@ -5,6 +5,10 @@ var FeHelper = window.FeHelper || {};
  */
 FeHelper.ColorPicker = (function () {
 
+    if(!(document.documentElement instanceof HTMLElement)) {
+        return;
+    }
+
     var elmid1 = 'fehelper-colorpicker-box', elmid2 = 'fehelper-colorpicker-result';
     var popupsShowing = 0;
 
@@ -497,4 +501,4 @@ FeHelper.ColorPicker = (function () {
 
 })();
 
-FeHelper.ColorPicker.init();
+FeHelper.ColorPicker && FeHelper.ColorPicker.init && FeHelper.ColorPicker.init();
