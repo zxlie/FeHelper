@@ -24,6 +24,7 @@ baidu.namespace.register = function(fullNS){
     var nsArray = fullNS.split('.');
     var sEval = "";
     var sNS = "";
+    var _tmpObj = [window];
     for (var i = 0; i < nsArray.length; i++){
 		//命名空间合法性校验
 		if(!reg.test(nsArray[i])) {
@@ -31,13 +32,11 @@ baidu.namespace.register = function(fullNS){
 			return ;
 		}
 
-        if (i != 0) sNS += ".";
-        sNS += nsArray[i];
-        // 依次创建构造命名空间对象（假如不存在的话）的语句
-        sEval += "if (typeof(" + sNS + ") == 'undefined') " + sNS + " = new Object();";
+        _tmpObj[i+1] = _tmpObj[i][nsArray[i]];
+        if(typeof _tmpObj[i+1] == 'undefined') {
+            _tmpObj[i+1] = new Object();
+        }
     }
-	//生成命名空间
-    if (sEval != "") eval(sEval);
 };
 
 /**

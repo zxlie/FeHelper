@@ -1,6 +1,6 @@
 {
     "name": "WEB前端助手(FeHelper)",
-    "version": "8.1",
+    "version": "8.2",
     "manifest_version": 2,
 
     "default_locale": "zh_CN",
@@ -134,7 +134,7 @@
             "all_frames": false
         }
     ],
-    "content_security_policy": "script-src 'self' https://ssl.google-analytics.com 'unsafe-eval'; object-src 'self'",
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
     "homepage_url": "https://www.baidufe.com/fehelper"
 
 }

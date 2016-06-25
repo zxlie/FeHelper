@@ -16,7 +16,7 @@ baidu.fehelper = (function(){
     var _loadCss = function(){
 
         if(!jQuery('#_fehelper_jq_ui_css_')[0]) {
-            var jqUiCss = chrome.extension.getURL('static/vendor/jquery-ui-1.8/css/jquery-ui-1.8.16.custom.hot_datauri.css');
+            var jqUiCss = chrome.extension.getURL('static/vendor/jquery-ui-1.8/jquery-ui.hot.css');
             jQuery('<link id="_fehelper_jq_ui_css_" href="' + jqUiCss + '" rel="stylesheet" type="text/css" />').appendTo('head');
 
             var fcpCss = chrome.extension.getURL('static/css/fe-helper.css');
