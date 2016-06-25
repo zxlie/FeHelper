@@ -12,7 +12,7 @@ baidu.jsonformat = (function () {
     var _format = function () {
         $('#errorMsg').html('');
         $('#modJsonResult').hide();
-        var source = $('#jsonSource').val();
+        var source = $('#jsonSource').val().replace(/\n/gm,' ');
         if (!source) {
             return;
         }
