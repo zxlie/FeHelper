@@ -4,14 +4,6 @@
  */
 var BgPageInstance = (function () {
 
-    //各种元素的就绪情况
-    var _readyState = {
-        css: false,
-        js: false,
-        html: true,
-        allDone: false
-    };
-
     /**
      * 文本格式，可以设置一个图标和标题
      * @param {Object} options
@@ -38,38 +30,6 @@ var BgPageInstance = (function () {
             message: options.message
         });
 
-    };
-
-    //侦测的interval
-    var _detectInterval = null;
-
-    //侦测就绪情况
-    var _detectReadyState = function () {
-        _detectInterval = window.setInterval(function () {
-            if (_readyState.css && _readyState.js && _readyState.html) {
-                _readyState.allDone = true;
-                window.clearInterval(_detectInterval);
-            }
-        }, 100);
-    };
-
-
-    /**
-     * 执行前端FCPHelper检测
-     */
-    var _doFcpDetect = function (tab) {
-        //所有元素都准备就绪
-        if (_readyState.allDone) {
-            chrome.tabs.sendMessage(tab.id, {
-                type: MSG_TYPE.BROWSER_CLICKED,
-                event: MSG_TYPE.FCP_HELPER_DETECT
-            });
-        } else {
-            //显示桌面提醒
-            notifyText({
-                message: "正在准备数据，请稍等..."
-            });
-        }
     };
 
     /**
@@ -208,10 +168,6 @@ var BgPageInstance = (function () {
                 _openFileAndRun(tab, config.msgType, content);
             } else {
                 switch (config.msgType) {
-                    //fcphelper检测
-                    case MSG_TYPE.FCP_HELPER_DETECT:
-                        _doFcpDetect(tab);
-                        break;
                     //查看网页加载时间
                     case MSG_TYPE.SHOW_PAGE_LOAD_TIME:
                         _getPageWpoInfo();
@@ -432,18 +388,6 @@ var BgPageInstance = (function () {
             else if (request.type == MSG_TYPE.SET_COOKIE) {
                 baidu.network.setCookie(request, callback);
             }
-            //CSS准备就绪
-            else if (request.type == MSG_TYPE.CSS_READY) {
-                _readyState.css = true;
-            }
-            //JS准备就绪
-            else if (request.type == MSG_TYPE.JS_READY) {
-                _readyState.js = true;
-            }
-            //HTML准备就绪
-            else if (request.type == MSG_TYPE.HTML_READY) {
-                _readyState.html = true;
-            }
             //提取配置项
             else if (request.type == MSG_TYPE.GET_OPTIONS) {
                 baidu.feOption.doGetOptions(request.items, callback);
@@ -476,7 +420,6 @@ var BgPageInstance = (function () {
      */
     var _init = function () {
         _addExtensionListener();
-        _detectReadyState();
         _createOrRemoveContextMenu();
     };
 

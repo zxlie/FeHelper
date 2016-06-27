@@ -3,7 +3,7 @@
  * @class 类库
  */
 var baidu = function(){
-	this.version = "1.3.5";
+	this.version = "2.0";
 };
 
 /**
