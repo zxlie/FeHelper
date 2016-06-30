@@ -1,11 +1,11 @@
 {
     "name": "WEB前端助手(FeHelper)",
-    "version": "8.3",
+    "version": "8.6",
     "manifest_version": 2,
 
     "default_locale": "zh_CN",
 
-    "description": "FE助手：包括字符串编解码、代码压缩、美化、JSON格式化、正则表达式、时间转换工具、二维码生成器、页面性能检测、页面取色、Js覆盖率检测等",
+    "description": "FE助手：https://www.baidufe.com/fehelper",
     "icons": {
         "16": "static/img/fe-16.png",
         "48": "static/img/fe-48.png",
@@ -30,10 +30,7 @@
     "permissions": [
         "tabs",
         "contextMenus",
-        "cookies",
         "notifications",
-        "alarms",
-        "webNavigation",
         "\u003Call_urls\u003E"
     ],
 
@@ -45,9 +42,7 @@
         "static/img/ui-icons_228ef1_256x240.png",
         "static/img/crosshair.png",
         "static/img/close.png",
-        "static/css/fe-jsonformat-content.css",
-        "static/css/js-tracker.css",
-        "static/js/tracker/inject.js"
+        "static/css/fe-jsonformat-content.css"
     ],
 
     "content_scripts": [
@@ -59,9 +54,7 @@
             ],
             "js": [
                 "static/js/core/jquery-1.5.min.js",
-
-                "static/js/mod/mod_manifest.js",
-                "static/js/mod/mod_tracker.js"
+                "static/js/mod/mod_manifest.js"
             ],
             "run_at": "document_end",
             "all_frames": false
@@ -84,6 +77,6 @@
             "all_frames": false
         }
     ],
-    "content_security_policy": "script-src 'self' https://ssl.google-analytics.com 'unsafe-eval'; object-src 'self'",
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
     "homepage_url": "https://www.baidufe.com/fehelper"
 }

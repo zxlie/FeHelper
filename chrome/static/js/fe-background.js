@@ -65,20 +65,6 @@ var BgPageInstance = (function () {
     };
 
     /**
-     * 执行JS Tracker
-     * @private
-     */
-    var _doJsTracker = function () {
-        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-
-            chrome.tabs.sendMessage(tabs[0].id, {
-                type: MSG_TYPE.JS_TRACKER
-            });
-
-        });
-    };
-
-    /**
      * 代码压缩工具
      * @private
      */
@@ -171,10 +157,6 @@ var BgPageInstance = (function () {
                     //查看网页加载时间
                     case MSG_TYPE.SHOW_PAGE_LOAD_TIME:
                         _getPageWpoInfo();
-                        break;
-                    //js tracker
-                    case MSG_TYPE.JS_TRACKER:
-                        _doJsTracker();
                         break;
                     //代码压缩
                     case MSG_TYPE.CODE_COMPRESS:
@@ -281,19 +263,6 @@ var BgPageInstance = (function () {
                 }, function (txt) {
                     _openFileAndRun(tab, 'codebeautify', txt);
                 });
-            }
-        });
-        chrome.contextMenus.create({
-            type: 'separator',
-            contexts: ['all'],
-            parentId: baidu.contextMenuId
-        });
-        chrome.contextMenus.create({
-            title: "Js覆盖率检测",
-            contexts: ['page', 'selection', 'editable'],
-            parentId: baidu.contextMenuId,
-            onclick: function (info, tab) {
-                _doJsTracker();
             }
         });
     };
