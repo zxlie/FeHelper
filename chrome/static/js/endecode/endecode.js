@@ -9,14 +9,16 @@ baidu.ed = (function () {
      * 转码
      */
     var _convert = function () {
-        var srcText = jQuery("#srcText").val();
+        var srcEl = jQuery("#srcText");
+        var srcText = srcEl.val();
         jQuery("#rst").show();
         var rstCode = jQuery("#rstCode");
 
         if (jQuery("#uniEncode").attr("checked") == true) {
             rstCode.val(baidu.endecode.uniEncode(srcText));
         } else if (jQuery("#uniDecode").attr("checked") == true) {
-            rstCode.val(baidu.endecode.uniDecode(srcText));
+            srcEl.val(srcEl.val().replace(/\\U/g,'\\u'));
+            rstCode.val(baidu.endecode.uniDecode(srcEl.val()));
         } else if (jQuery("#utf8Encode").attr("checked") == true) {
             rstCode.val(encodeURIComponent(srcText));
         } else if (jQuery("#utf8Decode").attr("checked") == true) {

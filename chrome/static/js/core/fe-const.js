@@ -26,6 +26,8 @@ const MSG_TYPE = {
 	GET_OPTIONS : 'get_options',
 	//set options
 	SET_OPTIONS : 'set_options',
+
+    FCP_HELPER_INIT:'fcp_helper_init',
 	
 	//css ready...
 	CSS_READY : 'css-ready',
@@ -35,6 +37,8 @@ const MSG_TYPE = {
 	
 	//html ready...
 	HTML_READY : 'html-ready',
+    //all ready...
+    ALL_READY : 'all-ready',
 	
 	//启动项
 	START_OPTION : 'start-option',

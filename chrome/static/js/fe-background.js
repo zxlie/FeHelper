@@ -31,7 +31,7 @@ var BgPageInstance = (function () {
             options.title = "温馨提示";
         }
 
-        chrome.notifications.create('', {
+        return chrome.notifications.create('', {
             type: 'basic',
             title: options.title,
             iconUrl: chrome.runtime.getURL(options.icon),
@@ -40,35 +40,41 @@ var BgPageInstance = (function () {
 
     };
 
-    //侦测的interval
-    var _detectInterval = null;
-
     //侦测就绪情况
-    var _detectReadyState = function () {
-        _detectInterval = window.setInterval(function () {
-            if (_readyState.css && _readyState.js && _readyState.html) {
-                _readyState.allDone = true;
-                window.clearInterval(_detectInterval);
-            }
-        }, 100);
+    var _detectReadyState = function (callback) {
+        if (_readyState.css && _readyState.js && _readyState.html) {
+            _readyState.allDone = true;
+        }
+        if(_readyState.allDone && typeof callback == 'function'){
+            callback();
+        }
     };
 
 
+    var _fcp_detect_interval = [];
     /**
      * 执行前端FCPHelper检测
      */
     var _doFcpDetect = function (tab) {
         //所有元素都准备就绪
         if (_readyState.allDone) {
+            clearInterval(_fcp_detect_interval[tab.id]);
             chrome.tabs.sendMessage(tab.id, {
                 type: MSG_TYPE.BROWSER_CLICKED,
                 event: MSG_TYPE.FCP_HELPER_DETECT
             });
-        } else {
+        } else if(_fcp_detect_interval[tab.id] === undefined) {
+            chrome.tabs.sendMessage(tab.id, {
+                type: MSG_TYPE.BROWSER_CLICKED,
+                event: MSG_TYPE.FCP_HELPER_INIT
+            });
             //显示桌面提醒
             notifyText({
                 message: "正在准备数据，请稍等..."
             });
+            _fcp_detect_interval[tab.id] = setInterval(function(){
+                _doFcpDetect(tab);
+            },200);
         }
     };
 
@@ -404,14 +410,17 @@ var BgPageInstance = (function () {
             //CSS准备就绪
             else if (request.type == MSG_TYPE.CSS_READY) {
                 _readyState.css = true;
+                _detectReadyState(callback);
             }
             //JS准备就绪
             else if (request.type == MSG_TYPE.JS_READY) {
                 _readyState.js = true;
+                _detectReadyState(callback);
             }
             //HTML准备就绪
             else if (request.type == MSG_TYPE.HTML_READY) {
                 _readyState.html = true;
+                _detectReadyState(callback);
             }
             //提取配置项
             else if (request.type == MSG_TYPE.GET_OPTIONS) {
@@ -445,7 +454,6 @@ var BgPageInstance = (function () {
      */
     var _init = function () {
         _addExtensionListener();
-        _detectReadyState();
         _createOrRemoveContextMenu();
     };
 

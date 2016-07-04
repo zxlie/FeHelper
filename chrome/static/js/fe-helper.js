@@ -28,46 +28,32 @@ baidu.fehelper = (function(){
 	 * 执行FCPHelper检测
 	 */
 	var _doFcpDetect = function(){
-		//////////先做一些准备工作/////////////////////
-		baidu.fcphelper.initStaticFile();
 		
 		chrome.extension.onMessage.addListener(function(request,sender,callback){
 			//browserAction被点击
-			if(request.type == MSG_TYPE.BROWSER_CLICKED && request.event == MSG_TYPE.FCP_HELPER_DETECT) {
-				//加载css
-                _loadCss();
-				//html
-				baidu.fcphelper.initHtml(function(){
-					//fcp相关检测
-					baidu.fcphelper.detect();
-				});
+			if(request.type == MSG_TYPE.BROWSER_CLICKED && request.event == MSG_TYPE.FCP_HELPER_INIT) {
+                //////////先做一些准备工作/////////////////////
+                baidu.fcphelper.initStaticFile();
 			}
+            //browserAction被点击
+            if(request.type == MSG_TYPE.BROWSER_CLICKED && request.event == MSG_TYPE.FCP_HELPER_DETECT) {
+                //加载css
+                _loadCss();
+                //html
+                baidu.fcphelper.initHtml(function(){
+                    //fcp相关检测
+                    baidu.fcphelper.detect();
+                });
+            }
 		});
 	};
-	
-	/**
-	 * 执行栅格检测：在页面上显示栅格
-	 */
-	var _doGridDetect = function(){
-		chrome.runtime.onMessage.addListener(function(request,sender,callback){
-			//browserAction被点击
-			if(request.type == MSG_TYPE.BROWSER_CLICKED && request.event == MSG_TYPE.GRID_DETECT) {
-				//加载css
-                _loadCss();
-				//栅格检测
-				baidu.grid.detect();
-			}
-		});
-	};
-	
+
 	/**
 	 * 函数主入口，主要是处理和browserAction之间的message交互
 	 */
 	var _main = function(){
 		//执行FCPHelper检测
 		_doFcpDetect();
-		//执行栅格检测
-		_doGridDetect();
 	};
 	
 	
