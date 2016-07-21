@@ -145,8 +145,8 @@ baidu.csJsonFormat = (function () {
                 // 直接replace掉所有\w之外的字符，再和原内容比较
                 var r_ns = newSource.replace(/[^\w]/gm,'').length;
                 var r_os = _uniDecode(source).replace(/[^\w]/gm,'').length;
-                // 允许内容产生1%的误差
-                if(Math.abs(r_ns - r_os) > (r_ns + r_os) / 200) {
+                // 允许内容产生1/20的误差
+                if(Math.abs(r_ns - r_os) > (r_ns + r_os) / 20) {
                     return ;
                 }
             } catch (ex) {
