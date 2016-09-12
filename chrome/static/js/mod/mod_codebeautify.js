@@ -18,6 +18,7 @@
 })( /*importend*/ )
 
 importScript("js/codebeautify/beautify.js");
+importScript("js/codebeautify/vkbeautify.js");
 importScript("js/codebeautify/beautify-css.js");
 importScript("js/codebeautify/beautify-html.js");
 importScript("js/core/fe-const.js");
@@ -26,4 +27,5 @@ importScript("vendor/syntaxhighlighter/shCore.js");
 importScript("vendor/syntaxhighlighter/shBrushCss.js");
 importScript("vendor/syntaxhighlighter/shBrushJScript.js");
 importScript("vendor/syntaxhighlighter/shBrushXml.js");
+importScript("vendor/syntaxhighlighter/shBrushSql.js");
 importScript("js/codebeautify/codebeautify.js");

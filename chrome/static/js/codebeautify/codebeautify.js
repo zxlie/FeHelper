@@ -34,6 +34,14 @@ var CodeBeautify = (function () {
             var html = html_beautify($('#codeSource').val());
             html = '<pre class="brush: html;toolbar:false;">' + html + '</pre>';
             $('#jfContent').html(html);
+        }  else if (codeType == 'XML') {
+            var xml = vkbeautify.xml($('#codeSource').val());
+            xml = '<pre class="brush: html;toolbar:false;">' + xml + '</pre>';
+            $('#jfContent').html(xml);
+        } else if (codeType == 'SQL') {
+            var sql = vkbeautify.sql($('#codeSource').val(),4);
+            sql = '<pre class="brush: sql;toolbar:false;">' + sql + '</pre>';
+            $('#jfContent').html(sql);
         }
 
         // 代码高亮
