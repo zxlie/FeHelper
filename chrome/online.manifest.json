@@ -47,7 +47,8 @@
         "static/img/close.png",
         "static/css/fe-helper.css",
         "static/css/fe-jsonformat-content.css",
-        "static/vendor/jquery-ui-1.8/jquery-ui.hot.css"
+        "static/vendor/jquery-ui-1.8/jquery-ui.hot.css",
+        "static/img/json-down.png"
     ],
 
     "content_scripts": [
