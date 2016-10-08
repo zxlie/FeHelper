@@ -1,6 +1,6 @@
 {
     "name": "WEB前端助手(FeHelper)",
-    "version": "9.0",
+    "version": "9.1",
     "manifest_version": 2,
 
     "default_locale": "zh_CN",
@@ -84,6 +84,7 @@
             "all_frames": false
         }
     ],
-    "content_security_policy": "script-src 'self' https://ssl.google-analytics.com 'unsafe-eval'; object-src 'self'",
+    "content_security_policy": "style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-eval'; object-src 'self' ",
+    "update_url": "https://clients2.google.com/service/update2/crx",
     "homepage_url": "https://www.baidufe.com/fehelper"
 }

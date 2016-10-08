@@ -1,6 +1,6 @@
 {
     "name": "WEB前端助手(FeHelper)",
-    "version": "9.0",
+    "version": "9.1",
     "manifest_version": 2,
 
     "default_locale": "zh_CN",
@@ -47,7 +47,8 @@
         "static/img/close.png",
         "static/css/fe-helper.css",
         "static/css/fe-jsonformat-content.css",
-        "static/vendor/jquery-ui-1.8/jquery-ui.hot.css"
+        "static/vendor/jquery-ui-1.8/jquery-ui.hot.css",
+        "static/img/json-down.png"
     ],
 
     "content_scripts": [
@@ -100,7 +101,8 @@
             "all_frames": false
         }
     ],
-    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+    "content_security_policy": "style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-eval'; object-src 'self' ",
+    "update_url": "https://clients2.google.com/service/update2/crx",
     "homepage_url": "https://www.baidufe.com/fehelper"
 
 }

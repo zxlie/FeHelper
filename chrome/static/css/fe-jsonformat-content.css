@@ -35,7 +35,7 @@
 .collapsed>.ell{margin:0 4px;color:#888}
 .collapsed .kvov{display:inline}
 .e{width:20px;height:18px;display:block;position:absolute;left:-2px;top:1px;z-index:5;
-    background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAD1JREFUeNpiYGBgOADE%2F3Hgw0DM4IRHgSsDFOzFInmMAQnY49ONzZRjDFiADT7dMLALiE8y4AGW6LoBAgwAuIkf%2F%2FB7O9sAAAAASUVORK5CYII%3D");
+    background-image:url("../img/json-down.png");
     background-repeat:no-repeat;background-position:center center;display:block;opacity:0.15}
 .collapsed>.e{-webkit-transform:rotate(-90deg);width:18px;height:20px;left:0px;top:0px}
 .e:hover{opacity:0.35}.e:active{opacity:0.5}.collapsed .kvov .e{display:none}
