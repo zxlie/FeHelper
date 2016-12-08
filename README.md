@@ -1,7 +1,7 @@
 Web前端助手（FeHelper）
 =============================
 
-> 本插件提供了chrome和sougou浏览器两个版本，其中sougou浏览器版本属于简版，只包含部分工具，代码较简单
+> 本插件提供了chrome和sougou浏览器两个版本，其中sougou浏览器版本属于简版，只包含部分工具，代码较简单；重点维护的，还是chrome版本
 
 ## 一、官网地址
 http://www.baidufe.com/fehelper
@@ -26,7 +26,10 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 * 页面编码规范检测工具
 * 时间（戳）转换工具
 * 正则表达式测试工具
-* Js执行覆盖率检测工具
+* 代码美化工具
+* 代码压缩工具
+* 页面取色工具
+* Ajax接口抓包调试工具
 
 ### 三、用户反馈渠道
 http://www.baidufe.com/fehelper/feedback.html
