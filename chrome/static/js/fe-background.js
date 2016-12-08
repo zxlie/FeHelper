@@ -4,6 +4,9 @@
  */
 var BgPageInstance = (function () {
 
+    // debug cache，主要记录每个tab的ajax debug 开关
+    var ajaxDbgCache = {};
+
     //各种元素的就绪情况
     var _readyState = {
         css: false,
@@ -45,7 +48,7 @@ var BgPageInstance = (function () {
         if (_readyState.css && _readyState.js && _readyState.html) {
             _readyState.allDone = true;
         }
-        if(_readyState.allDone && typeof callback == 'function'){
+        if (_readyState.allDone && typeof callback == 'function') {
             callback();
         }
     };
@@ -63,7 +66,7 @@ var BgPageInstance = (function () {
                 type: MSG_TYPE.BROWSER_CLICKED,
                 event: MSG_TYPE.FCP_HELPER_DETECT
             });
-        } else if(_fcp_detect_interval[tab.id] === undefined) {
+        } else if (_fcp_detect_interval[tab.id] === undefined) {
             chrome.tabs.sendMessage(tab.id, {
                 type: MSG_TYPE.BROWSER_CLICKED,
                 event: MSG_TYPE.FCP_HELPER_INIT
@@ -72,9 +75,9 @@ var BgPageInstance = (function () {
             notifyText({
                 message: "正在准备数据，请稍等..."
             });
-            _fcp_detect_interval[tab.id] = setInterval(function(){
+            _fcp_detect_interval[tab.id] = setInterval(function () {
                 _doFcpDetect(tab);
-            },200);
+            }, 200);
         }
     };
 
@@ -189,6 +192,35 @@ var BgPageInstance = (function () {
     };
 
     /**
+     * ajax debugger 开关切换
+     * @private
+     */
+    var _debuggerSwitchOn = function () {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            var tab = tabs[0];
+            ajaxDbgCache[tab.id] = !ajaxDbgCache[tab.id];
+
+            chrome.tabs.executeScript(tab.id, {
+                code: 'console.info("FeHelper提醒：Ajax Debugger开关已' + (ajaxDbgCache[tab.id] ? '开启' : '关闭') + '！");',
+                allFrames: false
+            });
+        });
+    };
+
+    /**
+     * 告诉DevTools页面，当前的debug开关是否打开
+     * @param callback
+     * @private
+     */
+    var _tellDevToolsDbgSwitchOn = function (callback) {
+
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            var tab = tabs[0];
+            callback && callback(ajaxDbgCache[tab.id]);
+        });
+    };
+
+    /**
      * 根据给定参数，运行对应的Helper
      */
     var _runHelper = function (config) {
@@ -211,6 +243,12 @@ var BgPageInstance = (function () {
                     //代码压缩
                     case MSG_TYPE.CODE_COMPRESS:
                         _goCompressTool();
+                        break;
+                    //Ajax调试
+                    case MSG_TYPE.AJAX_DEBUGGER:
+                        _debuggerSwitchOn();
+                        break;
+                    default :
                         break;
                 }
             }
@@ -376,6 +414,24 @@ var BgPageInstance = (function () {
     };
 
     /**
+     * 在当前页面的控制台输出console
+     * @param request
+     * @private
+     */
+    var _ajaxDebugger = function (request) {
+
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            var tab = tabs[0];
+            chrome.tabs.executeScript(tab.id, {
+                code: "(" + (function (jsonStr) {
+                    var args = JSON.parse(unescape(jsonStr));
+                    console[args[0]].apply(console, Array.prototype.slice.call(args, 1));
+                }).toString() + ")('" + request.content + "');"
+            });
+        });
+    };
+
+    /**
      * 接收来自content_scripts发来的消息
      */
     var _addExtensionListener = function () {
@@ -444,6 +500,14 @@ var BgPageInstance = (function () {
             else if (request.type == MSG_TYPE.COLOR_PICKER) {
                 _drawColorPicker(callback);
             }
+            // console switch
+            else if (request.type == MSG_TYPE.AJAX_DEBUGGER_SWITCH) {
+                _tellDevToolsDbgSwitchOn(callback);
+            }
+            // console show
+            else if (request.type == MSG_TYPE.AJAX_DEBUGGER_CONSOLE) {
+                _ajaxDebugger(request);
+            }
 
             return true;
         });
@@ -460,7 +524,8 @@ var BgPageInstance = (function () {
     return {
         init: _init,
         runHelper: _runHelper,
-        showColorPicker: _showColorPicker
+        showColorPicker: _showColorPicker,
+        tellMeAjaxDbgSwitch: _tellDevToolsDbgSwitchOn
     };
 })();
 

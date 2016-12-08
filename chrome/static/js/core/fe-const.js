@@ -86,7 +86,12 @@ const MSG_TYPE = {
     AUTO_FORMART_PAGE_JSON : "opt_item_autojson",
 
     //页面取色器
-    COLOR_PICKER : "color-picker:newImage"
+    COLOR_PICKER : "color-picker:newImage",
+
+    // ajax debugger
+    AJAX_DEBUGGER : "ajax-debugger",
+    AJAX_DEBUGGER_CONSOLE : "ajax-debugger-console",
+    AJAX_DEBUGGER_SWITCH : "ajax-debugger-switch"
 };
 
 /**

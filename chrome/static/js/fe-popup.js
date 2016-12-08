@@ -21,6 +21,11 @@ $(function () {
 
         window.close();
     });
+
+    // ajax debugger开关文案控制
+    bgPage.BgPageInstance.tellMeAjaxDbgSwitch(function (dbgSwitchOn) {
+        $('li.-x-ajax-debugger span i').html(dbgSwitchOn ? '已开' : '已关');
+    });
 });
 
 

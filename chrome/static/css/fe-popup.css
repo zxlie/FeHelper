@@ -85,6 +85,13 @@ ul.fe-function-list li.-x-base64 b {
 ul.fe-function-list li.-x-colorpicker b {
     background-position:-64px -112px;
 }
+ul.fe-function-list li.-x-ajax-debugger b {
+    background-position:-81px -129px;
+}
+ul.fe-function-list li i {
+    color: #f00;
+    font-weight: 700;
+}
 .fe-feedback {
 	font-size:12px;
 	border-top:1px dotted #ddd;
