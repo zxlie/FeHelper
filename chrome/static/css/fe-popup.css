@@ -89,20 +89,40 @@ ul.fe-function-list li.-x-ajax-debugger b {
     background-position:-81px -129px;
 }
 ul.fe-function-list li i {
-    color: #f00;
+    color: #aaa;
     font-weight: 700;
+    font-style: normal;
 }
 .fe-feedback {
 	font-size:12px;
 	border-top:1px dotted #ddd;
 	padding:5px 15px 5px 5px;
-	text-align:right;
+    line-height: 20px;
+    color: #888;
 }
 .fe-feedback  a {
+    color:#888;
 	text-decoration:none;
-	color:#888;
+    text-align: left;
 }
 .fe-feedback  a:hover {
 	color:#a00;
+}
+svg:not(:root) {
+    overflow: hidden;
+}
+.fe-feedback .octicon {
+    vertical-align: text-bottom;
+}
+.fe-feedback .octicon {
+    display: inline-block;
+    fill: currentColor;
+}
+.fe-feedback .x-settings {
+    float: right;
+    cursor: pointer;
+}
+.fe-feedback .x-settings:hover {
+    color: #a00;
 }
 

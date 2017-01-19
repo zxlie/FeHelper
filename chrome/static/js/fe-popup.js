@@ -26,6 +26,23 @@ $(function () {
     bgPage.BgPageInstance.tellMeAjaxDbgSwitch(function (dbgSwitchOn) {
         $('li.-x-ajax-debugger span i').html(dbgSwitchOn ? '已开' : '已关');
     });
+
+    // 设置
+    jQuery('.fe-feedback .x-settings').click(function (e) {
+        chrome.tabs.create({
+            url: "template/fehelper_options.html",
+            active: true
+        });
+    });
+
+    // 根据配置，控制功能菜单的显示与隐藏
+    baidu.feOption.doGetOptions(baidu.feOption.optionItems, function (opts) {
+        opts && Object.keys(opts).forEach(function (item) {
+            if (opts[item] == 'false') {
+                $('li[data-msgtype="' + item + '"]').hide();
+            }
+        });
+    })
 });
 
 

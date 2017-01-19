@@ -70,7 +70,7 @@ baidu.csJsonFormat = (function () {
      * @param {Object} text
      */
     var _uniDecode = function (text) {
-        text = text.replace(/\\/g, "%").replace('%U','%u').replace('%u0025', '%25');
+        text = text.replace(/\\/g, "%").replace('%U', '%u').replace('%u0025', '%25');
 
         text = unescape(text.toString().replace(/%2B/g, "+"));
         var matches = text.match(/(%u00([0-9A-F]{2}))/gi);
@@ -139,15 +139,15 @@ baidu.csJsonFormat = (function () {
                 newSource = JSON.stringify(jsonObj);
                 // 如果newSource的长度比原source长度短很多的话，猜测应该是格式化错了，需要撤销操作
                 // 这里一定要unicode decode一下，要不然会出现误判
-                if(newSource.length * 2 < (_uniDecode(source)).length) {
-                    return ;
+                if (newSource.length * 2 < (_uniDecode(source)).length) {
+                    return;
                 }
                 // 直接replace掉所有\w之外的字符，再和原内容比较
-                var r_ns = newSource.replace(/[^\w]/gm,'').length;
-                var r_os = _uniDecode(source).replace(/[^\w]/gm,'').length;
+                var r_ns = newSource.replace(/[^\w]/gm, '').length;
+                var r_os = _uniDecode(source).replace(/[^\w]/gm, '').length;
                 // 允许内容产生1/20的误差
-                if(Math.abs(r_ns - r_os) > (r_ns + r_os) / 20) {
-                    return ;
+                if (Math.abs(r_ns - r_os) > (r_ns + r_os) / 20) {
+                    return;
                 }
             } catch (ex) {
                 // 通过JSON反解不出来的，一定有问题
@@ -187,7 +187,18 @@ baidu.csJsonFormat = (function () {
     var _init = function () {
         $(function () {
             if (!/^filesystem\:/.test(location.href)) {
-                _format();
+                if(baidu.feOption.pageJsonMustFormat) {
+                    _format();
+                }else{
+                    chrome.extension.sendMessage({
+                        type: MSG_TYPE.GET_OPTIONS,
+                        items: ['JSON_PAGE_FORMAT']
+                    }, function (opts) {
+                        if (opts.JSON_PAGE_FORMAT !== 'false') {
+                            _format();
+                        }
+                    });
+                }
             }
         });
     };
