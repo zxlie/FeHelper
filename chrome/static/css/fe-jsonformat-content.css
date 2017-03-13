@@ -112,3 +112,16 @@ html body {
 #btnDownload{
     width: 102px;
 }
+#boxOpt {
+    position: absolute;
+    z-index: 1024;
+}
+#boxOpt a {
+    cursor: pointer;
+    margin: 0 5px;
+    font-size: 12px;
+    color: #00f;
+}
+#boxOpt a:hover {
+    color:#f00;
+}

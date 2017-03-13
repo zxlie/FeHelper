@@ -6,6 +6,67 @@ baidu.jsonformat = (function () {
     "use strict";
 
     /**
+     * chrome 下复制到剪贴板
+     * @param text
+     */
+    var _copyToClipboard = function(text) {
+        const input = document.createElement('textarea');
+        input.style.position = 'fixed';
+        input.style.opacity = 0;
+        input.value = text;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('Copy');
+        document.body.removeChild(input);
+
+        alert('Json片段复制成功，随处粘贴可用！')
+    };
+
+    /**
+     * 给某个节点增加操作项
+     * @param el
+     * @private
+     */
+    var _addOptForItem = function(el){
+
+        // 复制json片段
+        var fnCopy = function (ec) {
+            var txt = el.text().replace(/":\s/gm, '":').replace(/,$/, '').trim();
+            if (!(/^{/.test(txt) && /\}$/.test(txt)) && !(/^\[/.test(txt) && /\]$/.test(txt))) {
+                txt = '{' + txt + '}';
+            }
+            try {
+                txt = JSON.stringify(JSON.parse(txt), null, 4);
+            } catch (err) {
+            }
+            _copyToClipboard(txt);
+        };
+
+        // 删除json片段
+        var fnDel = function (ed) {
+            if (el.parent().is('#formattedJson')) {
+                alert('如果连最外层的Json也删掉的话，就没啥意义了哦！');
+                return false;
+            }
+            el.remove();
+            boxOpt.css('top', -1000);
+        };
+
+        var boxOpt = $('#boxOpt');
+        if (!boxOpt.length) {
+            boxOpt = $('<div id="boxOpt"><a class="opt-copy">复制</a>|<a class="opt-del">删除</a></div>').appendTo('body');
+        }
+        boxOpt.find('a.opt-copy').unbind('click').bind('click', fnCopy);
+        boxOpt.find('a.opt-del').unbind('click').bind('click', fnDel);
+
+        boxOpt.css({
+            left: el.offset().left + el.width() - 50,
+            top: el.offset().top
+        });
+    };
+
+
+    /**
      * 执行format操作
      * @private
      */
@@ -87,7 +148,11 @@ baidu.jsonformat = (function () {
         // 点击区块高亮
         $('#jfContent').delegate('.kvov', 'click', function (e) {
             $('#jfContent .kvov').removeClass('x-outline');
-            $(this).removeClass('x-hover').addClass('x-outline');
+            var el = $(this).removeClass('x-hover').addClass('x-outline');
+
+            // 增加复制、删除功能
+            _addOptForItem(el);
+
             if (!$(e.target).is('.kvov .e')) {
                 e.stopPropagation();
             } else {
