@@ -62,7 +62,7 @@ baidu.csJsonFormat = (function () {
                 return false;
             }
         }
-        return newSource || source;
+        return $.trim(newSource || '') || source;
     };
 
     /**
@@ -201,7 +201,13 @@ baidu.csJsonFormat = (function () {
                 funcName = matches[1];
                 newSource = matches[2];
                 jsonObj = new Function("return " + newSource)();
+            }else{
+                reg = /^([\{\[])/ ;
+                if(!reg.test(source)){
+                    return ;
+                }
             }
+
         } catch (ex) {
             return;
         }
