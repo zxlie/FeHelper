@@ -337,13 +337,37 @@ var JsonFormatEntrance = (function () {
         _downloadJsonFile(JSON.parse(jsonStr));
     };
 
+
     /**
-     * 下载数据
+     * 直接下载，能解决中文乱码
      * @param json
      * @private
      */
-    var _downloadJsonFile = function (json) {
+    var _downloadJsonFile = function(json){
+
+        // 下载链接
+        var localUrl = location.href ;
+        var content = JSON.stringify(json, null, 4);
+        content = [ '/* ',localUrl,' */','\n',content].join('');
+        var blob = new Blob([ content ], {type:'application/octet-stream'});
+
+        var aLink = $('<a id="btnDownload" target="_blank" title="保存到本地">下载JSON数据</a>').prependTo('#optionBar');
+        aLink.attr('download', +new Date() + '.json');
+        aLink.attr('href',URL.createObjectURL(blob));
+
+        var evt = document.createEvent("HTMLEvents");
+        evt.initEvent("click", false, false);
+        aLink[0].dispatchEvent(evt);
+    };
+
+    /**
+     * 下载数据:在新版本Chrome下会导致中文乱码
+     * @param json
+     * @private
+     */
+    var _downloadJsonFile2 = function (json) {
         try {
+
             window.webkitRequestFileSystem(window.TEMPORARY, 10 * 1024 * 1024, function (fs) {
                 var dir = (+new Date).toString(36);
                 var name = +new Date() + '.json';
@@ -356,7 +380,13 @@ var JsonFormatEntrance = (function () {
                                 $('#optionBar').prepend('<a href="' + fileEntry.toURL() + '" id="btnDownload" target="_blank" ' +
                                     'title="在新页面Ctrl+S保存到本地">下载JSON数据</a>');
                             };
-                            var blob = new Blob([JSON.stringify(json, null, 4) ], {type:'application/octet-stream'});
+
+                            // 下载链接
+                            var localUrl = location.href ;
+                            var content = JSON.stringify(json, null, 4);
+                            content = [ '/* ',localUrl,' */','\n',content].join('');
+                            var blob = new Blob([ content ], {type:'application/octet-stream'});
+
                             fileWriter.write(blob);
                         });
                     });

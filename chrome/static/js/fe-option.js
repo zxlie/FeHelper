@@ -5,7 +5,7 @@
 baidu.feOption = (function () {
 
     // 页面json格式化强制开启
-    var pageJsonMustFormat = true;
+    var pageJsonMustFormat = false;
 
     /**
      * 将这些配置项保存到background-page，这样才能对每个页面生效

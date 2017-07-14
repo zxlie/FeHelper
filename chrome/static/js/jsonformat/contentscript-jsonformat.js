@@ -26,43 +26,65 @@ baidu.csJsonFormat = (function () {
 
     /**
      * 从页面提取JSON文本
-     * @return {*}
+     * @returns {string}
      * @private
      */
     var _getJsonText = function () {
-        var pre = $('body>pre:eq(0)')[0] || {textContent: ""};
-        var source = $.trim(pre.textContent);
-        if (!source) {
-            source = $.trim(document.body.textContent || '')
-        }
-        if (!source) {
-            return false;
-        }
 
-        // 如果body的内容还包含HTML标签，肯定不是合法的json了
-        // 如果是合法的json，也只可能有一个text节点
-        var nodes = document.body.childNodes;
-        var newSource = '';
-        for (var i = 0, len = nodes.length; i < len; i++) {
-            if (nodes[i].nodeType == Node.TEXT_NODE) {
-                newSource += nodes[i].textContent;
-            } else if (nodes[i].nodeType == Node.ELEMENT_NODE) {
-                var tagName = nodes[i].tagName.toLowerCase();
-                var html = $.trim(nodes[i].textContent);
-                // 如果是pre标签，则看内容是不是和source一样，一样则continue
-                if (tagName === 'pre' && html === source) {
-                    continue;
-                } else if ((nodes[i].offsetWidth === 0 || nodes[i].offsetHeight === 0 || !html) && ['script','link'].indexOf(tagName) == -1) {
-                    // 如果用户安装迅雷或者其他的插件，也回破坏页面结构，需要兼容一下
-                    continue;
+        var arr = [];
+        var sData = '';
+
+        [].slice.call(document.getElementsByTagName('*')).filter(function (el) {
+            return (el.offsetHeight + el.offsetWidth) > 0;
+        }).forEach(function (elm) {
+            var sT = '';
+            [].slice.call(elm.childNodes).forEach(function (el) {
+                if (el.nodeType === document.TEXT_NODE) {
+                    sT += el.data;
                 } else {
-                    return false;
+                    arr.push(sT);
+                    sT = '';
                 }
-            } else {
-                return false;
+            });
+            sT && arr.push(sT);
+        });
+
+        arr = arr.filter(function (s) {
+            return s.trim();
+        });
+
+        sData = arr[0] || '';
+        arr.forEach(function (item) {
+            try {
+
+                var isJson = false;
+                if (sData) {
+                    if (sData.match(/^\s*[\[\{]/)) {
+                        var oJson = JSON.parse(sData);
+                        if (typeof oJson === 'object') {
+                            isJson = true;
+                        }
+                    } else {
+                        var sTempData = sData.slice(sData.indexOf('(') + 1, sData.lastIndexOf(')'));
+                        if (typeof JSON.parse(sTempData) === 'object') {
+                            isJson = true;
+                            sData = sTempData;
+                        }
+                    }
+
+                }
+            } catch (err) {
             }
-        }
-        return $.trim(newSource || '') || source;
+
+            if (item.length > sData.length) {
+                sData = sData || item;
+            }
+
+            if (!isJson) {
+                sData = '';
+            }
+        });
+        return sData;
     };
 
     /**
@@ -92,7 +114,7 @@ baidu.csJsonFormat = (function () {
      * chrome 下复制到剪贴板
      * @param text
      */
-    var _copyToClipboard = function(text) {
+    var _copyToClipboard = function (text) {
         const input = document.createElement('textarea');
         input.style.position = 'fixed';
         input.style.opacity = 0;
@@ -110,7 +132,7 @@ baidu.csJsonFormat = (function () {
      * @param el
      * @private
      */
-    var _addOptForItem = function(el){
+    var _addOptForItem = function (el) {
 
         // 复制json片段
         var fnCopy = function (ec) {
@@ -152,7 +174,7 @@ baidu.csJsonFormat = (function () {
      * 事件绑定
      * @private
      */
-    var _bindEvent = function(){
+    var _bindEvent = function () {
 
         // 点击区块高亮
         $('#jfContent').delegate('.kvov', 'click', function (e) {
@@ -201,10 +223,10 @@ baidu.csJsonFormat = (function () {
                 funcName = matches[1];
                 newSource = matches[2];
                 jsonObj = new Function("return " + newSource)();
-            }else{
-                reg = /^([\{\[])/ ;
-                if(!reg.test(source)){
-                    return ;
+            } else {
+                reg = /^([\{\[])/;
+                if (!reg.test(source)) {
+                    return;
                 }
             }
 
@@ -236,13 +258,6 @@ baidu.csJsonFormat = (function () {
                 if (newSource.length * 2 < (_uniDecode(source)).length) {
                     return;
                 }
-                // 直接replace掉所有\w之外的字符，再和原内容比较
-                var r_ns = newSource.replace(/[^\w]/gm, '').length;
-                var r_os = _uniDecode(source).replace(/[^\w]/gm, '').length;
-                // 允许内容产生1/20的误差
-                if (Math.abs(r_ns - r_os) > (r_ns + r_os) / 20) {
-                    return;
-                }
             } catch (ex) {
                 // 通过JSON反解不出来的，一定有问题
                 return;
@@ -264,6 +279,7 @@ baidu.csJsonFormat = (function () {
     };
 
     var _init = function () {
+
         $(function () {
             if (!/^filesystem\:/.test(location.href)) {
                 if (baidu.feOption.pageJsonMustFormat) {
@@ -273,7 +289,7 @@ baidu.csJsonFormat = (function () {
                         type: MSG_TYPE.GET_OPTIONS,
                         items: ['JSON_PAGE_FORMAT']
                     }, function (opts) {
-                        if (opts.JSON_PAGE_FORMAT !== 'false') {
+                        if (opts.JSON_PAGE_FORMAT != 'false') {
                             _format();
                         }
                     });
