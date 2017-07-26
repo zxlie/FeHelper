@@ -31,60 +31,40 @@ baidu.csJsonFormat = (function () {
      */
     var _getJsonText = function () {
 
-        var arr = [];
-        var sData = '';
+        var pre = $('body>pre:eq(0)')[0] || {textContent: ""};
+        var source = $.trim(pre.textContent);
+        if (!source) {
+            source = $.trim(document.body.textContent || '')
+        }
+        if (!source) {
+            return false;
+        }
 
-        [].slice.call(document.getElementsByTagName('*')).filter(function (el) {
-            return (el.offsetHeight + el.offsetWidth) > 0;
-        }).forEach(function (elm) {
-            var sT = '';
-            [].slice.call(elm.childNodes).forEach(function (el) {
-                if (el.nodeType === document.TEXT_NODE) {
-                    sT += el.data;
+        // 如果body的内容还包含HTML标签，肯定不是合法的json了
+        // 如果是合法的json，也只可能有一个text节点
+        var nodes = document.body.childNodes;
+        var newSource = '';
+        for (var i = 0, len = nodes.length; i < len; i++) {
+            if (nodes[i].nodeType == Node.TEXT_NODE) {
+                newSource += nodes[i].textContent;
+            } else if (nodes[i].nodeType == Node.ELEMENT_NODE) {
+                var tagName = nodes[i].tagName.toLowerCase();
+                var html = $.trim(nodes[i].textContent);
+                // 如果是pre标签，则看内容是不是和source一样，一样则continue
+                if (tagName === 'pre' && html === source) {
+                    continue;
+                } else if ((nodes[i].offsetWidth === 0 || nodes[i].offsetHeight === 0 || !html) && ['script','link'].indexOf(tagName) == -1) {
+                    // 如果用户安装迅雷或者其他的插件，也回破坏页面结构，需要兼容一下
+                    continue;
                 } else {
-                    arr.push(sT);
-                    sT = '';
+                    return false;
                 }
-            });
-            sT && arr.push(sT);
-        });
-
-        arr = arr.filter(function (s) {
-            return s.trim();
-        });
-
-        sData = arr[0] || '';
-        arr.forEach(function (item) {
-            try {
-
-                var isJson = false;
-                if (sData) {
-                    if (sData.match(/^\s*[\[\{]/)) {
-                        var oJson = JSON.parse(sData);
-                        if (typeof oJson === 'object') {
-                            isJson = true;
-                        }
-                    } else {
-                        var sTempData = sData.slice(sData.indexOf('(') + 1, sData.lastIndexOf(')'));
-                        if (typeof JSON.parse(sTempData) === 'object') {
-                            isJson = true;
-                            sData = sTempData;
-                        }
-                    }
-
-                }
-            } catch (err) {
+            } else {
+                return false;
             }
+        }
 
-            if (item.length > sData.length) {
-                sData = sData || item;
-            }
-
-            if (!isJson) {
-                sData = '';
-            }
-        });
-        return sData;
+        return $.trim(newSource || '') || source;
     };
 
     /**
