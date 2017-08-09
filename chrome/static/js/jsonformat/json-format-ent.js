@@ -347,17 +347,14 @@ var JsonFormatEntrance = (function () {
 
         // 下载链接
         var localUrl = location.href ;
+        var dt = (new Date()).format('yyyyMMddHHmmss');
         var content = JSON.stringify(json, null, 4);
         content = [ '/* ',localUrl,' */','\n',content].join('');
         var blob = new Blob([ content ], {type:'application/octet-stream'});
 
         var aLink = $('<a id="btnDownload" target="_blank" title="保存到本地">下载JSON数据</a>').prependTo('#optionBar');
-        aLink.attr('download', +new Date() + '.json');
+        aLink.attr('download', 'FeHelper-' + dt + '.json');
         aLink.attr('href',URL.createObjectURL(blob));
-
-        var evt = document.createEvent("HTMLEvents");
-        evt.initEvent("click", false, false);
-        aLink[0].dispatchEvent(evt);
     };
 
     /**

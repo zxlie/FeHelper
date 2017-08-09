@@ -114,6 +114,24 @@ baidu.csJsonFormat = (function () {
      */
     var _addOptForItem = function (el) {
 
+        // 下载json片段
+        var fnDownload = function (ec) {
+            var txt = el.text().replace(/":\s/gm, '":').replace(/,$/, '').trim();
+            if (!(/^{/.test(txt) && /\}$/.test(txt)) && !(/^\[/.test(txt) && /\]$/.test(txt))) {
+                txt = '{' + txt + '}';
+            }
+            try {
+                txt = JSON.stringify(JSON.parse(txt), null, 4);
+            } catch (err) {
+            }
+
+            // 下载片段
+            var dt = (new Date()).format('yyyyMMddHHmmss');
+            var blob = new Blob([ txt ], {type:'application/octet-stream'});
+
+            $(this).attr('download', 'FeHelper-' + dt + '.json').attr('href',URL.createObjectURL(blob));
+        };
+
         // 复制json片段
         var fnCopy = function (ec) {
             var txt = el.text().replace(/":\s/gm, '":').replace(/,$/, '').trim();
@@ -139,13 +157,15 @@ baidu.csJsonFormat = (function () {
 
         var boxOpt = $('#boxOpt');
         if (!boxOpt.length) {
-            boxOpt = $('<div id="boxOpt"><a class="opt-copy">复制</a>|<a class="opt-del">删除</a></div>').appendTo('body');
+            boxOpt = $('<div id="boxOpt"><a class="opt-download" target="_blank">下载</a>|<a class="opt-copy">复制</a>|<a class="opt-del">删除</a></div>').appendTo('body');
         }
+
+        boxOpt.find('a.opt-download').unbind('click').bind('click', fnDownload);
         boxOpt.find('a.opt-copy').unbind('click').bind('click', fnCopy);
         boxOpt.find('a.opt-del').unbind('click').bind('click', fnDel);
 
         boxOpt.css({
-            left: el.offset().left + el.width() - 50,
+            left: el.offset().left + el.width() - 90,
             top: el.offset().top
         });
     };
@@ -261,19 +281,17 @@ baidu.csJsonFormat = (function () {
     var _init = function () {
 
         $(function () {
-            if (!/^filesystem\:/.test(location.href)) {
-                if (baidu.feOption.pageJsonMustFormat) {
-                    _format();
-                } else {
-                    chrome.extension.sendMessage({
-                        type: MSG_TYPE.GET_OPTIONS,
-                        items: ['JSON_PAGE_FORMAT']
-                    }, function (opts) {
-                        if (opts.JSON_PAGE_FORMAT != 'false') {
-                            _format();
-                        }
-                    });
-                }
+            if (baidu.feOption.pageJsonMustFormat) {
+                _format();
+            } else {
+                chrome.extension.sendMessage({
+                    type: MSG_TYPE.GET_OPTIONS,
+                    items: ['JSON_PAGE_FORMAT']
+                }, function (opts) {
+                    if (opts.JSON_PAGE_FORMAT != 'false') {
+                        _format();
+                    }
+                });
             }
         });
     };
