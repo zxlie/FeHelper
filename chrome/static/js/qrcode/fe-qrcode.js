@@ -40,7 +40,7 @@ baidu.qrcode = (function () {
             fill: foreground,
 
             // background color or image element, null for transparent background
-            background: null,
+            background: '#fff',
 
             // corner radius relative to module width: 0.0 .. 0.5
             radius: 0,

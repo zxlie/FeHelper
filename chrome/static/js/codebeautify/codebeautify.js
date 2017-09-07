@@ -28,18 +28,22 @@ var CodeBeautify = (function () {
             $('#jfContent').html(js);
         } else if (codeType == 'CSS') {
             var css = css_beautify($('#codeSource').val());
+            css = css.replace(/>/g, '&gt;').replace(/</g, '&lt;');
             css = '<pre class="brush: css;toolbar:true;">' + css + '</pre>';
             $('#jfContent').html(css);
         } else if (codeType == 'HTML') {
             var html = html_beautify($('#codeSource').val());
+            html = html.replace(/>/g, '&gt;').replace(/</g, '&lt;');
             html = '<pre class="brush: html;toolbar:false;">' + html + '</pre>';
             $('#jfContent').html(html);
         }  else if (codeType == 'XML') {
             var xml = vkbeautify.xml($('#codeSource').val());
+            xml = xml.replace(/>/g, '&gt;').replace(/</g, '&lt;');
             xml = '<pre class="brush: html;toolbar:false;">' + xml + '</pre>';
             $('#jfContent').html(xml);
         } else if (codeType == 'SQL') {
             var sql = vkbeautify.sql($('#codeSource').val(),4);
+            sql = sql.replace(/>/g, '&gt;').replace(/</g, '&lt;');
             sql = '<pre class="brush: sql;toolbar:false;">' + sql + '</pre>';
             $('#jfContent').html(sql);
         }
@@ -63,7 +67,6 @@ var CodeBeautify = (function () {
     var init = function () {
         // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
         chrome.runtime.onMessage.addListener(function (request, sender, callback) {
-            console.log(request);
             if (request.type == MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event == 'codebeautify') {
                 if (request.content) {
                     document.getElementById('codeSource').value = (request.content);
