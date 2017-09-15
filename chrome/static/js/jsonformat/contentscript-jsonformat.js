@@ -53,7 +53,7 @@ baidu.csJsonFormat = (function () {
                 // 如果是pre标签，则看内容是不是和source一样，一样则continue
                 if (tagName === 'pre' && html === source) {
                     continue;
-                } else if ((nodes[i].offsetWidth === 0 || nodes[i].offsetHeight === 0 || !html) && ['script','link'].indexOf(tagName) == -1) {
+                } else if ((nodes[i].offsetWidth === 0 || nodes[i].offsetHeight === 0 || !html) && ['script', 'link'].indexOf(tagName) == -1) {
                     // 如果用户安装迅雷或者其他的插件，也回破坏页面结构，需要兼容一下
                     continue;
                 } else {
@@ -127,9 +127,9 @@ baidu.csJsonFormat = (function () {
 
             // 下载片段
             var dt = (new Date()).format('yyyyMMddHHmmss');
-            var blob = new Blob([ txt ], {type:'application/octet-stream'});
+            var blob = new Blob([txt], {type: 'application/octet-stream'});
 
-            $(this).attr('download', 'FeHelper-' + dt + '.json').attr('href',URL.createObjectURL(blob));
+            $(this).attr('download', 'FeHelper-' + dt + '.json').attr('href', URL.createObjectURL(blob));
         };
 
         // 复制json片段
@@ -212,14 +212,28 @@ baidu.csJsonFormat = (function () {
         var funcName = null;
         // json对象
         var jsonObj = null;
-        var newSource = '';
+        var newSource = source;
+        var fnTry = null;
+        var fnCatch = null;
 
         // 下面校验给定字符串是否为一个合法的json
         try {
             // 再看看是不是jsonp的格式
-            var reg = /^([\w\.]+)\(\s*([\s\S]*)\s*\)$/igm;
-            var matches = reg.exec(source);
-            if (matches != null) {
+            var reg = /^([\w\.]+)\(\s*([\s\S]*)\s*\)$/gm;
+            var reTry = /^(try\s*\{\s*)?/g;
+            var reCatch = /(\}\s*catch\s*\(\s*\S+\s*\)\s*\{([\s\S])*\})?$/g;
+
+            // 检测是否有try-catch包裹
+            var sourceReplaced = source.replace(reTry, function () {
+                fnTry = fnTry ? fnTry : arguments[1];
+                return '';
+            }).replace(reCatch, function () {
+                fnCatch = fnCatch ? fnCatch : arguments[1];
+                return '';
+            }).trim();
+
+            var matches = reg.exec(sourceReplaced);
+            if (matches != null && (fnTry && fnCatch || !fnTry && !fnCatch)) {
                 funcName = matches[1];
                 newSource = matches[2];
                 jsonObj = new Function("return " + newSource)();
@@ -230,11 +244,7 @@ baidu.csJsonFormat = (function () {
                 }
             }
 
-        } catch (ex) {
-            return;
-        }
-
-        try {
+            // 强化验证
             if (jsonObj == null || typeof jsonObj != 'object') {
                 jsonObj = new Function("return " + source)();
 
@@ -244,7 +254,7 @@ baidu.csJsonFormat = (function () {
                     jsonObj = new Function("return " + jsonObj)();
                 }
             }
-        } catch (e) {
+        } catch (ex) {
             return;
         }
 
@@ -252,12 +262,17 @@ baidu.csJsonFormat = (function () {
         if (jsonObj != null && typeof jsonObj == "object") {
             try {
                 // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
-                newSource = JSON.stringify(jsonObj);
+                var jsonStr = JSON.stringify(jsonObj);
                 // 如果newSource的长度比原source长度短很多的话，猜测应该是格式化错了，需要撤销操作
                 // 这里一定要unicode decode一下，要不然会出现误判
-                if (newSource.length * 2 < (_uniDecode(source)).length) {
+                var len1 = jsonStr.replace(/'|"/g, '').length;
+                var len2 = (_uniDecode(newSource)).replace(/'|"/g, '').length;
+                // 误差不允许超过20%
+                if (Math.abs(len1 - len2) / ((len1 + len2) / 2) > 0.2) {
                     return;
                 }
+
+                newSource = jsonStr;
             } catch (ex) {
                 // 通过JSON反解不出来的，一定有问题
                 return;
@@ -272,8 +287,13 @@ baidu.csJsonFormat = (function () {
 
             // 如果是JSONP格式的，需要把方法名也显示出来
             if (funcName != null) {
-                $('#jfCallbackName_start').html(funcName + '(');
-                $('#jfCallbackName_end').html(')');
+                if (fnTry && fnCatch) {
+                    $('#jfCallbackName_start').html('<pre style="padding:0">' + fnTry + '</pre>' + funcName + '(');
+                    $('#jfCallbackName_end').html(')<br><pre style="padding:0">' + fnCatch + '</pre>');
+                } else {
+                    $('#jfCallbackName_start').html(funcName + '(');
+                    $('#jfCallbackName_end').html(')');
+                }
             }
         }
     };
