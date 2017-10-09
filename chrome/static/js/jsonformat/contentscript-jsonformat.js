@@ -265,8 +265,8 @@ baidu.csJsonFormat = (function () {
                 var jsonStr = JSON.stringify(jsonObj);
                 // 如果newSource的长度比原source长度短很多的话，猜测应该是格式化错了，需要撤销操作
                 // 这里一定要unicode decode一下，要不然会出现误判
-                var len1 = jsonStr.replace(/'|"/g, '').length;
-                var len2 = (_uniDecode(newSource)).replace(/'|"/g, '').length;
+                var len1 = jsonStr.replace(/'|"|\s/g, '').length;
+                var len2 = (_uniDecode(newSource)).replace(/'|"|\s/g, '').length;
                 // 误差不允许超过20%
                 if (Math.abs(len1 - len2) / ((len1 + len2) / 2) > 0.2) {
                     return;
