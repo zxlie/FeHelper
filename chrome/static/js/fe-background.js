@@ -291,14 +291,7 @@ var BgPageInstance = (function () {
             contexts: ['image'],
             parentId: baidu.contextMenuId,
             onclick: function (info, tab) {
-                qrcode.callback = function(text){
-                    chrome.tabs.sendMessage(tab.id, {
-                        type: MSG_TYPE.QR_DECODE,
-                        info:info,
-                        result:text
-                    });
-                };
-                qrcode.decode(info.srcUrl);
+                _qrDecode(info,tab);
             }
         });
 
@@ -399,6 +392,50 @@ var BgPageInstance = (function () {
         } else {
             _removeContextMenu();
         }
+    };
+
+    /**
+     * 二维码转码
+     * @param info
+     * @param tab
+     * @private
+     */
+    var _qrDecode = function(info,tab){
+        qrcode.callback = function (text) {
+            if ((text || '').indexOf('error decoding QR Code') !== -1) {
+                var image = new Image();
+                image.src = info.srcUrl;
+                image.onload = function () {
+                    var width = this.naturalWidth;
+                    var height = this.naturalHeight;
+
+                    // url方式解码失败，再转换成data uri后继续解码
+                    (function createCanvasContext(img, t, l, w, h) {
+                        var canvas = document.createElement('canvas');
+                        canvas.setAttribute('id', 'qr-canvas');
+                        canvas.height = h + 100;
+                        canvas.width = w + 100;
+                        var context = canvas.getContext('2d');
+                        context.fillStyle = 'rgb(255,255,255)';
+                        context.fillRect(0, 0, canvas.width, canvas.height);
+                        context.drawImage(img, l, t, w, h, 50, 50, w, h);
+                        qrcode.callback = function (txt) {
+                            chrome.tabs.sendMessage(tab.id, {
+                                type: MSG_TYPE.QR_DECODE,
+                                result: txt
+                            });
+                        };
+                        qrcode.decode(canvas.toDataURL());
+                    })(image, 0, 0, width, height);
+                }
+            } else {
+                chrome.tabs.sendMessage(tab.id, {
+                    type: MSG_TYPE.QR_DECODE,
+                    result: text
+                });
+            }
+        };
+        qrcode.decode(info.srcUrl);
     };
 
     /**
