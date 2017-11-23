@@ -1,11 +1,11 @@
 {
     "name": "WEB前端助手(FeHelper)",
-    "version": "10.3",
+    "version": "10.4",
     "manifest_version": 2,
 
     "default_locale": "zh_CN",
 
-    "description": "FE助手：包括字符串编解码、代码压缩、美化、JSON格式化、正则表达式、时间转换工具、二维码生成器、编码规范检测、页面性能检测、页面取色、Ajax接口调试",
+    "description": "FE助手：包括字符串编解码、代码压缩、美化、JSON格式化、正则表达式、时间转换工具、二维码生成与解码、编码规范检测、页面性能检测、页面取色、Ajax接口调试",
     "icons": {
         "16": "static/img/fe-16.png",
         "48": "static/img/fe-48.png",
@@ -57,7 +57,8 @@
             "matches": [
                 "http://*/*",
                 "https://*/*",
-                "file://*/*"
+                "file://*/*",
+                "*://*/*"
             ],
             "js": [
                 "static/js/core/jquery-1.5.min.js",
@@ -82,6 +83,8 @@
 
                 "static/js/colorpicker/elem-tool.js",
                 "static/js/colorpicker/colorpicker.js",
+
+                "static/js/qrcode/fe-decode.js",
 
                 "static/js/jsonformat/json-format-dealer.js",
                 "static/js/jsonformat/json-format-ent.js",

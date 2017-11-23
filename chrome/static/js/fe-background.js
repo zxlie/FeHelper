@@ -262,11 +262,11 @@ var BgPageInstance = (function () {
         _removeContextMenu();
         baidu.contextMenuId = chrome.contextMenus.create({
             title: "FeHelper",
-            contexts: ['page', 'selection', 'editable', 'link'],
-            documentUrlPatterns: ['http://*/*', 'https://*/*']
+            contexts: ['page', 'selection', 'editable', 'link','image'],
+            documentUrlPatterns: ['http://*/*', 'https://*/*', 'file://*/*']
         });
         chrome.contextMenus.create({
-            title: "生成二维码",
+            title: "二维码生成",
             contexts: ['page', 'selection', 'editable', 'link'],
             parentId: baidu.contextMenuId,
             onclick: function (info, tab) {
@@ -280,6 +280,29 @@ var BgPageInstance = (function () {
                 });
             }
         });
+
+        chrome.contextMenus.create({
+            type: 'separator',
+            contexts: ['image'],
+            parentId: baidu.contextMenuId
+        });
+        chrome.contextMenus.create({
+            title: "二维码解码",
+            contexts: ['image'],
+            parentId: baidu.contextMenuId,
+            onclick: function (info, tab) {
+                qrcode.callback = function(text){
+                    chrome.tabs.sendMessage(tab.id, {
+                        type: MSG_TYPE.QR_DECODE,
+                        info:info,
+                        result:text
+                    });
+                };
+                qrcode.decode(info.srcUrl);
+            }
+        });
+
+
         chrome.contextMenus.create({
             type: 'separator',
             contexts: ['all'],
@@ -353,6 +376,7 @@ var BgPageInstance = (function () {
                 });
             }
         });
+
     };
 
     /**

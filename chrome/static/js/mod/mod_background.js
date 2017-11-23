@@ -21,4 +21,5 @@ importScript("js/core/core.js");
 importScript("js/core/fe-const.js");
 importScript("js/core/network.js");
 importScript("js/fe-option.js");
+importScript("vendor/zxing/zxing.min.js");
 importScript("js/fe-background.js");

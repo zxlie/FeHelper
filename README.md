@@ -20,6 +20,7 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 * JSON页面自动格式化查看
 * JSON代码片段格式化工具
 * 二维码生成工具
+* 二维码解码（网页图片右键菜单）
 * 字符串编解码工具（Unicode、UTF8、Base64、MD5等）
 * 图片Base64编码工具
 * 页面加载性能检测工具

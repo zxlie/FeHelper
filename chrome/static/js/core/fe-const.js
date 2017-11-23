@@ -81,6 +81,8 @@ const MSG_TYPE = {
     TIME_STAMP : 'timestamp',
     // 图片base64
     IMAGE_BASE64 : 'imagebase64',
+    // 二维码解码
+    QR_DECODE : 'qr_decode',
 
     //页面json代码自动格式化
     AUTO_FORMART_PAGE_JSON : "opt_item_autojson",
