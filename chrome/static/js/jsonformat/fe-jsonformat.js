@@ -19,8 +19,24 @@ baidu.jsonformat = (function () {
         document.execCommand('Copy');
         document.body.removeChild(input);
 
-        alert('Json片段复制成功，随处粘贴可用！')
+        alertmsg('Json片段复制成功，随处粘贴可用！')
     };
+
+    /**
+     * 自动消失的弹窗
+     * @param content
+     */
+    var alertmsg = function(content)
+    {    
+        $("#alertmsg").remove();
+        var html ='<div id="alertmsg" style="position:fixed;top:5px;right:5px;"><p style="background:#000;opacity:0.8;display:inline-block; *display:inline;*zoom:1;color:#fff;text-align:center;padding:10px 10px;margin:0 auto;font-size:12px;border-radius:4px;">'+ content +'</p></div>'
+        $("body").append(html);
+        var t=setTimeout(next,2000);
+        function next()
+        {
+            $("#alertmsg").remove();     
+        }
+    }
 
     /**
      * 给某个节点增加操作项
