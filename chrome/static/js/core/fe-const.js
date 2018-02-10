@@ -7,7 +7,7 @@
 /**
  * 各个模块进行信息交互时的消息类型
  */
-const MSG_TYPE = {
+var MSG_TYPE = {
 	//browserAction被点击
 	BROWSER_CLICKED : "browser-clicked",
 	//提取CSS
@@ -99,7 +99,7 @@ const MSG_TYPE = {
 /**
  * 文件类型
  */
-const FILE = {
+var FILE = {
 	//css的<style>标签
 	STYLE : "style",
 	//css的<link>标签
@@ -109,7 +109,7 @@ const FILE = {
 };
 
 //首先配一个DTD中的白名单
-const PUBLIC_ID_WHITE_LIST = {
+var PUBLIC_ID_WHITE_LIST = {
     '': {
         systemIds: {
             '': true
@@ -185,7 +185,7 @@ const PUBLIC_ID_WHITE_LIST = {
 /**
  * IE和Webkit对Doctype的解析差异
  */
-const COMPAT_MODE_DIFF_PUBLIC_ID_MAP = {
+var COMPAT_MODE_DIFF_PUBLIC_ID_MAP = {
     '-//W3C//DTD HTML 4.0 Transitional//EN': {
         systemIds: {
             'http://www.w3.org/TR/html4/loose.dtd': {
@@ -216,7 +216,7 @@ const COMPAT_MODE_DIFF_PUBLIC_ID_MAP = {
 /**
  * 过时的HTML标签，HTML5已经不再支持
  */
-const HTML_DEPRECATED_TAGS = {
+var HTML_DEPRECATED_TAGS = {
     acronym: "定义首字母缩写",
     applet: "定义Java Applet",
     basefont: "定义Font定义",
@@ -239,7 +239,7 @@ const HTML_DEPRECATED_TAGS = {
 /**
  * 过时的HTML属性，HTML5已经不再支持
  */
-const HTML_DEPRECATED_ATTRIBUTES = {
+var HTML_DEPRECATED_ATTRIBUTES = {
     align: {
         iframe: true,
         img: true,
@@ -273,7 +273,7 @@ const HTML_DEPRECATED_ATTRIBUTES = {
 /**
  * 块级元素
  */
-const BLOCK_HTML_ELEMENT = [
+var BLOCK_HTML_ELEMENT = [
 	'address','blockquote','center','dir',
 	'div','dl','fieldset','form','h1','h2',
 	'h3','h4','h5','h6','hr','isindex','menu',
@@ -283,7 +283,7 @@ const BLOCK_HTML_ELEMENT = [
 /**
  * 内联元素
  */
-const INLINE_HTML_ELEMENT = [
+var INLINE_HTML_ELEMENT = [
 	'a','acronym','b','bdo','big','br','cite','code',
 	'dfn','em','font','i','img','input','kbd','label',
 	'q','s','samp','select','small','span','strike','strong',
@@ -294,7 +294,7 @@ const INLINE_HTML_ELEMENT = [
 /**
  * 可变元素：为根据上下文语境决定该元素为块元素或者内联元素。
  */
-const CHANGE_ABLE_HTML_ELEMENT = [
+var CHANGE_ABLE_HTML_ELEMENT = [
 	'applet','button','del','iframe',
 	'ins','map','object','script'
 ];
@@ -302,20 +302,20 @@ const CHANGE_ABLE_HTML_ELEMENT = [
 //关于IE的条件注释，可以参考这里：http://msdn.microsoft.com/en-us/library/ms537512(v=vs.85).aspx
 
 //条件注释的正则匹配规则
-const CONDITIONAL_COMMENT_REGEXP = /\[\s*if\s+[^\]][\s\w]*\]/i;
+var CONDITIONAL_COMMENT_REGEXP = /\[\s*if\s+[^\]][\s\w]*\]/i;
 
 // 非IE条件注释开始：<![if !IE]> or <![if false]>
-const NOT_IE_REVEALED_OPENING_CONDITIONAL_COMMENT_REGEXP = /^\[if\s+(!IE|false)\]$/i;
+var NOT_IE_REVEALED_OPENING_CONDITIONAL_COMMENT_REGEXP = /^\[if\s+(!IE|false)\]$/i;
 
 // IE条件注释结束：<![endif]>
-const REVEALED_CLOSING_CONDITIONAL_COMMENT_REGEXP = /^\[endif\s*\]$/i;
+var REVEALED_CLOSING_CONDITIONAL_COMMENT_REGEXP = /^\[endif\s*\]$/i;
 
 // 非IE的条件注释整体：  <!--[if !IE]> HTML <![endif]--> or  <!--[if false]> HTML <![endif]-->
-const NOT_IE_HIDDEN_CONDITIONAL_COMMENT_REGEXP = /^\[if\s+(!IE|false)\]>.*<!\[endif\]$/i;
+var NOT_IE_HIDDEN_CONDITIONAL_COMMENT_REGEXP = /^\[if\s+(!IE|false)\]>.*<!\[endif\]$/i;
 
 
 /* 正则 */
-const REG = {
+var REG = {
 	//script标签
     SCRIPT: /<script[^>]*>[\s\S]*?<\/[^>]*script>/gi,
 	//注释	
@@ -331,7 +331,7 @@ const REG = {
 /**
  * 能够自动闭合的标签，就算不闭合也不影响兄弟节点的布局
  */
-const SELF_CLOSING_TAGS = [
+var SELF_CLOSING_TAGS = [
 	'meta','link','area','base',
 	'col','input','img','br',
 	'hr','param','embed'

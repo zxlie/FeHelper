@@ -95,7 +95,7 @@ baidu.csJsonFormat = (function () {
      * @param text
      */
     var _copyToClipboard = function (text) {
-        const input = document.createElement('textarea');
+        var input = document.createElement('textarea');
         input.style.position = 'fixed';
         input.style.opacity = 0;
         input.value = text;
@@ -178,6 +178,12 @@ baidu.csJsonFormat = (function () {
 
         // 点击区块高亮
         $('#jfContent').delegate('.kvov', 'click', function (e) {
+            if($(this).hasClass('x-outline')) {
+                $('#boxOpt').remove();
+                $(this).removeClass('x-outline');
+                return false;
+            }
+
             $('#jfContent .kvov').removeClass('x-outline');
             var el = $(this).removeClass('x-hover').addClass('x-outline');
 

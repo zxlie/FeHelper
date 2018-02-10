@@ -6,6 +6,8 @@ var Timestamp = (function(){
 
 	"use strict";
 
+	var intervalId = 0;
+
 	var _bindEvents = function(){
         $('#btnStampToLocale').click(function(e) {
             var stamp = $.trim($('#txtSrcStamp').val());
@@ -28,12 +30,23 @@ var Timestamp = (function(){
             }
             $('#txtDesStamp').val(locale / 1000);
         });
+
+        $('#btnToggle').click(function(e){
+            var model = $(this).data('model') || 0;
+            if(model) {
+                $(this).data('model',0).val('暂停');
+                _initNowStamp();
+            }else{
+                $(this).data('model',1).val('开始');
+                window.clearInterval(intervalId);
+            }
+        });
 	};
 
     var _initNowStamp = function(){
         var txtNowDate = $('#txtNowDate');
         var txtNowStamp = $('#txtNow');
-        window.setInterval(function(){
+        intervalId = window.setInterval(function(){
             txtNowDate.val((new Date()).toLocaleString());
             txtNowStamp.val(Math.round((new Date()).getTime() / 1000));
         },1000);

@@ -10,7 +10,7 @@ baidu.jsonformat = (function () {
      * @param text
      */
     var _copyToClipboard = function(text) {
-        const input = document.createElement('textarea');
+        var input = document.createElement('textarea');
         input.style.position = 'fixed';
         input.style.opacity = 0;
         input.value = text;
@@ -71,6 +71,7 @@ baidu.jsonformat = (function () {
      * @private
      */
     var _format = function () {
+        $('#boxOpt').remove();
         $('#errorMsg').html('');
         $('#modJsonResult').hide();
         var source = $('#jsonSource').val().replace(/\n/gm,' ');
@@ -147,6 +148,12 @@ baidu.jsonformat = (function () {
 
         // 点击区块高亮
         $('#jfContent').delegate('.kvov', 'click', function (e) {
+            if($(this).hasClass('x-outline')) {
+                $('#boxOpt').remove();
+                $(this).removeClass('x-outline');
+                return false;
+            }
+
             $('#jfContent .kvov').removeClass('x-outline');
             var el = $(this).removeClass('x-hover').addClass('x-outline');
 
@@ -163,6 +170,13 @@ baidu.jsonformat = (function () {
             return false;
         }).delegate('.kvov', 'mouseout', function (e) {
             $(this).removeClass('x-hover');
+        });
+
+        $('.mod-json').click(function(e){
+            if($.contains('#jfContent',e.target)) {
+                $('#boxOpt').remove();
+                $('.x-outline').removeClass('x-outline')
+            }
         });
     };
 

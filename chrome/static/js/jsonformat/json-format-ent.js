@@ -93,11 +93,11 @@ var JsonFormatEntrance = (function () {
                     if (plainOn) {
                         plainOn = false;
                         pre.style.display = "none";
-                        jfContent.style.display = "";
+                        jfContent.style.display = "block";
                         $(this).text('元数据');
                     }else{
                         plainOn = true;
-                        pre.style.display = "";
+                        pre.style.display = "block";
                         jfContent.style.display = "none";
                         $(this).text('格式化');
                     }
@@ -113,7 +113,7 @@ var JsonFormatEntrance = (function () {
                     }
                     // When collapaseAll button clicked...
                     if (!plainOn) {
-                        if(buttonCollapseAll.innerText == '折叠所有'){
+                        if(buttonCollapseAll.innerText === '折叠所有'){
                             buttonCollapseAll.innerText = '展开所有';
                             collapse(document.getElementsByClassName('objProp'));
                         }else{

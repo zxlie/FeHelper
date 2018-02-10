@@ -8,7 +8,7 @@
 		<script type="text/javascript" src="../static/js/mod/mod_jsonformat.js"></script>
     </head>
     <body>
-        <div class="wrapper">
+        <div class="wrapper wp-json">
             <div class="panel panel-default" style="margin-bottom: 0px;">
                 <div class="panel-heading">
                     <h3 class="panel-title">
@@ -16,13 +16,14 @@
                             <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：JSON格式化查看</h3>
                 </div>
             </div>
+
             <div class="panel-body mod-json">
-                <div class="row">
+                <div class="row panel-txt">
                     <textarea class="form-control mod-textarea" id="jsonSource" placeholder="在这里粘贴您需要进行格式化的JSON代码"></textarea>
-                    <button id="btnFormat" class="btn btn-primary ui-fl-r ui-mt-10">格式化</button><span id="errorMsg"></span>
+                    <div><button id="btnFormat" class="btn btn-primary ui-mt-10">格式化</button><span id="errorMsg"></span></div>
                 </div>
 
-                <div class="row ui-mt-20 ui-d-n rst-item" id="modJsonResult">
+                <div class="row rst-item" id="modJsonResult">
                     <div id="formattingMsg">
                         <svg id="spinner" width="16" height="16" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" version="1.1">
                             <path d="M 150,0 a 150,150 0 0,1 106.066,256.066 l -35.355,-35.355 a -100,-100 0 0,0 -70.711,-170.711 z" fill="#3d7fe6"></path>
@@ -30,7 +31,11 @@
                         加载中...
                     </div>
                     <div id="jfCallbackName_start" class="callback-name"></div>
-                    <div id="jfContent"></div>
+                    <div id="jfContent">
+                        <div class="x-placeholder">
+                            <img src="../static/img/json-demo.jpg" alt="json-placeholder">
+                        </div>
+                    </div>
                     <pre id="jfContent_pre"></pre>
                     <div id="jfCallbackName_end" class="callback-name"></div>
                 </div>
