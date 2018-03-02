@@ -85,6 +85,7 @@ baidu.feOption = (function () {
         'opt_item_contextMenus',
         'EN_DECODE',
         'CODE_BEAUTIFY',
+        'CODE_COMPRESS',
         'JSON_FORMAT',
         'QR_CODE',
         'COLOR_PICKER',
