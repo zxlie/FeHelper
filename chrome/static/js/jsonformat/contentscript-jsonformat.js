@@ -151,8 +151,9 @@ baidu.csJsonFormat = (function () {
                 alert('如果连最外层的Json也删掉的话，就没啥意义了哦！');
                 return false;
             }
+            alert('节点已删除成功！');
             el.remove();
-            boxOpt.css('top', -1000);
+            boxOpt.css('top', -1000).hide();
         };
 
         var boxOpt = $('#boxOpt');
@@ -167,7 +168,7 @@ baidu.csJsonFormat = (function () {
         boxOpt.css({
             left: el.offset().left + el.width() - 90,
             top: el.offset().top
-        });
+        }).show();
     };
 
     /**

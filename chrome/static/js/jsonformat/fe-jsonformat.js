@@ -9,7 +9,7 @@ baidu.jsonformat = (function () {
      * chrome 下复制到剪贴板
      * @param text
      */
-    var _copyToClipboard = function(text) {
+    var _copyToClipboard = function (text) {
         var input = document.createElement('textarea');
         input.style.position = 'fixed';
         input.style.opacity = 0;
@@ -23,27 +23,11 @@ baidu.jsonformat = (function () {
     };
 
     /**
-     * 自动消失的弹窗
-     * @param content
-     */
-    window.alert = function(content)
-    {    
-        $("#alertmsg").remove();
-        var html ='<div id="alertmsg" style="position:fixed;top:5px;right:5px;"><p style="background:#000;opacity:0.8;display:inline-block; *display:inline;*zoom:1;color:#fff;text-align:center;padding:10px 10px;margin:0 auto;font-size:12px;border-radius:4px;">'+ content +'</p></div>'
-        $("body").append(html);
-        var t=setTimeout(next,3000);
-        function next()
-        {
-            $("#alertmsg").remove();     
-        }
-    }
-
-    /**
      * 给某个节点增加操作项
      * @param el
      * @private
      */
-    var _addOptForItem = function(el){
+    var _addOptForItem = function (el) {
 
         // 复制json片段
         var fnCopy = function (ec) {
@@ -65,7 +49,8 @@ baidu.jsonformat = (function () {
                 return false;
             }
             el.remove();
-            boxOpt.css('top', -1000);
+            alert('节点已删除成功！');
+            boxOpt.css('top', -1000).hide();
         };
 
         var boxOpt = $('#boxOpt');
@@ -78,7 +63,7 @@ baidu.jsonformat = (function () {
         boxOpt.css({
             left: el.offset().left + el.width() - 50,
             top: el.offset().top
-        });
+        }).show();
     };
 
 
@@ -90,7 +75,7 @@ baidu.jsonformat = (function () {
         $('#boxOpt').remove();
         $('#errorMsg').html('');
         $('#modJsonResult').hide();
-        var source = $('#jsonSource').val().replace(/\n/gm,' ');
+        var source = $('#jsonSource').val().replace(/\n/gm, ' ');
         if (!source) {
             return;
         }
@@ -164,7 +149,7 @@ baidu.jsonformat = (function () {
 
         // 点击区块高亮
         $('#jfContent').delegate('.kvov', 'click', function (e) {
-            if($(this).hasClass('x-outline')) {
+            if ($(this).hasClass('x-outline')) {
                 $('#boxOpt').remove();
                 $(this).removeClass('x-outline');
                 return false;
@@ -188,11 +173,15 @@ baidu.jsonformat = (function () {
             $(this).removeClass('x-hover');
         });
 
-        $('.mod-json').click(function(e){
-            if($.contains('#jfContent',e.target)) {
+        $('.mod-json').click(function (e) {
+            if ($.contains('#jfContent', e.target)) {
                 $('#boxOpt').remove();
                 $('.x-outline').removeClass('x-outline')
             }
+        });
+
+        $('span.x-xdemo').click(function(e){
+            $('#jsonSource').text($('#demo').val()).focus()
         });
     };
 
