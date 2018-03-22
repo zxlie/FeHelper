@@ -23,6 +23,22 @@ baidu.jsonformat = (function () {
     };
 
     /**
+     * 自动消失的弹窗
+     * @param content
+     */
+    window.alert = function(content)
+    {    
+        $("#alertmsg").remove();
+        var html ='<div id="alertmsg" style="position:fixed;top:5px;right:5px;"><p style="background:#000;opacity:0.8;display:inline-block; *display:inline;*zoom:1;color:#fff;text-align:center;padding:10px 10px;margin:0 auto;font-size:12px;border-radius:4px;">'+ content +'</p></div>'
+        $("body").append(html);
+        var t=setTimeout(next,3000);
+        function next()
+        {
+            $("#alertmsg").remove();     
+        }
+    }
+
+    /**
      * 给某个节点增加操作项
      * @param el
      * @private
