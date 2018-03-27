@@ -27,7 +27,7 @@ return array(
 	'MOD_CSS_COMBINE'             	=>	1 ,       //CSS文件是否启用合并
 	'MOD_HTML_COMPRESS'           	=>	1 ,       //HTML文件是否启用压缩
 	'MOD_JS_COMPRESS'             	=>	1 ,       //JS文件是否启用压缩
-	'JS_COMPRESS_ENGINE'          	=>	'yui' ,   //JS压缩压缩引擎，可选：yui(default)、uglifyjs
+	'JS_COMPRESS_ENGINE'          	=>	'uglifyjs' ,   //JS压缩压缩引擎，可选：yui(default)、uglifyjs
 	'JS_COMPRESS_IGNORE_LIST'     	=>	array(    //不进行js压缩的文件列表
 	),
 	'MOD_CSS_COMPRESS'            	=>	1 ,       //CSS文件是否启用压缩

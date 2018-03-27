@@ -315,7 +315,7 @@ baidu.csJsonFormat = (function () {
                     type: MSG_TYPE.GET_OPTIONS,
                     items: ['JSON_PAGE_FORMAT']
                 }, function (opts) {
-                    if (opts.JSON_PAGE_FORMAT != 'false') {
+                    if (!opts || opts.JSON_PAGE_FORMAT != 'false') {
                         _format();
                     }
                 });

@@ -114,34 +114,6 @@ var BgPageInstance = (function () {
     };
 
     /**
-     * 代码压缩工具
-     * @private
-     */
-    var _goCompressTool = function () {
-        var url = "http://www.baidufe.com/fehelper/codecompress.html";
-        chrome.tabs.query({windowId: chrome.windows.WINDOW_ID_CURRENT}, function (tabs) {
-            var isOpened = false;
-            var tabId;
-            var reg = new RegExp("fehelper.*codecompress.html$", "i");
-            for (var i = 0, len = tabs.length; i < len; i++) {
-                if (reg.test(tabs[i].url)) {
-                    isOpened = true;
-                    tabId = tabs[i].id;
-                    break;
-                }
-            }
-            if (!isOpened) {
-                chrome.tabs.create({
-                    url: url,
-                    active: true
-                });
-            } else {
-                chrome.tabs.update(tabId, {highlighted: true});
-            }
-        });
-    };
-
-    /**
      * 创建或更新成功执行的动作
      * @param evt
      * @param content
@@ -240,10 +212,6 @@ var BgPageInstance = (function () {
                     case MSG_TYPE.SHOW_PAGE_LOAD_TIME:
                         _getPageWpoInfo();
                         break;
-                    //代码压缩
-                    case MSG_TYPE.CODE_COMPRESS:
-                        _goCompressTool();
-                        break;
                     //Ajax调试
                     case MSG_TYPE.AJAX_DEBUGGER:
                         _debuggerSwitchOn();
@@ -262,18 +230,23 @@ var BgPageInstance = (function () {
         _removeContextMenu();
         baidu.contextMenuId = chrome.contextMenus.create({
             title: "FeHelper",
-            contexts: ['page', 'selection', 'editable', 'link','image'],
+            contexts: ['page', 'selection', 'editable', 'link', 'image'],
             documentUrlPatterns: ['http://*/*', 'https://*/*', 'file://*/*']
         });
         chrome.contextMenus.create({
             title: "二维码生成",
-            contexts: ['page', 'selection', 'editable', 'link'],
+            contexts: ['page', 'selection', 'editable', 'link', 'image'],
             parentId: baidu.contextMenuId,
             onclick: function (info, tab) {
                 chrome.tabs.executeScript(tab.id, {
-                    code: '(' + (function () {
-                        return window.getSelection().toString() || location.href;
-                    }).toString() + ')()',
+                    code: '(' + (function (pInfo) {
+                        var linkUrl = pInfo.linkUrl;
+                        var pageUrl = pInfo.pageUrl;
+                        var imgUrl = pInfo.srcUrl;
+                        var selection = pInfo.selectionText;
+
+                        return linkUrl || imgUrl || selection || pageUrl;
+                    }).toString() + ')(' + JSON.stringify(info) + ')',
                     allFrames: false
                 }, function (txt) {
                     _openFileAndRun(tab, 'qrcode', txt);
@@ -291,7 +264,7 @@ var BgPageInstance = (function () {
             contexts: ['image'],
             parentId: baidu.contextMenuId,
             onclick: function (info, tab) {
-                _qrDecode(info,tab);
+                _qrDecode(info, tab);
             }
         });
 
@@ -400,7 +373,7 @@ var BgPageInstance = (function () {
      * @param tab
      * @private
      */
-    var _qrDecode = function(info,tab){
+    var _qrDecode = function (info, tab) {
         qrcode.callback = function (text) {
             if ((text || '').indexOf('error decoding QR Code') !== -1) {
                 var image = new Image();

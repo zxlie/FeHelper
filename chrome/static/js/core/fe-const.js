@@ -61,8 +61,6 @@ var MSG_TYPE = {
     //执行JS嗅探：Tracker，from 志龙（http://ucren.com)
     JS_TRACKER : 'js_tracker',
 
-    CODE_COMPRESS : 'code_compress',
-
     FROM_POPUP : 'from_popup_action',
 
     TAB_CREATED_OR_UPDATED: 'tab_created_or_updated',
@@ -77,6 +75,8 @@ var MSG_TYPE = {
     QR_CODE : 'qrcode',
     //代码美化
     CODE_BEAUTIFY : 'codebeautify',
+    //代码压缩
+    CODE_COMPRESS : 'codecompress',
     // 时间转换
     TIME_STAMP : 'timestamp',
     // 图片base64

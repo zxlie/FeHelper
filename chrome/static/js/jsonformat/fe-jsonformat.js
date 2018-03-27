@@ -74,7 +74,7 @@ baidu.jsonformat = (function () {
     var _format = function () {
         $('#boxOpt').remove();
         $('#errorMsg').html('');
-        $('#modJsonResult').hide();
+        $('#modJsonResult').show().find('#jfContent').html(placeholder);
         var source = $('#jsonSource').val().replace(/\n/gm, ' ');
         if (!source) {
             return;
@@ -180,23 +180,28 @@ baidu.jsonformat = (function () {
             }
         });
 
-        $('span.x-xdemo').click(function(e){
-            $('#jsonSource').text($('#demo').val()).focus()
+        $('span.x-xdemo').click(function (e) {
+            $('#jsonSource').val($('#demo').val()).focus()
         });
     };
 
+    var placeholder = '';
     var _init = function () {
-        // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
-        chrome.runtime.onMessage.addListener(function (request, sender, callback) {
-            if (request.type == MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event == 'jsonformat') {
-                if (request.content) {
-                    document.getElementById('jsonSource').value = (request.content);
-                    _format();
-                }
-            }
-        });
 
         $(function () {
+
+            placeholder = $('#jfContent').html();
+
+            // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
+            chrome.runtime.onMessage.addListener(function (request, sender, callback) {
+                if (request.type == MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event == 'jsonformat') {
+                    if (request.content) {
+                        document.getElementById('jsonSource').value = (request.content);
+                        _format();
+                    }
+                }
+            });
+
             //输入框聚焦
             jQuery("#jsonSource").focus();
             _bindEvents();

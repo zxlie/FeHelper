@@ -11,6 +11,7 @@ cp online.manifest.json output/manifest.json
 rm -rf fcp*
 cp /Users/zhaoxianlie/sourceCode/fcp/release/fcp.tar.gz . > /dev/null
 tar zxf fcp.tar.gz > /dev/null
+
 php fcp/index.php $MOD_NAME
 
 #如果有错，则没有产物
