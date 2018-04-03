@@ -8,3 +8,7 @@ chrome/output
 chrome/output/fe-helper.zip
 
 .DS_Store
+
+v2.0/node_modules/
+v2.0/output/
+v2.0/package-lock.json

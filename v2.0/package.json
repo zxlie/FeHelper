@@ -1,0 +1,34 @@
+{
+  "name": "fehelper",
+  "version": "1.0.0",
+  "description": "chrome extension",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-preset-latest": "^6.24.1",
+    "css-loader": "^0.28.11",
+    "file-loader": "^1.1.11",
+    "html-webpack-plugin": "^3.1.0",
+    "shelljs": "^0.8.1",
+    "webpack": "^4.4.1",
+    "webpack-cli": "^2.0.13"
+  },
+  "scripts": {
+    "dev": "webpack --mode development"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zxlie/FeHelper.git"
+  },
+  "keywords": [
+    "fehelper"
+  ],
+  "author": "zhaoxianlie",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://www.baidufe.com/fehelper/feedback.html"
+  },
+  "homepage": "https://www.baidufe.com/fehelper"
+}
