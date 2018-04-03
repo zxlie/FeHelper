@@ -24,6 +24,7 @@
         ]
     },
     "options_page": "options/index.html",
+    "devtools_page":"ajax-debugger/index.html",
 
     "permissions": [
         "tabs",

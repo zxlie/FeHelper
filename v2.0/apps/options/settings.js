@@ -37,7 +37,6 @@ module.exports = (() => {
 
     /**
      * 向background-page发送请求，提取配置项
-     * @param {Object} items
      * @param {Function} callback 回调方法
      */
     let _getOptions = function (callback) {

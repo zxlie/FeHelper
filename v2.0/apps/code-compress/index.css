@@ -1,0 +1,16 @@
+@import url("../static/vendor/codemirror/codemirror.css");
+@import url("../static/css/bootstrap.min.css");
+
+#jfContent {
+    min-height: 200px;
+}
+.panel-title .x-xother {
+    float: right;
+    font-size: 12px;
+    margin-top: 3px;
+    color: blue;
+    text-decoration: underline;
+}
+.panel-title .x-xother:hover {
+    color:red;
+}

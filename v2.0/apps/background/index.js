@@ -50,7 +50,7 @@ var BgPageInstance = (function () {
                 });
             } else {
                 chrome.tabs.create({
-                    url: "apps/wpo/index.html?" + btoa(encodeURIComponent(JSON.stringify(wpoInfo))),
+                    url: "wpo/index.html?" + btoa(encodeURIComponent(JSON.stringify(wpoInfo))),
                     active: true
                 });
             }
@@ -112,7 +112,7 @@ var BgPageInstance = (function () {
             }
             if (!isOpened) {
                 chrome.tabs.create({
-                    url: 'apps/' + file + '/index.html',
+                    url: '' + file + '/index.html',
                     active: true
                 }, _tabUpdatedCallback(file, txt));
             } else {
@@ -125,7 +125,7 @@ var BgPageInstance = (function () {
      * ajax debugger 开关切换
      * @private
      */
-    let _debuggerSwitchOn = function () {
+    let _debuggerSwitchOn = function (callback) {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             let tab = tabs[0];
             ajaxDbgCache[tab.id] = !ajaxDbgCache[tab.id];
@@ -134,6 +134,7 @@ var BgPageInstance = (function () {
                 code: 'console.info("FeHelper提醒：Ajax Debugger开关已' + (ajaxDbgCache[tab.id] ? '开启' : '关闭') + '！");',
                 allFrames: false
             });
+            callback && callback();
         });
     };
 
@@ -153,12 +154,12 @@ var BgPageInstance = (function () {
     /**
      * 根据给定参数，运行对应的Helper
      */
-    let _runHelper = function (config) {
+    let _runHelper = function (config, callback) {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             let tab = tabs[0];
 
             // 如果是采用独立文件方式访问，直接打开该页面即可
-            if (config.useFile === '1') {
+            if (config.useFile === 1) {
                 let content = config.msgType === MSG_TYPE.QR_CODE ? tab.url : '';
                 _openFileAndRun(tab, config.msgType, content);
             } else {
@@ -169,7 +170,7 @@ var BgPageInstance = (function () {
                         break;
                     //Ajax调试
                     case MSG_TYPE.AJAX_DEBUGGER:
-                        _debuggerSwitchOn();
+                        _debuggerSwitchOn(callback);
                         break;
                     default :
                         break;
@@ -204,7 +205,7 @@ var BgPageInstance = (function () {
                     }).toString() + ')(' + JSON.stringify(info) + ')',
                     allFrames: false
                 }, function (txt) {
-                    _openFileAndRun(tab, 'qrcode', txt);
+                    _openFileAndRun(tab, MSG_TYPE.QR_CODE, txt);
                 });
             }
         });
@@ -253,7 +254,7 @@ var BgPageInstance = (function () {
                     }).toString() + ')()',
                     allFrames: false
                 }, function (txt) {
-                    _openFileAndRun(tab, 'endecode', txt);
+                    _openFileAndRun(tab, MSG_TYPE.EN_DECODE, txt);
                 });
             }
         });
@@ -273,7 +274,7 @@ var BgPageInstance = (function () {
                     }).toString() + ')()',
                     allFrames: false
                 }, function (txt) {
-                    _openFileAndRun(tab, 'jsonformat', txt);
+                    _openFileAndRun(tab, MSG_TYPE.JSON_FORMAT, txt);
                 });
             }
         });
@@ -293,7 +294,7 @@ var BgPageInstance = (function () {
                     }).toString() + ')()',
                     allFrames: false
                 }, function (txt) {
-                    _openFileAndRun(tab, 'codebeautify', txt);
+                    _openFileAndRun(tab, MSG_TYPE.CODE_BEAUTIFY, txt);
                 });
             }
         });
@@ -313,13 +314,13 @@ var BgPageInstance = (function () {
      * 创建或移除扩展专属的右键菜单
      */
     let _createOrRemoveContextMenu = function () {
-
-        //管理右键菜单
-        if (Settings.getOptionItem('opt_item_contextMenus') !== 'false') {
-            _createContextMenu();
-        } else {
-            _removeContextMenu();
-        }
+        Settings.getOptsFromBgPage((opts) => {
+            if (opts['opt_item_contextMenus'] !== 'false') {
+                _createContextMenu();
+            } else {
+                _removeContextMenu();
+            }
+        });
     };
 
     /**
@@ -441,7 +442,7 @@ var BgPageInstance = (function () {
             }
             // 从popup中点过来的
             else if (request.type === MSG_TYPE.FROM_POPUP) {
-                _runHelper(request.config);
+                _runHelper(request.config, callback);
             }
             // color picker
             else if (request.type === MSG_TYPE.COLOR_PICKER) {

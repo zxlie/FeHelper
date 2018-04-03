@@ -36,21 +36,21 @@ module.exports = {
     ////////////////////如下是popup中的menu，value和filename相同///////////////////
     REGEXP_TOOL: 'regexp',
     //字符串编解码
-    EN_DECODE: 'endecode',
+    EN_DECODE: 'en-decode',
     //json查看器
-    JSON_FORMAT: 'jsonformat',
+    JSON_FORMAT: 'json-format',
     //QR生成器
-    QR_CODE: 'qrcode',
+    QR_CODE: 'qr-code',
     //代码美化
-    CODE_BEAUTIFY: 'codebeautify',
+    CODE_BEAUTIFY: 'code-beautify',
     //代码压缩
-    CODE_COMPRESS: 'codecompress',
+    CODE_COMPRESS: 'code-compress',
     // 时间转换
     TIME_STAMP: 'timestamp',
     // 图片base64
-    IMAGE_BASE64: 'imagebase64',
+    IMAGE_BASE64: 'image-base64',
     // 二维码解码
-    QR_DECODE: 'qr_decode',
+    QR_DECODE: 'qr-decode',
 
     //页面json代码自动格式化
     AUTO_FORMART_PAGE_JSON: "opt_item_autojson",
