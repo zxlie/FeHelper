@@ -156,7 +156,7 @@ var BgPageInstance = (function () {
     let _runHelper = function (config) {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             let tab = tabs[0];
-            
+
             // 如果是采用独立文件方式访问，直接打开该页面即可
             if (config.useFile === '1') {
                 let content = config.msgType === MSG_TYPE.QR_CODE ? tab.url : '';
@@ -427,11 +427,11 @@ var BgPageInstance = (function () {
         chrome.runtime.onMessage.addListener(function (request, sender, callback) {
             //提取配置项
             if (request.type === MSG_TYPE.GET_OPTIONS) {
-                Settings.doGetOptions(request.items, callback);
+                Settings.getOptsFromBgPage(callback);
             }
             //保存配置项
             else if (request.type === MSG_TYPE.SET_OPTIONS) {
-                Settings.doSetOptions(request.items, callback);
+                Settings.setOptsFromBgPage(request.items, callback);
                 //管理右键菜单
                 _createOrRemoveContextMenu();
             }
