@@ -3,7 +3,6 @@
  * @type {{compress}}
  */
 module.exports = (() => {
-    "use strict";
 
     function get_options() {
         return {
@@ -20,7 +19,6 @@ module.exports = (() => {
             compress: {
                 arrows: true,
                 booleans: true,
-                collapse_lets: true,
                 comparisons: true,
                 computed_props: true,
                 conditionals: true,
@@ -33,11 +31,9 @@ module.exports = (() => {
                 global_defs: {},
                 hoist_funs: false,
                 hoist_props: true,
-                hoist_lets: false,
                 ie8: false,
                 if_return: true,
                 inline: true,
-                join_lets: true,
                 keep_classnames: false,
                 keep_fargs: true,
                 keep_fnames: false,
@@ -49,7 +45,6 @@ module.exports = (() => {
                 pure_getters: "strict",
                 pure_funcs: null,
                 reduce_funcs: true,
-                reduce_lets: true,
                 sequences: true,
                 side_effects: true,
                 switches: true,
@@ -104,14 +99,6 @@ module.exports = (() => {
             },
             wrap: false
         };
-    }
-
-
-    function encodeHTML(str) {
-        return (str + '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/"/g, '&quot;');
     }
 
     function show_error(e, param) {
