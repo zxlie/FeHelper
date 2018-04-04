@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    <title>二维码生成工具</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="index.css" />
+    <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    <script type="text/javascript" src="../static/vendor/require/require.js"></script>
+    <script type="text/javascript" src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="../static/vendor/jquery/jquery.colorpicker.js"></script>
+    <script type="text/javascript" src="../static/vendor/jquery/jquery.qrcode.min.js"></script>
+</head>
+<body>
+
+    <div class="wrapper" id="pageContainer">
+        <div class="panel panel-default" style="margin-bottom: 0px;">
+            <div class="panel-heading">
+                <span class="x-tips" title="在网页二维码上右击，在FeHelper菜单中点击：二维码解码">★温馨提示：在网页右键菜单中已增加<i>「二维码解码」</i>功能</span>
+                <h3 class="panel-title">
+                    <a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank" class="x-a-high">
+                        <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：二维码生成器</h3>
+            </div>
+        </div>
+
+        <div class="panel-body mod-json">
+
+            <div class="row">
+                <textarea class="form-control mod-textarea" id="codeSource" ref="codeSource" v-model="textContent" placeholder="在这里填写需要生成二维码的任意内容"></textarea>
+            </div>
+
+            <div class="row ui-mt-10">
+
+                <div class="ui-d-ib x-sizes">
+                    尺寸：<input name="opt_width" type="text" id="opt_width" v-model="qrSize" size="4" maxlength="4"/>
+                </div>
+                <div class="ui-d-ib x-colors">
+                    颜色：<input type="text" id="opt_fc" v-model="qrColor" size="10" />
+                </div>
+
+                <div class="radio ui-d-ib x-icons">
+                    图标：<label><input id="remove_icon" name="qr_icon" type="radio" value="no" v-model="useIcon" @click="convert()">不要</label>
+                </div>
+
+                <div class="radio ui-d-ib ui-ml-10">
+                    <label><input id="default_icon" name="qr_icon" type="radio" value="default" v-model="useIcon" @click="convert()">默认</label>
+                </div>
+
+                <div class="radio ui-d-ib ui-ml-10">
+                    <label><input id="upload_icon" name="qr_icon" type="radio" value="custom" v-model="useIcon" @click="$refs.fileBox.click()">上传</label>
+                    (提示:支持直接拖拽一个图标到页面)
+                </div>
+
+                <button id="confirm_button" class="btn btn-success ui-fl-r" @click="convert()">生成QR图</button>
+            </div>
+
+            <div class="row ui-mt-20">
+                <h4>结果</h4>
+                <hr class="x-hr"/>
+                <div id="preview"></div>
+            </div>
+
+        </div>
+
+        <div class="x-logo">
+            <img src="../static/img/fe-48.png" alt="#" id="logo_default" ref="logoDefault"/>
+            <img src="../static/img/fe-48.png" alt="#" id="logo" ref="logoCustom"/>
+
+            <form action="#">
+                <input type="file" id="file" ref="fileBox" accept=".jpg,.jpeg,.gif,.png,.bmp" @change="fileChanged($event)">
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript" src="index.js"></script>
+</body>
+</html>
