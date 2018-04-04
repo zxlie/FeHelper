@@ -60,13 +60,12 @@ new Vue({
 
         _getDataUri: function (file) {
             let reader = new FileReader();
-            let that = this;
-            reader.onload = function (evt) {
-                that.resultContent = evt.target.result;
-                that.previewSrc = evt.target.result;
-                that.$refs.panelBox.style.backgroundImage = 'none';
-                that.sizeOri = that._sizeFormat(file.size);
-                that.sizeBase = that._sizeFormat(evt.target.result.length);
+            reader.onload = (evt) => {
+                this.resultContent = evt.target.result;
+                this.previewSrc = evt.target.result;
+                this.$refs.panelBox.style.backgroundImage = 'none';
+                this.sizeOri = this._sizeFormat(file.size);
+                this.sizeBase = this._sizeFormat(evt.target.result.length);
             };
             reader.readAsDataURL(file);
         },
