@@ -319,8 +319,10 @@ var JsonFormatEntrance = (function () {
 
     var _loadJquery = function () {
         if (typeof Tarp === 'object') {
-            window.jQuery = window.$ = Tarp.require('../static/vendor/jquery/jquery-3.3.1.min.js');
-            Tarp.require('../static/js/core/utils.js');
+            if (!window.jQuery && typeof jQuery !== 'function') {
+                window.jQuery = window.$ = Tarp.require('../static/vendor/jquery/jquery-3.3.1.min.js');
+            }
+            Tarp.require('../static/js/utils.js');
         } else {
             alert('无法加载Tarp.require.js');
         }

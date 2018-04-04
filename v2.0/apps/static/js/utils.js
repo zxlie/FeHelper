@@ -11,8 +11,8 @@ String.prototype.trim = function(){
  * @param {Object} pattern
  */
 Date.prototype.format = function(pattern){
-    var pad = function (source, length) {
-        var pre = "",
+    let pad = function (source, length) {
+        let pre = "",
             negative = (source < 0),
             string = String(Math.abs(source));
 
@@ -23,15 +23,15 @@ Date.prototype.format = function(pattern){
         return (negative ?  "-" : "") + pre + string;
     };
 
-    if ('string' != typeof pattern) {
+    if ('string' !== typeof pattern) {
         return this.toString();
     }
 
-    var replacer = function(patternPart, result) {
+    let replacer = function(patternPart, result) {
         pattern = pattern.replace(patternPart, result);
-    }
+    };
 
-    var year    = this.getFullYear(),
+    let year    = this.getFullYear(),
         month   = this.getMonth() + 1,
         date2   = this.getDate(),
         hours   = this.getHours(),
@@ -63,7 +63,7 @@ Date.prototype.format = function(pattern){
  */
 window.alert = function (content) {
     window.clearTimeout(window.feHelperAlertMsgTid);
-    var elAlertMsg = $("#fehelper_alertmsg").hide();
+    let elAlertMsg = $("#fehelper_alertmsg").hide();
     if(!elAlertMsg.get(0)) {
         elAlertMsg = $('<div id="fehelper_alertmsg" style="position:fixed;top:5px;right:5px;z-index:1000000">' +
             '<p style="background:#000;display:inline-block;color:#fff;text-align:center;' +
@@ -75,4 +75,22 @@ window.alert = function (content) {
     window.feHelperAlertMsgTid = window.setTimeout(function () {
         elAlertMsg.hide(100);
     }, 3000);
+};
+
+/**
+ * 获取当前脚本的绝对路径
+ * @returns {string}
+ */
+module.exports.getCurrAbsPath = function () {
+    let rExtractUri = /((?:http|https|file|chrome-extension):\/\/.*?\/[^:]+)(?::\d+)?:\d+/;
+    let stack;
+    try {
+        a.b();
+    }
+    catch (e) {
+        stack = e.fileName || e.sourceURL || e.stack || e.stacktrace;
+    }
+    if (stack) {
+        return rExtractUri.exec(stack)[1];
+    }
 };

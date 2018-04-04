@@ -52,6 +52,8 @@ module.exports = {
     // 二维码解码
     QR_DECODE: 'qr-decode',
 
+    JSON_PAGE_FORMAT:'JSON_PAGE_FORMAT',
+
     //页面json代码自动格式化
     AUTO_FORMART_PAGE_JSON: "opt_item_autojson",
 
@@ -61,5 +63,7 @@ module.exports = {
     // ajax debugger
     AJAX_DEBUGGER: "ajax-debugger",
     AJAX_DEBUGGER_CONSOLE: "ajax-debugger-console",
-    AJAX_DEBUGGER_SWITCH: "ajax-debugger-switch"
+    AJAX_DEBUGGER_SWITCH: "ajax-debugger-switch",
+
+    DEV_TOOLS : 'dev-tools'
 };

@@ -5,7 +5,7 @@ module.exports = (() => {
 
     // 页面json格式化强制开启
     let pageJsonMustFormat = false;
-    let MSG_TYPE = Tarp.require('../static/js/core/msg_type');
+    let MSG_TYPE = Tarp.require('../static/js/msg_type');
 
     // 所有配置项
     let optionItems = [

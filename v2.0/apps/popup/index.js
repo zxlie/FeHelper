@@ -31,7 +31,7 @@ new Vue({
             if (mType === 'COLOR_PICKER') {
                 bgPage.BgPageInstance.showColorPicker();
             } else {
-                let MSG_TYPE = Tarp.require('../static/js/core/msg_type');
+                let MSG_TYPE = Tarp.require('../static/js/msg_type');
                 bgPage.BgPageInstance.runHelper({
                     msgType: MSG_TYPE[mType],
                     useFile: useFile
@@ -39,10 +39,12 @@ new Vue({
                     if (mType === 'AJAX_DEBUGGER') {
                         bgPage.BgPageInstance.tellMeAjaxDbgSwitch((dbgSwitchOn) => {
                             this.ajaxDebugger = dbgSwitchOn ? '已开' : '已关';
-                        });
+                        }, true);
                     }
                 });
             }
+
+            window.close();
         },
 
         openOptionsPage: () => chrome.runtime.openOptionsPage()

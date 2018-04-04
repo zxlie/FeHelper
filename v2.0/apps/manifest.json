@@ -40,7 +40,29 @@
         "static/img/fe-16.png",
         "static/img/fe-48.png",
         "static/img/fe-128.png",
-        "static/img/ui-icons.png"
+        "static/img/ui-icons.png",
+        "options/settings.js",
+        "static/js/utils.js",
+        "static/js/msg_type.js",
+        "json-format/without-ui.css",
+        "json-format/format-lib.js"
+    ],
+
+    "content_scripts": [
+        {
+            "matches": [
+                "http://*/*",
+                "https://*/*",
+                "file://*/*"
+            ],
+            "js": [
+                "static/vendor/jquery/jquery-3.3.1.min.js",
+                "static/vendor/require/require.js",
+                "json-format/automatic.js"
+            ],
+            "run_at": "document_end",
+            "all_frames": false
+        }
     ],
 
     "content_security_policy": "style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-eval'; object-src 'self' ",

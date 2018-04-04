@@ -10,7 +10,7 @@ new Vue({
     },
 
     mounted: function () {
-        let MSG_TYPE = Tarp.require('../static/js/core/msg_type');
+        let MSG_TYPE = Tarp.require('../static/js/msg_type');
 
         // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
         chrome.runtime.onMessage.addListener((request, sender, callback) => {

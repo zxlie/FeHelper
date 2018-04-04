@@ -63,6 +63,7 @@ html {
     font-size: 14px;
     color:#333;
     direction: ltr;
+    padding-right: 10px;
 }
 html body {
     direction: inherit;

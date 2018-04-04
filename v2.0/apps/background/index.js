@@ -4,9 +4,10 @@
  */
 var BgPageInstance = (function () {
 
-    let MSG_TYPE = Tarp.require('../static/js/core/msg_type');
+    let MSG_TYPE = Tarp.require('../static/js/msg_type');
     let Settings = Tarp.require('../options/settings');
     let feHelper = {};
+    let devToolsDetected = false;
 
     // debug cache，主要记录每个tab的ajax debug 开关
     let ajaxDbgCache = {};
@@ -141,13 +142,26 @@ var BgPageInstance = (function () {
     /**
      * 告诉DevTools页面，当前的debug开关是否打开
      * @param callback
+     * @param withAlert
      * @private
      */
-    let _tellDevToolsDbgSwitchOn = function (callback) {
+    let _tellDevToolsDbgSwitchOn = function (callback, withAlert) {
 
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             let tab = tabs[0];
             callback && callback(ajaxDbgCache[tab.id]);
+
+            if (withAlert) {
+                if (ajaxDbgCache[tab.id]) {
+                    let msg = '';
+                    if (devToolsDetected) {
+                        msg = 'DevTools已打开，确保已切换到【Console】界面，并关注信息输出，愉快的进行Ajax Debugger！'
+                    } else {
+                        msg = '请打开DevTools，并切换到【Console】界面，关注信息输出，愉快的进行Ajax Debugger！';
+                    }
+                    alert(msg);
+                }
+            }
         });
     };
 
@@ -458,6 +472,24 @@ var BgPageInstance = (function () {
             }
 
             return true;
+        });
+
+        // 检测DevTools是否打开
+        let openCount = 0;
+        chrome.runtime.onConnect.addListener(function (port) {
+            if (port.name === MSG_TYPE.DEV_TOOLS) {
+                if (openCount === 0) {
+                    devToolsDetected = true;
+                }
+                openCount++;
+
+                port.onDisconnect.addListener(function (port) {
+                    openCount--;
+                    if (openCount === 0) {
+                        devToolsDetected = false;
+                    }
+                });
+            }
         });
     };
 

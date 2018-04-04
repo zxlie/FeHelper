@@ -9,7 +9,7 @@
  */
 let AjaxDebugger = (function () {
 
-    let MSG_TYPE = Tarp.require('../static/js/core/msg_type');
+    let MSG_TYPE = Tarp.require('../static/js/msg_type');
 
     /**
      * 自定义Console
@@ -110,6 +110,11 @@ let AjaxDebugger = (function () {
             });
         }
 
+    });
+
+    // 与background保持心跳
+    chrome.runtime.connect({
+        name: MSG_TYPE.DEV_TOOLS
     });
 
 })();

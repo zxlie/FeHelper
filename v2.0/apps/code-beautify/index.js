@@ -13,7 +13,7 @@ new Vue({
 
         // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
         chrome.runtime.onMessage.addListener((request, sender, callback) => {
-            let MSG_TYPE = Tarp.require('../static/js/core/msg_type');
+            let MSG_TYPE = Tarp.require('../static/js/msg_type');
             if (request.type === MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event === MSG_TYPE.CODE_BEAUTIFY) {
                 if (request.content) {
                     this.sourceContent = request.content;
