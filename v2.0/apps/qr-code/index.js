@@ -69,6 +69,7 @@ new Vue({
 
         _drawIcon: function (file) {
             if (/image\//.test(file.type)) {
+                this.useIcon = 'custom';
                 let reader = new FileReader();
                 reader.onload = (evt) => {
                     this.$refs.logoCustom.src = evt.target.result;
