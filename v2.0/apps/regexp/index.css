@@ -1,0 +1,115 @@
+@import url("../static/css/bootstrap.min.css");
+
+html {
+    font-size:14px
+}
+body {
+    background-color: #eee;
+    font-family:Arial, "simsun";
+    color:#666
+}
+.pannel-select{
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 255px;
+    height: 30px;
+}
+.reglist_select{
+    padding: 0 0;
+    height: 24px;
+}
+.reg_link{
+    display: inline-block;
+    float: right;
+    text-align: right;
+    font-size: 12px;
+    margin-top: 4px;
+}
+.reg_pre{
+    border: none;
+    background: transparent;
+}
+.reg_reg_input{
+    resize:none;
+}
+.reg_textarea{
+    padding: 0;
+    width: 954px;
+    resize: none;
+    font: 100%"courier new", monospace;
+}
+#srcWrapper{
+    padding: 12px;
+}
+.wrapper #srcBackground{
+    padding: 0;
+}
+.mod-regexp {
+    width: 980px;
+    margin: 0 auto;
+    padding: 0;
+    background: #FFF;
+}
+#srcWrapper {
+    background:#fff;
+    border:1px solid #ccc;
+    min-height:50px;
+    position:relative;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+
+#srcBackground {
+    padding:4px;
+    margin:0;
+    position:absolute;
+    z-index:1;
+    width:954px;
+    word-break: break-all;
+    line-height:14px;
+}
+#srcBackground i, #srcBackground b {
+    font: 100% "courier new",monospace;
+    font-style:normal;
+    font-weight:normal;
+    font-size:14px;
+    margin:0;
+    padding:0;
+    background:#fff;
+    color:#fff
+}
+#srcBackground b {
+    background:#dd0;
+    color:#dd0
+}
+#srcCode {
+    background:transparent;
+    margin:0;
+    border:none;
+    font-size:14px;
+    position:relative;
+    z-index:2;
+    outline:none;
+    overflow-y:hidden
+}
+
+#rstCount {
+    color:#f00
+}
+#rstCode {
+    padding:3px
+}
+#regTip {
+    font-size:12px;
+    color:#d00;
+    display:none
+}
+.x-tip {
+    font-size:12px;
+    color:#00b
+}

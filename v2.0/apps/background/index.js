@@ -6,6 +6,7 @@ var BgPageInstance = (function () {
 
     let MSG_TYPE = Tarp.require('../static/js/msg_type');
     let Settings = Tarp.require('../options/settings');
+
     let feHelper = {};
     let devToolsDetected = false;
 
@@ -344,6 +345,7 @@ var BgPageInstance = (function () {
      * @private
      */
     let _qrDecode = function (info, tab) {
+        let qrcode = Tarp.require('../static/vendor/zxing/zxing.min.js');
         qrcode.callback = function (text) {
             if ((text || '').indexOf('error decoding QR Code') !== -1) {
                 let image = new Image();
