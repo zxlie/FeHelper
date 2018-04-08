@@ -59,7 +59,8 @@
                 "static/vendor/jquery/jquery-3.3.1.min.js",
                 "static/vendor/require/require.js",
                 "json-format/automatic.js",
-                "qr-code/decode.js"
+                "qr-code/decode.js",
+                "wpo/inject.js"
             ],
             "run_at": "document_end",
             "all_frames": false
