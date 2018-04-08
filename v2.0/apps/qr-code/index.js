@@ -17,7 +17,7 @@ new Vue({
             if (request.type === MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event === MSG_TYPE.QR_CODE) {
                 if (request.content) {
                     this.textContent = request.content;
-                    this.$nextTick(this.convert);
+                    this.convert();
                 }
             }
         });

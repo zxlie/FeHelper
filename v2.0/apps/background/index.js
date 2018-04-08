@@ -220,7 +220,7 @@ var BgPageInstance = (function () {
                     }).toString() + ')(' + JSON.stringify(info) + ')',
                     allFrames: false
                 }, function (txt) {
-                    _openFileAndRun(tab, MSG_TYPE.QR_CODE, txt);
+                    _openFileAndRun(tab, MSG_TYPE.QR_CODE, txt[0]);
                 });
             }
         });
@@ -264,12 +264,13 @@ var BgPageInstance = (function () {
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
                 chrome.tabs.executeScript(tab.id, {
-                    code: '(' + (function () {
-                        return window.getSelection().toString();
-                    }).toString() + ')()',
+                    code: '(' + (function (pInfo) {
+
+                        return pInfo.selectionText;
+                    }).toString() + ')(' + JSON.stringify(info) + ')',
                     allFrames: false
                 }, function (txt) {
-                    _openFileAndRun(tab, MSG_TYPE.EN_DECODE, txt);
+                    _openFileAndRun(tab, MSG_TYPE.EN_DECODE, txt[0]);
                 });
             }
         });
@@ -284,12 +285,12 @@ var BgPageInstance = (function () {
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
                 chrome.tabs.executeScript(tab.id, {
-                    code: '(' + (function () {
-                        return window.getSelection().toString();
-                    }).toString() + ')()',
+                    code: '(' + (function (pInfo) {
+                        return pInfo.selectionText;
+                    }).toString() + ')(' + JSON.stringify(info) + ')',
                     allFrames: false
                 }, function (txt) {
-                    _openFileAndRun(tab, MSG_TYPE.JSON_FORMAT, txt);
+                    _openFileAndRun(tab, MSG_TYPE.JSON_FORMAT, txt[0]);
                 });
             }
         });
@@ -304,12 +305,12 @@ var BgPageInstance = (function () {
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
                 chrome.tabs.executeScript(tab.id, {
-                    code: '(' + (function () {
-                        return window.getSelection().toString();
-                    }).toString() + ')()',
+                    code: '(' + (function (pInfo) {
+                        return pInfo.selectionText;
+                    }).toString() + ')(' + JSON.stringify(info) + ')',
                     allFrames: false
                 }, function (txt) {
-                    _openFileAndRun(tab, MSG_TYPE.CODE_BEAUTIFY, txt);
+                    _openFileAndRun(tab, MSG_TYPE.CODE_BEAUTIFY, txt[0]);
                 });
             }
         });
