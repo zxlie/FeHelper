@@ -192,38 +192,35 @@ let AutomaticJsonFormat = (() => {
             $('body').html(_htmlFragment);
             _loadCss();
 
-            Tarp.require('./format-lib').format(newSource);
+            // 异步加载模式
+            Tarp.require('./format-lib', true).then(Json => {
+                Json.format(newSource);
 
-            // 如果是JSONP格式的，需要把方法名也显示出来
-            if (funcName != null) {
-                if (fnTry && fnCatch) {
-                    $('#jfCallbackName_start').html('<pre style="padding:0">' + fnTry + '</pre>' + funcName + '(');
-                    $('#jfCallbackName_end').html(')<br><pre style="padding:0">' + fnCatch + '</pre>');
-                } else {
-                    $('#jfCallbackName_start').html(funcName + '(');
-                    $('#jfCallbackName_end').html(')');
+                // 如果是JSONP格式的，需要把方法名也显示出来
+                if (funcName != null) {
+                    if (fnTry && fnCatch) {
+                        $('#jfCallbackName_start').html('<pre style="padding:0">' + fnTry + '</pre>' + funcName + '(');
+                        $('#jfCallbackName_end').html(')<br><pre style="padding:0">' + fnCatch + '</pre>');
+                    } else {
+                        $('#jfCallbackName_start').html(funcName + '(');
+                        $('#jfCallbackName_end').html(')');
+                    }
                 }
-            }
+            });
         }
     };
 
     let _init = function () {
 
-        $(function () {
-            let Settings = Tarp.require('../options/settings');
-            if (Settings.pageJsonMustFormat) {
-                _format();
-            } else {
-                let MSG_TYPE = Tarp.require('../static/js/msg_type');
-                chrome.extension.sendMessage({
-                    type: MSG_TYPE.GET_OPTIONS,
-                    items: [MSG_TYPE.JSON_PAGE_FORMAT]
-                }, function (opts) {
-                    if (!opts || opts.JSON_PAGE_FORMAT !== 'false') {
-                        _format();
-                    }
-                });
-            }
+        Tarp.require('../static/js/msg_type', true).then(MSG_TYPE => {
+            chrome.extension.sendMessage({
+                type: MSG_TYPE.GET_OPTIONS,
+                items: [MSG_TYPE.JSON_PAGE_FORMAT]
+            }, function (opts) {
+                if (!opts || opts.JSON_PAGE_FORMAT) {
+                    _format();
+                }
+            });
         });
     };
 

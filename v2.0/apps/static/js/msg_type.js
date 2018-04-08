@@ -3,8 +3,6 @@
  * @type {{BROWSER_CLICKED: string, GET_OPTIONS: string, SET_OPTIONS: string, START_OPTION: string, OPT_START_FCP: string, OPT_START_GRID: string, CALC_PAGE_LOAD_TIME: string, GET_PAGE_WPO_INFO: string, SHOW_PAGE_LOAD_TIME: string, JS_TRACKER: string, FROM_POPUP: string, TAB_CREATED_OR_UPDATED: string, REGEXP_TOOL: string, EN_DECODE: string, JSON_FORMAT: string, QR_CODE: string, CODE_BEAUTIFY: string, CODE_COMPRESS: string, TIME_STAMP: string, IMAGE_BASE64: string, QR_DECODE: string, AUTO_FORMART_PAGE_JSON: string, COLOR_PICKER: string, AJAX_DEBUGGER: string, AJAX_DEBUGGER_CONSOLE: string, AJAX_DEBUGGER_SWITCH: string}}
  */
 module.exports = {
-    //browserAction被点击
-    BROWSER_CLICKED: "browser-clicked",
 
     //get options
     GET_OPTIONS: 'get_options',
@@ -15,8 +13,6 @@ module.exports = {
     START_OPTION: 'start-option',
     //启动FCPHelper
     OPT_START_FCP: 'opt-item-fcp',
-    //启动栅格检测
-    OPT_START_GRID: 'opt-item-grid',
 
     //计算网页加载时间
     CALC_PAGE_LOAD_TIME: "calc-page-load-time",
@@ -25,11 +21,6 @@ module.exports = {
 
     //查看加载时间
     SHOW_PAGE_LOAD_TIME: "show-page-load-time",
-
-    //执行JS嗅探：Tracker，from 志龙（http://ucren.com)
-    JS_TRACKER: 'js_tracker',
-
-    FROM_POPUP: 'from_popup_action',
 
     TAB_CREATED_OR_UPDATED: 'tab_created_or_updated',
 
@@ -51,12 +42,8 @@ module.exports = {
     IMAGE_BASE64: 'image-base64',
     // 二维码解码
     QR_DECODE: 'qr-decode',
-
-    JSON_PAGE_FORMAT:'JSON_PAGE_FORMAT',
-
-    //页面json代码自动格式化
-    AUTO_FORMART_PAGE_JSON: "opt_item_autojson",
-
+    // JSON页面自动格式化
+    JSON_PAGE_FORMAT: 'JSON_PAGE_FORMAT',
     //页面取色器
     COLOR_PICKER: "color-picker:newImage",
 
@@ -65,5 +52,6 @@ module.exports = {
     AJAX_DEBUGGER_CONSOLE: "ajax-debugger-console",
     AJAX_DEBUGGER_SWITCH: "ajax-debugger-switch",
 
-    DEV_TOOLS : 'dev-tools'
+    // dev tools页面
+    DEV_TOOLS: 'dev-tools'
 };

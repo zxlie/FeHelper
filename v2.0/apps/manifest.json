@@ -45,7 +45,8 @@
         "static/js/utils.js",
         "static/js/msg_type.js",
         "json-format/without-ui.css",
-        "json-format/format-lib.js"
+        "json-format/format-lib.js",
+        "static/vendor/jquery/jquery-3.3.1.min.js"
     ],
 
     "content_scripts": [
@@ -60,7 +61,8 @@
                 "static/vendor/require/require.js",
                 "json-format/automatic.js",
                 "qr-code/decode.js",
-                "wpo/inject.js"
+                "wpo/inject.js",
+                "color-picker/index.js"
             ],
             "run_at": "document_end",
             "all_frames": false

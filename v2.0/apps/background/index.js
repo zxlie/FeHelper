@@ -457,10 +457,6 @@ var BgPageInstance = (function () {
             else if (request.type === MSG_TYPE.CALC_PAGE_LOAD_TIME) {
                 _showPageWpoInfo(request.wpo);
             }
-            // 从popup中点过来的
-            else if (request.type === MSG_TYPE.FROM_POPUP) {
-                _runHelper(request.config, callback);
-            }
             // color picker
             else if (request.type === MSG_TYPE.COLOR_PICKER) {
                 _drawColorPicker(callback);

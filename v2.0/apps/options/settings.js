@@ -4,12 +4,12 @@
 module.exports = (() => {
 
     // 页面json格式化强制开启
-    let pageJsonMustFormat = false;
     let MSG_TYPE = Tarp.require('../static/js/msg_type');
 
     // 所有配置项
     let optionItems = [
         'opt_item_contextMenus',
+        'JSON_PAGE_FORMAT',
         'EN_DECODE',
         'CODE_BEAUTIFY',
         'CODE_COMPRESS',
@@ -23,9 +23,6 @@ module.exports = (() => {
         'SHOW_PAGE_LOAD_TIME',
         'AJAX_DEBUGGER'
     ];
-    if (!pageJsonMustFormat) {
-        optionItems.push('JSON_PAGE_FORMAT');
-    }
 
     /**
      * 获取全部配置项
@@ -84,7 +81,6 @@ module.exports = (() => {
     };
 
     return {
-        pageJsonMustFormat: pageJsonMustFormat,
         getAllOpts: _getAllOpts,
         setOptsFromBgPage: _setOptsFromBgPage,
         getOptsFromBgPage: _getOptsFromBgPage,

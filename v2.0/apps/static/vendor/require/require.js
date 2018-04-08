@@ -163,10 +163,10 @@
                     parent = evaluate(cached, parent);
                     return requireEngine(mode, parent.exports.main, asyn);
                 }
-                else if (mode == 1)
+                else if (mode === 1)
                     return cached.u;
-                else if (mode == 2)
-                    return [id[0] == "." ? parent.uri.match(/.*\//)[0] : root.uri]; // TODO Can this be cleaned up?
+                else if (mode === 2)
+                    return [id[0] === "." ? parent.uri.match(/.*\//)[0] : root.uri]; // TODO Can this be cleaned up?
                 else
                     return evaluate(cached, parent).exports;
             }
