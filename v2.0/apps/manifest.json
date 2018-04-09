@@ -21,6 +21,7 @@
         "persistent": true,
         "scripts": [
             "static/vendor/require/require.js",
+            "background/ga.js",
             "background/detect.js",
             "background/index.js"
         ]

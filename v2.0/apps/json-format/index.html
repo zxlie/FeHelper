@@ -22,7 +22,7 @@
 
             <div class="panel-body mod-json">
                 <div class="row panel-txt">
-                    <textarea class="form-control mod-textarea" id="jsonSource" placeholder="在这里粘贴您需要进行格式化的JSON代码" ref="jsonBox" v-model="jsonSource"></textarea>
+                    <textarea class="form-control mod-textarea" id="jsonSource" placeholder="在这里粘贴您需要进行格式化的JSON代码" ref="jsonBox" v-model="jsonSource" @input="format"></textarea>
                     <div><button id="btnFormat" class="btn btn-primary ui-mt-10" @click="format">格式化</button><span id="errorMsg" v-html="errorMsg"></span></div>
                 </div>
 

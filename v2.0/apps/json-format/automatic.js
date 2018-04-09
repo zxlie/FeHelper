@@ -94,6 +94,7 @@ module.exports = (() => {
      * @private
      */
     let _format = function () {
+
         let source = _getJsonText();
         if (!source) {
             return;
