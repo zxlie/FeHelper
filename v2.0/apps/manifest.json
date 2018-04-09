@@ -2,8 +2,9 @@
     "name": "WEB前端助手(FeHelper)",
     "version": "2018.04.0201",
     "manifest_version": 2,
+    "default_locale": "zh_CN",
 
-    "description": "FE助手：包括字符串编解码、代码压缩、美化、JSON格式化、正则表达式、时间转换工具、二维码生成与解码、编码规范检测、页面性能检测、页面取色、Ajax接口调试",
+    "description": "FE助手：包括JSON格式化、二维码生成与解码、信息编解码、代码压缩、美化、页面取色、正则表达式、时间转换工具、编码规范检测、页面性能检测、Ajax接口调试",
     "icons": {
         "16": "static/img/fe-16.png",
         "48": "static/img/fe-48.png",
@@ -20,6 +21,7 @@
         "persistent": true,
         "scripts": [
             "static/vendor/require/require.js",
+            "background/detect.js",
             "background/index.js"
         ]
     },
@@ -33,6 +35,7 @@
         "notifications",
         "alarms",
         "webNavigation",
+        "debugger",
         "\u003Call_urls\u003E"
     ],
 
@@ -41,12 +44,32 @@
         "static/img/fe-48.png",
         "static/img/fe-128.png",
         "static/img/ui-icons.png",
+        "background/network.js",
         "options/settings.js",
         "static/js/utils.js",
         "static/js/msg_type.js",
         "json-format/without-ui.css",
+        "json-format/automatic.js",
         "json-format/format-lib.js",
-        "static/vendor/jquery/jquery-3.3.1.min.js"
+        "qr-code/decode.js",
+        "wpo/inject.js",
+        "color-picker/index.js",
+        "static/vendor/jquery/jquery-3.3.1.min.js",
+        "code-standards/index.css",
+        "code-standards/index.js",
+        "code-standards/fcp-fl.js",
+        "code-standards/css/fcp-css-analytic.js",
+        "code-standards/css/fcp-css.js",
+        "code-standards/html/fcp-html-analytic.js",
+        "code-standards/html/fcp-html-doctype.js",
+        "code-standards/html/fcp-html.js",
+        "code-standards/js/fcp-js.js",
+        "code-standards/fcp-tabs.js",
+        "code-standards/fcp-main.js",
+        "code-standards/pbar-ani.gif",
+        "static/vendor/jquery/jquery-ui.min.css",
+        "static/vendor/jquery/jquery-ui.min.js",
+        "static/vendor/jquery/jquery.extend.js"
     ],
 
     "content_scripts": [
@@ -59,12 +82,26 @@
             "js": [
                 "static/vendor/jquery/jquery-3.3.1.min.js",
                 "static/vendor/require/require.js",
-                "json-format/automatic.js",
-                "qr-code/decode.js",
-                "wpo/inject.js",
-                "color-picker/index.js"
+                "content-script/index.js"
             ],
             "run_at": "document_end",
+            "all_frames": false
+        },
+        {
+            "matches": [
+                "http://*.baidufe.com/fehelper/*",
+                "http://*.baidufe.com/fehelper",
+                "http://*.fehelper.com/fehelper/*",
+                "http://*.fehelper.com/fehelper",
+                "https://*.baidufe.com/fehelper/*",
+                "https://*.baidufe.com/fehelper",
+                "https://*.fehelper.com/fehelper/*",
+                "https://*.fehelper.com/fehelper"
+            ],
+            "js": [
+                "content-script/fehelper-only.js"
+            ],
+            "run_at": "document_start",
             "all_frames": false
         }
     ],

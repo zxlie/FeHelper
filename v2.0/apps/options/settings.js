@@ -37,7 +37,7 @@ module.exports = (() => {
      * @param {Function} callback 回调方法
      */
     let _getOptions = function (callback) {
-        chrome.extension.sendMessage({
+        chrome.runtime.sendMessage({
             type: MSG_TYPE.GET_OPTIONS
         }, callback);
     };
@@ -47,7 +47,7 @@ module.exports = (() => {
      * @param {Object} items
      */
     let _setOptions = function (items) {
-        chrome.extension.sendMessage({
+        chrome.runtime.sendMessage({
             type: MSG_TYPE.SET_OPTIONS,
             items: items
         });

@@ -2,27 +2,9 @@
  * Json Page Automatic Format Via FeHelper
  * @author zhaoxianlie
  */
-let AutomaticJsonFormat = (() => {
+module.exports = (() => {
 
     "use strict";
-    let _getCurrAbsPath = function () {
-        let rExtractUri = /((?:http|https|file|chrome-extension):\/\/.*?\/[^:]+)(?::\d+)?:\d+/;
-        let stack;
-        try {
-            a.b();
-        }
-        catch (e) {
-            stack = e.fileName || e.sourceURL || e.stack || e.stacktrace;
-        }
-        if (stack) {
-            return rExtractUri.exec(stack)[1];
-        }
-    };
-    let absPath = _getCurrAbsPath();
-    Tarp.require.config = {
-        paths: [absPath],
-        uri: absPath
-    };
 
     let _htmlFragment = [
         '<div class="mod-json mod-contentscript"><div class="rst-item">',
@@ -71,10 +53,8 @@ let AutomaticJsonFormat = (() => {
                 let html = $.trim(nodes[i].textContent);
                 // 如果是pre标签，则看内容是不是和source一样，一样则continue
                 if (tagName === 'pre' && html === source) {
-                    continue;
                 } else if ((nodes[i].offsetWidth === 0 || nodes[i].offsetHeight === 0 || !html) && ['script', 'link'].indexOf(tagName) === -1) {
                     // 如果用户安装迅雷或者其他的插件，也回破坏页面结构，需要兼容一下
-                    continue;
                 } else {
                     return false;
                 }
@@ -193,7 +173,7 @@ let AutomaticJsonFormat = (() => {
             _loadCss();
 
             // 异步加载模式
-            Tarp.require('./format-lib', true).then(Json => {
+            Tarp.require('../json-format/format-lib', true).then(Json => {
                 Json.format(newSource);
 
                 // 如果是JSONP格式的，需要把方法名也显示出来
@@ -210,23 +190,7 @@ let AutomaticJsonFormat = (() => {
         }
     };
 
-    let _init = function () {
-
-        Tarp.require('../static/js/msg_type', true).then(MSG_TYPE => {
-            chrome.extension.sendMessage({
-                type: MSG_TYPE.GET_OPTIONS,
-                items: [MSG_TYPE.JSON_PAGE_FORMAT]
-            }, function (opts) {
-                if (!opts || opts.JSON_PAGE_FORMAT) {
-                    _format();
-                }
-            });
-        });
-    };
-
     return {
-        init: _init
+        format: _format
     };
 })();
-
-AutomaticJsonFormat.init();

@@ -1,13 +1,13 @@
 /**
  * FeHelper QR码解码
  */
-let qrDecode = (function () {
+module.exports = (() => {
 
     "use strict";
 
-    let _show = function(text){
+    let _show = (text) => {
         let el = $('#__fehelper_qr_decode__');
-        if(!el[0]){
+        if (!el[0]) {
             el = $('<div id="__fehelper_qr_decode__" style="z-index:999999;position: fixed;left:0;top:0;right: 0;bottom: 0;display: none;">' +
                 '<div style="position: fixed;left:0;top:0;right: 0;bottom: 0;background: #000;opacity: 0.5;"></div>' +
                 '<div style="position: relative;top: 100px;left: ' + ($('body').width() / 2 - 200) + 'px;border:1px solid #000;background:#fff;width:420px;padding:15px;border-radius:5px 5px;box-shadow:2px 2px 5px #000;">' +
@@ -20,7 +20,7 @@ let qrDecode = (function () {
                 '</div></div>' +
                 '</div>').appendTo('body');
 
-            el.find('a#__fehelper_qr_copy_').click(function(e){
+            el.find('a#__fehelper_qr_copy_').click(function (e) {
                 e.preventDefault();
 
                 el.find('textarea').select();
@@ -28,33 +28,20 @@ let qrDecode = (function () {
 
                 el.find('#__fehelper_qr_msg_').show().delay(2000).hide('slow');
             });
-            el.find('a#__fehelper_qr_close_').click(function(e){
+            el.find('a#__fehelper_qr_close_').click(function (e) {
                 e.preventDefault();
                 el.hide('slow');
             });
         }
 
-        if(text === 'error decoding QR Code') {
+        if (text === 'error decoding QR Code') {
             text = '抱歉，二维码识别失败！';
         }
 
         el.show('slow').find('textarea').val(text);
     };
 
-    let _init = function () {
-        // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
-        chrome.runtime.onMessage.addListener(function (request, sender, callback) {
-            let MSG_TYPE = Tarp.require('../static/js/msg_type');
-            if (request.type === MSG_TYPE.QR_DECODE) {
-                _show(request.result);
-            }
-        });
-
-    };
-
     return {
-        init: _init
+        show: _show
     };
 })();
-
-qrDecode.init();

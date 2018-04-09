@@ -6,12 +6,60 @@ var BgPageInstance = (function () {
 
     let MSG_TYPE = Tarp.require('../static/js/msg_type');
     let Settings = Tarp.require('../options/settings');
+    let Network = Tarp.require('../background/network');
 
     let feHelper = {};
     let devToolsDetected = false;
 
     // debug cache，主要记录每个tab的ajax debug 开关
     let ajaxDbgCache = {};
+
+
+    //侦测就绪情况
+    let _detectReadyState = function (callback) {
+        if (_readyState.css && _readyState.js && _readyState.html) {
+            _readyState.allDone = true;
+        }
+        if (_readyState.allDone && typeof callback === 'function') {
+            callback();
+        }
+    };
+
+    //各种元素的就绪情况
+    let _readyState = {
+        css: false,
+        js: false,
+        html: true,
+        allDone: false
+    };
+    let _fcp_detect_interval = [];
+
+    /**
+     * 执行前端FCPHelper检测
+     */
+    let _doFcpDetect = function (tab) {
+        //所有元素都准备就绪
+        if (_readyState.allDone) {
+            clearInterval(_fcp_detect_interval[tab.id]);
+            chrome.tabs.sendMessage(tab.id, {
+                type: MSG_TYPE.CODE_STANDARDS,
+                event: MSG_TYPE.FCP_HELPER_DETECT
+            });
+        } else if (_fcp_detect_interval[tab.id] === undefined) {
+            chrome.tabs.sendMessage(tab.id, {
+                type: MSG_TYPE.CODE_STANDARDS,
+                event: MSG_TYPE.FCP_HELPER_INIT
+            });
+            //显示桌面提醒
+            notifyText({
+                message: "正在准备数据，请稍等..."
+            });
+            _fcp_detect_interval[tab.id] = setInterval(function () {
+                _doFcpDetect(tab);
+            }, 200);
+        }
+    };
+
 
     /**
      * 文本格式，可以设置一个图标和标题
@@ -170,6 +218,7 @@ var BgPageInstance = (function () {
      * 根据给定参数，运行对应的Helper
      */
     let _runHelper = function (config, callback) {
+
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             let tab = tabs[0];
 
@@ -179,6 +228,10 @@ var BgPageInstance = (function () {
                 _openFileAndRun(tab, config.msgType, content);
             } else {
                 switch (config.msgType) {
+                    //编码规范检测
+                    case MSG_TYPE.FCP_HELPER_DETECT:
+                        _doFcpDetect(tab);
+                        break;
                     //查看网页加载时间
                     case MSG_TYPE.SHOW_PAGE_LOAD_TIME:
                         _getPageWpoInfo();
@@ -392,9 +445,14 @@ var BgPageInstance = (function () {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             let tab = tabs[0];
             let tabid = tab.id;
-            let port = chrome.tabs.connect(tabid, {name: "popupshown"});
-            chrome.tabs.sendMessage(tabid, {enableColorPicker: true}, function (response) {
-                chrome.tabs.sendMessage(tabid, {doPick: true}, function (r) {
+            chrome.tabs.sendMessage(tabid, {
+                type: MSG_TYPE.SHOW_COLOR_PICKER,
+                enableColorPicker: true
+            }, function (response) {
+                chrome.tabs.sendMessage(tabid, {
+                    type: MSG_TYPE.SHOW_COLOR_PICKER,
+                    doPick: true
+                }, function (r) {
                 });
             });
         });
@@ -411,6 +469,7 @@ var BgPageInstance = (function () {
             let tabid = tab.id;
             chrome.tabs.captureVisibleTab(null, {format: 'png'}, function (dataUrl) {
                 chrome.tabs.sendMessage(tabid, {
+                    type: MSG_TYPE.SHOW_COLOR_PICKER,
                     setPickerImage: true,
                     pickerImage: dataUrl
                 }, function (response) {
@@ -470,6 +529,52 @@ var BgPageInstance = (function () {
                 _ajaxDebugger(request);
             }
 
+            // ===========================以下为编码规范检测====start==================================
+            //处理CSS的请求
+            else if (request.type === MSG_TYPE.GET_CSS) {
+                //直接AJAX获取CSS文件内容
+                Network.readFileContent(request.link, callback);
+            }
+            //处理JS的请求
+            else if (request.type === MSG_TYPE.GET_JS) {
+                //直接AJAX获取JS文件内容
+                Network.readFileContent(request.link, callback);
+            }
+            //处理HTML的请求
+            else if (request.type === MSG_TYPE.GET_HTML) {
+                //直接AJAX获取JS文件内容
+                Network.readFileContent(request.link, callback);
+            }
+            //处理cookie
+            else if (request.type === MSG_TYPE.GET_COOKIE) {
+                Network.getCookies(request, callback);
+            }
+            //移除cookie
+            else if (request.type === MSG_TYPE.REMOVE_COOKIE) {
+                Network.removeCookie(request, callback);
+            }
+            //设置cookie
+            else if (request.type === MSG_TYPE.SET_COOKIE) {
+                Network.setCookie(request, callback);
+            }
+            //CSS准备就绪
+            else if (request.type === MSG_TYPE.CSS_READY) {
+                _readyState.css = true;
+                _detectReadyState(callback);
+            }
+            //JS准备就绪
+            else if (request.type === MSG_TYPE.JS_READY) {
+                _readyState.js = true;
+                _detectReadyState(callback);
+            }
+            //HTML准备就绪
+            else if (request.type === MSG_TYPE.HTML_READY) {
+                _readyState.html = true;
+                _detectReadyState(callback);
+            }
+            // ===========================以上为编码规范检测====end==================================
+
+
             return true;
         });
 
@@ -488,6 +593,32 @@ var BgPageInstance = (function () {
                         devToolsDetected = false;
                     }
                 });
+            }
+        });
+
+        // 安装与更新
+        chrome.runtime.onInstalled.addListener(({reason, previousVersion}) => {
+            switch (reason) {
+                case 'install':
+                    chrome.runtime.openOptionsPage();
+                    break;
+                case 'update':
+                    chrome.browserAction.getBadgeText({tabId: null}, ({text}) => {
+                        setTimeout(() => {
+                            chrome.browserAction.setBadgeText({text: '恭喜'});
+                            setTimeout(() => {
+                                chrome.browserAction.setBadgeText({text: '升级'});
+                                setTimeout(() => {
+                                    chrome.browserAction.setBadgeText({text: '成功'});
+                                    setTimeout(() => {
+                                        chrome.browserAction.setBadgeText({text: ''});
+                                    }, 1500);
+                                }, 1500);
+                            }, 1500);
+                        }, 2000);
+                    });
+
+                    break;
             }
         });
     };

@@ -8,7 +8,6 @@ new Vue({
         resultContent: '',
         jsonSource: '',
         errorMsg: '',
-        canResultShow: false,
         jfCallbackName_start: '',
         jfCallbackName_end: ''
     },
@@ -33,7 +32,6 @@ new Vue({
     methods: {
         format: function () {
             this.errorMsg = '';
-            this.canResultShow = true;
             this.resultContent = this.defaultResultTpl;
 
             let source = this.jsonSource.replace(/\n/gm, ' ');

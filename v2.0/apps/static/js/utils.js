@@ -1,16 +1,71 @@
+window.baidu = {
+    namespace: {
+
+        /**
+         * 注册命名空间
+         * @param {String} fullNS 完整的命名空间字符串，如baidu.libs.Firefox
+         * @example baidu.namespace.register("baidu.libs.Firefox");
+         */
+        register: function (fullNS) {
+            //命名空间合法性校验依据
+            var reg = /^[_$a-z]+[_$a-z0-9]*/i;
+
+            // 将命名空间切成N部分, 比如baidu.libs.Firefox等
+            var nsArray = fullNS.split('.');
+            var sEval = "";
+            var sNS = "";
+            var _tmpObj = [window];
+            for (var i = 0; i < nsArray.length; i++) {
+                //命名空间合法性校验
+                if (!reg.test(nsArray[i])) {
+                    throw new Error("Invalid namespace:" + nsArray[i] + "");
+                    return;
+                }
+
+                _tmpObj[i + 1] = _tmpObj[i][nsArray[i]];
+                if (typeof _tmpObj[i + 1] == 'undefined') {
+                    _tmpObj[i + 1] = new Object();
+                }
+            }
+        }
+    },
+
+    i18n: {
+        getMessage: function (msgId, arr) {
+            if (arr) {
+                for (var i = 0, len = arr.length; i < len; i++) {
+                    arr[i] = '' + arr[i];
+                }
+                return chrome.i18n.getMessage(msgId, arr);
+            } else {
+                return chrome.i18n.getMessage(msgId);
+            }
+        }
+    }
+};
+
+/**
+ * 获取某字符串的字节数
+ */
+String.prototype.getBytes = function () {
+    var stream = this.replace(/\n/g, 'xx').replace(/\t/g, 'x');
+    var escapedStr = encodeURIComponent(stream);
+    return escapedStr.replace(/%[A-Z0-9][A-Z0-9]/g, 'x').length;
+}
+
 /**
  * 让所有字符串支持空白过滤功能：trim
  * @retrn {String} 返回两端无空白的字符串
  */
-String.prototype.trim = function(){
-    return this.replace(/^\s*|\s*$/g,"");
+String.prototype.trim = function () {
+    return this.replace(/^\s*|\s*$/g, "");
 };
 
 /**
  * 日期格式化
  * @param {Object} pattern
  */
-Date.prototype.format = function(pattern){
+Date.prototype.format = function (pattern) {
     let pad = function (source, length) {
         let pre = "",
             negative = (source < 0),
@@ -20,21 +75,21 @@ Date.prototype.format = function(pattern){
             pre = (new Array(length - string.length + 1)).join('0');
         }
 
-        return (negative ?  "-" : "") + pre + string;
+        return (negative ? "-" : "") + pre + string;
     };
 
     if ('string' !== typeof pattern) {
         return this.toString();
     }
 
-    let replacer = function(patternPart, result) {
+    let replacer = function (patternPart, result) {
         pattern = pattern.replace(patternPart, result);
     };
 
-    let year    = this.getFullYear(),
-        month   = this.getMonth() + 1,
-        date2   = this.getDate(),
-        hours   = this.getHours(),
+    let year = this.getFullYear(),
+        month = this.getMonth() + 1,
+        date2 = this.getDate(),
+        hours = this.getHours(),
         minutes = this.getMinutes(),
         seconds = this.getSeconds();
 
@@ -64,11 +119,11 @@ Date.prototype.format = function(pattern){
 window.alert = function (content) {
     window.clearTimeout(window.feHelperAlertMsgTid);
     let elAlertMsg = $("#fehelper_alertmsg").hide();
-    if(!elAlertMsg.get(0)) {
+    if (!elAlertMsg.get(0)) {
         elAlertMsg = $('<div id="fehelper_alertmsg" style="position:fixed;top:5px;right:5px;z-index:1000000">' +
             '<p style="background:#000;display:inline-block;color:#fff;text-align:center;' +
             'padding:10px 10px;margin:0 auto;font-size:14px;border-radius:4px;">' + content + '</p></div>').appendTo('body');
-    }else{
+    } else {
         elAlertMsg.find('p').text(content).end().show();
     }
 

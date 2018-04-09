@@ -93,7 +93,6 @@ FeHelper.ColorPicker = (function () {
     }
 
     var elmid1 = 'fehelper-colorpicker-box', elmid2 = 'fehelper-colorpicker-result';
-    var popupsShowing = 0;
 
     function _ge(n) {
         return document.getElementById(n);
@@ -506,9 +505,7 @@ FeHelper.ColorPicker = (function () {
 
         setPixelPreview(lastPreviewURI, hex, lasthex);
 
-        if (popupsShowing > 0) {
-            sendDataToPopup();
-        }
+        sendDataToPopup();
         isUpdating = false;
     }
 
@@ -543,6 +540,7 @@ FeHelper.ColorPicker = (function () {
     function reqLis(request, sender, sendResponse) {
         var resp = {result: true};
         if (request.enableColorPicker) {
+            disableColorPicker();
             resp.wasAlreadyEnabled = enableColorPicker()
             if (request.workerHasChanged) lsnaptabid = -1;
             if (resp.wasAlreadyEnabled) {
@@ -562,28 +560,11 @@ FeHelper.ColorPicker = (function () {
         sendResponse(resp);
     }
 
-    function init() {
-
-        disableColorPicker();
-        chrome.runtime.onMessage.removeListener(reqLis);
-        chrome.runtime.onMessage.addListener(reqLis);
-
-        chrome.runtime.onConnect.addListener(function (port) {
-            if (port.name == "popupshown") {
-                popupsShowing++;
-                port.onDisconnect.addListener(function (msg) {
-                    popupsShowing--;
-                    if (popupsShowing < 0) popupsShowing = 0;
-                });
-            }
-        });
-    }
-
     return {
-        init: init
+        handler: reqLis
     };
 
 
 })();
 
-FeHelper.ColorPicker.init();
+module.exports = FeHelper.ColorPicker;

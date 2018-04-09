@@ -1,0 +1,348 @@
+.fe-helper-hide {
+	display:none;
+}
+#fe-helper-box {
+    position: fixed;
+    left: 1px;
+    bottom: 0;
+	right:8px;
+    z-index: 2147483646;
+	font-size:12px;
+}
+
+#fe-helper-main-ifr {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+	bottom:0;
+    z-index: 2147483646;
+}
+
+#fe-helper-main-tab {
+    width: 100%;
+    position: absolute;
+	top:0;
+    left: 0;
+    bottom: 0;
+    z-index: 2147483647;
+    background: #fcfcfc;
+	text-align:left;
+}
+
+#fe-helper-main-tab .ui-tabs-nav {
+	-webkit-user-select : none;
+}
+
+#fe-helper-main-tab li .ui-icon-close {
+    float: left;
+    margin: 0.4em 0.2em 0 0;
+    cursor: pointer;
+}
+
+#fe-helper-main-tab.ui-tabs .ui-tabs-panel {
+	padding-right:0;
+}
+
+
+#fe-helper-main-tab .rst-title .rst-count{
+	color:#f00;
+}
+#fe-helper-main-tab .rst-content{
+	color:#666;
+	height:460px;
+	overflow-y:auto;
+}
+#fe-helper-main-tab .rst-content .x-num{
+	color:#f00;
+	font-weight:bold;
+}
+#fe-helper-main-tab .rst-content .x-tag{
+	color:#00f;
+	font-weight:bold;
+    word-wrap: break-word;
+}
+#fe-helper-main-tab .rst-content .x-attr{
+	color:#b00;
+	font-weight:bold;
+}
+#fe-helper-main-tab .rst-content .x-file{
+	color:#48b;
+}
+
+#fe-helper-box .ui-corner-top>a{
+	font-weight:bold;
+}
+#fe-helper-box .ui-resizable-s{
+    position: absolute;
+    top:0px;
+    z-index: 2147483647;
+}
+#fe-helper-box #fe-helper-minusthick,
+#fe-helper-box #fe-helper-plusthick,
+#fe-helper-box #fe-helper-closethick{
+    float:right;
+	cursor:pointer;
+	margin:5px 5px 0 ;
+}
+#fe-helper-box #fe-helper-minusthick:hover,
+#fe-helper-box #fe-helper-plusthick:hover,
+#fe-helper-box #fe-helper-closethick:hover{
+    background:#c00;
+}
+
+#fe-helper-box table {
+	font-size:11px;
+	border:2px solid #366EB9;
+	border-collapse:collapse;
+	width:100%;
+	table-layout:fixed;
+}
+#fe-helper-box table th,
+#fe-helper-box table td {
+	vertical-align:middle;
+	padding:3px 10px;
+	border:1px solid #eee;
+}
+#fe-helper-box table .td-linenum {
+	background:#ffc;
+	color:#900;
+	font-weight:normal;
+	font-style:italic;
+	text-align:right;
+	-webkit-user-select:none;
+	width:10%;
+	cursor:default;
+}
+#fe-helper-box table .td-content {
+	text-align:left;
+	padding-left:10px;
+	width:90%;
+}
+#fe-helper-box table .td-content-title {
+	text-align:right;
+	padding-right:10px;
+	width:6%;
+}
+#fe-helper-box table .td-content-content {
+	text-align:left;
+	padding-left:10px;
+	width:84%;
+}
+#fe-helper-box table .td-content-content.-c-x-issue {
+	color:#555;
+}
+
+#fe-helper-box table .td-cookie-linenum {
+	background:#ffc;
+	color:#900;
+	font-weight:normal;
+	font-style:italic;
+	text-align:right;
+	-webkit-user-select:none;
+	width:5%;
+}
+#fe-helper-box table .td-cookie-name {
+	width:20%;
+	word-wrap:break-word;
+}
+#fe-helper-box table .td-cookie-value {
+	word-wrap:break-word;
+	width:30%;
+}
+#fe-helper-box table .td-cookie-domain {
+	width:15%;
+}
+#fe-helper-box table .td-cookie-expires {
+	width:20%;
+}
+#fe-helper-box table .td-cookie-op {
+	width:10%;
+	text-align:center;
+}
+
+#fe-helper-box table thead td{
+	background:#366EB9;
+	font-weight:bold;
+	height:20px;
+	text-align:center;
+	color:#ff0;
+	cursor:default;
+}
+#fe-helper-box table thead .td-content-title {
+	border-right:none;
+}
+#fe-helper-box table thead .td-content-content {
+	border-left:none;
+	text-align:center;
+}
+#fe-helper-box table tbody tr.tr-content-even {
+	background:#F3FAFF;
+}
+#fe-helper-box table tbody tr:hover {
+	background:#ffa;
+}
+#fe-helper-box table tbody .-x-issue{
+	color:#b00;
+}
+#fe-helper-box table tbody .-x-suggestion{
+	color:#00b;
+}
+
+#fe-helper-box .x-selector {
+	color:#00f;
+}
+#fe-helper-box .x-css-text {
+	color:#aaa;
+	padding-left:20px;
+}
+#fe-helper-box .table-css-bg {
+	margin-left:40px;
+	margin-top:10px;
+}
+#fe-helper-box .table-css-bg div {
+	height:20px;
+}
+#fe-helper-box .table-css-bg div:hover {
+	background:#fff;
+}
+#fe-helper-box .x-expand {
+	margin-left:20px;
+	cursor:pointer;
+	color:#48b;
+	font-weight:bold;
+}
+#fe-img-tootip {
+	position:absolute;
+    z-index: 2147483647;
+	top:-10000px;
+	left:-10000px;
+}
+#f-h-p-m {
+	position:fixed;
+	top:0;
+	left:0;
+	bottom:0;
+	right:0;
+    z-index: 2147483646;
+	background:#000;
+	opacity:0.4;
+}
+#fe-helper-progress-bar-img {
+	position:fixed;
+    z-index: 2147483647;
+	width:800px;
+	height:20px;
+	line-height:20px;
+	text-align:center;
+	font-weight:bold;
+	color:#f00;
+	border:1px solid transparent;
+	-webkit-border-radius:2px 2px;
+}
+#fe-helper-progress-bar {
+	width:0px;
+	height:0px;
+}
+#fe-helper-acc-HTML-issue-sug,
+#fe-helper-acc-CSS-issue-sug,
+#fe-helper-acc-Javascript-issue-sug{
+	width:100%;
+	overflow:auto;
+}
+#fe-helper-box .-f-h-get-more- {
+	position:absolute;
+	bottom:10px;
+	right:20px;
+	color:#00f;
+}
+#fe-helper-grid {
+	position:absolute;
+	top:0;
+	left:0;
+	z-index:2147483647;
+	opacity:0.2;
+	overflow:hidden;
+	-webkit-user-select:none;
+}
+#fe-helper-btn-close-grid {
+	position:fixed;
+	bottom:10px;
+	right:10px;
+	font-size:12px;
+	font-weight:bold;
+	color:#00f;
+	z-index:2147483647;
+	cursor:pointer;
+}
+#fe-helper-btn-close-grid:hover {
+	color:#f00;
+}
+#fe-helper-g-pos {
+	background:none;
+	position:absolute;
+	top:0;
+	left:0;
+	z-index:2147483646;
+	border:1px solid #0b0;
+	border-width:0 1px 1px 0;
+}
+#fe-helper-gp-info {
+	position:absolute;
+	z-index:2147483646;
+	background:#ffc;
+	border:1px solid #666;
+	font-size:12px;
+	text-align:left;
+	padding:2px 10px;
+	display:none;
+	color:#000;
+}
+
+#fe-helper-ruler-top {
+	position:fixed;
+	top:0;
+	left:0;
+	right:0;
+	height:20px;
+	background:#fff;
+	border-bottom:1px solid #000;
+	z-index:2147483647;
+	overflow:hidden;
+}
+#fe-helper-ruler-left {
+	position:fixed;
+	top:0px;
+	left:0;
+	bottom:0;
+	width:20px;
+	background:#fff;
+	border-right:1px solid #000;
+	z-index:2147483647;
+	overflow:hidden;
+}
+#fe-helper-ruler-top .h-line{
+	position:absolute;
+	width:1px;
+	background:#000;
+}
+#fe-helper-ruler-top .h-text{
+	position:absolute;
+	top:0;
+	font-size:8px;
+	color:#000;
+}
+#fe-helper-ruler-left .v-line{
+	position:absolute;
+	height:1px;
+	background:#000;
+}
+#fe-helper-ruler-left .v-text{
+	position:absolute;
+	left:0;
+	font-size:8px;
+	color:#000;
+	-webkit-transform:rotate(90deg);
+	margin-top:4px;
+}

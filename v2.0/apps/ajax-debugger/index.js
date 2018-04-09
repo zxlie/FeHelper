@@ -18,7 +18,7 @@ let AjaxDebugger = (function () {
         let Types = 'log,debug,info,warn,error,group,groupCollapsed,groupEnd'.split(',');
 
         let sendMessage = function (type, format, args) {
-            chrome.extension.sendMessage({
+            chrome.runtime.sendMessage({
                 type: MSG_TYPE.AJAX_DEBUGGER_CONSOLE,
                 content: escape(JSON.stringify(Array.prototype.slice.call(arguments, 0)))
             });
@@ -103,7 +103,7 @@ let AjaxDebugger = (function () {
         });
 
         if (isXHR) {
-            chrome.extension.sendMessage({
+            chrome.runtime.sendMessage({
                 type: MSG_TYPE.AJAX_DEBUGGER_SWITCH
             }, function (debuggerSwitchOn) {
                 debuggerSwitchOn && analyticRequest(request);

@@ -7,13 +7,15 @@ let Settings = Tarp.require('./settings');
 new Vue({
     el: '#pageContainer',
     data: {
-        selectedOpts: []
+        selectedOpts: [],
+        manifest: {}
     },
 
     created: function () {
         Settings.getOptions((opts) => {
             this.selectedOpts = Object.keys(opts);
-        })
+        });
+        this.manifest = chrome.runtime.getManifest();
     },
 
     methods: {

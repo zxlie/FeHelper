@@ -1,8 +1,35 @@
 /**
  * FeHelper MSG_TYPE
- * @type {{BROWSER_CLICKED: string, GET_OPTIONS: string, SET_OPTIONS: string, START_OPTION: string, OPT_START_FCP: string, OPT_START_GRID: string, CALC_PAGE_LOAD_TIME: string, GET_PAGE_WPO_INFO: string, SHOW_PAGE_LOAD_TIME: string, JS_TRACKER: string, FROM_POPUP: string, TAB_CREATED_OR_UPDATED: string, REGEXP_TOOL: string, EN_DECODE: string, JSON_FORMAT: string, QR_CODE: string, CODE_BEAUTIFY: string, CODE_COMPRESS: string, TIME_STAMP: string, IMAGE_BASE64: string, QR_DECODE: string, AUTO_FORMART_PAGE_JSON: string, COLOR_PICKER: string, AJAX_DEBUGGER: string, AJAX_DEBUGGER_CONSOLE: string, AJAX_DEBUGGER_SWITCH: string}}
  */
 module.exports = {
+
+    // 编码规范检测
+    CODE_STANDARDS:"code_standards",
+    FCP_HELPER_INIT:"fcp_helper_init",
+    FCP_HELPER_DETECT:"fcp_helper_detect",
+    //提取CSS
+    GET_CSS : "get-css",
+    //提取JS
+    GET_JS : "get-js",
+    //提取HTML
+    GET_HTML : "get-html",
+    //cookie
+    GET_COOKIE : 'get-cookie',
+    //remvoe cookie
+    REMOVE_COOKIE : 'remove-cookie',
+    //set cookie
+    SET_COOKIE : 'set-cookie',
+
+    //css ready...
+    CSS_READY : 'css-ready',
+
+    //js ready...
+    JS_READY : 'js-ready',
+
+    //html ready...
+    HTML_READY : 'html-ready',
+    //all ready...
+    ALL_READY : 'all-ready',
 
     //get options
     GET_OPTIONS: 'get_options',
@@ -46,6 +73,7 @@ module.exports = {
     JSON_PAGE_FORMAT: 'JSON_PAGE_FORMAT',
     //页面取色器
     COLOR_PICKER: "color-picker:newImage",
+    SHOW_COLOR_PICKER:"show_color_picker",
 
     // ajax debugger
     AJAX_DEBUGGER: "ajax-debugger",
