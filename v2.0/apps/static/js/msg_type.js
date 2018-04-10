@@ -1,35 +1,35 @@
 /**
  * FeHelper MSG_TYPE
  */
-module.exports = {
+const MSG_TYPE = {
 
     // 编码规范检测
-    CODE_STANDARDS:"code_standards",
-    FCP_HELPER_INIT:"fcp_helper_init",
-    FCP_HELPER_DETECT:"fcp_helper_detect",
+    CODE_STANDARDS: "code_standards",
+    FCP_HELPER_INIT: "fcp_helper_init",
+    FCP_HELPER_DETECT: "fcp_helper_detect",
     //提取CSS
-    GET_CSS : "get-css",
+    GET_CSS: "get-css",
     //提取JS
-    GET_JS : "get-js",
+    GET_JS: "get-js",
     //提取HTML
-    GET_HTML : "get-html",
+    GET_HTML: "get-html",
     //cookie
-    GET_COOKIE : 'get-cookie',
+    GET_COOKIE: 'get-cookie',
     //remvoe cookie
-    REMOVE_COOKIE : 'remove-cookie',
+    REMOVE_COOKIE: 'remove-cookie',
     //set cookie
-    SET_COOKIE : 'set-cookie',
+    SET_COOKIE: 'set-cookie',
 
     //css ready...
-    CSS_READY : 'css-ready',
+    CSS_READY: 'css-ready',
 
     //js ready...
-    JS_READY : 'js-ready',
+    JS_READY: 'js-ready',
 
     //html ready...
-    HTML_READY : 'html-ready',
+    HTML_READY: 'html-ready',
     //all ready...
-    ALL_READY : 'all-ready',
+    ALL_READY: 'all-ready',
 
     //get options
     GET_OPTIONS: 'get_options',
@@ -71,9 +71,10 @@ module.exports = {
     QR_DECODE: 'qr-decode',
     // JSON页面自动格式化
     JSON_PAGE_FORMAT: 'JSON_PAGE_FORMAT',
+    JSON_PAGE_FORMAT_REQUEST: 'JSON_PAGE_FORMAT_REQUEST',
     //页面取色器
     COLOR_PICKER: "color-picker:newImage",
-    SHOW_COLOR_PICKER:"show_color_picker",
+    SHOW_COLOR_PICKER: "show_color_picker",
 
     // ajax debugger
     AJAX_DEBUGGER: "ajax-debugger",
@@ -83,3 +84,5 @@ module.exports = {
     // dev tools页面
     DEV_TOOLS: 'dev-tools'
 };
+
+(typeof module === 'object') ? module.exports = MSG_TYPE : '';

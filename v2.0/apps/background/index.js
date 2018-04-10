@@ -4,9 +4,6 @@
  */
 var BgPageInstance = (function () {
 
-    // FeHelper初始化，埋点
-    ga('send', 'pageview', 'FeHelper-Init');
-
     let MSG_TYPE = Tarp.require('../static/js/msg_type');
     let Settings = Tarp.require('../options/settings');
     let Network = Tarp.require('../background/network');
@@ -43,7 +40,6 @@ var BgPageInstance = (function () {
     let _doFcpDetect = function (tab) {
         //所有元素都准备就绪
         if (_readyState.allDone) {
-            ga('send', 'pageView', MSG_TYPE.FCP_HELPER_DETECT);
             clearInterval(_fcp_detect_interval[tab.id]);
             chrome.tabs.sendMessage(tab.id, {
                 type: MSG_TYPE.CODE_STANDARDS,
@@ -116,8 +112,6 @@ var BgPageInstance = (function () {
      * @return {[type]}
      */
     let _getPageWpoInfo = function () {
-
-        ga('send', 'pageView', MSG_TYPE.SHOW_PAGE_LOAD_TIME);
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             let tab = tabs[0];
             //显示桌面提醒
@@ -155,8 +149,6 @@ var BgPageInstance = (function () {
      * @private
      */
     let _openFileAndRun = function (tab, file, txt) {
-        ga('send', 'pageView', file);
-
         chrome.tabs.query({windowId: chrome.windows.WINDOW_ID_CURRENT}, function (tabs) {
             let isOpened = false;
             let tabId;
@@ -184,7 +176,6 @@ var BgPageInstance = (function () {
      * @private
      */
     let _debuggerSwitchOn = function (callback) {
-        ga('send', 'pageView', MSG_TYPE.AJAX_DEBUGGER);
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             let tab = tabs[0];
             ajaxDbgCache[tab.id] = !ajaxDbgCache[tab.id];
@@ -282,7 +273,6 @@ var BgPageInstance = (function () {
                     }).toString() + ')(' + JSON.stringify(info) + ')',
                     allFrames: false
                 }, function (txt) {
-                    ga('send', 'event', 'contextMenu', MSG_TYPE.QR_CODE);
                     _openFileAndRun(tab, MSG_TYPE.QR_CODE, (typeof txt === 'object') ? txt[0] : txt);
                 });
             }
@@ -298,7 +288,6 @@ var BgPageInstance = (function () {
             contexts: ['image'],
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
-                ga('send', 'event', 'contextMenu', MSG_TYPE.QR_DECODE);
                 _qrDecode(info, tab);
             }
         });
@@ -320,7 +309,6 @@ var BgPageInstance = (function () {
                     }).toString() + ')(' + JSON.stringify(info) + ')',
                     allFrames: false
                 }, function (txt) {
-                    ga('send', 'event', 'contextMenu', MSG_TYPE.EN_DECODE);
                     _openFileAndRun(tab, MSG_TYPE.EN_DECODE, (typeof txt === 'object') ? txt[0] : txt);
                 });
             }
@@ -341,7 +329,6 @@ var BgPageInstance = (function () {
                     }).toString() + ')(' + JSON.stringify(info) + ')',
                     allFrames: false
                 }, function (txt) {
-                    ga('send', 'event', 'contextMenu', MSG_TYPE.JSON_FORMAT);
                     _openFileAndRun(tab, MSG_TYPE.JSON_FORMAT, (typeof txt === 'object') ? txt[0] : txt);
                 });
             }
@@ -362,7 +349,6 @@ var BgPageInstance = (function () {
                     }).toString() + ')(' + JSON.stringify(info) + ')',
                     allFrames: false
                 }, function (txt) {
-                    ga('send', 'event', 'contextMenu', MSG_TYPE.CODE_BEAUTIFY);
                     _openFileAndRun(tab, MSG_TYPE.CODE_BEAUTIFY, (typeof txt === 'object') ? txt[0] : txt);
                 });
             }
@@ -378,7 +364,6 @@ var BgPageInstance = (function () {
             contexts: ['page', 'selection', 'editable'],
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
-                ga('send', 'event', 'contextMenu', MSG_TYPE.COLOR_PICKER);
                 _showColorPicker();
             }
         });
@@ -413,8 +398,6 @@ var BgPageInstance = (function () {
      * @private
      */
     let _qrDecode = function (info, tab) {
-        ga('send', 'pageView', MSG_TYPE.QR_DECODE);
-
         let qrcode = Tarp.require('../static/vendor/zxing/zxing.min.js');
         qrcode.callback = function (text) {
             if ((text || '').indexOf('error decoding QR Code') !== -1) {
@@ -458,7 +441,6 @@ var BgPageInstance = (function () {
      * @private
      */
     let _showColorPicker = function () {
-        ga('send', 'pageView', MSG_TYPE.COLOR_PICKER);
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             let tab = tabs[0];
             let tabid = tab.id;
@@ -514,6 +496,18 @@ var BgPageInstance = (function () {
         });
     };
 
+    // 当前页面是否进行自动格式化
+    let _jsonAutoFormatRequest = function () {
+        Settings.getOptsFromBgPage(opts => {
+            chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                chrome.tabs.sendMessage(tabs[0].id, {
+                    type: MSG_TYPE.JSON_PAGE_FORMAT,
+                    canIDoIt: opts.JSON_PAGE_FORMAT
+                });
+            });
+        });
+    };
+
     /**
      * 接收来自content_scripts发来的消息
      */
@@ -528,6 +522,10 @@ var BgPageInstance = (function () {
                 Settings.setOptsFromBgPage(request.items, callback);
                 //管理右键菜单
                 _createOrRemoveContextMenu();
+            }
+            //判断是否可以进行自动格式化
+            else if (request.type === MSG_TYPE.JSON_PAGE_FORMAT_REQUEST) {
+                _jsonAutoFormatRequest();
             }
             //保存当前网页加载时间
             else if (request.type === MSG_TYPE.CALC_PAGE_LOAD_TIME) {
@@ -617,11 +615,9 @@ var BgPageInstance = (function () {
         chrome.runtime.onInstalled.addListener(({reason, previousVersion}) => {
             switch (reason) {
                 case 'install':
-                    ga('send', 'event', 'Installed');
                     chrome.runtime.openOptionsPage();
                     break;
                 case 'update':
-                    ga('send', 'event', 'Updated');
                     chrome.browserAction.getBadgeText({tabId: null}, ({text}) => {
                         setTimeout(() => {
                             chrome.browserAction.setBadgeText({text: '恭喜'});

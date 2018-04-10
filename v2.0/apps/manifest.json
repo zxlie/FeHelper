@@ -21,7 +21,6 @@
         "persistent": true,
         "scripts": [
             "static/vendor/require/require.js",
-            "background/ga.js",
             "background/detect.js",
             "background/index.js"
         ]
@@ -47,8 +46,8 @@
         "static/img/ui-icons.png",
         "background/network.js",
         "options/settings.js",
-        "static/js/utils.js",
         "static/js/msg_type.js",
+        "static/js/utils.js",
         "json-format/without-ui.css",
         "json-format/automatic.js",
         "json-format/format-lib.js",
@@ -83,6 +82,7 @@
             "js": [
                 "static/vendor/jquery/jquery-3.3.1.min.js",
                 "static/vendor/require/require.js",
+                "static/js/msg_type.js",
                 "content-script/index.js"
             ],
             "run_at": "document_end",
