@@ -3,6 +3,5 @@
 .DS_Store
 chrome/node_modules/
 chrome/package-lock.json
-chrome/output
-chrome/output/fe-helper.zip
+chrome/output/
 chrome-deprecated/output/
