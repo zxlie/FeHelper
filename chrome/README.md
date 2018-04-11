@@ -21,7 +21,7 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 ### 4、安装教程
 > 参考： https://www.baidufe.com/item/d1b710c290b38bda6b44.html
 
-![安装教程](https://www.baidufe.com/upload/images/2014-10-30_20-05-58_6.gif)
+![安装教程](/screenshot/how-to-install.gif)
 
 ## 三、扩展功能：
 - Json自动美化（页面自动检测并格式化）
