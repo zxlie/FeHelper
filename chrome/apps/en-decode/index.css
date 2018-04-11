@@ -1,0 +1,11 @@
+@import url("../static/css/bootstrap.min.css");
+
+#srcText {
+    height: 100px;
+}
+#rstCode {
+    height: 280px;
+}
+.ui-ml-05 {
+    margin-left: 5px;
+}

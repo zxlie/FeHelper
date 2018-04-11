@@ -1,0 +1,26 @@
+@import url("../static/css/bootstrap.min.css");
+
+.mod-timestamp{
+    width:950px;
+    margin:20px auto 0;
+    padding:5px 15px;
+    background:#fff;
+    border:1px solid #bbb
+}
+.mod-timestamp .x-input div{
+    margin:5px 0
+}
+#txtNowDate,#txtNow,#txtDesStamp,#txtSrcStamp,#txtDesDate,#txtLocale{
+    width:300px;
+}
+#txtNowDate,#txtNow,#txtDesStamp,#txtDesDate{
+    color:#666;
+    font-weight:500
+}
+#txtSrcYear,#txtSrcMonth,#txtSrcDay,#txtSrcHour,#txtSrcMinute,#txtSrcSecond{
+    width:40px;
+}
+
+.mod-time-input{
+    width: 80px;
+}

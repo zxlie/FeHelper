@@ -1,0 +1,41 @@
+@import url("../static/css/bootstrap.min.css");
+
+.row .x-sizes {
+    margin-right: 20px;
+}
+
+.row .x-colors {
+    margin-right: 20px;
+}
+#codeSource {
+    height: 100px;
+}
+canvas {
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+.x-logo {
+    position: absolute;
+    left: -10000px;
+    top:-10000px;
+}
+hr.x-hr  {
+    margin: 2px 0;
+}
+#preview {
+    padding: 5px;
+    text-align: center;
+}
+.panel-heading .x-tips {
+    font-size:12px;
+    float: right;
+    padding-bottom: 2px;
+    border-bottom: 1px solid #ccc;
+    cursor: default;
+}
+.panel-heading .x-tips:hover {
+    border-bottom-color: #f00;
+}
+.panel-heading .x-tips i {
+    color: #f00;
+}

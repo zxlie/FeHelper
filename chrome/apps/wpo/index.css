@@ -1,0 +1,33 @@
+@import url("../static/css/bootstrap.min.css");
+
+body {
+    font-family: Tahoma, sans-serif;
+    font-size: 10pt;
+    color:#333;
+    margin: 0 auto;
+}
+#loadTotal {
+    background:#f1f1f1;
+    font-weight:bold;
+}
+
+#pageInfo {
+    padding: 10px 0;
+    line-height: 24px;
+    color: #800;
+    font-size: 14px;
+}
+#pageInfo span {
+    color: #888;
+    word-wrap: break-word;
+}
+#pageLoadTime,#pageHeaderInfo {
+    width: 468px;
+    float: left;
+}
+#pageHeaderInfo {
+    margin-left: 50px;
+}
+h3 {
+    color:#666;
+}

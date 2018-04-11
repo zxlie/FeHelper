@@ -1,10 +1,7 @@
 # 工程文件
 .idea
-
-#编译后的文件
-chrome/output
-*.zip
-
-chrome/output/fe-helper.zip
-
 .DS_Store
+chrome/node_modules/
+chrome/package-lock.json
+chrome/output/
+chrome-deprecated/output/

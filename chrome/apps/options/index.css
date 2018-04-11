@@ -1,0 +1,10 @@
+@import "../static/css/bootstrap.min.css";
+
+#pageContainer label {
+    font-weight: normal;
+}
+
+#pageContainer h4 {
+    color: #000;
+    font-size: 18px;
+}

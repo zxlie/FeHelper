@@ -1,0 +1,30 @@
+{
+  "name": "fehelper",
+  "version": "1.0.0",
+  "description": "chrome extension",
+  "main": "build.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-minify": "^0.4.0",
+    "glob": "^7.1.2",
+    "html-minifier": "^3.5.14",
+    "shelljs": "^0.8.1",
+    "uglifycss": "0.0.29"
+  },
+  "scripts": {
+    "build": "node build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zxlie/FeHelper.git"
+  },
+  "keywords": [
+    "fehelper"
+  ],
+  "author": "zhaoxianlie",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://www.baidufe.com/fehelper/feedback.html"
+  },
+  "homepage": "https://www.baidufe.com/fehelper"
+}

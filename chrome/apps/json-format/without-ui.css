@@ -1,0 +1,129 @@
+#jfContent{-webkit-user-select:text;margin:0;}
+#optionBar{-webkit-user-select:none;display:block;position:absolute;top:0px;right:0px}
+#buttonFormatted,#buttonPlain,#btnDownload,#buttonCollapseAll{-webkit-border-radius:2px;-webkit-box-shadow:0px 1px 3px rgba(0,0,0,0.1);
+    -webkit-user-select:none;background:-webkit-linear-gradient(#fafafa, #f4f4f4 40%, #e5e5e5);outline: none;
+    border:1px solid #aaa;color:#444;font-size:12px;margin-bottom:0px;min-width:4em;padding:3px 0;
+    position:relative;z-index:10;display:inline-block;width:80px;
+    text-shadow:1px 1px rgba(255,255,255,0.3)}
+#buttonCollapseAll{margin-left:0;border-top-left-radius:0;border-bottom-left-radius:0;border-left:0;}
+#buttonFormatted{margin-right:0;border-top-right-radius:0;border-bottom-right-radius:0;border-right:none}
+#btnDownload {
+    padding: 4px 10px;
+    text-decoration: none;
+    color: #454545;
+    margin-right: 10px;
+    display: inline-block;
+}
+#buttonFormatted:hover,#buttonPlain:hover,#btnDownload:hover{-webkit-box-shadow:0px 1px 3px rgba(0,0,0,0.2);
+    background:#ebebeb -webkit-linear-gradient(#fefefe, #f8f8f8 40%, #e9e9e9);border-color:#999;color:#222}
+#buttonFormatted:active,#buttonPlain:active{-webkit-box-shadow:inset 0px 1px 3px rgba(0,0,0,0.2);
+    background:#ebebeb -webkit-linear-gradient(#f4f4f4, #efefef 40%, #dcdcdc);color:#333}
+#buttonFormatted.selected,#buttonPlain.selected,#buttonCollapseAll.selected{-webkit-box-shadow:inset 0px 1px 5px rgba(0,0,0,0.2);
+    background:#ebebeb -webkit-linear-gradient(#e4e4e4, #dfdfdf 40%, #dcdcdc);color:#333}
+#jsonpOpener,#jsonpCloser{padding:4px 0 0 8px;color:black;margin-bottom:-6px}
+#jsonpCloser{margin-top:0}
+#formattedJson{padding-left:28px;padding-top:6px}pre{padding:36px 5px 5px 5px}
+.kvov{display:block;padding-left:20px;margin-left:-20px;position:relative;padding-top: 2px;}
+
+#jfContent .kvov .s a {
+    color:#00b;text-decoration: underline;
+}
+#jfContent .kvov .s a:hover {
+    color:#b00;
+}
+.collapsed{white-space:nowrap}.collapsed>.blockInner{display:none}
+.collapsed>.ell:after{content:"\2026";font-weight:bold}
+.collapsed>.ell{margin:0 4px;color:#888}
+.collapsed .kvov{display:inline}
+.e{width:20px;height:18px;display:block;position:absolute;left:-2px;top:1px;z-index:5;
+    background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAATUlEQVQoFWNgYGA4wMDA8B8HPszAwMDghEMSpMkVpAAE9mJRdAwqB6bssSiA64YpRDYFRTdMgQ2SKRi6YYp2MTAwnIRxsNGWyC4HKQAAuIkf/0L9E0IAAAAASUVORK5CYII=");
+    background-repeat:no-repeat;background-position:center center;display:block;opacity:0.15}
+.collapsed>.e{-webkit-transform:rotate(-90deg);width:18px;height:20px;left:0px;top:0px}
+.e:hover{opacity:0.35}.e:active{opacity:0.5}.collapsed .kvov .e{display:none}
+.blockInner{display:block;padding-left:24px;border-left:1px dotted #bbb;margin-left:2px}
+#formattedJson,#jsonpOpener,#jsonpCloser{color:#333;font:13px/18px monospace}
+#formattedJson{color:#444}.b{font-weight:bold}.s{color:#0B7500;word-wrap:break-word}
+#jfContent a:link,#jfContent a:visited{text-decoration:none;color:inherit}
+#jfContent a:hover,#jfContent a:active{text-decoration:underline;color:#050}
+.bl,.nl,.n{font-weight:bold;color:#1A01CC}.k{color:black}
+#formattingMsg{font:13px "Lucida Grande", "Segoe UI", "Tahoma";padding:10px 0 0 8px;margin:0;color:#333;display:none;}
+#formattingMsg>svg{margin:0 7px;position:relative;top:1px}
+[hidden]{display:none !important}
+#jfContentspan{white-space:pre-wrap}
+@-webkit-keyframes spin{from{-webkit-transform:rotate(0deg)}to{-webkit-transform:rotate(360deg)}}
+#spinner{-webkit-animation:spin 1s 0 infinite}*{-webkit-font-smoothing:antialiased}
+#jfContent .x-json-tips {
+    color:red;
+}
+#jfContent_pre {padding:0;margin:0;
+    word-break:break-word;
+}
+
+html {
+    font-size: 14px;
+    color:#333;
+    direction: ltr;
+    padding-right: 10px;
+}
+html body {
+    direction: inherit;
+}
+.mod-json .format-item button{
+    width:80px;
+    height:30px;
+    float: right;
+}
+.mod-json .rst-item {
+    position: relative;
+    padding-top:30px;
+}
+.mod-contentscript {
+    width: auto;
+}
+#formatTips {
+    color: #888;
+    font-size: 14px;
+    display: block;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+#jsonSource {
+    height: 120px;
+}
+.mod-json .callback-name {
+    font-weight: bolder;
+    color: #a00;
+}
+
+#jfContent .x-hover {
+    outline:1px solid #cdc;
+    background: #fff;
+}
+#jfContent .x-outline {
+    outline:1px solid #8ac;
+    box-shadow: rgba(100, 100, 100, 0.4) -3px 3px 5px;
+    font-weight: bold;
+    background-color: #fffff8;
+}
+#errorMsg {
+    margin-top: 10px;
+    float: left;
+    color: #f00;
+}
+#btnDownload{
+    width: 102px;
+}
+#boxOpt {
+    position: absolute;
+    z-index: 1024;
+}
+#boxOpt a {
+    cursor: pointer;
+    margin: 0 5px;
+    font-size: 12px;
+    color: #00f;
+}
+#boxOpt a:hover {
+    color:#f00;
+}
