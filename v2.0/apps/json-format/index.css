@@ -2,7 +2,7 @@
 @import url("./without-ui.css");
 
 body {
-    background: #fff;
+    background-color: #fff;
 }
 .wp-json {
     width:auto;

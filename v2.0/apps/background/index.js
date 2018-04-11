@@ -15,31 +15,34 @@ var BgPageInstance = (function () {
     let ajaxDbgCache = {};
 
 
-    //侦测就绪情况
-    let _detectReadyState = function (callback) {
-        if (_readyState.css && _readyState.js && _readyState.html) {
-            _readyState.allDone = true;
-        }
-        if (_readyState.allDone && typeof callback === 'function') {
-            callback();
-        }
-    };
-
     //各种元素的就绪情况
-    let _readyState = {
-        css: false,
-        js: false,
-        html: true,
-        allDone: false
-    };
+    let _readyStateMgr = {};
     let _fcp_detect_interval = [];
+
+    //侦测就绪情况
+    let _detectReadyState = function (getType, callback) {
+
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            let tabId = tabs[0].id;
+            _readyStateMgr[tabId][getType] = true;
+
+            if (_readyStateMgr[tabId].css && _readyStateMgr[tabId].js) {
+                _readyStateMgr[tabId].allDone = true;
+            }
+            if (_readyStateMgr[tabId].allDone && typeof callback === 'function') {
+                callback();
+            }
+        });
+
+    };
 
     /**
      * 执行前端FCPHelper检测
      */
     let _doFcpDetect = function (tab) {
+        _readyStateMgr[tab.id] = _readyStateMgr[tab.id] || {};
         //所有元素都准备就绪
-        if (_readyState.allDone) {
+        if (_readyStateMgr[tab.id].allDone) {
             clearInterval(_fcp_detect_interval[tab.id]);
             chrome.tabs.sendMessage(tab.id, {
                 type: MSG_TYPE.CODE_STANDARDS,
@@ -513,6 +516,7 @@ var BgPageInstance = (function () {
      */
     let _addExtensionListener = function () {
         chrome.runtime.onMessage.addListener(function (request, sender, callback) {
+
             //提取配置项
             if (request.type === MSG_TYPE.GET_OPTIONS) {
                 Settings.getOptsFromBgPage(callback);
@@ -574,18 +578,15 @@ var BgPageInstance = (function () {
             }
             //CSS准备就绪
             else if (request.type === MSG_TYPE.CSS_READY) {
-                _readyState.css = true;
-                _detectReadyState(callback);
+                _detectReadyState('css', callback);
             }
             //JS准备就绪
             else if (request.type === MSG_TYPE.JS_READY) {
-                _readyState.js = true;
-                _detectReadyState(callback);
+                _detectReadyState('js', callback);
             }
             //HTML准备就绪
             else if (request.type === MSG_TYPE.HTML_READY) {
-                _readyState.html = true;
-                _detectReadyState(callback);
+                _detectReadyState('html', callback);
             }
             // ===========================以上为编码规范检测====end==================================
 

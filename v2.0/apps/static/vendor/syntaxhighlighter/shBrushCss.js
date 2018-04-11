@@ -16,9 +16,6 @@
  */
 ;(function()
 {
-	// CommonJS
-	typeof(require) != 'undefined' ? SyntaxHighlighter = require('shCore').SyntaxHighlighter : null;
-
 	function Brush()
 	{
 		function getKeywordsCSS(str)

@@ -1,8 +1,54 @@
+/**
+ * FeHelper Webpack Config
+ * @author zhaoxianlie
+ */
+
 let path = require('path');
 let shell = require('shelljs');
 let glob = require('glob');
+let uglifyCss = require('uglifycss');
+let htmlMinifier = require('html-minifier');
+let fs = require('fs');
 let CopyWebpackPlugin = require('copy-webpack-plugin');
-let UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+let rootPath = path.resolve('.');
+
+// html 文件压缩
+let htmlCompress = function () {
+    glob.sync('output/apps/**/*.html').map(cf => {
+        try {
+            let rawHtml = fs.readFileSync(cf).toString();
+            let compressedHtml = htmlMinifier.minify(rawHtml, {
+                collapseWhitespace: true
+            });
+            fs.writeFileSync(cf, compressedHtml);
+        } catch (e) {
+            console.log(cf, '压缩失败')
+        }
+    });
+};
+
+// css 文件压缩
+let cssCompress = function () {
+    let reg = /\@import\s+url\(\s*('|")([^\)]+)\1\s*\)/gm;
+
+    glob.sync('output/apps/**/*.css').map(cf => {
+        let rawCss = fs.readFileSync(cf);
+
+        rawCss = rawCss.toString().replace(reg, ($0, $1, importedFile) => {
+            let iPath = path.resolve(cf, '../' + importedFile);
+            return fs.readFileSync(iPath).toString() + ';';
+        });
+        let uglifiedCss = uglifyCss.processString(rawCss, {maxLineLen: 500, expandVars: true});
+        fs.writeFileSync(cf, uglifiedCss);
+    });
+};
+
+
+// zip the fehelper
+let zipForChromeWebStore = function () {
+    shell.cd(`${rootPath}/output`);
+    shell.exec('zip -r fehelper.zip apps/ > /dev/null');
+};
 
 // 所有的功能模块
 let mods = (() => {
@@ -13,58 +59,47 @@ let mods = (() => {
 })();
 
 // 动态生成entry
-let entries = (globPath) => {
-    let files = glob.sync(globPath);
-    let entries = {}, entry, dirname, basename;
+let buildEntry = (globPath) => {
 
-    for (let i = 0; i < files.length; i++) {
-        entry = files[i];
-        dirname = path.dirname(entry);
-        basename = path.basename(entry, '.js');
-        entries[path.join(dirname, basename)] = './' + entry;
-    }
+    let entries = {}, dirname, basename;
+
+    glob.sync(globPath).map(jf => {
+        dirname = path.dirname(jf);
+        basename = path.basename(jf, '.js');
+        entries[path.join(dirname, basename)] = './' + jf;
+    });
+
     return entries;
 };
 
 // 文件拷贝的配置
 let copyConfig = (() => {
     return mods.map(mod => {
-        let from = {glob: 'apps/' + (mod === 'manifest.json') ? mod : (mod + '/**/*')};
-        let to = {to: 'output/apps'};
-        return {from: from, to: to}
+        let from = {glob: './apps/' + ((mod === 'manifest.json') ? mod : (mod + '/**/*'))};
+        return {from: from, to: './'}
     });
 })();
 
 module.exports = {
-    entry: entries('apps/**/*.js'),
+    entry: buildEntry('apps/**/*.js'),
     output: {
         path: path.resolve(__dirname, 'output'),
         filename: "[name].js",
         chunkFilename: '[id].js'
     },
 
-    module: {
-        // rules: [{
-        //     test: /\.js$/,
-        //     loader: 'babel-loader',
-        // }, {
-        //     test: /\.css$/,
-        //     loader: 'css-loader'
-        // }, {
-        //     test: /\.(png|jpg|jpeg|gif|ico)$/,
-        //     loader: 'file-loader'
-        // }, {
-        //     test: /\.html$/,
-        //     loader: 'file-loader'
-        // }]
+    optimization: {
+        minimize: false
     },
+
     plugins: [
         new CopyWebpackPlugin(copyConfig, {ignore: ['*.js']}),
-        new UglifyJsPlugin(),
         function () {
             this.plugin('done', stats => {
-                console.log(stats)
-            });
+                cssCompress();
+                htmlCompress();
+                zipForChromeWebStore();
+            })
         }
     ]
 };

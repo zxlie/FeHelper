@@ -2,18 +2,17 @@
   "name": "fehelper",
   "version": "1.0.0",
   "description": "chrome extension",
-  "main": "index.js",
+  "main": "build.js",
   "dependencies": {},
   "devDependencies": {
-    "copy-webpack-plugin": "^4.5.1",
+    "babel-minify": "^0.4.0",
     "glob": "^7.1.2",
+    "html-minifier": "^3.5.14",
     "shelljs": "^0.8.1",
-    "uglifyjs-webpack-plugin": "^1.2.4",
-    "webpack": "^4.4.1",
-    "webpack-cli": "^2.0.13"
+    "uglifycss": "0.0.29"
   },
   "scripts": {
-    "dev": "webpack --mode production"
+    "build": "node build.js"
   },
   "repository": {
     "type": "git",
