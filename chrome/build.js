@@ -88,7 +88,7 @@ let zipForChromeWebStore = function () {
     shell.exec('zip -r fehelper.zip apps/ > /dev/null');
     console.timeEnd('> FeHelper打包');
     console.log('\n\n================================================================================');
-    console.log('    去Chrome商店发布吧：https://chrome.google.com/webstore/developer/dashboard');
+    console.log('    去Chrome商店发布吧：https://chrome.google.com/webstore/devconsole');
     console.log('================================================================================\n\n');
 };
 

@@ -1,6 +1,6 @@
 {
     "name": "WEB前端助手(FeHelper)",
-    "version": "2018.04.0201",
+    "version": "2018.04.1101",
     "manifest_version": 2,
     "default_locale": "zh_CN",
 
@@ -21,6 +21,7 @@
         "persistent": true,
         "scripts": [
             "static/vendor/require/require.js",
+            "background/ga.js",
             "background/detect.js",
             "background/index.js"
         ]
@@ -34,8 +35,6 @@
         "cookies",
         "notifications",
         "alarms",
-        "webNavigation",
-        "debugger",
         "\u003Call_urls\u003E"
     ],
 
