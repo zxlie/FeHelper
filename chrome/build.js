@@ -72,6 +72,15 @@ let htmlCompress = function () {
     console.timeEnd('> HTML文件压缩');
 };
 
+// manifest文件压缩
+let manifestCompress = function () {
+    console.time('> Manifest文件压缩');
+    let mf = './output/apps/manifest.json';
+    let json = require(mf);
+    fs.writeFileSync(mf, JSON.stringify(json));
+    console.timeEnd('> Manifest文件压缩');
+};
+
 // zip the fehelper
 let zipForChromeWebStore = function () {
     console.time('> FeHelper打包');
@@ -85,6 +94,7 @@ let zipForChromeWebStore = function () {
 
 /************************build start*****************************/
 copyFiles();
+manifestCompress();
 cssCompress();
 htmlCompress();
 jsCompress();

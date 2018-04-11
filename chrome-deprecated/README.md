@@ -1,6 +1,8 @@
 Web前端助手（FeHelper）
 =============================
 
+# 此版本已不在维护！
+
 > 本插件提供了chrome和sougou浏览器两个版本，其中sougou浏览器版本属于简版，只包含部分工具，代码较简单
 
 ## 一、官网地址
@@ -16,7 +18,7 @@ http://www.baidufe.com/fehelper/install.html
 https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh-cn&utm_source=chrome-ntp
 
 
-## 二、扩展功能：
+## 三、扩展功能：
 * JSON页面自动格式化查看
 * JSON代码片段格式化工具
 * 二维码生成工具
@@ -28,5 +30,5 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 * 正则表达式测试工具
 * Js执行覆盖率检测工具
 
-### 三、用户反馈渠道
+### 四、用户反馈渠道
 http://www.baidufe.com/fehelper/feedback.html
