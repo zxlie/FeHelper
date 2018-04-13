@@ -24,7 +24,7 @@ gulp.task('clean', () => {
 });
 
 gulp.task('copy', () => {
-    return gulp.src('apps/**/*.{gif,png,jpg,jpeg,cur}').pipe(copy('output'));
+    return gulp.src(['apps/**/*.{gif,png,jpg,jpeg,cur}','!apps/static/screenshot/**/*']).pipe(copy('output'));
 });
 
 gulp.task('json', () => {
