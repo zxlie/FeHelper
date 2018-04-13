@@ -6,6 +6,7 @@
   "dependencies": {},
   "devDependencies": {
     "gulp": "^3.9.1",
+    "gulp-callback": "0.0.3",
     "gulp-clean": "^0.4.0",
     "gulp-copy": "^1.1.0",
     "gulp-htmlmin": "^4.0.0",
@@ -19,7 +20,7 @@
     "shelljs": "^0.8.1"
   },
   "scripts": {
-    "watch":"gulp watch",
+    "watch": "gulp watch",
     "build": "gulp"
   },
   "repository": {

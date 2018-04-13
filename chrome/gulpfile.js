@@ -17,6 +17,7 @@ let pretty = require('pretty-bytes');
 let shell = require('shelljs');
 let runSequence = require('run-sequence');
 let watchPath = require('gulp-watch-path');
+let gcallback = require('gulp-callback');
 
 gulp.task('clean', () => {
     return gulp.src('output', {read: false}).pipe(clean({force: true}));
@@ -62,8 +63,9 @@ gulp.task('default', ['clean'], () => {
 // 开发过程中用，watch while file changed
 gulp.task('watch', () => {
     gulp.watch('apps/**/*.*', (event) => {
-        let wp = watchPath(event,'./','./output');
-        gulp.src(wp.srcPath).pipe(copy('output'));
-        console.log('> 文件发生变化，已编译：',wp.srcPath);
+        let wp = watchPath(event, './', './output');
+        gulp.src(wp.srcPath).pipe(copy('output')).pipe(gcallback(() => {
+            console.log('> 文件发生变化，已编译：', wp.srcPath);
+        }));
     });
 });
