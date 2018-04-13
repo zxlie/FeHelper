@@ -1,7 +1,6 @@
 # 工程文件
 .idea
 .DS_Store
-chrome/node_modules/
-chrome/package-lock.json
-chrome/output/
-chrome-deprecated/output/
+node_modules/
+package-lock.json
+output/

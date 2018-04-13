@@ -1,12 +1,10 @@
-Web前端助手（FeHelper）
+Web前端助手（FeHelper）- Chrome Extension
 =============================
-
-> 本插件提供了chrome和sougou浏览器两个版本，其中sougou浏览器版本属于简版，只包含部分工具，代码较简单
 
 ## 一、官网地址
 http://www.baidufe.com/fehelper
 
-![Web前端助手-FeHelper](/screenshot/menu.png)
+![Web前端助手-FeHelper](/apps/static/screenshot/menu.png)
 
 ## 二、扩展安装地址：
 
@@ -23,7 +21,7 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 ### 4、安装教程
 > 参考： https://www.baidufe.com/item/d1b710c290b38bda6b44.html
 
-![安装教程](/screenshot/how-to-install.gif)
+![安装教程](/apps/static/screenshot/how-to-install.gif)
 
 ## 三、扩展功能：
 - Json自动美化（页面自动检测并格式化）
