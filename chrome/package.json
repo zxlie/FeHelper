@@ -2,17 +2,25 @@
   "name": "fehelper",
   "version": "1.0.0",
   "description": "chrome extension",
-  "main": "build.js",
+  "main": "index.js",
   "dependencies": {},
   "devDependencies": {
-    "babel-minify": "^0.4.0",
-    "glob": "^7.1.2",
-    "html-minifier": "^3.5.14",
-    "shelljs": "^0.8.1",
-    "uglifycss": "0.0.29"
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.4.0",
+    "gulp-copy": "^1.1.0",
+    "gulp-htmlmin": "^4.0.0",
+    "gulp-jsonminify": "^1.1.0",
+    "gulp-uglify-es": "^1.0.1",
+    "gulp-uglifycss": "^1.0.9",
+    "gulp-watch-path": "^0.1.0",
+    "gulp-zip": "^4.1.0",
+    "pretty-bytes": "^4.0.2",
+    "run-sequence": "^2.2.1",
+    "shelljs": "^0.8.1"
   },
   "scripts": {
-    "build": "node build.js"
+    "watch":"gulp watch",
+    "build": "gulp"
   },
   "repository": {
     "type": "git",
