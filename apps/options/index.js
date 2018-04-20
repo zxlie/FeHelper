@@ -34,8 +34,9 @@ new Vue({
 
             Settings.setOptions(this.selectedOpts);
 
-            alert('恭喜，FeHelper配置修改成功!');
-            this.close();
+            setTimeout(() => {
+                this.close();
+            }, 1000);
         }
     }
 });

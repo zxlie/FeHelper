@@ -8,28 +8,25 @@ var BgPageInstance = (function () {
     let Settings = Tarp.require('../options/settings');
     let Network = Tarp.require('../background/network');
 
-    let feHelper = {};
+    let feHelper = {
+        codeStandardMgr: {},
+        ajaxDebuggerMgr: {},
+        csDetectIntervals: [],
+        manifest: chrome.runtime.getManifest()
+    };
     let devToolsDetected = false;
-
-    // debug cache，主要记录每个tab的ajax debug 开关
-    let ajaxDbgCache = {};
-
-
-    //各种元素的就绪情况
-    let _readyStateMgr = {};
-    let _fcp_detect_interval = [];
 
     //侦测就绪情况
     let _detectReadyState = function (getType, callback) {
 
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             let tabId = tabs[0].id;
-            _readyStateMgr[tabId][getType] = true;
+            feHelper.codeStandardMgr[tabId][getType] = true;
 
-            if (_readyStateMgr[tabId].css && _readyStateMgr[tabId].js) {
-                _readyStateMgr[tabId].allDone = true;
+            if (feHelper.codeStandardMgr[tabId].css && feHelper.codeStandardMgr[tabId].js) {
+                feHelper.codeStandardMgr[tabId].allDone = true;
             }
-            if (_readyStateMgr[tabId].allDone && typeof callback === 'function') {
+            if (feHelper.codeStandardMgr[tabId].allDone && typeof callback === 'function') {
                 callback();
             }
         });
@@ -40,15 +37,15 @@ var BgPageInstance = (function () {
      * 执行前端FCPHelper检测
      */
     let _doFcpDetect = function (tab) {
-        _readyStateMgr[tab.id] = _readyStateMgr[tab.id] || {};
+        feHelper.codeStandardMgr[tab.id] = feHelper.codeStandardMgr[tab.id] || {};
         //所有元素都准备就绪
-        if (_readyStateMgr[tab.id].allDone) {
-            clearInterval(_fcp_detect_interval[tab.id]);
+        if (feHelper.codeStandardMgr[tab.id].allDone) {
+            clearInterval(feHelper.csDetectIntervals[tab.id]);
             chrome.tabs.sendMessage(tab.id, {
                 type: MSG_TYPE.CODE_STANDARDS,
                 event: MSG_TYPE.FCP_HELPER_DETECT
             });
-        } else if (_fcp_detect_interval[tab.id] === undefined) {
+        } else if (feHelper.csDetectIntervals[tab.id] === undefined) {
             chrome.tabs.sendMessage(tab.id, {
                 type: MSG_TYPE.CODE_STANDARDS,
                 event: MSG_TYPE.FCP_HELPER_INIT
@@ -57,7 +54,7 @@ var BgPageInstance = (function () {
             notifyText({
                 message: "正在准备数据，请稍等..."
             });
-            _fcp_detect_interval[tab.id] = setInterval(function () {
+            feHelper.csDetectIntervals[tab.id] = setInterval(function () {
                 _doFcpDetect(tab);
             }, 200);
         }
@@ -73,22 +70,23 @@ var BgPageInstance = (function () {
      * @config {string} message 内容
      */
     let notifyText = function (options) {
-        if (!window.Notification) {
-            return;
-        }
         if (!options.icon) {
             options.icon = "static/img/fe-48.png";
         }
         if (!options.title) {
             options.title = "温馨提示";
         }
-
-        return chrome.notifications.create('', {
+        let notifyId = 'fehleper-notify-id';
+        chrome.notifications.create(notifyId, {
             type: 'basic',
             title: options.title,
             iconUrl: chrome.runtime.getURL(options.icon),
             message: options.message
         });
+
+        setTimeout(() => {
+            chrome.notifications.clear(notifyId);
+        }, parseInt(options.autoClose || 3000, 10));
 
     };
 
@@ -155,7 +153,7 @@ var BgPageInstance = (function () {
         chrome.tabs.query({windowId: chrome.windows.WINDOW_ID_CURRENT}, function (tabs) {
             let isOpened = false;
             let tabId;
-            let reg = new RegExp("^chrome.*" + file + ".html$", "i");
+            let reg = new RegExp("^chrome.*/" + file + "/index.html$", "i");
             for (let i = 0, len = tabs.length; i < len; i++) {
                 if (reg.test(tabs[i].url)) {
                     isOpened = true;
@@ -181,10 +179,10 @@ var BgPageInstance = (function () {
     let _debuggerSwitchOn = function (callback) {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             let tab = tabs[0];
-            ajaxDbgCache[tab.id] = !ajaxDbgCache[tab.id];
+            feHelper.ajaxDebuggerMgr[tab.id] = !feHelper.ajaxDebuggerMgr[tab.id];
 
             chrome.tabs.executeScript(tab.id, {
-                code: 'console.info("FeHelper提醒：Ajax Debugger开关已' + (ajaxDbgCache[tab.id] ? '开启' : '关闭') + '！");',
+                code: 'console.info("FeHelper提醒：Ajax Debugger开关已' + (feHelper.ajaxDebuggerMgr[tab.id] ? '开启' : '关闭') + '！");',
                 allFrames: false
             });
             callback && callback();
@@ -201,10 +199,10 @@ var BgPageInstance = (function () {
 
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             let tab = tabs[0];
-            callback && callback(ajaxDbgCache[tab.id]);
+            callback && callback(feHelper.ajaxDebuggerMgr[tab.id]);
 
             if (withAlert) {
-                if (ajaxDbgCache[tab.id]) {
+                if (feHelper.ajaxDebuggerMgr[tab.id]) {
                     let msg = '';
                     if (devToolsDetected) {
                         msg = 'DevTools已打开，确保已切换到【Console】界面，并关注信息输出，愉快的进行Ajax Debugger！'
@@ -292,6 +290,21 @@ var BgPageInstance = (function () {
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
                 _qrDecode(info, tab);
+            }
+        });
+
+
+        chrome.contextMenus.create({
+            type: 'separator',
+            contexts: ['image'],
+            parentId: feHelper.contextMenuId
+        });
+        chrome.contextMenus.create({
+            title: "图片转Base64",
+            contexts: ['image'],
+            parentId: feHelper.contextMenuId,
+            onclick: function (info, tab) {
+                _openFileAndRun(tab, MSG_TYPE.IMAGE_BASE64, info.srcUrl);
             }
         });
 
@@ -386,7 +399,7 @@ var BgPageInstance = (function () {
      */
     let _createOrRemoveContextMenu = function () {
         Settings.getOptsFromBgPage((opts) => {
-            if (opts['opt_item_contextMenus'] !== 'false') {
+            if (opts['opt_item_contextMenus']) {
                 _createContextMenu();
             } else {
                 _removeContextMenu();
@@ -524,9 +537,13 @@ var BgPageInstance = (function () {
             }
             //保存配置项
             else if (request.type === MSG_TYPE.SET_OPTIONS) {
-                Settings.setOptsFromBgPage(request.items, callback);
+                Settings.setOptsFromBgPage(request.items);
                 //管理右键菜单
                 _createOrRemoveContextMenu();
+                notifyText({
+                    message: '恭喜，FeHelper配置修改成功!',
+                    autoClose: 2000
+                });
             }
             //判断是否可以进行自动格式化
             else if (request.type === MSG_TYPE.JSON_PAGE_FORMAT_REQUEST) {
@@ -620,30 +637,37 @@ var BgPageInstance = (function () {
                     chrome.runtime.openOptionsPage();
                     break;
                 case 'update':
-                    chrome.browserAction.getBadgeText({tabId: null}, ({text}) => {
-                        setTimeout(() => {
-                            chrome.browserAction.setBadgeText({text: '恭喜'});
-                            setTimeout(() => {
-                                chrome.browserAction.setBadgeText({text: '升级'});
-                                setTimeout(() => {
-                                    chrome.browserAction.setBadgeText({text: '成功'});
-                                    setTimeout(() => {
-                                        chrome.browserAction.setBadgeText({text: ''});
-                                    }, 1500);
-                                }, 1500);
-                            }, 1500);
-                        }, 2000);
+                    notifyText({
+                        title: '恭喜',
+                        message: '您的FeHelper已更新至 v' + feHelper.manifest.version,
+                        autoClose: 3000
                     });
-
                     break;
             }
         });
+        // 卸载
+        chrome.runtime.setUninstallURL(feHelper.manifest.homepage_url);
+    };
+
+    /**
+     * 检查插件更新
+     * @private
+     */
+    let _checkUpdate = function () {
+        setTimeout(() => {
+            chrome.runtime.requestUpdateCheck((status) => {
+                if (status === "update_available") {
+                    chrome.runtime.reload();
+                }
+            });
+        }, 1000 * 10);
     };
 
     /**
      * 初始化
      */
     let _init = function () {
+        _checkUpdate();
         _addExtensionListener();
         _createOrRemoveContextMenu();
     };

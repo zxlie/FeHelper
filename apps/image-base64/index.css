@@ -47,6 +47,9 @@ td .x-panel .x-tips {
     color:#aaa;
     text-align: center;
 }
+.tips i{
+    color: #454545;
+}
 #upload {
     font-size: 20px;
     background: #00b7ee;

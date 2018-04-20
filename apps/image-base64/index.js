@@ -11,15 +11,37 @@ new Vue({
     },
     mounted: function () {
 
+        let MSG_TYPE = Tarp.require('../static/js/msg_type');
+
+        // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
+        chrome.runtime.onMessage.addListener((request, sender, callback) => {
+            if (request.type === MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event === MSG_TYPE.IMAGE_BASE64) {
+                if (request.content) {
+                    this.convertOnline(request.content);
+                }
+            }
+        });
+
         //监听paste事件
         document.addEventListener('paste', (event) => {
             let items = event.clipboardData.items || {};
+
+            // 优先处理图片
             for (let index in items) {
                 let item = items[index];
                 if (/image\//.test(item.type)) {
                     let file = item.getAsFile();
-                    this._getDataUri(file);
-                    break;
+                    return this._getDataUri(file);
+                }
+            }
+
+            // 然后处理url
+            for (let index in items) {
+                let item = items[index];
+                if (/text\/plain/.test(item.type)) {
+                    return item.getAsString(url => {
+                        this.convertOnline(url);
+                    });
                 }
             }
         }, false);
@@ -44,6 +66,7 @@ new Vue({
         }, false);
     },
     methods: {
+
         _sizeFormat: function (num) {
             if (isNaN(num)) {
                 return '暂无数据';
@@ -68,6 +91,35 @@ new Vue({
                 this.sizeBase = this._sizeFormat(evt.target.result.length);
             };
             reader.readAsDataURL(file);
+        },
+
+        convertOnline: function (onlineSrc) {
+            let that = this;
+            that.previewSrc = onlineSrc;
+            let image = new Image();
+            image.src = onlineSrc;
+            image.onload = function () {
+                let width = this.naturalWidth;
+                let height = this.naturalHeight;
+
+                // url方式解码失败，再转换成data uri后继续解码
+                (function createCanvasContext(img, t, l, w, h) {
+                    let canvas = document.createElement('canvas');
+                    canvas.setAttribute('id', 'qr-canvas');
+                    canvas.height = h + 100;
+                    canvas.width = w + 100;
+                    let context = canvas.getContext('2d');
+                    context.fillStyle = 'rgb(255,255,255)';
+                    context.fillRect(0, 0, canvas.width, canvas.height);
+                    context.drawImage(img, l, t, w, h, 50, 50, w, h);
+
+                    that.resultContent = canvas.toDataURL();
+                    that.$refs.panelBox.style.backgroundImage = 'none';
+                    that.sizeOri = width + 'x' + height;
+                    that.sizeBase = that._sizeFormat(that.resultContent.length);
+
+                })(image, 0, 0, width, height);
+            };
         },
 
         convert: function () {
