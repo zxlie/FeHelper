@@ -34,6 +34,7 @@ new Vue({
             }
         },
         stampToLocale: function () {
+            Tarp.require('../static/js/utils');
             if (this.txtSrcStamp.length === 0) {
                 alert('请先填写你需要转换的Unix时间戳');
                 return;
@@ -42,7 +43,6 @@ new Vue({
                 alert('请输入合法的Unix时间戳');
                 return;
             }
-            Tarp.require('../static/js/utils');
             this.txtDesDate = (new Date(parseInt(this.txtSrcStamp, 10) * 1000)).format('yyyy-MM-dd HH:mm:ss');
         },
         localeToStamp: function () {

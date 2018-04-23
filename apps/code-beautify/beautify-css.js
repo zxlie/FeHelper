@@ -239,18 +239,5 @@
         return sweetCode;
     }
 
-    if (typeof define === "function") {
-        // Add support for require.js
-        define(function(require, exports, module) {
-            exports.css_beautify = css_beautify;
-        });
-    } else if (typeof exports !== "undefined") {
-        // Add support for CommonJS. Just put this file somewhere on your require.paths
-        // and you will be able to `var html_beautify = require("beautify").html_beautify`.
-        exports.css_beautify = css_beautify;
-    } else if (typeof window !== "undefined") {
-        // If we're running a web page and don't have either of the above, add our one global
-        window.css_beautify = css_beautify;
-    }
-
+    module.exports.css_beautify = window.css_beautify = css_beautify;
 }());

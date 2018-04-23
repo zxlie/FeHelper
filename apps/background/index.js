@@ -675,6 +675,7 @@ var BgPageInstance = (function () {
     return {
         init: _init,
         runHelper: _runHelper,
+        notify: notifyText,
         showColorPicker: _showColorPicker,
         tellMeAjaxDbgSwitch: _tellDevToolsDbgSwitchOn
     };

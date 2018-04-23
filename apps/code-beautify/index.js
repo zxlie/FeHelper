@@ -29,8 +29,6 @@ new Vue({
     methods: {
         format: function () {
             let txtResult = '';
-            let beautifierFunc = () => {
-            };
 
             switch (this.selectedType) {
                 case 'Javascript':
@@ -47,16 +45,16 @@ new Vue({
                         unescape_strings: false,
                         wrap_line_length: "120"
                     };
-                    beautifierFunc = Tarp.require('./beautify.js').js_beautify;
-                    txtResult = beautifierFunc(this.sourceContent, opts);
+                    Tarp.require('./beautify.js');
+                    txtResult = js_beautify(this.sourceContent, opts);
                     break;
                 case 'CSS':
-                    beautifierFunc = Tarp.require('./beautify-css.js').css_beautify;
-                    txtResult = beautifierFunc(this.sourceContent);
+                    Tarp.require('./beautify-css.js');
+                    txtResult = css_beautify(this.sourceContent);
                     break;
                 case 'HTML':
-                    beautifierFunc = Tarp.require('./beautify-html.js').html_beautify;
-                    txtResult = beautifierFunc(this.sourceContent);
+                    Tarp.require('./beautify-html.js');
+                    txtResult = html_beautify(this.sourceContent);
                     break;
                 case 'SQL':
                     Tarp.require('./vkbeautify.js');

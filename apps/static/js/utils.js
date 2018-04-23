@@ -118,17 +118,21 @@ Date.prototype.format = function (pattern) {
  */
 window.alert = function (content) {
     window.clearTimeout(window.feHelperAlertMsgTid);
-    let elAlertMsg = $("#fehelper_alertmsg").hide();
-    if (!elAlertMsg.get(0)) {
-        elAlertMsg = $('<div id="fehelper_alertmsg" style="position:fixed;top:5px;right:5px;z-index:1000000">' +
+    let elAlertMsg = document.querySelector("#fehelper_alertmsg");
+    if (!elAlertMsg) {
+        let elWrapper = document.createElement('div');
+        elWrapper.innerHTML = '<div id="fehelper_alertmsg" style="position:fixed;top:5px;right:5px;z-index:1000000">' +
             '<p style="background:#000;display:inline-block;color:#fff;text-align:center;' +
-            'padding:10px 10px;margin:0 auto;font-size:14px;border-radius:4px;">' + content + '</p></div>').appendTo('body');
+            'padding:10px 10px;margin:0 auto;font-size:14px;border-radius:4px;">' + content + '</p></div>';
+        elAlertMsg = elWrapper.childNodes[0];
+        document.body.appendChild(elAlertMsg);
     } else {
-        elAlertMsg.find('p').text(content).end().show();
+        elAlertMsg.querySelector('p').innerHTML = content;
+        elAlertMsg.style.display = 'block';
     }
 
     window.feHelperAlertMsgTid = window.setTimeout(function () {
-        elAlertMsg.hide(100);
+        elAlertMsg.style.display = 'none';
     }, 3000);
 };
 

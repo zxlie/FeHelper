@@ -173,21 +173,19 @@ module.exports = (() => {
             $('body').html(_htmlFragment);
             _loadCss();
 
-            // 异步加载模式
-            Tarp.require('../json-format/format-lib', true).then(Json => {
-                Json.format(newSource);
+            // 格式化
+            Tarp.require('../json-format/format-lib').format(newSource);
 
-                // 如果是JSONP格式的，需要把方法名也显示出来
-                if (funcName != null) {
-                    if (fnTry && fnCatch) {
-                        $('#jfCallbackName_start').html('<pre style="padding:0">' + fnTry + '</pre>' + funcName + '(');
-                        $('#jfCallbackName_end').html(')<br><pre style="padding:0">' + fnCatch + '</pre>');
-                    } else {
-                        $('#jfCallbackName_start').html(funcName + '(');
-                        $('#jfCallbackName_end').html(')');
-                    }
+            // 如果是JSONP格式的，需要把方法名也显示出来
+            if (funcName != null) {
+                if (fnTry && fnCatch) {
+                    $('#jfCallbackName_start').html('<pre style="padding:0">' + fnTry + '</pre>' + funcName + '(');
+                    $('#jfCallbackName_end').html(')<br><pre style="padding:0">' + fnCatch + '</pre>');
+                } else {
+                    $('#jfCallbackName_start').html(funcName + '(');
+                    $('#jfCallbackName_end').html(')');
                 }
-            });
+            }
         }
     };
 

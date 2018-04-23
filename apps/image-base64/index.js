@@ -17,33 +17,20 @@ new Vue({
         chrome.runtime.onMessage.addListener((request, sender, callback) => {
             if (request.type === MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event === MSG_TYPE.IMAGE_BASE64) {
                 if (request.content) {
-                    this.convertOnline(request.content);
+                    this.convertOnline(request.content, flag => {
+                        if (!flag) {
+                            chrome.extension.getBackgroundPage().BgPageInstance.notify({
+                                message: '抱歉，' + request.content + ' 对应的图片未转码成功！'
+                            });
+                        }
+                    });
                 }
             }
         });
 
         //监听paste事件
         document.addEventListener('paste', (event) => {
-            let items = event.clipboardData.items || {};
-
-            // 优先处理图片
-            for (let index in items) {
-                let item = items[index];
-                if (/image\//.test(item.type)) {
-                    let file = item.getAsFile();
-                    return this._getDataUri(file);
-                }
-            }
-
-            // 然后处理url
-            for (let index in items) {
-                let item = items[index];
-                if (/text\/plain/.test(item.type)) {
-                    return item.getAsString(url => {
-                        this.convertOnline(url);
-                    });
-                }
-            }
+            this.paste(event);
         }, false);
 
         // 监听拖拽
@@ -93,7 +80,7 @@ new Vue({
             reader.readAsDataURL(file);
         },
 
-        convertOnline: function (onlineSrc) {
+        convertOnline: function (onlineSrc, callback) {
             let that = this;
             that.previewSrc = onlineSrc;
             let image = new Image();
@@ -118,7 +105,11 @@ new Vue({
                     that.sizeOri = width + 'x' + height;
                     that.sizeBase = that._sizeFormat(that.resultContent.length);
 
+                    callback && callback(true);
                 })(image, 0, 0, width, height);
+            };
+            image.onerror = function () {
+                callback && callback(false);
             };
         },
 
@@ -136,6 +127,48 @@ new Vue({
         upload: function (evt) {
             evt.preventDefault();
             this.$refs.fileBox.click();
+        },
+
+        paste: function (event) {
+            let items = event.clipboardData.items || {};
+
+            // 优先处理图片
+            for (let index in items) {
+                let item = items[index];
+                if (/image\//.test(item.type)) {
+                    let file = item.getAsFile();
+                    return this._getDataUri(file);
+                }
+            }
+
+            // 然后处理url
+            try {
+                // 逐个遍历
+                (async () => {
+                    for (let index in items) {
+                        let item = items[index];
+                        if (/text\/plain/.test(item.type)) {
+                            let url = await new Promise(resolve => {
+                                item.getAsString(url => resolve(url))
+                            });
+                            let flag = await new Promise(resolve => {
+                                this.convertOnline(url, flag => resolve(flag));
+                            });
+                            if (flag) break;
+                        }
+                    }
+                })();
+            } catch (ex) {
+                // 只能处理一个了
+                for (let index in items) {
+                    let item = items[index];
+                    if (/text\/plain/.test(item.type)) {
+                        return item.getAsString(url => {
+                            this.convertOnline(url);
+                        });
+                    }
+                }
+            }
         }
     }
 });
