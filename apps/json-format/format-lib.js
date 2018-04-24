@@ -310,18 +310,15 @@ var JsonFormatEntrance = (function () {
             length: jsonStr.length
         });
 
-        _loadJquery();
+        _loadJs();
         // 事件绑定
         _addEvents();
         // 支持文件下载
         _downloadSupport(JSON.parse(jsonStr));
     };
 
-    var _loadJquery = function () {
+    var _loadJs = function () {
         if (typeof Tarp === 'object') {
-            if (!window.jQuery && typeof jQuery !== 'function') {
-                window.jQuery = window.$ = Tarp.require('../static/vendor/jquery/jquery-3.3.1.min.js');
-            }
             Tarp.require('../static/js/utils.js');
         } else {
             alert('无法加载Tarp.require.js');

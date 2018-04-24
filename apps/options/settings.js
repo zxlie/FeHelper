@@ -21,7 +21,8 @@ module.exports = (() => {
         'IMAGE_BASE64',
         'FCP_HELPER_DETECT',
         'SHOW_PAGE_LOAD_TIME',
-        'AJAX_DEBUGGER'
+        'AJAX_DEBUGGER',
+        'JS_CSS_PAGE_BEAUTIFY'
     ];
 
     /**

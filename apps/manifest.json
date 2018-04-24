@@ -1,6 +1,6 @@
 {
   "name": "WEB前端助手(FeHelper)",
-  "version": "2018.04.2318",
+  "version": "2018.04.2418",
   "manifest_version": 2,
   "default_locale": "zh_CN",
   "description": "FE助手：包括JSON格式化、二维码生成与解码、信息编解码、代码压缩、美化、页面取色、正则表达式、时间转换工具、编码规范检测、页面性能检测、Ajax接口调试",
@@ -17,8 +17,8 @@
   "background": {
     "persistent": true,
     "scripts": [
-      "static/vendor/require/require.js",
       "background/detect.js",
+      "static/vendor/require/require.js",
       "background/index.js"
     ]
   },
@@ -40,11 +40,14 @@
     "static/img/fe-16.png",
     "static/img/fe-48.png",
     "static/img/fe-128.png",
-    "static/img/ui-icons.png",
     "background/network.js",
     "options/settings.js",
     "static/js/msg_type.js",
     "static/js/utils.js",
+    "code-beautify/beautify.js",
+    "code-beautify/beautify-css.js",
+    "code-beautify/automatic.js",
+    "code-beautify/automatic.css",
     "json-format/without-ui.css",
     "json-format/automatic.js",
     "json-format/format-lib.js",
@@ -66,7 +69,11 @@
     "code-standards/pbar-ani.gif",
     "static/vendor/jquery/jquery-ui.min.css",
     "static/vendor/jquery/jquery-ui.min.js",
-    "static/vendor/jquery/jquery.extend.js"
+    "static/vendor/jquery/jquery.extend.js",
+    "static/vendor/syntaxhighlighter/shCore.js",
+    "static/vendor/syntaxhighlighter/shBrushJScript.js",
+    "static/vendor/syntaxhighlighter/shBrushCss.js",
+    "static/css/syntax-highlighter.css"
   ],
   "content_scripts": [
     {

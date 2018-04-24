@@ -513,7 +513,7 @@ var BgPageInstance = (function () {
         });
     };
 
-    // 当前页面是否进行自动格式化
+    //判断是否可以针对json页面进行自动格式化
     let _jsonAutoFormatRequest = function () {
         Settings.getOptsFromBgPage(opts => {
             chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
@@ -524,6 +524,19 @@ var BgPageInstance = (function () {
             });
         });
     };
+
+    //判断是否可以针对js、css自动检测格式化
+    let _jsCssAutoDetectRequest = function () {
+        Settings.getOptsFromBgPage(opts => {
+            chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                chrome.tabs.sendMessage(tabs[0].id, {
+                    type: MSG_TYPE.JS_CSS_PAGE_BEAUTIFY,
+                    canIDoIt: opts.JS_CSS_PAGE_BEAUTIFY
+                });
+            });
+        });
+    };
+
 
     /**
      * 接收来自content_scripts发来的消息
@@ -545,9 +558,13 @@ var BgPageInstance = (function () {
                     autoClose: 2000
                 });
             }
-            //判断是否可以进行自动格式化
+            //判断是否可以针对json页面进行自动格式化
             else if (request.type === MSG_TYPE.JSON_PAGE_FORMAT_REQUEST) {
                 _jsonAutoFormatRequest();
+            }
+            //判断是否可以针对js、css自动检测格式化
+            else if (request.type === MSG_TYPE.JS_CSS_PAGE_BEAUTIFY_REQUEST) {
+                _jsCssAutoDetectRequest();
             }
             //保存当前网页加载时间
             else if (request.type === MSG_TYPE.CALC_PAGE_LOAD_TIME) {
@@ -564,6 +581,10 @@ var BgPageInstance = (function () {
             // console show
             else if (request.type === MSG_TYPE.AJAX_DEBUGGER_CONSOLE) {
                 _ajaxDebugger(request);
+            }
+            // 打开设置页
+            else if (request.type === MSG_TYPE.OPEN_OPTIONS_PAGE) {
+                chrome.runtime.openOptionsPage();
             }
 
             // ===========================以下为编码规范检测====start==================================
@@ -640,7 +661,7 @@ var BgPageInstance = (function () {
                     notifyText({
                         title: '恭喜',
                         message: '您的FeHelper已更新至 v' + feHelper.manifest.version,
-                        autoClose: 3000
+                        autoClose: 2000
                     });
                     break;
             }

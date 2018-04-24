@@ -121,7 +121,10 @@ gulp.task('zip', () => {
         return !included.trim().length;
     });
     fileList = fileList.filter(f => excludes.indexOf(f) === -1);
-    fileList.forEach(f => shell.rm('-rf', f));
+    fileList.forEach(f => {
+        shell.rm('-rf', f);
+        console.log(new Date().toLocaleString(), '> 清理掉冗余文件：', f);
+    });
     shell.cd('../../');
 
     // web_accessible_resources 中也不需要加载这些冗余的文件了
@@ -142,6 +145,10 @@ gulp.task('zip', () => {
 // builder
 gulp.task('default', ['clean'], () => {
     runSequence(['copy', 'css', 'js', 'html', 'json'], 'zip');
+});
+
+gulp.task('sync', () => {
+    gulp.src('apps/**/*').pipe(gulp.dest('output/apps'));
 });
 
 // 开发过程中用，watch while file changed
