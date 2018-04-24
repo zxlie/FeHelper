@@ -1,5 +1,8 @@
 @import "../static/css/bootstrap.min.css";
 
+.wrapper {
+    width:660px;
+}
 #pageContainer label {
     font-weight: normal;
 }

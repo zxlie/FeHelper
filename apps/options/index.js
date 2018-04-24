@@ -26,7 +26,7 @@ new Vue({
             });
         },
 
-        cancel: () => {
+        cancel: function () {
             this.close();
         },
 

@@ -58,7 +58,7 @@ module.exports = (() => {
 
         let ext = location.pathname.substring(location.pathname.lastIndexOf(".") + 1).toLowerCase();
         let fileType = ({'js': 'Javascript', 'css': 'CSS'})[ext];
-        if (!fileType) {
+        if (!fileType || document.contentType.toLowerCase() === 'text/html') {
             return false;
         }
         let source = document.body.textContent;
