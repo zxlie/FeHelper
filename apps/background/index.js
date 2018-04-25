@@ -658,11 +658,12 @@ var BgPageInstance = (function () {
                     chrome.runtime.openOptionsPage();
                     break;
                 case 'update':
-                    notifyText({
-                        title: '恭喜',
-                        message: '您的FeHelper已更新至 v' + feHelper.manifest.version,
-                        autoClose: 2000
-                    });
+                    setTimeout(() => {
+                        chrome.browserAction.setBadgeText({text: '+++1'});
+                        setTimeout(() => {
+                            chrome.browserAction.setBadgeText({text: ''});
+                        }, 1500);
+                    }, 1500);
                     break;
             }
         });
