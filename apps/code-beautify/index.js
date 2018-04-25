@@ -28,7 +28,18 @@ new Vue({
 
     methods: {
         format: function () {
-            let txtResult = '';
+
+            let beauty = (result) => {
+                result = result.replace(/>/g, '&gt;').replace(/</g, '&lt;');
+                result = '<pre class="brush: ' + this.selectedType.toLowerCase() + ';toolbar:false;">' + result + '</pre>';
+                this.resultContent = result;
+
+                // 代码高亮
+                this.$nextTick(() => {
+                    SyntaxHighlighter.defaults['toolbar'] = false;
+                    SyntaxHighlighter.highlight();
+                })
+            };
 
             switch (this.selectedType) {
                 case 'Javascript':
@@ -45,35 +56,24 @@ new Vue({
                         unescape_strings: false,
                         wrap_line_length: "120"
                     };
-                    Tarp.require('./beautify.js');
-                    txtResult = js_beautify(this.sourceContent, opts);
+                    Tarp.require('./beautify.js').js_beautify(this.sourceContent, opts, result => beauty(result));
                     break;
                 case 'CSS':
-                    Tarp.require('./beautify-css.js');
-                    txtResult = css_beautify(this.sourceContent);
+                    Tarp.require('./beautify-css.js').css_beautify(this.sourceContent, {}, result => beauty(result));
                     break;
                 case 'HTML':
                     Tarp.require('./beautify-html.js');
-                    txtResult = html_beautify(this.sourceContent);
+                    beauty(html_beautify(this.sourceContent));
                     break;
                 case 'SQL':
                     Tarp.require('./vkbeautify.js');
-                    txtResult = vkbeautify.sql(this.sourceContent, 4);
+                    beauty(vkbeautify.sql(this.sourceContent, 4));
                     break;
                 default:
                     Tarp.require('./vkbeautify.js');
-                    txtResult = vkbeautify.xml(this.sourceContent);
+                    beauty(vkbeautify.xml(this.sourceContent));
             }
 
-            txtResult = txtResult.replace(/>/g, '&gt;').replace(/</g, '&lt;');
-            txtResult = '<pre class="brush: ' + this.selectedType.toLowerCase() + ';toolbar:false;">' + txtResult + '</pre>';
-            this.resultContent = txtResult;
-
-            // 代码高亮
-            this.$nextTick(() => {
-                SyntaxHighlighter.defaults['toolbar'] = false;
-                SyntaxHighlighter.highlight();
-            })
         }
     }
 });

@@ -3,9 +3,31 @@ module.exports = (() => {
     /**
      * 代码美化
      */
-    let format = (fileType, source) => {
+    let format = (fileType, source, callback) => {
 
-        let txtResult = '';
+        let beauty = txtResult => {
+
+            txtResult = txtResult.replace(/>/g, '&gt;').replace(/</g, '&lt;');
+            txtResult = '<pre class="brush: ' + fileType.toLowerCase() + ';toolbar:false;">' + txtResult + '</pre>';
+            document.body.innerHTML = txtResult;
+
+            // 代码高亮
+            let map = {
+                core: '../static/vendor/syntaxhighlighter/shCore.js',
+                Javascript: '../static/vendor/syntaxhighlighter/shBrushJScript.js',
+                CSS: '../static/vendor/syntaxhighlighter/shBrushCss.js'
+            };
+
+            Tarp.require(map.core, true).then(SH => {
+                Tarp.require(map[fileType], true).then(SH => {
+                    SH.defaults['toolbar'] = false;
+                    SH.highlight();
+                });
+            });
+
+            callback && callback();
+        };
+
         switch (fileType) {
             case 'Javascript':
                 let opts = {
@@ -22,31 +44,13 @@ module.exports = (() => {
                     wrap_line_length: "120"
                 };
                 Tarp.require('../code-beautify/beautify.js');
-                txtResult = js_beautify(source, opts);
+                js_beautify(source, opts, resp => beauty(resp));
                 break;
             case 'CSS':
                 Tarp.require('../code-beautify/beautify-css.js');
-                txtResult = css_beautify(source);
+                css_beautify(source, {}, resp => beauty(resp));
                 break;
         }
-
-        txtResult = txtResult.replace(/>/g, '&gt;').replace(/</g, '&lt;');
-        txtResult = '<pre class="brush: ' + fileType.toLowerCase() + ';toolbar:false;">' + txtResult + '</pre>';
-        document.body.innerHTML = txtResult;
-
-        // 代码高亮
-        let map = {
-            core: '../static/vendor/syntaxhighlighter/shCore.js',
-            Javascript: '../static/vendor/syntaxhighlighter/shBrushJScript.js',
-            CSS: '../static/vendor/syntaxhighlighter/shBrushCss.js'
-        };
-
-        Tarp.require(map.core, true).then(SH => {
-            Tarp.require(map[fileType], true).then(SH => {
-                SH.defaults['toolbar'] = false;
-                SH.highlight();
-            });
-        });
 
     };
 
@@ -78,8 +82,9 @@ module.exports = (() => {
         tipsBar.find('button.yes').click((evt) => {
             tipsBar.find('button.yes,button.no').hide();
             $('<span class="doing">正在努力，请稍后...</span>').insertBefore(tipsBar.find('button.yes'));
-            format(fileType, source);
-            $(document.body).removeClass('show-tipsbar').addClass('show-beautified');
+            format(fileType, source,()=>{
+                $(document.body).removeClass('show-tipsbar').addClass('show-beautified');
+            });
         });
 
         tipsBar.find('a.forbid').click((evt) => {
