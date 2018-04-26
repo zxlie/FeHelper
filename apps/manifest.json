@@ -54,6 +54,7 @@
     "qr-code/decode.js",
     "wpo/inject.js",
     "color-picker/index.js",
+    "page-capture/index.js",
     "static/vendor/jquery/jquery-3.3.1.min.js",
     "code-standards/index.css",
     "code-standards/index.js",

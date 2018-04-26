@@ -90,6 +90,9 @@ ul.fe-function-list li.-x-ajax-debugger b {
 ul.fe-function-list li.-x-markdown b {
 	background-position:-83px -222px;
 }
+ul.fe-function-list li.-x-pagecapture b {
+	background-position:-16px -111px;
+}
 
 ul.fe-function-list li i {
     color: #aaa;

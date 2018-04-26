@@ -7,6 +7,7 @@ var BgPageInstance = (function () {
     let MSG_TYPE = Tarp.require('../static/js/msg_type');
     let Settings = Tarp.require('../options/settings');
     let Network = Tarp.require('../background/network');
+    let PageCapture = Tarp.require('../page-capture/capture-api')(MSG_TYPE);
 
     let feHelper = {
         codeStandardMgr: {},
@@ -233,6 +234,10 @@ var BgPageInstance = (function () {
                     case MSG_TYPE.FCP_HELPER_DETECT:
                         _doFcpDetect(tab);
                         break;
+                    //将当前网页转为图片
+                    case MSG_TYPE.PAGE_CAPTURE:
+                        PageCapture.full(tab);
+                        break;
                     //查看网页加载时间
                     case MSG_TYPE.SHOW_PAGE_LOAD_TIME:
                         _getPageWpoInfo();
@@ -381,6 +386,20 @@ var BgPageInstance = (function () {
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
                 _showColorPicker();
+            }
+        });
+
+        chrome.contextMenus.create({
+            type: 'separator',
+            contexts: ['all'],
+            parentId: feHelper.contextMenuId
+        });
+        chrome.contextMenus.create({
+            title: "将页面导出为图片",
+            contexts: ['all'],
+            parentId: feHelper.contextMenuId,
+            onclick: function (info, tab) {
+                PageCapture.full(tab);
             }
         });
     };

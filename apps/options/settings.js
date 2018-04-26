@@ -23,7 +23,8 @@ module.exports = (() => {
         'SHOW_PAGE_LOAD_TIME',
         'AJAX_DEBUGGER',
         'JS_CSS_PAGE_BEAUTIFY',
-        'HTML_TO_MARKDOWN'
+        'HTML_TO_MARKDOWN',
+        'PAGE_CAPTURE'
     ];
 
     /**
