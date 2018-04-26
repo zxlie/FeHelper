@@ -58,7 +58,7 @@ new Vue({
             });
         },
 
-        clear: () => {
+        clear: function() {
             this.sourceContent = '';
             this.resultContent = '';
         },

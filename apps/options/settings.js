@@ -22,7 +22,8 @@ module.exports = (() => {
         'FCP_HELPER_DETECT',
         'SHOW_PAGE_LOAD_TIME',
         'AJAX_DEBUGGER',
-        'JS_CSS_PAGE_BEAUTIFY'
+        'JS_CSS_PAGE_BEAUTIFY',
+        'HTML_TO_MARKDOWN'
     ];
 
     /**

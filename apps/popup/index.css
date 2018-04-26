@@ -87,6 +87,10 @@ ul.fe-function-list li.-x-colorpicker b {
 ul.fe-function-list li.-x-ajax-debugger b {
     background-position:-81px -129px;
 }
+ul.fe-function-list li.-x-markdown b {
+	background-position:-83px -222px;
+}
+
 ul.fe-function-list li i {
     color: #aaa;
     font-weight: 700;

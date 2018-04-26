@@ -83,6 +83,8 @@ const MSG_TYPE = {
     AJAX_DEBUGGER_CONSOLE: "ajax-debugger-console",
     AJAX_DEBUGGER_SWITCH: "ajax-debugger-switch",
 
+    HTML_TO_MARKDOWN: "html2markdown",
+
     // dev tools页面
     DEV_TOOLS: 'dev-tools',
 

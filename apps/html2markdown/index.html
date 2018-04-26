@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    <title>HTML转Markdown工具</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="index.css" />
+    <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    <script src="../static/vendor/require/require.js"></script>
+</head>
+<body>
+
+<div class="wrapper" id="pageContainer">
+    <div class="panel panel-default" style="margin-bottom: 0px;">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank" class="x-a-high">
+                    <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：{{toolName[codeType]}}工具
+                <span class="x-xdemo" ref="demoLink1" @click="setDemo">示例：{{codeType}}片段</span>
+
+                <span class="x-switch ui-fl-r" ref="btnSwitch" @click="trans">切换为{{toolName[nextCodeType]}}&gt;&gt;</span>
+            </h3>
+        </div>
+    </div>
+    <div class="panel-body mod-endecode">
+
+        <div class="row">
+            <textarea class="form-control mod-textarea ui-mb-10" id="srcText" ref="srcText" v-model="sourceContent" @input="convert"
+                      placeholder="粘贴或输入需要进行转换的内容"></textarea>
+        </div>
+
+        <div id="rst" class="row ui-mt-10" v-show="resultContent.length > 0">
+            <a href="#" @click="preview" v-html="previewText"></a><hr>
+            <textarea class="mod-textarea" id="rstCode" ref="rstCode" v-model="resultContent" @click="getResult" v-show="!showPreview"></textarea>
+            <div class="x-preview" v-show="showPreview" v-html="previewHTML"></div>
+        </div>
+    </div>
+
+    <div class="html-demo hide" ref="htmlDemo">
+        <h2 class="fe-function-title">FE助手</h2>
+        <ul class="fe-function-list">
+            <li class="-x-endecode" >
+                <span>字符串编解码</span></li>
+            <li class="-x-jsonformat">
+                <span><code>Json</code>串格式化</span></li>
+            <li class="-x-codebeautify">
+                <span>代码美化工具</span></li>
+            <li class="-x-codecompress">
+                <span>代码压缩工具</span></li>
+            <li class="-x-qrcode">
+                <span>二维码生成器</span></li>
+            <li class="-x-colorpicker">
+                <span>页面取色工具</span></li>
+            <li class="-x-regexp">
+                <span>Js正则表达式</span></li>
+            <li class="-x-timestamp">
+                <span>时间(戳)转换</span></li>
+            <li class="-x-base64">
+                <span>图片Base64</span></li>
+            <li class="-x-fcp">
+                <span>编码规范检测</span></li>
+            <li class="-x-loadtime">
+                <span>页面性能检测</span></li>
+            <li class="-x-markdown">
+                <span>Html转<code>Markdown</code></span></li>
+            <li class="-x-ajax-debugger">
+                <span>Ajax调试:<strong>关</strong></span></li>
+        </ul>
+    </div>
+</div>
+<script type="text/javascript" src="index.js"></script>
+</body>
+</html>
