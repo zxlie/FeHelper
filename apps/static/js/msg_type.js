@@ -84,7 +84,7 @@ const MSG_TYPE = {
     AJAX_DEBUGGER_SWITCH: "ajax-debugger-switch",
 
     HTML_TO_MARKDOWN: "html2markdown",
-    PAGE_CAPTURE:'PAGE_CAPTURE',
+    PAGE_CAPTURE:'page-capture',
     PAGE_CAPTURE_SCROLL:"page_capture_scroll",
     PAGE_CAPTURE_CAPTURE:"page_capture_capture",
 

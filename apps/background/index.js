@@ -13,7 +13,8 @@ var BgPageInstance = (function () {
         codeStandardMgr: {},
         ajaxDebuggerMgr: {},
         csDetectIntervals: [],
-        manifest: chrome.runtime.getManifest()
+        manifest: chrome.runtime.getManifest(),
+        notifyTimeoutId: -1
     };
     let devToolsDetected = false;
 
@@ -71,13 +72,19 @@ var BgPageInstance = (function () {
      * @config {string} message 内容
      */
     let notifyText = function (options) {
+        let notifyId = 'fehleper-notify-id';
+
+        clearTimeout(feHelper.notifyTimeoutId);
+        if (options.closeImmediately) {
+            return chrome.notifications.clear(notifyId);
+        }
+
         if (!options.icon) {
             options.icon = "static/img/fe-48.png";
         }
         if (!options.title) {
             options.title = "温馨提示";
         }
-        let notifyId = 'fehleper-notify-id';
         chrome.notifications.create(notifyId, {
             type: 'basic',
             title: options.title,
@@ -85,7 +92,7 @@ var BgPageInstance = (function () {
             message: options.message
         });
 
-        setTimeout(() => {
+        feHelper.notifyTimeoutId = setTimeout(() => {
             chrome.notifications.clear(notifyId);
         }, parseInt(options.autoClose || 3000, 10));
 
@@ -395,7 +402,7 @@ var BgPageInstance = (function () {
             parentId: feHelper.contextMenuId
         });
         chrome.contextMenus.create({
-            title: "将页面导出为图片",
+            title: "网页转为图片",
             contexts: ['all'],
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
@@ -535,10 +542,9 @@ var BgPageInstance = (function () {
     //判断是否可以针对json页面进行自动格式化
     let _jsonAutoFormatRequest = function () {
         Settings.getOptsFromBgPage(opts => {
-            chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            opts.JSON_PAGE_FORMAT && chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                 chrome.tabs.sendMessage(tabs[0].id, {
-                    type: MSG_TYPE.JSON_PAGE_FORMAT,
-                    canIDoIt: opts.JSON_PAGE_FORMAT
+                    type: MSG_TYPE.JSON_PAGE_FORMAT
                 });
             });
         });
@@ -546,11 +552,20 @@ var BgPageInstance = (function () {
 
     //判断是否可以针对js、css自动检测格式化
     let _jsCssAutoDetectRequest = function () {
-        Settings.getOptsFromBgPage(opts => {
-            chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-                chrome.tabs.sendMessage(tabs[0].id, {
-                    type: MSG_TYPE.JS_CSS_PAGE_BEAUTIFY,
-                    canIDoIt: opts.JS_CSS_PAGE_BEAUTIFY
+
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+
+            let tab = tabs[0];
+            let url = new URL(tab.url);
+            let ext = url.pathname.substring(url.pathname.lastIndexOf(".") + 1).toLowerCase();
+            let fileType = ({'js': 'Javascript', 'css': 'CSS'})[ext];
+            if (!fileType) {
+                return false;
+            }
+
+            Settings.getOptsFromBgPage(opts => {
+                opts.JS_CSS_PAGE_BEAUTIFY && chrome.tabs.sendMessage(tab.id, {
+                    type: MSG_TYPE.JS_CSS_PAGE_BEAUTIFY
                 });
             });
         });
@@ -718,7 +733,8 @@ var BgPageInstance = (function () {
         runHelper: _runHelper,
         notify: notifyText,
         showColorPicker: _showColorPicker,
-        tellMeAjaxDbgSwitch: _tellDevToolsDbgSwitchOn
+        tellMeAjaxDbgSwitch: _tellDevToolsDbgSwitchOn,
+        getCapturedData: PageCapture.getCapturedData
     };
 })();
 

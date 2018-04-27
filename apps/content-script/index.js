@@ -38,12 +38,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
     switch (request.type) {
         // JSON页面自动格式化
         case MSG_TYPE.JSON_PAGE_FORMAT:
-            request.canIDoIt && Tarp.require('../json-format/automatic', true).then(JsonTools => JsonTools.format());
+            Tarp.require('../json-format/automatic').format();
             break;
 
         // js、css页面自动检测，提示格式化
         case MSG_TYPE.JS_CSS_PAGE_BEAUTIFY:
-            request.canIDoIt && Tarp.require('../code-beautify/automatic', true).then(beautifier => beautifier.detect());
+            Tarp.require('../code-beautify/automatic', true).then(beautifier => beautifier.detect());
             break;
 
         // 二维码解码
@@ -53,7 +53,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
 
         // 全屏截图
         case MSG_TYPE.PAGE_CAPTURE_SCROLL:
-            Tarp.require('../page-capture/index', true).then(page => page.scroll(callback));
+            Tarp.require('../page-capture/inject', true).then(page => page.scroll(callback));
             break;
 
         // 页面性能检测

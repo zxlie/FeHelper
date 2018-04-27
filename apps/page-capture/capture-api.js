@@ -14,7 +14,8 @@ module.exports = function (MSG_TYPE) {
     let matches = ['http://*/*', 'https://*/*', 'ftp://*/*', 'file://*/*'],
         noMatches = [/^https?:\/\/chrome.google.com\/.*$/];
 
-    let listenerFunc ;
+    let listenerFunc;
+    let capturedData = {};
 
     /**
      * URL合法性校验
@@ -197,7 +198,6 @@ module.exports = function (MSG_TYPE) {
         });
     }
 
-
     /**
      * 将Blob数据存储到本地临时文件
      * @param blob
@@ -243,13 +243,13 @@ module.exports = function (MSG_TYPE) {
 
 
     /**
-     * 截屏保存为Blob对象
+     * 截屏输出screenshots对象
      * @param tab
      * @param doneback
      * @param errback
      * @param progress
      */
-    function captureToBlobs(tab, doneback, errback, progress) {
+    function captureToOrigin(tab, doneback, errback, progress) {
         let screenshots = [],
             noop = new Function();
 
@@ -261,7 +261,7 @@ module.exports = function (MSG_TYPE) {
             errback('invalid url');
         }
 
-        if(typeof listenerFunc !== 'undefined') {
+        if (typeof listenerFunc !== 'undefined') {
             chrome.runtime.onMessage.removeListener(listenerFunc);
         }
         listenerFunc = function (request, sender, sendResponse) {
@@ -269,7 +269,7 @@ module.exports = function (MSG_TYPE) {
                 progress(request.complete);
                 capture(request, screenshots, (data) => {
                     sendResponse(data);
-                    request.complete === 1 && doneback(getBlobs(screenshots));
+                    request.complete === 1 && doneback(screenshots);
                 });
                 return true;
             }
@@ -280,6 +280,27 @@ module.exports = function (MSG_TYPE) {
     }
 
     /**
+     * 通过网页url生成默认的文件名
+     * @param contentURL
+     * @returns {string}
+     */
+    function buildFilenameFromUrl(contentURL) {
+        let name = contentURL.split('?')[0].split('#')[0];
+        if (name) {
+            name = name
+                .replace(/^https?:\/\//, '')
+                .replace(/[^A-z0-9]+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^[_\-]+/, '')
+                .replace(/[_\-]+$/, '');
+            name = '-' + name;
+        } else {
+            name = '';
+        }
+        return 'fehelper' + name + '-' + Date.now() + '.png';
+    }
+
+    /**
      * 截屏保存为文件
      * @param tab
      * @param callback
@@ -287,26 +308,13 @@ module.exports = function (MSG_TYPE) {
      * @param progress
      */
     function captureToFiles(tab, callback, errback, progress) {
-        let doneback = (blobs) => {
-            let i = 0,
-                len = blobs.length;
+        let doneback = (screenshots) => {
+            let blobs = getBlobs(screenshots);
+            let i = 0;
+            let len = blobs.length;
 
             // 生成临时文件名
-            let baseName = ((contentURL) => {
-                let name = contentURL.split('?')[0].split('#')[0];
-                if (name) {
-                    name = name
-                        .replace(/^https?:\/\//, '')
-                        .replace(/[^A-z0-9]+/g, '-')
-                        .replace(/-+/g, '-')
-                        .replace(/^[_\-]+/, '')
-                        .replace(/[_\-]+$/, '');
-                    name = '-' + name;
-                } else {
-                    name = '';
-                }
-                return 'screencapture' + name + '-' + Date.now() + '.png';
-            })(tab.url);
+            let baseName = buildFilenameFromUrl(tab.url);
 
             // 保存 & 打开
             (function doNext() {
@@ -316,7 +324,7 @@ module.exports = function (MSG_TYPE) {
             })();
         };
 
-        captureToBlobs(tab, doneback, errback, progress);
+        captureToOrigin(tab, doneback, errback, progress);
     }
 
 
@@ -328,33 +336,64 @@ module.exports = function (MSG_TYPE) {
 
         // 配置项
         let captureConfig = {
-            success: filename => {
+            // 保存成功文件时，用这个
+            successForFile: filename => {
                 chrome.tabs.create({
                     url: filename
                 });
             },
 
+            // 获取原始数据，用这个
+            successForDataURI: function (screenshots) {
+                capturedData = {
+                    pageInfo: tab,
+                    filename: buildFilenameFromUrl(tab.url),
+                    imageURI: screenshots.map(function (screenshot) {
+                        return screenshot.canvas.toDataURL();
+                    })
+                };
+
+                chrome.tabs.create({
+                    url: 'page-capture/index.html'
+                });
+            },
+
             fail: reason => {
-                console.log(reason)
+                BgPageInstance.notify({
+                    title: '糟糕，转换失败',
+                    message: (reason && reason.message || reason || '稍后尝试刷新页面重试!')
+                });
             },
 
             progress: percent => {
-                if (percent === 0) {
-                    console.log('loading');
-                }
-                else {
-                    percent = parseInt(percent * 100, 10) + '%';
-                    console.log(percent);
+                percent = parseInt(percent * 100, 10) + '%';
+
+                chrome.tabs.executeScript(tab.id, {
+                    code: 'document.title="进度：' + percent + ' ...";'
+                });
+
+                if (percent === '100%') {
+                    setTimeout(() => {
+                        chrome.tabs.executeScript(tab.id, {
+                            code: 'document.title="' + tab.title + '";'
+                        });
+                    }, 800);
                 }
             }
         };
 
         // 截屏走起
-        captureToFiles(tab, captureConfig.success, captureConfig.fail, captureConfig.progress);
+        // captureToFiles(tab, captureConfig.successForFile, captureConfig.fail, captureConfig.progress);
+        captureToOrigin(tab, captureConfig.successForDataURI, captureConfig.fail, captureConfig.progress);
+    }
+
+    function getCapturedData() {
+        return capturedData;
     }
 
     return {
-        full: fullPageCapture
+        full: fullPageCapture,
+        getCapturedData: getCapturedData
     };
 
 };

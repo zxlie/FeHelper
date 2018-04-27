@@ -1,0 +1,44 @@
+@import url("../static/css/bootstrap.min.css");
+
+.wrapper,.panel-body {
+    padding-bottom: 0;
+}
+
+.img-container {
+    overflow-y: scroll;
+    height: 480px;
+    border:10px solid #4e5d6c;
+    border-right: 0;
+    background-color:#4e5d6c;
+}
+
+.img-result {
+    width: 100%;
+    padding-right: 10px;
+    margin: auto;
+    display: block;
+}
+
+#btnSave {
+    margin-top: -6px;
+}
+
+.x-title {
+    display: block;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 4px;
+    margin-bottom:10px;
+}
+.x-title .x-link {
+    cursor: pointer;
+    color:#c00;
+    text-decoration: underline;
+    margin-left: 10px;
+}
+.x-title .x-link:hover {
+    color: #f00;
+}
+.c-d {
+    cursor: default;
+    margin-top: 20px;
+}
