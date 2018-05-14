@@ -110,7 +110,7 @@ body.show-tipsbar #fehelper_tips {
 }
 
 body.show-beautified {
-    font-size: 12px;
+    font-size: 14px;
 }
 
 body.processing > :not(#fehelper_tips) {

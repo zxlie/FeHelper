@@ -46,6 +46,9 @@ new Vue({
             this.txtDesDate = (new Date(parseInt(this.txtSrcStamp, 10) * 1000)).format('yyyy-MM-dd HH:mm:ss');
         },
         localeToStamp: function () {
+            if(this.txtLocale && !/\s\d+:\d+:\d+/.test(this.txtLocale)) {
+                this.txtLocale += ' 00:00:00';
+            }
             let locale = Date.parse(this.txtLocale);
             if (isNaN(locale)) {
                 alert('请输入合法的时间格式，如：2014-04-01 10:01:01，或：2014-01-01');

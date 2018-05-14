@@ -1,6 +1,6 @@
 {
   "name": "WEB前端助手(FeHelper)",
-  "version": "2018.04.2717",
+  "version": "2018.05.1412",
   "manifest_version": 2,
   "default_locale": "zh_CN",
   "description": "FE助手：包括JSON格式化、二维码生成与解码、信息编解码、代码压缩、美化、页面取色、Markdown与HTML互转、网页转为图片、正则表达式、时间转换工具、编码规范检测、页面性能检测、Ajax接口调试",
