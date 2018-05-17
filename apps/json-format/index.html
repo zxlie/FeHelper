@@ -22,8 +22,18 @@
 
             <div class="panel-body mod-json">
                 <div class="row panel-txt">
-                    <textarea class="form-control mod-textarea" id="jsonSource" placeholder="在这里粘贴您需要进行格式化的JSON代码" ref="jsonBox" v-model="jsonSource" @input="format"></textarea>
-                    <div><button id="btnFormat" class="btn btn-primary ui-mt-10" @click="format">格式化</button><span id="errorMsg" v-html="errorMsg"></span></div>
+                    <textarea class="form-control mod-textarea" id="jsonSource" placeholder="在这里粘贴您需要进行格式化的JSON代码" ref="jsonBox"></textarea>
+                    <div class="ui-mt-10">
+                        <button id="btnFormat" class="btn btn-primary" @click="format">格式化</button>
+                        <button id="btnCompress" class="btn btn-success" @click="compress">压缩</button>
+                        <input type="checkbox" v-model="jsonLintSwitch" id="jsonLint" @click="lintOn"><label for="jsonLint">开启JSONLint</label>
+                        <input type="checkbox" v-model="overrideJson" id="jsonOvrd"><label for="jsonOvrd">点选JSON项时默认进行编辑</label>
+                    </div>
+                    <div id="errorTips" v-bind:style="{display:showTips?'block':'none'}">
+                        <div id="errorBtn" @click="closeTips"><span id="closeError">☓</span></div>
+                        <div id="tipsBox" v-html="errorPos"></div>
+                        <div id="errorCode" v-html="errorJsonCode"></div>
+                    </div>
                 </div>
 
                 <div class="row rst-item" id="modJsonResult">
@@ -33,15 +43,20 @@
                         </svg>
                         加载中...
                     </div>
-                    <div id="jfCallbackName_start" class="callback-name">{{jfCallbackName_start}}</div>
+                    <div id="jfCallbackName_start" class="callback-name" v-html="jfCallbackName_start"></div>
                     <div id="jfContent" v-html="resultContent"></div>
                     <pre id="jfContent_pre"></pre>
-                    <div id="jfCallbackName_end" class="callback-name">{{jfCallbackName_end}}</div>
+                    <div id="jfCallbackName_end" class="callback-name" v-html="jfCallbackName_end"></div>
                 </div>
             </div>
 
         </div>
         <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+        <script src="../static/vendor/codemirror/codemirror.js"></script>
+        <script src="../static/vendor/codemirror/javascript.js"></script>
+        <script src="../static/vendor/codemirror/active-line.js"></script>
+        <script src="../static/vendor/codemirror/matchbrackets.js"></script>
+        <script src="../static/vendor/codemirror/placeholder.js"></script>
         <script src="index.js"></script>
     </body>
 </html>

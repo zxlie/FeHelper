@@ -1,42 +1,70 @@
 /**
  * FeHelper Json Format Tools
  */
+let editor = {};
+
 new Vue({
     el: '#pageContainer',
     data: {
         defaultResultTpl: '<div class="x-placeholder"><img src="./json-demo.jpg" alt="json-placeholder"></div>',
         resultContent: '',
-        jsonSource: '',
+        jsonFormattedSource: '',
         errorMsg: '',
+        errorJsonCode: '',
+        errorPos: '',
         jfCallbackName_start: '',
-        jfCallbackName_end: ''
+        jfCallbackName_end: '',
+        showTips: false,
+        jsonLintSwitch: true,
+        fireChange: true,
+        overrideJson: false
     },
     mounted: function () {
         this.resultContent = this.defaultResultTpl;
+
+        editor = CodeMirror.fromTextArea(this.$refs.jsonBox, {
+            mode: "text/javascript",
+            lineNumbers: true,
+            matchBrackets: true,
+            styleActiveLine: true,
+            lineWrapping: true
+        });
+
+        //输入框聚焦
+        editor.focus();
+
+        // 格式化以后的JSON，点击以后可以重置原内容
+        window._OnJsonItemClickByFH = (jsonTxt) => {
+            if (this.overrideJson) {
+                this.disableEditorChange(jsonTxt);
+            }
+        };
+        editor.on('change', (editor, changes) => {
+            this.fireChange && this.format();
+        });
 
         // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
         chrome.runtime.onMessage.addListener((request, sender, callback) => {
             let MSG_TYPE = Tarp.require('../static/js/msg_type');
             if (request.type === MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event === MSG_TYPE.JSON_FORMAT) {
                 if (request.content) {
-                    this.jsonSource = request.content || this.defaultResultTpl;
+                    editor.setValue(request.content || this.defaultResultTpl);
                     this.format();
                 }
             }
         });
 
-        //输入框聚焦
-        this.$refs.jsonBox.focus();
 
     },
     methods: {
         format: function () {
+            this.showTips = false;
             this.errorMsg = '';
             this.resultContent = this.defaultResultTpl;
 
-            let source = this.jsonSource.replace(/\n/gm, ' ');
+            let source = editor.getValue().replace(/\n/gm, ' ');
             if (!source) {
-                return;
+                return true;
             }
 
             // JSONP形式下的callback name
@@ -66,31 +94,83 @@ new Vue({
                 }
             } catch (ex) {
                 this.errorMsg = ex.message;
-                return;
             }
 
             // 是json格式，可以进行JSON自动格式化
-            if (jsonObj != null && typeof jsonObj === "object") {
+            if (jsonObj != null && typeof jsonObj === "object" && !this.errorMsg.length) {
                 try {
                     // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
                     source = JSON.stringify(jsonObj);
                 } catch (ex) {
                     // 通过JSON反解不出来的，一定有问题
-                    return;
+                    this.errorMsg = ex.message;
                 }
 
-                // 格式化
-                Tarp.require('./format-lib').format(source);
+                if (!this.errorMsg.length) {
+                    // 格式化
+                    Tarp.require('./format-lib').format(source);
+                    this.jsonFormattedSource = source;
 
-                // 如果是JSONP格式的，需要把方法名也显示出来
-                if (funcName != null) {
-                    this.jfCallbackName_start = funcName + '(';
-                    this.jfCallbackName_end = ')';
-                } else {
-                    this.jfCallbackName_start = '';
-                    this.jfCallbackName_end = '';
+                    // 如果是JSONP格式的，需要把方法名也显示出来
+                    if (funcName != null) {
+                        this.jfCallbackName_start = funcName + '(';
+                        this.jfCallbackName_end = ')';
+                    } else {
+                        this.jfCallbackName_start = '';
+                        this.jfCallbackName_end = '';
+                    }
                 }
             }
+
+            if (this.errorMsg.length) {
+                return this.lintOn();
+            }
+            return true;
+        },
+
+        compress: function () {
+            if (this.format()) {
+                let jsonTxt = this.jfCallbackName_start + this.jsonFormattedSource + this.jfCallbackName_end;
+                this.disableEditorChange(jsonTxt);
+            }
+        },
+
+        lintOn: function () {
+            if (!editor.getValue().trim()) {
+                return true;
+            }
+            this.$nextTick(() => {
+                if (!this.jsonLintSwitch) {
+                    return;
+                }
+                let lintResult = Tarp.require('./jsonlint')(editor.getValue());
+                if (!isNaN(lintResult.line)) {
+                    this.errorPos = '错误位置：' + (lintResult.line + 1) + '行，' + (lintResult.col + 1) + '列；缺少字符或字符不正确';
+                    this.errorJsonCode = lintResult.dom;
+                    this.showTips = true;
+                    this.$nextTick(() => {
+                        let el = document.querySelector('#errorCode .errorEm');
+                        el && el.scrollIntoView();
+                        let scrollEl = document.querySelector('#errorTips');
+                        scrollEl.scrollBy(0, el.offsetTop - scrollEl.scrollTop - 50);
+                    });
+                }
+            });
+            return false;
+        },
+
+        closeTips: function () {
+            this.showTips = false;
+        },
+
+        disableEditorChange: function (jsonTxt) {
+            this.fireChange = false;
+            this.$nextTick(() => {
+                editor.setValue(jsonTxt);
+                this.$nextTick(() => {
+                    this.fireChange = true;
+                })
+            })
         },
 
         setDemo: function () {
@@ -177,7 +257,7 @@ new Vue({
                     }]
                 }
             };
-            this.jsonSource = JSON.stringify(demo);
+            editor.setValue(JSON.stringify(demo));
             this.$nextTick(this.format)
         }
     }

@@ -362,6 +362,26 @@ var JsonFormatEntrance = (function () {
         alert('Json片段复制成功，随处粘贴可用！')
     };
 
+
+    /**
+     * 从el中获取json文本
+     * @param el
+     * @returns {string}
+     */
+    var getJsonText = function(el){
+
+        var txt = el.text().replace(/":\s/gm, '":').replace(/,$/, '').trim();
+        if (!(/^{/.test(txt) && /\}$/.test(txt)) && !(/^\[/.test(txt) && /\]$/.test(txt))) {
+            txt = '{' + txt + '}';
+        }
+        try {
+            txt = JSON.stringify(JSON.parse(txt), null, 4);
+        } catch (err) {
+        }
+
+        return txt;
+    };
+
     /**
      * 给某个节点增加操作项
      * @param el
@@ -371,15 +391,8 @@ var JsonFormatEntrance = (function () {
 
         // 下载json片段
         var fnDownload = function (ec) {
-            var txt = el.text().replace(/":\s/gm, '":').replace(/,$/, '').trim();
-            if (!(/^{/.test(txt) && /\}$/.test(txt)) && !(/^\[/.test(txt) && /\]$/.test(txt))) {
-                txt = '{' + txt + '}';
-            }
-            try {
-                txt = JSON.stringify(JSON.parse(txt), null, 4);
-            } catch (err) {
-            }
 
+            var txt = getJsonText(el);
             // 下载片段
             var dt = (new Date()).format('yyyyMMddHHmmss');
             var blob = new Blob([txt], {type: 'application/octet-stream'});
@@ -389,15 +402,7 @@ var JsonFormatEntrance = (function () {
 
         // 复制json片段
         var fnCopy = function (ec) {
-            var txt = el.text().replace(/":\s/gm, '":').replace(/,$/, '').trim();
-            if (!(/^{/.test(txt) && /\}$/.test(txt)) && !(/^\[/.test(txt) && /\]$/.test(txt))) {
-                txt = '{' + txt + '}';
-            }
-            try {
-                txt = JSON.stringify(JSON.parse(txt), null, 4);
-            } catch (err) {
-            }
-            _copyToClipboard(txt);
+            _copyToClipboard(getJsonText(el));
         };
 
         // 删除json片段
@@ -445,6 +450,11 @@ var JsonFormatEntrance = (function () {
                 e.stopPropagation();
             } else {
                 $(e.target).parent().trigger('click');
+            }
+
+            // 触发钩子
+            if(typeof window._OnJsonItemClickByFH === 'function'){
+                window._OnJsonItemClickByFH(getJsonText(el));
             }
         }).bind('mouseover', function (e) {
             $(this).addClass('x-hover');

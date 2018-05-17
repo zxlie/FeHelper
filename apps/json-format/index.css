@@ -1,3 +1,4 @@
+@import url("../static/vendor/codemirror/codemirror.css");
 @import url("../static/css/bootstrap.min.css");
 @import url("./without-ui.css");
 
@@ -38,7 +39,7 @@ body {
     display: none;
     padding: 10px;
 }
-#jsonSource {
+#jsonSource,.CodeMirror {
     height: calc(100% - 50px);
     font-size: 10px;
 }
@@ -67,4 +68,72 @@ body {
 }
 .x-xdemo:hover {
     text-decoration: underline;
+}
+
+
+#errorTips {
+    position: fixed;
+    left: 20px;
+    bottom: 4px;
+    z-index: 23;
+    width: 500px;
+    border-radius: 4px;
+    box-shadow: 6px 5px 7px rgba(229, 163, 163, 0.4);
+    background-color: #ffecf1;
+    border: 1px solid #dbb2b2;
+    overflow: auto;
+    max-height: 98%;
+    min-height: 100px;
+    display: none;
+}
+#errorBtn {
+    padding:5px 0 0 5px;
+    font-size:16px;
+    cursor:pointer;
+    color:#e96969;
+    left: 490px;
+    background: #ffecf1;
+    position: fixed;
+    z-index: 100;
+}
+#errorBtn:hover {
+    opacity:0.6;
+}
+#errorCode .errorEm {
+    background-color:#ff921b;
+}
+#errorTarget {
+    color:#000;
+    background-color:#fff;
+}
+#errorCode {
+    padding:0 10px 10px;
+    word-break: break-all;
+    margin-top: 30px;
+}
+#errorCode ol {
+    padding:0 0 0 3em;
+}
+#errorCode .x-ph {
+    color: #f00;
+    font-weight: bold;
+}
+#tipsBox {
+    color:#b4465c;
+    padding: 6px 0 4px 2em;
+    position: fixed;
+    background-color: #ffecf1;
+    width: 500px;
+}
+#errorCode ol li {
+    padding:4px 7px 0;
+    list-style-type: decimal;
+    color:#b4465c;
+    background-color:#fdf7f7;
+}
+#errorCode ol li div {
+    color:#000;
+}
+input[type=checkbox] {
+    margin-left: 20px;
 }

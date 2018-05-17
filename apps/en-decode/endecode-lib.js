@@ -235,8 +235,8 @@ module.exports = (() => {
      * @param str
      */
     let md5 = (str) => {
-        let tools = Tarp.require('./md5');
-        return tools.hex_md5(str);
+        let md5 = Tarp.require('./md5');
+        return md5(str);
     };
 
     return {
