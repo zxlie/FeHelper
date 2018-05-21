@@ -48,7 +48,7 @@ var JsonFormatEntrance = (function () {
                 var buttonFormatted = document.createElement('button'),
                     buttonCollapseAll = document.createElement('button');
                 buttonFormatted.id = 'buttonFormatted';
-                buttonFormatted.innerText = '格式化';
+                buttonFormatted.innerText = '元数据';
                 buttonFormatted.classList.add('selected');
                 buttonCollapseAll.id = 'buttonCollapseAll';
                 buttonCollapseAll.innerText = '折叠所有';
@@ -70,6 +70,7 @@ var JsonFormatEntrance = (function () {
 
                     $(this).parent().find('button').removeClass('selected');
                     $(this).addClass('selected');
+                    $('#boxOpt').hide();
                 }, false);
 
                 buttonCollapseAll.addEventListener('click', function () {
@@ -90,6 +91,7 @@ var JsonFormatEntrance = (function () {
                         $(this).parent().find('button').removeClass('selected');
                         $(this).addClass('selected');
                     }
+                    $('#boxOpt').hide();
                 }, false);
 
                 // Put it in optionBar
@@ -111,7 +113,6 @@ var JsonFormatEntrance = (function () {
 
                 displayedFormattedJsonTime = +(new Date());
 
-                // console.markTimeline('JSON formatted and displayed') ;
                 break;
 
             default :
@@ -256,7 +257,6 @@ var JsonFormatEntrance = (function () {
             var str1 = JSON.stringify(JSON.parse(jsonStr));
             var str2 = JSON.stringify(JSON.parse(pre.innerText));
             if (str1 == str2) {
-                alert('JSON内容没有变化');
                 return false;
             }
         } catch (e) {
@@ -339,9 +339,35 @@ var JsonFormatEntrance = (function () {
         content = ['/* ', localUrl, ' */', '\n', content].join('');
         var blob = new Blob([content], {type: 'application/octet-stream'});
 
-        var aLink = $('<a id="btnDownload" target="_blank" title="保存到本地">下载JSON数据</a>').prependTo('#optionBar');
-        aLink.attr('download', 'FeHelper-' + dt + '.json');
-        aLink.attr('href', URL.createObjectURL(blob));
+        var button = $('<button id="btnDownload">下载JSON</button>').appendTo('#optionBar');
+
+        if (typeof chrome === 'undefined' || !chrome.permissions) {
+            button.click(function (e) {
+                var aLink = $('<a id="btnDownload" target="_blank" title="保存到本地">下载JSON数据</a>');
+                aLink.attr('download', 'FeHelper-' + dt + '.json');
+                aLink.attr('href', URL.createObjectURL(blob));
+                aLink[0].click();
+            });
+        } else {
+            button.click(function (e) {
+                // 请求权限
+                chrome.permissions.request({
+                    permissions: ['downloads']
+                }, (granted) => {
+                    if (granted) {
+                        chrome.downloads.download({
+                            url: URL.createObjectURL(blob),
+                            saveAs: true,
+                            conflictAction: 'overwrite',
+                            filename: 'FeHelper-' + dt + '.json'
+                        });
+                    } else {
+                        alert('必须接受授权，才能正常下载！');
+                    }
+                });
+            });
+        }
+
     };
 
 
@@ -368,7 +394,7 @@ var JsonFormatEntrance = (function () {
      * @param el
      * @returns {string}
      */
-    var getJsonText = function(el){
+    var getJsonText = function (el) {
 
         var txt = el.text().replace(/":\s/gm, '":').replace(/,$/, '').trim();
         if (!(/^{/.test(txt) && /\}$/.test(txt)) && !(/^\[/.test(txt) && /\]$/.test(txt))) {
@@ -397,7 +423,27 @@ var JsonFormatEntrance = (function () {
             var dt = (new Date()).format('yyyyMMddHHmmss');
             var blob = new Blob([txt], {type: 'application/octet-stream'});
 
-            $(this).attr('download', 'FeHelper-' + dt + '.json').attr('href', URL.createObjectURL(blob));
+            if (typeof chrome === 'undefined' || !chrome.permissions) {
+                // 下载JSON的简单形式
+                $(this).attr('download', 'FeHelper-' + dt + '.json').attr('href', URL.createObjectURL(blob));
+            } else {
+                // 请求权限
+                chrome.permissions.request({
+                    permissions: ['downloads']
+                }, (granted) => {
+                    if (granted) {
+                        chrome.downloads.download({
+                            url: URL.createObjectURL(blob),
+                            saveAs: true,
+                            conflictAction: 'overwrite',
+                            filename: 'FeHelper-' + dt + '.json'
+                        });
+                    } else {
+                        alert('必须接受授权，才能正常下载！');
+                    }
+                });
+            }
+
         };
 
         // 复制json片段
@@ -453,7 +499,7 @@ var JsonFormatEntrance = (function () {
             }
 
             // 触发钩子
-            if(typeof window._OnJsonItemClickByFH === 'function'){
+            if (typeof window._OnJsonItemClickByFH === 'function') {
                 window._OnJsonItemClickByFH(getJsonText(el));
             }
         }).bind('mouseover', function (e) {

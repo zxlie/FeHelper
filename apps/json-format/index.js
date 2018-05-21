@@ -2,6 +2,7 @@
  * FeHelper Json Format Tools
  */
 let editor = {};
+let LOCAL_KEY_OF_LAYOUT = 'local-layout-key';
 
 new Vue({
     el: '#pageContainer',
@@ -21,6 +22,8 @@ new Vue({
     },
     mounted: function () {
         this.resultContent = this.defaultResultTpl;
+
+        this.changeLayout(localStorage.getItem(LOCAL_KEY_OF_LAYOUT));
 
         editor = CodeMirror.fromTextArea(this.$refs.jsonBox, {
             mode: "text/javascript",
@@ -133,6 +136,25 @@ new Vue({
                 let jsonTxt = this.jfCallbackName_start + this.jsonFormattedSource + this.jfCallbackName_end;
                 this.disableEditorChange(jsonTxt);
             }
+        },
+
+        changeLayout: function (type) {
+            if (type === 'up-down') {
+                if (this.$refs.btnUpDown.classList.contains('selected')) {
+                    return;
+                }
+                this.$refs.panelBody.classList.add('layout-up-down');
+                this.$refs.btnLeftRight.classList.remove('selected');
+                this.$refs.btnUpDown.classList.add('selected');
+            } else {
+                if (this.$refs.btnLeftRight.classList.contains('selected')) {
+                    return;
+                }
+                this.$refs.panelBody.classList.remove('layout-up-down');
+                this.$refs.btnLeftRight.classList.add('selected');
+                this.$refs.btnUpDown.classList.remove('selected');
+            }
+            localStorage.setItem(LOCAL_KEY_OF_LAYOUT,type);
         },
 
         lintOn: function () {
@@ -258,7 +280,6 @@ new Vue({
                 }
             };
             editor.setValue(JSON.stringify(demo));
-            this.$nextTick(this.format)
         }
     }
 });

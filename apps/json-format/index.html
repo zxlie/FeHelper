@@ -16,11 +16,15 @@
                             <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：JSON格式化查看
                         <span class="x-xdemo" ref="demoLink1" @click="setDemo">示例1：JSON片段</span>
                         <a class="x-xdemo" href="https://www.sojson.com/open/api/weather/json.shtml?city=%E5%8C%97%E4%BA%AC" target="_blank">示例2：在线JSON-1</a>
-                        <a class="x-xdemo" href="https://suggest.taobao.com/sug?code=utf-8&q=iphonex&callback=thisIsACallbackFunction" target="_blank">示例3：在线JSON-2</a></h3>
+
+                        <span id="layoutBar">
+                            <button id="btnLeftRight" ref="btnLeftRight" class="selected" @click="changeLayout('left-right')">左右布局</button><button id="btnUpDown" ref="btnUpDown" @click="changeLayout('up-down')">上下布局</button>
+                        </span>
+                    </h3>
                 </div>
             </div>
 
-            <div class="panel-body mod-json">
+            <div class="panel-body mod-json" ref="panelBody">
                 <div class="row panel-txt">
                     <textarea class="form-control mod-textarea" id="jsonSource" placeholder="在这里粘贴您需要进行格式化的JSON代码" ref="jsonBox"></textarea>
                     <div class="ui-mt-10">

@@ -266,12 +266,12 @@ var BgPageInstance = (function () {
     let _createContextMenu = function () {
         _removeContextMenu();
         feHelper.contextMenuId = chrome.contextMenus.create({
-            title: "FeHelper",
+            title: "FeHelper工具",
             contexts: ['page', 'selection', 'editable', 'link', 'image'],
             documentUrlPatterns: ['http://*/*', 'https://*/*', 'file://*/*']
         });
         chrome.contextMenus.create({
-            title: "二维码生成",
+            title: "▣  二维码生成",
             contexts: ['page', 'selection', 'editable', 'link', 'image'],
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
@@ -297,7 +297,7 @@ var BgPageInstance = (function () {
             parentId: feHelper.contextMenuId
         });
         chrome.contextMenus.create({
-            title: "二维码解码",
+            title: "◈  二维码解码",
             contexts: ['image'],
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
@@ -312,7 +312,7 @@ var BgPageInstance = (function () {
             parentId: feHelper.contextMenuId
         });
         chrome.contextMenus.create({
-            title: "图片转Base64",
+            title: "♛  图片转Base64",
             contexts: ['image'],
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
@@ -326,7 +326,7 @@ var BgPageInstance = (function () {
             parentId: feHelper.contextMenuId
         });
         chrome.contextMenus.create({
-            title: "字符串编解码",
+            title: "♨  字符串编解码",
             contexts: ['page', 'selection', 'editable'],
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
@@ -347,7 +347,7 @@ var BgPageInstance = (function () {
             parentId: feHelper.contextMenuId
         });
         chrome.contextMenus.create({
-            title: "JSON格式化",
+            title: "★  JSON格式化",
             contexts: ['page', 'selection', 'editable'],
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
@@ -367,7 +367,7 @@ var BgPageInstance = (function () {
             parentId: feHelper.contextMenuId
         });
         chrome.contextMenus.create({
-            title: "代码格式化",
+            title: "☂  代码格式化",
             contexts: ['page', 'selection', 'editable'],
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
@@ -388,7 +388,7 @@ var BgPageInstance = (function () {
             parentId: feHelper.contextMenuId
         });
         chrome.contextMenus.create({
-            title: "页面取色器",
+            title: "☀  页面取色器",
             contexts: ['page', 'selection', 'editable'],
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
@@ -402,7 +402,7 @@ var BgPageInstance = (function () {
             parentId: feHelper.contextMenuId
         });
         chrome.contextMenus.create({
-            title: "网页转为图片",
+            title: "✂  网页转为图片",
             contexts: ['all'],
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {
