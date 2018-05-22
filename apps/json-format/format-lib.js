@@ -314,7 +314,7 @@ var JsonFormatEntrance = (function () {
         // 事件绑定
         _addEvents();
         // 支持文件下载
-        _downloadSupport(JSON.parse(jsonStr));
+        _downloadSupport(JSON.stringify(JSON.parse(jsonStr), null, 4));
     };
 
     var _loadJs = function () {
@@ -327,15 +327,14 @@ var JsonFormatEntrance = (function () {
 
     /**
      * 直接下载，能解决中文乱码
-     * @param json
+     * @param content
      * @private
      */
-    var _downloadSupport = function (json) {
+    var _downloadSupport = function (content) {
 
         // 下载链接
         var localUrl = location.href;
         var dt = (new Date()).format('yyyyMMddHHmmss');
-        var content = JSON.stringify(json, null, 4);
         content = ['/* ', localUrl, ' */', '\n', content].join('');
         var blob = new Blob([content], {type: 'application/octet-stream'});
 
@@ -701,15 +700,21 @@ var JsonFormatDealer = (function () {
 
         // Add an 'expander' first (if this is object/array with non-zero size)
         if (type === TYPE_OBJECT || type === TYPE_ARRAY) {
-            nonZeroSize = false;
-            for (objKey in value) {
-                if (value.hasOwnProperty(objKey)) {
-                    nonZeroSize = true;
-                    break; // no need to keep counting; only need one
+
+            if (typeof JSON.BigNumber === 'function' && value instanceof JSON.BigNumber) {
+                value = JSON.stringify(value);
+                type = TYPE_NUMBER;
+            } else {
+                nonZeroSize = false;
+                for (objKey in value) {
+                    if (value.hasOwnProperty(objKey)) {
+                        nonZeroSize = true;
+                        break; // no need to keep counting; only need one
+                    }
                 }
+                if (nonZeroSize)
+                    kvov.appendChild(templates.t_exp.cloneNode(false));
             }
-            if (nonZeroSize)
-                kvov.appendChild(templates.t_exp.cloneNode(false));
         }
 
         // If there's a key, add that before the value
@@ -876,7 +881,7 @@ var JsonFormatDealer = (function () {
             var obj,
                 text = msg.text;
             try {
-                obj = new Function('return ' + text)();
+                obj = JSON.parse(text);
             }
             catch (e) {
                 // Not JSON; could be JSONP though.

@@ -2,6 +2,11 @@
  * Json Page Automatic Format Via FeHelper
  * @author zhaoxianlie
  */
+
+
+// json with bigint supported
+Tarp.require('../static/vendor/json-bigint/index');
+
 module.exports = (() => {
 
     "use strict";
@@ -102,14 +107,13 @@ module.exports = (() => {
 
         // JSONP形式下的callback name
         let funcName = null;
-        // json对象
         let jsonObj = null;
-        let newSource = source;
         let fnTry = null;
         let fnCatch = null;
 
         // 下面校验给定字符串是否为一个合法的json
         try {
+
             // 再看看是不是jsonp的格式
             let reg = /^([\w\.]+)\(\s*([\s\S]*)\s*\)$/gm;
             let reTry = /^(try\s*\{\s*)?/g;
@@ -127,8 +131,7 @@ module.exports = (() => {
             let matches = reg.exec(sourceReplaced);
             if (matches != null && (fnTry && fnCatch || !fnTry && !fnCatch)) {
                 funcName = matches[1];
-                newSource = matches[2];
-                jsonObj = new Function("return " + newSource)();
+                source = matches[2];
             } else {
                 reg = /^([\{\[])/;
                 if (!reg.test(source)) {
@@ -136,18 +139,20 @@ module.exports = (() => {
                 }
             }
 
-            // 强化验证
-            if (jsonObj == null || typeof jsonObj !== 'object') {
+            // 这里可能会throw exception
+            jsonObj = JSON.parse(source);
+        } catch (ex) {
+            // new Function的方式，能自动给key补全双引号，但是不支持bigint，所以是下下策，放在try-catch里搞
+            try {
                 jsonObj = new Function("return " + source)();
-
                 // 还要防止下面这种情况：  "{\"ret\":\"0\", \"msg\":\"ok\"}"
                 if (typeof jsonObj === "string") {
                     // 再来一次
                     jsonObj = new Function("return " + jsonObj)();
                 }
+            } catch (exx) {
+                return;
             }
-        } catch (ex) {
-            return;
         }
 
         // 是json格式，可以进行JSON自动格式化
@@ -158,13 +163,13 @@ module.exports = (() => {
                 // 如果newSource的长度比原source长度短很多的话，猜测应该是格式化错了，需要撤销操作
                 // 这里一定要unicode decode一下，要不然会出现误判
                 let len1 = jsonStr.replace(/'|"|\s/g, '').length;
-                let len2 = (_uniDecode(newSource)).replace(/'|"|\s/g, '').length;
+                let len2 = (_uniDecode(source)).replace(/'|"|\s/g, '').length;
                 // 误差不允许超过20%
                 if (Math.abs(len1 - len2) / ((len1 + len2) / 2) > 0.2) {
                     return;
                 }
 
-                newSource = jsonStr;
+                source = jsonStr;
             } catch (ex) {
                 // 通过JSON反解不出来的，一定有问题
                 return;
@@ -174,7 +179,7 @@ module.exports = (() => {
             _loadCss();
 
             // 格式化
-            Tarp.require('../json-format/format-lib').format(newSource);
+            Tarp.require('../json-format/format-lib').format(source);
 
             // 如果是JSONP格式的，需要把方法名也显示出来
             if (funcName != null) {
