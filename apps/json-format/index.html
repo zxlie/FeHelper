@@ -31,7 +31,7 @@
                         <button id="btnFormat" class="btn btn-primary" @click="format">格式化</button>
                         <button id="btnCompress" class="btn btn-success" @click="compress">压缩</button>
                         <input type="checkbox" v-model="jsonLintSwitch" id="jsonLint" @click="lintOn"><label for="jsonLint">开启JSONLint</label>
-                        <input type="checkbox" v-model="overrideJson" id="jsonOvrd"><label for="jsonOvrd">点选JSON项时默认进行编辑</label>
+                        <input type="checkbox" v-model="overrideJson" id="jsonOvrd" @click="setCache"><label for="jsonOvrd">点选JSON项时默认进行编辑</label>
                     </div>
                     <div id="errorTips" v-bind:style="{display:showTips?'block':'none'}">
                         <div id="errorBtn" @click="closeTips"><span id="closeError">☓</span></div>

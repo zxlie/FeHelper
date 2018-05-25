@@ -31,7 +31,7 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 - 代码压缩工具（HTML/CSS/JS）
 - 二维码生成器（支持当前页面、图片、链接、选中的文字生成QrCode）
 - 二维码解码器（支持网页二维码`右键`解码）
-- 网页转为图片（将当前整个网页转为图片并保存）
+- 网页滚动截屏（将当前整个网页转为图片并保存）
 - Markdown转换（支持Markdown与HTML的互转）
 - 页面取色工具（滑动鼠标随意取色）
 - Js正则表达式（正则测试、常用正则列表）

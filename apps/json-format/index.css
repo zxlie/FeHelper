@@ -138,6 +138,9 @@ input[type=checkbox] {
     margin-left: 20px;
 }
 
+.x-error {
+    color:red;
+}
 
 /*layout-up-down：上下布局模式*/
 .wp-json .mod-json.layout-up-down {

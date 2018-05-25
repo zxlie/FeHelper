@@ -3,6 +3,8 @@
  */
 let editor = {};
 let LOCAL_KEY_OF_LAYOUT = 'local-layout-key';
+let JSON_LINT = 'jsonformat:json-lint-switch';
+let EDIT_ON_CLICK = 'jsonformat:edit-on-click';
 
 // json with bigint supported
 Tarp.require('../static/vendor/json-bigint/index');
@@ -26,6 +28,8 @@ new Vue({
     mounted: function () {
         this.resultContent = this.defaultResultTpl;
 
+        this.jsonLintSwitch = (localStorage.getItem(JSON_LINT) !== 'false');
+        this.overrideJson = (localStorage.getItem(EDIT_ON_CLICK) === 'true');
         this.changeLayout(localStorage.getItem(LOCAL_KEY_OF_LAYOUT));
 
         editor = CodeMirror.fromTextArea(this.$refs.jsonBox, {
@@ -93,13 +97,17 @@ new Vue({
                 // new Function的方式，能自动给key补全双引号，但是不支持bigint，所以是下下策，放在try-catch里搞
                 try {
                     jsonObj = new Function("return " + source)();
-                    // 还要防止下面这种情况：  "{\"ret\":\"0\", \"msg\":\"ok\"}"
-                    if (typeof jsonObj === "string") {
-                        // 再来一次
-                        jsonObj = new Function("return " + jsonObj)();
-                    }
                 } catch (exx) {
-                    this.errorMsg = ex.message;
+                    try {
+                        // 再给你一次机会，是不是下面这种情况：  "{\"ret\":\"0\", \"msg\":\"ok\"}"
+                        jsonObj = new Function("return '" + source + "'")();
+                        if (typeof jsonObj === 'string') {
+                            // 最后给你一次机会，是个字符串，老夫给你再转一次
+                            jsonObj = new Function("return " + jsonObj)();
+                        }
+                    } catch (exxx) {
+                        this.errorMsg = exxx.message;
+                    }
                 }
             }
 
@@ -130,9 +138,13 @@ new Vue({
             }
 
             if (this.errorMsg.length) {
-                return this.lintOn();
+                if (this.jsonLintSwitch) {
+                    return this.lintOn();
+                } else {
+                    this.resultContent = '<span class="x-error">' + this.errorMsg + '</span>';
+                    return true;
+                }
             }
-            return true;
         },
 
         compress: function () {
@@ -161,7 +173,16 @@ new Vue({
             localStorage.setItem(LOCAL_KEY_OF_LAYOUT, type);
         },
 
+        setCache: function () {
+            this.$nextTick(() => {
+                localStorage.setItem(EDIT_ON_CLICK, this.overrideJson);
+            });
+        },
+
         lintOn: function () {
+            this.$nextTick(() => {
+                localStorage.setItem(JSON_LINT, this.jsonLintSwitch);
+            });
             if (!editor.getValue().trim()) {
                 return true;
             }

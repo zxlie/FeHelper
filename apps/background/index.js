@@ -402,7 +402,7 @@ var BgPageInstance = (function () {
             parentId: feHelper.contextMenuId
         });
         chrome.contextMenus.create({
-            title: "✂  网页转为图片",
+            title: "✂  网页滚动截屏",
             contexts: ['all'],
             parentId: feHelper.contextMenuId,
             onclick: function (info, tab) {

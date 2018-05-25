@@ -142,17 +142,23 @@ module.exports = (() => {
             // 这里可能会throw exception
             jsonObj = JSON.parse(source);
         } catch (ex) {
+
             // new Function的方式，能自动给key补全双引号，但是不支持bigint，所以是下下策，放在try-catch里搞
             try {
                 jsonObj = new Function("return " + source)();
-                // 还要防止下面这种情况：  "{\"ret\":\"0\", \"msg\":\"ok\"}"
-                if (typeof jsonObj === "string") {
-                    // 再来一次
-                    jsonObj = new Function("return " + jsonObj)();
-                }
             } catch (exx) {
-                return;
+                try{
+                    // 再给你一次机会，是不是下面这种情况：  "{\"ret\":\"0\", \"msg\":\"ok\"}"
+                    jsonObj = new Function("return '" + source + "'")();
+                    if(typeof jsonObj === 'string') {
+                        // 最后给你一次机会，是个字符串，老夫给你再转一次
+                        jsonObj = new Function("return " + jsonObj)();
+                    }
+                }catch(exxx){
+                    return ;
+                }
             }
+
         }
 
         // 是json格式，可以进行JSON自动格式化

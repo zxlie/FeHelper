@@ -252,16 +252,6 @@ var JsonFormatEntrance = (function () {
      */
     var format = function (jsonStr) {
 
-        // 如果jsonStr和上一次的一模一样，就不用再格式化了
-        try {
-            var str1 = JSON.stringify(JSON.parse(jsonStr));
-            var str2 = JSON.stringify(JSON.parse(pre.innerText));
-            if (str1 == str2) {
-                return false;
-            }
-        } catch (e) {
-        }
-
         try {
             jfContent.innerHTML = '';
             pre.innerHTML = '';
