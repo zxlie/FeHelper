@@ -1,6 +1,6 @@
 {
   "name": "WEB前端助手(FeHelper)",
-  "version": "2018.05.2515",
+  "version": "2018.05.2918",
   "manifest_version": 2,
   "default_locale": "zh_CN",
   "description": "FE助手：包括JSON格式化、二维码生成与解码、信息编解码、代码压缩、美化、页面取色、Markdown与HTML互转、网页滚动截屏、正则表达式、时间转换工具、编码规范检测、页面性能检测、Ajax接口调试",
@@ -115,7 +115,7 @@
       "all_frames": false
     }
   ],
-  "content_security_policy": "style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-eval'; object-src 'self' ",
+  "content_security_policy": "style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-eval'; object-src 'self' ;",
   "update_url": "https://clients2.google.com/service/update2/crx",
   "homepage_url": "https://www.baidufe.com/fehelper"
 }

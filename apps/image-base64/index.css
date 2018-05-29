@@ -69,10 +69,11 @@ td .x-panel .x-tips {
 }
 #preview {max-width: 260px;max-height: 260px;margin-top:10px;}
 form {display: none}
-td textarea {
+#base64Result,#base64Input {
     width: 490px;
     height:460px;
-    padding:0;margin:0;
+    padding:4px;
+    margin:0;
     resize:none;outline:none;
     background: #fcfcfc;
     border:1px solid #ddd;
@@ -92,4 +93,26 @@ td textarea {
 #sizeOri,#sizeBase {
     color: #600;
     font-style: italic;
+}
+.mod-base64image .x-panel{
+    margin-left: 40px;
+}
+#base64Input{
+    background:#fff;
+}
+.x-xdemo,.x-switch {
+    margin-left: 30px;
+    font-size: 12px;
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.x-xdemo:hover,.x-switch:hover {
+    color: #cc8841;
+}
+.x-switch {
+    color:#f00;
+    border-bottom: 1px solid #f00;
 }

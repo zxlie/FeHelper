@@ -2,116 +2,78 @@
  * FeHelper Json Format Lib
  */
 
-var JsonFormatEntrance = (function () {
+let JsonFormatEntrance = (function () {
 
     "use strict";
 
-    var jfContent,
-        pre,
+    let jfContent,
+        jfPre,
         jfStyleEl,
-        formattingMsg,
-        slowAnalysisTimeout,
-        isJsonTime,
-        exitedNotJsonTime,
-        displayedFormattedJsonTime
-    ;
+        jfOptEl,
+        formattingMsg;
+
+    let lastKvovIdGiven = 0;
+    let cachedJsonString = '';
+
+    let _initElements = function () {
+
+        jfContent = $('#jfContent');
+        if (!jfContent[0]) {
+            jfContent = $('<div id="jfContent" />').appendTo('body');
+        }
+
+        jfPre = $('#jfContent_pre');
+        if (!jfPre[0]) {
+            jfPre = $('<pre id="jfContent_pre" />').appendTo('body');
+        }
+
+        jfStyleEl = $('#jfStyleEl');
+        if (!jfStyleEl[0]) {
+            jfStyleEl = $('<style id="jfStyleEl" />').appendTo('head');
+        }
+
+        formattingMsg = $('#formattingMsg');
+        if (!formattingMsg[0]) {
+            formattingMsg = $('<div id="formattingMsg"><span class="x-loading"></span>格式化中...</div>').appendTo('body');
+        }
+
+        jfOptEl = $('#boxOpt');
+        if (!jfOptEl.length) {
+            jfOptEl = $('<div id="boxOpt"><a class="opt-download" target="_blank">下载</a>|<a class="opt-copy">复制</a>|<a class="opt-del">删除</a></div>').appendTo('body');
+        }
+
+        try {
+            jfContent.html('').show();
+            jfPre.html('').hide();
+            jfOptEl.hide();
+            formattingMsg.hide();
+        } catch (e) {
+        }
+    };
 
     // Add listener to receive response from BG when ready
-    var postMessage = function (msg) {
-        // console.log('Port msg received', msg[0], (""+msg[1]).substring(0,30)) ;
+    let postMessage = function (msg) {
 
         switch (msg[0]) {
             case 'NOT JSON' :
-                pre.style.display = "";
-                // console.log('Unhidden the PRE') ;
-                jfContent.innerHTML = '<span class="x-json-tips">JSON不合法，请检查：</span>';
-                exitedNotJsonTime = +(new Date());
+                jfPre.show();
+                jfContent.html('<span class="x-json-tips">JSON不合法，请检查：</span>');
                 break;
 
             case 'FORMATTING' :
-                isJsonTime = +(new Date());
-
-                // It is JSON, and it's now being formatted in the background worker.
-
-                // Clear the slowAnalysisTimeout (if the BG worker had taken longer than 1s to respond with an answer to whether or not this is JSON, then it would have fired, unhiding the PRE... But now that we know it's JSON, we can clear this timeout, ensuring the PRE stays hidden.)
-                clearTimeout(slowAnalysisTimeout);
-
-                // Create option bar
-                var optionBar = document.getElementById('optionBar');
-                if (optionBar) {
-                    optionBar.parentNode.removeChild(optionBar);
-                }
-                optionBar = document.createElement('div');
-                optionBar.id = 'optionBar';
-
-                // Create toggleFormat button
-                var buttonFormatted = document.createElement('button'),
-                    buttonCollapseAll = document.createElement('button');
-                buttonFormatted.id = 'buttonFormatted';
-                buttonFormatted.innerText = '元数据';
-                buttonFormatted.classList.add('selected');
-                buttonCollapseAll.id = 'buttonCollapseAll';
-                buttonCollapseAll.innerText = '折叠所有';
-
-                var plainOn = false;
-                buttonFormatted.addEventListener('click', function () {
-                    // When formatted button clicked...
-                    if (plainOn) {
-                        plainOn = false;
-                        pre.style.display = "none";
-                        jfContent.style.display = "block";
-                        $(this).text('元数据');
-                    } else {
-                        plainOn = true;
-                        pre.style.display = "block";
-                        jfContent.style.display = "none";
-                        $(this).text('格式化');
-                    }
-
-                    $(this).parent().find('button').removeClass('selected');
-                    $(this).addClass('selected');
-                    $('#boxOpt').hide();
-                }, false);
-
-                buttonCollapseAll.addEventListener('click', function () {
-                    // 如果内容还没有格式化过，需要再格式化一下
-                    if (plainOn) {
-                        buttonFormatted.click();
-                    }
-                    // When collapaseAll button clicked...
-                    if (!plainOn) {
-                        if (buttonCollapseAll.innerText === '折叠所有') {
-                            buttonCollapseAll.innerText = '展开所有';
-                            collapse(document.getElementsByClassName('objProp'));
-                        } else {
-                            buttonCollapseAll.innerText = '折叠所有';
-                            expand(document.getElementsByClassName('objProp'));
-                        }
-
-                        $(this).parent().find('button').removeClass('selected');
-                        $(this).addClass('selected');
-                    }
-                    $('#boxOpt').hide();
-                }, false);
-
-                // Put it in optionBar
-                optionBar.appendChild(buttonFormatted);
-                optionBar.appendChild(buttonCollapseAll);
-
-                // Attach event handlers
-                document.addEventListener('click', generalClick, false);
-
-
-                // Put option bar in DOM
-                jfContent.parentNode.appendChild(optionBar);
+                formattingMsg.show();
                 break;
 
             case 'FORMATTED' :
-                // Insert HTML content
-                formattingMsg.style.display = "";
-                jfContent.innerHTML = msg[1];
+                formattingMsg.hide();
+                jfContent.html(msg[1]);
 
-                displayedFormattedJsonTime = +(new Date());
+                _loadJs();
+                _buildOptionBar();
+                // 事件绑定
+                _addEvents();
+                // 支持文件下载
+                _downloadSupport(cachedJsonString);
 
                 break;
 
@@ -120,194 +82,27 @@ var JsonFormatEntrance = (function () {
         }
     };
 
-    // console.timeEnd('established port') ;
-
-    var lastKvovIdGiven = 0;
-
-    function collapse(elements) {
-        var el, i, blockInner, count;
-
-        for (i = elements.length - 1; i >= 0; i--) {
-            el = elements[i];
-            el.classList.add('collapsed');
-
-            // (CSS hides the contents and shows an ellipsis.)
-
-            // Add a count of the number of child properties/items (if not already done for this item)
-            if (!el.id) {
-                el.id = 'kvov' + (++lastKvovIdGiven);
-
-                // Find the blockInner
-                blockInner = el.firstElementChild;
-                while (blockInner && !blockInner.classList.contains('blockInner')) {
-                    blockInner = blockInner.nextElementSibling;
-                }
-                if (!blockInner)
-                    continue;
-
-                // See how many children in the blockInner
-                count = blockInner.children.length;
-
-                // Generate comment text eg "4 items"
-                var comment = count + (count === 1 ? ' item' : ' items');
-                // Add CSS that targets it
-                jfStyleEl.insertAdjacentHTML(
-                    'beforeend',
-                    '\n#kvov' + lastKvovIdGiven + '.collapsed:after{color: #aaa; content:" // ' + comment + '"}'
-                );
-            }
-        }
-    }
-
-    function expand(elements) {
-        for (var i = elements.length - 1; i >= 0; i--)
-            elements[i].classList.remove('collapsed');
-    }
-
-    var mac = navigator.platform.indexOf('Mac') !== -1,
-        modKey;
-    if (mac)
-        modKey = function (ev) {
-            return ev.metaKey;
-        };
-    else
-        modKey = function (ev) {
-            return ev.ctrlKey;
-        };
-
-    function generalClick(ev) {
-        // console.log('click', ev) ;
-
-        if (ev.which === 1) {
-            var elem = ev.target;
-
-            if (elem.className === 'e') {
-                // It's a click on an expander.
-
-                ev.preventDefault();
-
-                var parent = elem.parentNode,
-                    div = jfContent,
-                    prevBodyHeight = document.body.offsetHeight,
-                    scrollTop = document.body.scrollTop,
-                    parentSiblings
-                ;
-
-                // Expand or collapse
-                if (parent.classList.contains('collapsed')) {
-                    // EXPAND
-                    if (modKey(ev))
-                        expand(parent.parentNode.children);
-                    else
-                        expand([parent]);
-                }
-                else {
-                    // COLLAPSE
-                    if (modKey(ev))
-                        collapse(parent.parentNode.children);
-                    else
-                        collapse([parent]);
-                }
-
-                // Restore scrollTop somehow
-                // Clear current extra margin, if any
-                div.style.marginBottom = 0;
-
-                // No need to worry if all content fits in viewport
-                if (document.body.offsetHeight < window.innerHeight) {
-                    // console.log('document.body.offsetHeight < window.innerHeight; no need to adjust height') ;
-                    return;
-                }
-
-                // And no need to worry if scrollTop still the same
-                if (document.body.scrollTop === scrollTop) {
-                    // console.log('document.body.scrollTop === scrollTop; no need to adjust height') ;
-                    return;
-                }
-
-                // console.log('Scrolltop HAS changed. document.body.scrollTop is now '+document.body.scrollTop+'; was '+scrollTop) ;
-
-                // The body has got a bit shorter.
-                // We need to increase the body height by a bit (by increasing the bottom margin on the jfContent div). The amount to increase it is whatever is the difference between our previous scrollTop and our new one.
-
-                // Work out how much more our target scrollTop is than this.
-                var difference = scrollTop - document.body.scrollTop + 8; // it always loses 8px; don't know why
-
-                // Add this difference to the bottom margin
-                //var currentMarginBottom = parseInt(div.style.marginBottom) || 0 ;
-                div.style.marginBottom = difference + 'px';
-
-                // Now change the scrollTop back to what it was
-                document.body.scrollTop = scrollTop;
-
-                return;
-            }
-        }
-    }
 
     /**
      * 执行代码格式化
      * @param  {[type]} jsonStr [description]
      * @return {[type]}
      */
-    var format = function (jsonStr) {
+    let format = function (jsonStr) {
+        cachedJsonString = JSON.stringify(JSON.parse(jsonStr), null, 4);
 
-        try {
-            jfContent.innerHTML = '';
-            pre.innerHTML = '';
-            document.querySelector('#boxOpt').remove();
-        } catch (e) {
-        }
+        _initElements();
+        jfPre.html(cachedJsonString);
 
-        // Send the contents of the PRE to the BG script
-        // Add jfContent DIV, ready to display stuff
-        jfContent = document.getElementById('jfContent');
-        if (!jfContent) {
-            jfContent = document.createElement('div');
-            jfContent.id = 'jfContent';
-            document.body.appendChild(jfContent);
-        }
-        jfContent.style.display = '';
-
-        pre = document.getElementById('jfContent_pre');
-        if (!pre) {
-            pre = document.createElement('pre');
-            pre.id = 'jfContent_pre';
-            document.body.appendChild(pre);
-        }
-        pre.innerHTML = JSON.stringify(JSON.parse(jsonStr), null, 4);
-        pre.style.display = "none";
-
-        jfStyleEl = document.getElementById('jfStyleEl');
-        if (!jfStyleEl) {
-            jfStyleEl = document.createElement('style');
-            document.head.appendChild(jfStyleEl);
-        }
-
-        formattingMsg = document.getElementById('formattingMsg');
-        if (!formattingMsg) {
-            formattingMsg = document.createElement('pre');
-            formattingMsg.id = 'formattingMsg';
-            formattingMsg.innerHTML = '<svg id="spinner" width="16" height="16" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" version="1.1">' +
-                '<path d="M 150,0 a 150,150 0 0,1 106.066,256.066 l -35.355,-35.355 a -100,-100 0 0,0 -70.711,-170.711 z" fill="#3d7fe6"></path></svg> 格式化中...';
-            document.body.appendChild(formattingMsg);
-        }
-
-        // Post the contents of the PRE
         JsonFormatDealer.postMessage({
             type: "SENDING TEXT",
             text: jsonStr,
             length: jsonStr.length
         });
 
-        _loadJs();
-        // 事件绑定
-        _addEvents();
-        // 支持文件下载
-        _downloadSupport(JSON.stringify(JSON.parse(jsonStr), null, 4));
     };
 
-    var _loadJs = function () {
+    let _loadJs = function () {
         if (typeof Tarp === 'object') {
             Tarp.require('../static/js/utils.js');
         } else {
@@ -320,19 +115,19 @@ var JsonFormatEntrance = (function () {
      * @param content
      * @private
      */
-    var _downloadSupport = function (content) {
+    let _downloadSupport = function (content) {
 
         // 下载链接
-        var localUrl = location.href;
-        var dt = (new Date()).format('yyyyMMddHHmmss');
+        let localUrl = location.href;
+        let dt = (new Date()).format('yyyyMMddHHmmss');
         content = ['/* ', localUrl, ' */', '\n', content].join('');
-        var blob = new Blob([content], {type: 'application/octet-stream'});
+        let blob = new Blob([content], {type: 'application/octet-stream'});
 
-        var button = $('<button id="btnDownload">下载JSON</button>').appendTo('#optionBar');
+        let button = $('<button id="btnDownload">下载JSON</button>').appendTo('#optionBar');
 
         if (typeof chrome === 'undefined' || !chrome.permissions) {
             button.click(function (e) {
-                var aLink = $('<a id="btnDownload" target="_blank" title="保存到本地">下载JSON数据</a>');
+                let aLink = $('<a id="btnDownload" target="_blank" title="保存到本地">下载JSON数据</a>');
                 aLink.attr('download', 'FeHelper-' + dt + '.json');
                 aLink.attr('href', URL.createObjectURL(blob));
                 aLink[0].click();
@@ -364,8 +159,8 @@ var JsonFormatEntrance = (function () {
      * chrome 下复制到剪贴板
      * @param text
      */
-    var _copyToClipboard = function (text) {
-        var input = document.createElement('textarea');
+    let _copyToClipboard = function (text) {
+        let input = document.createElement('textarea');
         input.style.position = 'fixed';
         input.style.opacity = 0;
         input.value = text;
@@ -383,9 +178,9 @@ var JsonFormatEntrance = (function () {
      * @param el
      * @returns {string}
      */
-    var getJsonText = function (el) {
+    let getJsonText = function (el) {
 
-        var txt = el.text().replace(/":\s/gm, '":').replace(/,$/, '').trim();
+        let txt = el.text().replace(/":\s/gm, '":').replace(/,$/, '').trim();
         if (!(/^{/.test(txt) && /\}$/.test(txt)) && !(/^\[/.test(txt) && /\]$/.test(txt))) {
             txt = '{' + txt + '}';
         }
@@ -402,15 +197,15 @@ var JsonFormatEntrance = (function () {
      * @param el
      * @private
      */
-    var _addOptForItem = function (el) {
+    let _addOptForItem = function (el) {
 
         // 下载json片段
-        var fnDownload = function (ec) {
+        let fnDownload = function (ec) {
 
-            var txt = getJsonText(el);
+            let txt = getJsonText(el);
             // 下载片段
-            var dt = (new Date()).format('yyyyMMddHHmmss');
-            var blob = new Blob([txt], {type: 'application/octet-stream'});
+            let dt = (new Date()).format('yyyyMMddHHmmss');
+            let blob = new Blob([txt], {type: 'application/octet-stream'});
 
             if (typeof chrome === 'undefined' || !chrome.permissions) {
                 // 下载JSON的简单形式
@@ -436,47 +231,145 @@ var JsonFormatEntrance = (function () {
         };
 
         // 复制json片段
-        var fnCopy = function (ec) {
+        let fnCopy = function (ec) {
             _copyToClipboard(getJsonText(el));
         };
 
         // 删除json片段
-        var fnDel = function (ed) {
+        let fnDel = function (ed) {
             if (el.parent().is('#formattedJson')) {
                 alert('如果连最外层的Json也删掉的话，就没啥意义了哦！');
                 return false;
             }
             alert('节点已删除成功！');
             el.remove();
-            boxOpt.css('top', -1000).hide();
+            jfOptEl.css('top', -1000).hide();
         };
 
-        var boxOpt = $('#boxOpt');
-        if (!boxOpt.length) {
-            boxOpt = $('<div id="boxOpt"><a class="opt-download" target="_blank">下载</a>|<a class="opt-copy">复制</a>|<a class="opt-del">删除</a></div>').appendTo('body');
-        }
+        jfOptEl.find('a.opt-download').unbind('click').bind('click', fnDownload);
+        jfOptEl.find('a.opt-copy').unbind('click').bind('click', fnCopy);
+        jfOptEl.find('a.opt-del').unbind('click').bind('click', fnDel);
 
-        boxOpt.find('a.opt-download').unbind('click').bind('click', fnDownload);
-        boxOpt.find('a.opt-copy').unbind('click').bind('click', fnCopy);
-        boxOpt.find('a.opt-del').unbind('click').bind('click', fnDel);
-
-        boxOpt.css({
+        jfOptEl.css({
             left: el.offset().left + el.width() - 90,
             top: el.offset().top
         }).show();
     };
 
+
+    /**
+     * 折叠所有
+     * @param elements
+     */
+    function collapse(elements) {
+        let el;
+
+        $.each(elements, function (i) {
+            el = $(this);
+            if (el.children('.blockInner').length) {
+                el.addClass('collapsed');
+
+                if (!el.attr('id')) {
+                    el.attr('id', 'kvov' + (++lastKvovIdGiven));
+
+                    let count = el.children('.blockInner').eq(0).children().length;
+                    // Generate comment text eg "4 items"
+                    let comment = count + (count === 1 ? ' item' : ' items');
+                    // Add CSS that targets it
+                    jfStyleEl[0].insertAdjacentHTML(
+                        'beforeend',
+                        '\n#kvov' + lastKvovIdGiven + '.collapsed:after{color: #aaa; content:" // ' + comment + '"}'
+                    );
+                }
+
+            }
+        });
+    }
+
+    /**
+     * 创建几个全局操作的按钮，置于页面右上角即可
+     * @private
+     */
+    let _buildOptionBar = function () {
+
+        let optionBar = $('#optionBar');
+        if (optionBar) {
+            optionBar.remove();
+        }
+        optionBar = $('<div id="optionBar" />').appendTo(jfContent.parent());
+
+        let buttonFormatted = $('<button id="buttonFormatted" class="selected">元数据</button>').appendTo(optionBar);
+        let buttonCollapseAll = $('<button id="buttonCollapseAll">折叠所有</button>').appendTo(optionBar);
+        let plainOn = false;
+
+        buttonFormatted.bind('click', function (e) {
+            if (plainOn) {
+                plainOn = false;
+                jfPre.hide();
+                jfContent.show();
+                buttonFormatted.text('元数据');
+            } else {
+                plainOn = true;
+                jfPre.show();
+                jfContent.hide();
+                buttonFormatted.text('格式化');
+            }
+
+            optionBar.find('button').removeClass('selected');
+            buttonFormatted.addClass('selected');
+            jfOptEl.hide();
+        });
+
+        buttonCollapseAll.bind('click', function (e) {
+            // 如果内容还没有格式化过，需要再格式化一下
+            if (plainOn) {
+                buttonFormatted.trigger('click');
+            }
+
+            if (!plainOn) {
+                if (buttonCollapseAll.text() === '折叠所有') {
+                    buttonCollapseAll.text('展开所有');
+                    collapse($('.objProp'));
+                } else {
+                    buttonCollapseAll.text('折叠所有');
+                    $('.objProp').removeClass('collapsed');
+                }
+
+                optionBar.find('button').removeClass('selected');
+                buttonCollapseAll.addClass('selected');
+            }
+            jfOptEl.hide();
+        });
+
+    };
+
     // 附加操作
-    var _addEvents = function () {
+    let _addEvents = function () {
+
+        // 折叠、展开
+        $('#jfContent span.e').bind('click', function (ev) {
+            ev.preventDefault();
+
+            let parentEl = $(this).parent();
+            parentEl.toggleClass('collapsed');
+
+            if (parentEl.hasClass('collapsed')) {
+                collapse(parentEl);
+            }
+        });
+
+        // 点击选中：高亮
         $('#jfContent .kvov').bind('click', function (e) {
+
             if ($(this).hasClass('x-outline')) {
-                $('#boxOpt').remove();
+                jfOptEl.hide();
                 $(this).removeClass('x-outline');
-                return false;
+                e.stopPropagation();
+                return true;
             }
 
             $('.x-outline').removeClass('x-outline');
-            var el = $(this).removeClass('x-hover').addClass('x-outline');
+            let el = $(this).removeClass('x-hover').addClass('x-outline');
 
             // 增加复制、删除功能
             _addOptForItem(el);
@@ -506,12 +399,13 @@ var JsonFormatEntrance = (function () {
     }
 })();
 
-var JsonFormatDealer = (function () {
+
+let JsonFormatDealer = (function () {
 
     "use strict";
 
     // Constants
-    var
+    let
         TYPE_STRING = 1,
         TYPE_NUMBER = 2,
         TYPE_OBJECT = 3,
@@ -523,7 +417,7 @@ var JsonFormatDealer = (function () {
     // Utility functions
     function removeComments(str) {
         str = ('__' + str + '__').split('');
-        var mode = {
+        let mode = {
             singleQuote: false,
             doubleQuote: false,
             regex: false,
@@ -531,7 +425,7 @@ var JsonFormatDealer = (function () {
             lineComment: false,
             condComp: false
         };
-        for (var i = 0, l = str.length; i < l; i++) {
+        for (let i = 0, l = str.length; i < l; i++) {
             if (mode.regex) {
                 if (str[i] === '/' && str[i - 1] !== '\\') {
                     mode.regex = false;
@@ -594,54 +488,43 @@ var JsonFormatDealer = (function () {
         return str.join('').slice(2, -2);
     }
 
-    // function spin(seconds) {
-    //   // spin - Hog the CPU for the specified number of seconds
-    //   // (for simulating long processing times in development)
-    //   var stop = +new Date() + (seconds*1000)  ;
-    //   while (new Date() < stop) {}
-    //   return true ;
-    // }
-
-    // Record current version (in case future update wants to know)
-    localStorage.jfVersion = '0.5.6';
-
     // Template elements
-    var templates,
+    let templates,
         baseDiv = document.createElement('div'),
         baseSpan = document.createElement('span');
 
     function getSpanBoth(innerText, className) {
-        var span = baseSpan.cloneNode(false);
+        let span = baseSpan.cloneNode(false);
         span.className = className;
         span.innerText = innerText;
         return span;
     }
 
     function getSpanText(innerText) {
-        var span = baseSpan.cloneNode(false);
+        let span = baseSpan.cloneNode(false);
         span.innerText = innerText;
         return span;
     }
 
     function getSpanClass(className) {
-        var span = baseSpan.cloneNode(false);
+        let span = baseSpan.cloneNode(false);
         span.className = className;
         return span;
     }
 
     function getDivClass(className) {
-        var span = baseDiv.cloneNode(false);
+        let span = baseDiv.cloneNode(false);
         span.className = className;
         return span;
     }
 
     // Create template nodes
-    var templatesObj = {
+    let templatesObj = {
         t_kvov: getDivClass('kvov'),
-        t_exp: getSpanClass('e'),
         t_key: getSpanClass('k'),
         t_string: getSpanClass('s'),
         t_number: getSpanClass('n'),
+        t_exp: getSpanClass('e'),
 
         t_null: getSpanBoth('null', 'nl'),
         t_true: getSpanBoth('true', 'bl'),
@@ -662,7 +545,7 @@ var JsonFormatDealer = (function () {
 
     // Core recursive DOM-building function
     function getKvovDOM(value, keyName) {
-        var type,
+        let type,
             kvov,
             nonZeroSize,
             templates = templatesObj, // bring into scope for tiny speed boost
@@ -703,7 +586,7 @@ var JsonFormatDealer = (function () {
                     }
                 }
                 if (nonZeroSize)
-                    kvov.appendChild(templates.t_exp.cloneNode(false));
+                    kvov.appendChild(templates.t_exp.cloneNode(true));
             }
         }
 
@@ -727,15 +610,15 @@ var JsonFormatDealer = (function () {
         }
 
         // Generate DOM for this value
-        var blockInner, childKvov;
+        let blockInner, childKvov;
         switch (type) {
             case TYPE_STRING:
                 // If string is a URL, get a link, otherwise get a span
-                var innerStringEl = baseSpan.cloneNode(false),
+                let innerStringEl = baseSpan.cloneNode(false),
                     escapedString = JSON.stringify(value);
                 escapedString = escapedString.substring(1, escapedString.length - 1); // remove quotes
                 if (value[0] === 'h' && value.substring(0, 4) === 'http') { // crude but fast - some false positives, but rare, and UX doesn't suffer terribly from them.
-                    var innerStringA = document.createElement('A');
+                    let innerStringA = document.createElement('A');
                     innerStringA.href = value;
                     innerStringA.innerText = escapedString;
                     innerStringEl.appendChild(innerStringA);
@@ -767,7 +650,7 @@ var JsonFormatDealer = (function () {
                     // Create blockInner, which indents (don't attach yet)
                     blockInner = templates.t_blockInner.cloneNode(false);
                     // For each key/value pair, add as a kvov to blockInner
-                    var count = 0, k, comma;
+                    let count = 0, k, comma;
                     for (k in value) {
                         if (value.hasOwnProperty(k)) {
                             count++;
@@ -798,7 +681,7 @@ var JsonFormatDealer = (function () {
                     // Create blockInner (which indents) (don't attach yet)
                     blockInner = templates.t_blockInner.cloneNode(false);
                     // For each key/value pair, add the markup
-                    for (var i = 0, length = value.length, lastIndex = length - 1; i < length; i++) {
+                    for (let i = 0, length = value.length, lastIndex = length - 1; i < length; i++) {
                         // Make a new kvov, with no key
                         childKvov = getKvovDOM(value[i], false);
                         // Add comma if not last one
@@ -835,7 +718,7 @@ var JsonFormatDealer = (function () {
         // spin(5) ;
 
         // Format object (using recursive kvov builder)
-        var rootKvov = getKvovDOM(obj, false);
+        let rootKvov = getKvovDOM(obj, false);
 
         // The whole DOM is now built.
 
@@ -843,12 +726,12 @@ var JsonFormatDealer = (function () {
         rootKvov.classList.add('rootKvov');
 
         // Make div#formattedJson and append the root kvov
-        var divFormattedJson = document.createElement('DIV');
+        let divFormattedJson = document.createElement('DIV');
         divFormattedJson.id = 'formattedJson';
         divFormattedJson.appendChild(rootKvov);
 
         // Convert it to an HTML string (shame about this step, but necessary for passing it through to the content page)
-        var returnHTML = divFormattedJson.outerHTML;
+        let returnHTML = divFormattedJson.outerHTML;
 
         // Top and tail with JSONP padding if necessary
         if (jsonpFunctionName !== null) {
@@ -863,12 +746,12 @@ var JsonFormatDealer = (function () {
     }
 
     // Listen for requests from content pages wanting to set up a port
-    var postMessage = function (msg) {
-        var jsonpFunctionName = null;
+    let postMessage = function (msg) {
+        let jsonpFunctionName = null;
 
         if (msg.type === 'SENDING TEXT') {
             // Try to parse as JSON
-            var obj,
+            let obj,
                 text = msg.text;
             try {
                 obj = JSON.parse(text);
@@ -879,14 +762,14 @@ var JsonFormatDealer = (function () {
                 // Try stripping 'padding' (if any), and try parsing it again
                 text = text.trim();
                 // Find where the first paren is (and exit if none)
-                var indexOfParen;
+                let indexOfParen;
                 if (!(indexOfParen = text.indexOf('('))) {
                     JsonFormatEntrance.postMessage(['NOT JSON', 'no opening parenthesis']);
                     return;
                 }
 
                 // Get the substring up to the first "(", with any comments/whitespace stripped out
-                var firstBit = removeComments(text.substring(0, indexOfParen)).trim();
+                let firstBit = removeComments(text.substring(0, indexOfParen)).trim();
                 if (!firstBit.match(/^[a-zA-Z_$][\.\[\]'"0-9a-zA-Z_$]*$/)) {
                     // The 'firstBit' is NOT a valid function identifier.
                     JsonFormatEntrance.postMessage(['NOT JSON', 'first bit not a valid function name']);
@@ -894,14 +777,14 @@ var JsonFormatDealer = (function () {
                 }
 
                 // Find last parenthesis (exit if none)
-                var indexOfLastParen;
+                let indexOfLastParen;
                 if (!(indexOfLastParen = text.lastIndexOf(')'))) {
                     JsonFormatEntrance.postMessage(['NOT JSON', 'no closing paren']);
                     return;
                 }
 
                 // Check that what's after the last parenthesis is just whitespace, comments, and possibly a semicolon (exit if anything else)
-                var lastBit = removeComments(text.substring(indexOfLastParen + 1)).trim();
+                let lastBit = removeComments(text.substring(indexOfLastParen + 1)).trim();
                 if (lastBit !== "" && lastBit !== ';') {
                     JsonFormatEntrance.postMessage(['NOT JSON', 'last closing paren followed by invalid characters']);
                     return;
@@ -931,14 +814,25 @@ var JsonFormatDealer = (function () {
                 return;
             }
 
-            // And send it the message to confirm that we're now formatting (so it can show a spinner)
-            JsonFormatEntrance.postMessage(['FORMATTING' /*, JSON.stringify(localStorage)*/]);
+            JsonFormatEntrance.postMessage(['FORMATTING']);
 
-            // Do formatting
-            var html = jsonObjToHTML(obj, jsonpFunctionName);
+            try {
+                // 有的页面设置了 安全策略，连localStorage都不能用，setTimeout开启多线程就更别说了
+                localStorage.getItem('just test : Blocked script execution in xxx?');
 
-            // Post the HTML string to the content script
-            JsonFormatEntrance.postMessage(['FORMATTED', html]);
+                // 在非UI线程中操作：异步。。。
+                setTimeout(function () {
+                    // Do formatting
+                    let html = jsonObjToHTML(obj, jsonpFunctionName);
+
+                    // Post the HTML string to the content script
+                    JsonFormatEntrance.postMessage(['FORMATTED', html]);
+                }, 0);
+            } catch (ex) {
+                // 错误信息类似：Failed to read the 'localStorage' property from 'Window': The document is sandboxed and lacks the 'allow-same-origin' flag.
+                let html = jsonObjToHTML(obj, jsonpFunctionName);
+                JsonFormatEntrance.postMessage(['FORMATTED', html]);
+            }
 
         }
     };

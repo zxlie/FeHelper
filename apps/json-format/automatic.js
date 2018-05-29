@@ -12,12 +12,9 @@ module.exports = (() => {
     "use strict";
 
     let _htmlFragment = [
+        '<style type="text/css">.mod-contentscript #formattingMsg{position:absolute;top:0;font-size:14px;color:#333;margin:5px;}#formattingMsg .x-loading{width:12px;height:12px;border:1px solid #f00;border-radius:50%;box-shadow:0 0 10px 2px;color:#c00;border-right-color:transparent;border-top-color:transparent;animation:spin-right 1s linear infinite normal;animation-delay:0s;margin:0 5px 0 0;display:inline-block}#formattingMsg .x-loading:before{display:block;width:8px;height:8px;margin:1px;border:2px solid #f00;content:" ";border-radius:50%;border-left-color:transparent;border-bottom-color:transparent}@keyframes spin-right{from{transform:rotate(0deg);opacity:.2}50%{transform:rotate(180deg);opacity:1.0}to{transform:rotate(360deg);opacity:.2}}</style>',
         '<div class="mod-json mod-contentscript"><div class="rst-item">',
-        '<div id="formattingMsg">',
-        '<svg id="spinner" width="16" height="16" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" version="1.1">',
-        '<path d="M 150,0 a 150,150 0 0,1 106.066,256.066 l -35.355,-35.355 a -100,-100 0 0,0 -70.711,-170.711 z" fill="#3d7fe6"></path>',
-        '</svg>加载中...',
-        '</div>',
+        '<div id="formattingMsg"><span class="x-loading"></span>格式化中...</div>',
         '<div id="jfCallbackName_start" class="callback-name"></div>',
         '<div id="jfContent"></div>',
         '<pre id="jfContent_pre"></pre>',
@@ -27,7 +24,7 @@ module.exports = (() => {
 
     let _loadCss = function () {
         let cssUrl = chrome.extension.getURL('json-format/without-ui.css');
-        jQuery('<link id="_fehelper_fcp_css_" href="' + cssUrl + '" rel="stylesheet" type="text/css" />').appendTo('head');
+        $('<link id="_fehelper_fcp_css_" href="' + cssUrl + '" rel="stylesheet" type="text/css" />').appendTo('head');
     };
 
     /**
@@ -147,15 +144,15 @@ module.exports = (() => {
             try {
                 jsonObj = new Function("return " + source)();
             } catch (exx) {
-                try{
+                try {
                     // 再给你一次机会，是不是下面这种情况：  "{\"ret\":\"0\", \"msg\":\"ok\"}"
                     jsonObj = new Function("return '" + source + "'")();
-                    if(typeof jsonObj === 'string') {
+                    if (typeof jsonObj === 'string') {
                         // 最后给你一次机会，是个字符串，老夫给你再转一次
                         jsonObj = new Function("return " + jsonObj)();
                     }
-                }catch(exxx){
-                    return ;
+                } catch (exxx) {
+                    return;
                 }
             }
 
@@ -181,8 +178,8 @@ module.exports = (() => {
                 return;
             }
 
-            $('body').html(_htmlFragment);
             _loadCss();
+            $('body').html(_htmlFragment);
 
             // 格式化
             Tarp.require('../json-format/format-lib').format(source);

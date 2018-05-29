@@ -7,7 +7,11 @@ new Vue({
         sizeOri: '暂无数据',
         sizeBase: '暂无数据',
         previewSrc: '',
-        resultContent: ''
+        resultContent: '',
+        toolName: {'image': '图片转Base64', 'base64': 'Base64转图片'},
+        curType: 'image',
+        nextType: 'base64',
+        txtBase64Input: ''
     },
     mounted: function () {
 
@@ -17,6 +21,9 @@ new Vue({
         chrome.runtime.onMessage.addListener((request, sender, callback) => {
             if (request.type === MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event === MSG_TYPE.IMAGE_BASE64) {
                 if (request.content) {
+                    if(this.curType !== 'image') {
+                        this.trans();
+                    }
                     this.convertOnline(request.content, flag => {
                         if (!flag) {
                             chrome.extension.getBackgroundPage().BgPageInstance.notify({
@@ -30,6 +37,7 @@ new Vue({
 
         //监听paste事件
         document.addEventListener('paste', (event) => {
+            if (this.curType !== 'image') return;
             this.paste(event);
         }, false);
 
@@ -37,6 +45,7 @@ new Vue({
         document.addEventListener('drop', (event) => {
             event.preventDefault();
             event.stopPropagation();
+            if (this.curType !== 'image') return;
             let files = event.dataTransfer.files;
             if (files.length) {
                 if (/image\//.test(files[0].type)) {
@@ -48,6 +57,7 @@ new Vue({
         }, false);
 
         document.addEventListener('dragover', (event) => {
+            if (this.curType !== 'image') return;
             event.preventDefault();
             event.stopPropagation();
         }, false);
@@ -168,6 +178,17 @@ new Vue({
                         });
                     }
                 }
+            }
+        },
+
+        trans: function () {
+            this.curType = {image: 'base64', base64: 'image'}[this.curType];
+            this.nextType = {image: 'base64', base64: 'image'}[this.nextType];
+        },
+
+        loadError: function (e) {
+            if(this.curType === 'base64' && this.txtBase64Input.trim().length) {
+                alert('无法识别的Base64编码，请确认是正确的图片Data URI？');
             }
         }
     }

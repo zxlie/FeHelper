@@ -30,10 +30,13 @@
 .collapsed>.ell:after{content:"\2026";font-weight:bold}
 .collapsed>.ell{margin:0 4px;color:#888}
 .collapsed .kvov{display:inline}
-.e{width:20px;height:18px;display:block;position:absolute;left:-2px;top:1px;z-index:5;
-    background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAATUlEQVQoFWNgYGA4wMDA8B8HPszAwMDghEMSpMkVpAAE9mJRdAwqB6bssSiA64YpRDYFRTdMgQ2SKRi6YYp2MTAwnIRxsNGWyC4HKQAAuIkf/0L9E0IAAAAASUVORK5CYII=");
-    background-repeat:no-repeat;background-position:center center;display:block;opacity:0.15}
-.collapsed>.e{-webkit-transform:rotate(-90deg);width:18px;height:20px;left:0px;top:0px}
+.e{width:20px;height:18px;display:block;position:absolute;left:-2px;top:4px;z-index:5;
+    opacity:0.35;-webkit-user-select: none;
+    cursor: pointer;}
+.e:after {
+    content: "\25bc";
+}
+.collapsed>.e{-webkit-transform:rotate(-90deg);top:-1px}
 .e:hover{opacity:0.35}.e:active{opacity:0.5}.collapsed .kvov .e{display:none}
 .blockInner{display:block;padding-left:24px;border-left:1px dotted #bbb;margin-left:2px}
 #formattedJson,#jsonpOpener,#jsonpCloser{color:#333;font:13px/18px monospace}
@@ -41,8 +44,53 @@
 #jfContent a:link,#jfContent a:visited{text-decoration:none;color:inherit}
 #jfContent a:hover,#jfContent a:active{text-decoration:underline;color:#050}
 .bl,.nl,.n{font-weight:bold;color:#1A01CC}.k{color:black}
-#formattingMsg{font:13px "Lucida Grande", "Segoe UI", "Tahoma";padding:10px 0 0 8px;margin:0;color:#333;display:none;}
-#formattingMsg>svg{margin:0 7px;position:relative;top:1px}
+#formattingMsg {
+    display: none;
+}
+.mod-contentscript #formattingMsg {
+    position: absolute;
+    top: 0;
+}
+#formattingMsg .x-loading{
+    width: 12px;
+    height: 12px;
+    border: 1px solid #f00;
+    border-radius: 50%;
+    box-shadow: 0 0 10px 2px;
+    color: #cc0000;
+    border-right-color: transparent;
+    border-top-color: transparent;
+    animation: spin-right 1s linear infinite normal;
+    animation-delay: 0s;
+    margin: 0 5px 0 0;
+    display: inline-block;
+}
+#formattingMsg .x-loading:before {
+    display: block;
+    width: 8px;
+    height: 8px;
+    margin: 1px;
+    border: 2px solid #f00;
+    content: " ";
+    border-radius: 50%;
+    border-left-color: transparent;
+    border-bottom-color: transparent;
+}
+@keyframes spin-right {
+    from {
+        transform: rotate(0deg);
+        opacity: 0.2;
+    }
+    50% {
+        transform: rotate(180deg);
+        opacity: 1.0;
+    }
+    to {
+        transform: rotate(360deg);
+        opacity: 0.2;
+    }
+}
+
 [hidden]{display:none !important}
 #jfContentspan{white-space:pre-wrap}
 @-webkit-keyframes spin{from{-webkit-transform:rotate(0deg)}to{-webkit-transform:rotate(360deg)}}
