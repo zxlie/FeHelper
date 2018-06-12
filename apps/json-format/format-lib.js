@@ -118,9 +118,7 @@ let JsonFormatEntrance = (function () {
     let _downloadSupport = function (content) {
 
         // 下载链接
-        let localUrl = location.href;
         let dt = (new Date()).format('yyyyMMddHHmmss');
-        content = ['/* ', localUrl, ' */', '\n', content].join('');
         let blob = new Blob([content], {type: 'application/octet-stream'});
 
         let button = $('<button id="btnDownload">下载JSON</button>').appendTo('#optionBar');
