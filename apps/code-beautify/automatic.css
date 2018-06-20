@@ -1,4 +1,4 @@
-@import url("../static/css/syntax-highlighter.css");
+@import url("../static/vendor/prism/prism.css");
 
 #fehelper_tips {
     position: fixed;
@@ -94,11 +94,13 @@
     color:red;
 }
 
-body > * {
+body.show-tipsbar > *,
+body.show-beautified > *{
     transition: .2s linear;
 }
 
-body pre {
+body.show-tipsbar pre,
+body.show-beautified pre {
     transform: translate3d(0, 37px, 0);
 }
 

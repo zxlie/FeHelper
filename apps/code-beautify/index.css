@@ -1,4 +1,4 @@
-@import url("../static/css/syntax-highlighter.css");
+@import url("../static/vendor/prism/prism.css");
 @import url("../static/css/bootstrap.min.css");
 
 #codeSource {

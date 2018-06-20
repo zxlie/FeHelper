@@ -75,11 +75,9 @@
     "static/vendor/jquery/jquery-ui.min.css",
     "static/vendor/jquery/jquery-ui.min.js",
     "static/vendor/jquery/jquery.extend.js",
-    "static/vendor/syntaxhighlighter/shCore.js",
-    "static/vendor/syntaxhighlighter/shBrushJScript.js",
-    "static/vendor/syntaxhighlighter/shBrushCss.js",
-    "static/css/syntax-highlighter.css",
-    "static/vendor/json-bigint/index.js"
+    "static/vendor/json-bigint/index.js",
+    "static/vendor/prism/prism.js",
+    "static/vendor/prism/prism.css"
   ],
   "content_scripts": [
     {

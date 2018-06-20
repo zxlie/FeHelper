@@ -31,18 +31,17 @@ new Vue({
 
             let beauty = (result) => {
                 result = result.replace(/>/g, '&gt;').replace(/</g, '&lt;');
-                result = '<pre class="brush: ' + this.selectedType.toLowerCase() + ';toolbar:false;">' + result + '</pre>';
+                result = '<pre class="language-' + this.selectedType.toLowerCase() + ' line-numbers"><code>' + result + '</code></pre>';
                 this.resultContent = result;
 
                 // 代码高亮
                 this.$nextTick(() => {
-                    SyntaxHighlighter.defaults['toolbar'] = false;
-                    SyntaxHighlighter.highlight();
+                    Prism.highlightAll();
                 })
             };
 
             switch (this.selectedType) {
-                case 'Javascript':
+                case 'javascript':
                     let opts = {
                         brace_style: "collapse",
                         break_chained_methods: false,
@@ -58,14 +57,14 @@ new Vue({
                     };
                     Tarp.require('./beautify.js').js_beautify(this.sourceContent, opts, result => beauty(result));
                     break;
-                case 'CSS':
+                case 'css':
                     Tarp.require('./beautify-css.js').css_beautify(this.sourceContent, {}, result => beauty(result));
                     break;
-                case 'HTML':
+                case 'html':
                     Tarp.require('./beautify-html.js');
                     beauty(html_beautify(this.sourceContent));
                     break;
-                case 'SQL':
+                case 'sql':
                     Tarp.require('./vkbeautify.js');
                     beauty(vkbeautify.sql(this.sourceContent, 4));
                     break;

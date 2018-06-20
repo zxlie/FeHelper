@@ -11,28 +11,18 @@ module.exports = (() => {
 
             formattedCodes = txtResult;
             txtResult = txtResult.replace(/>/g, '&gt;').replace(/</g, '&lt;');
-            txtResult = '<pre class="brush: ' + fileType.toLowerCase() + ';toolbar:false">' + txtResult + '</pre>';
-            $('#fehelper_tips').siblings().remove().end().after('<pre id="fehelper_beautified_codes">' + txtResult + '</pre>');
+            txtResult = '<pre class="language-' + fileType.toLowerCase() + ' line-numbers"><code>' + txtResult + '</code></pre>';
+            $('#fehelper_tips').siblings().remove().end().after(txtResult);
 
-            // 代码高亮
-            let map = {
-                core: '../static/vendor/syntaxhighlighter/shCore.js',
-                Javascript: '../static/vendor/syntaxhighlighter/shBrushJScript.js',
-                CSS: '../static/vendor/syntaxhighlighter/shBrushCss.js'
-            };
-
-            Tarp.require(map.core, true).then(SH => {
-                Tarp.require(map[fileType], true).then(SH => {
-                    SH.defaults['toolbar'] = false;
-                    SH.highlight();
-                });
+            Tarp.require('../static/vendor/prism/prism.js', true).then(Prism => {
+                Prism.highlightAll();
             });
 
             callback && callback();
         };
 
         switch (fileType) {
-            case 'Javascript':
+            case 'javascript':
                 let opts = {
                     brace_style: "collapse",
                     break_chained_methods: false,
@@ -49,7 +39,7 @@ module.exports = (() => {
                 Tarp.require('../code-beautify/beautify.js');
                 js_beautify(source, opts, resp => beauty(resp));
                 break;
-            case 'CSS':
+            case 'css':
                 Tarp.require('../code-beautify/beautify-css.js');
                 css_beautify(source, {}, resp => beauty(resp));
                 break;
@@ -64,7 +54,7 @@ module.exports = (() => {
     let detect = () => {
 
         let ext = location.pathname.substring(location.pathname.lastIndexOf(".") + 1).toLowerCase();
-        let fileType = ({'js': 'Javascript', 'css': 'CSS'})[ext];
+        let fileType = ({'js': 'javascript', 'css': 'css'})[ext];
         if (!fileType || document.contentType.toLowerCase() === 'text/html') {
             return false;
         }
@@ -100,7 +90,8 @@ module.exports = (() => {
         });
 
         tipsBar.find('button.no,button.close').click((evt) => {
-            $(document.body).removeClass('show-tipsbar');
+            $(document.body).removeClass('show-tipsbar').removeClass('show-beautified');
+            tipsBar.remove();
         });
 
         tipsBar.find('button.copy').click((evt) => {
