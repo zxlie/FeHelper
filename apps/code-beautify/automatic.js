@@ -1,5 +1,7 @@
 module.exports = (() => {
 
+    let formattedCodes = '';
+
     /**
      * 代码美化
      */
@@ -7,9 +9,10 @@ module.exports = (() => {
 
         let beauty = txtResult => {
 
+            formattedCodes = txtResult;
             txtResult = txtResult.replace(/>/g, '&gt;').replace(/</g, '&lt;');
-            txtResult = '<pre class="brush: ' + fileType.toLowerCase() + ';toolbar:false;">' + txtResult + '</pre>';
-            document.body.innerHTML = txtResult;
+            txtResult = '<pre class="brush: ' + fileType.toLowerCase() + ';toolbar:false">' + txtResult + '</pre>';
+            $('#fehelper_tips').siblings().remove().end().after('<pre id="fehelper_beautified_codes">' + txtResult + '</pre>');
 
             // 代码高亮
             let map = {
@@ -72,9 +75,10 @@ module.exports = (() => {
         $(document.body).addClass('show-tipsbar');
 
         let tipsBar = $('<div id="fehelper_tips">' +
-            '<span class="desc">FeHelper检测到这可能是<i>' + fileType + '</i>代码，是否进行美化处理？</span>' +
+            '<span class="desc">FeHelper检测到这可能是<i>' + fileType + '</i>代码，<span class="ask">是否进行美化处理？</span></span>' +
             '<button class="yes">代码美化</button>' +
             '<button class="no">放弃！</button>' +
+            '<button class="copy hide">复制美化过的代码</button>' +
             '<button class="close"><span></span></button>' +
             '<a class="forbid">彻底关闭这个功能！&gt;&gt;</a>' +
             '</div>').prependTo('body');
@@ -82,7 +86,8 @@ module.exports = (() => {
         tipsBar.find('button.yes').click((evt) => {
             tipsBar.find('button.yes,button.no').hide();
             $('<span class="doing">正在努力，请稍后...</span>').insertBefore(tipsBar.find('button.yes'));
-            format(fileType, source,()=>{
+            format(fileType, source, () => {
+                tipsBar.find('span.ask').text('已为您美化完毕！');
                 $(document.body).removeClass('show-tipsbar').addClass('show-beautified');
             });
         });
@@ -97,6 +102,28 @@ module.exports = (() => {
         tipsBar.find('button.no,button.close').click((evt) => {
             $(document.body).removeClass('show-tipsbar');
         });
+
+        tipsBar.find('button.copy').click((evt) => {
+            _copyToClipboard(formattedCodes);
+        });
+    };
+
+
+    /**
+     * chrome 下复制到剪贴板
+     * @param text
+     */
+    let _copyToClipboard = function (text) {
+        let input = document.createElement('textarea');
+        input.style.position = 'fixed';
+        input.style.opacity = 0;
+        input.value = text;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('Copy');
+        document.body.removeChild(input);
+
+        alert('代码复制成功，随处粘贴可用！')
     };
 
     return {

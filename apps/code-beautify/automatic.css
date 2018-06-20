@@ -1,7 +1,4 @@
 @import url("../static/css/syntax-highlighter.css");
-.syntaxhighlighter table td.code .container .line:hover {
-    background-color: #f1f1f1 !important;
-}
 
 #fehelper_tips {
     position: fixed;
@@ -101,16 +98,24 @@ body > * {
     transition: .2s linear;
 }
 
-body.show-tipsbar pre {
+body pre {
     transform: translate3d(0, 37px, 0);
 }
 
-body.show-tipsbar #fehelper_tips {
+body #fehelper_tips {
     transform: none;
 }
-
+body.show-tipsbar .copy{
+    display: none;
+}
 body.show-beautified {
     font-size: 14px;
+}
+body.show-beautified .copy {
+    display: inline-block;
+}
+body.show-beautified .doing {
+    display: none;
 }
 
 body.processing > :not(#fehelper_tips) {
