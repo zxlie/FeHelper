@@ -16,9 +16,9 @@ module.exports = (() => {
 
             Tarp.require('../static/vendor/prism/prism.js', true).then(Prism => {
                 Prism.highlightAll();
+                callback && callback();
             });
 
-            callback && callback();
         };
 
         switch (fileType) {
@@ -66,6 +66,7 @@ module.exports = (() => {
 
         let tipsBar = $('<div id="fehelper_tips">' +
             '<span class="desc">FeHelper检测到这可能是<i>' + fileType + '</i>代码，<span class="ask">是否进行美化处理？</span></span>' +
+            '<a class="encoding">有乱码？点击修正！</a>' +
             '<button class="yes">代码美化</button>' +
             '<button class="no">放弃！</button>' +
             '<button class="copy hide">复制美化过的代码</button>' +
@@ -75,9 +76,9 @@ module.exports = (() => {
 
         tipsBar.find('button.yes').click((evt) => {
             tipsBar.find('button.yes,button.no').hide();
-            $('<span class="doing">正在努力，请稍后...</span>').insertBefore(tipsBar.find('button.yes'));
+            let elAsk = tipsBar.find('span.ask').text('正在努力美化，请稍后...');
             format(fileType, source, () => {
-                tipsBar.find('span.ask').text('已为您美化完毕！');
+                elAsk.text('已为您美化完毕！');
                 $(document.body).removeClass('show-tipsbar').addClass('show-beautified');
             });
         });
@@ -96,6 +97,18 @@ module.exports = (() => {
 
         tipsBar.find('button.copy').click((evt) => {
             _copyToClipboard(formattedCodes);
+        });
+
+        tipsBar.find('a.encoding').click((evt) => {
+            evt.preventDefault();
+            fetch(location.href).then(res => res.text()).then(text => {
+                source = text;
+                if ($(document.body).hasClass('show-beautified')) {
+                    tipsBar.find('button.yes').trigger('click');
+                } else {
+                    $('#fehelper_tips+pre').text(text);
+                }
+            });
         });
     };
 

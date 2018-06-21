@@ -1,5 +1,7 @@
 @import url("../static/vendor/prism/prism.css");
-
+body {
+    font-size: 14px;
+}
 #fehelper_tips {
     position: fixed;
     top: 0;
@@ -81,8 +83,12 @@
 #fehelper_tips .close:active span {
     opacity: 1;
 }
+#fehelper_tips .ask {
+    color: #f00;
+}
 
-#fehelper_tips .forbid {
+#fehelper_tips .forbid,
+#fehelper_tips .encoding{
     float: right;
     font-size: 12px;
     color: #666;
@@ -90,8 +96,13 @@
     margin-right:20px;
     cursor: pointer;
 }
-#fehelper_tips .forbid:hover {
+#fehelper_tips .forbid:hover,
+#fehelper_tips .encoding:hover{
     color:red;
+}
+#fehelper_tips .encoding {
+    float: none;
+    margin-left: 10px;
 }
 
 body.show-tipsbar > *,
@@ -110,14 +121,8 @@ body #fehelper_tips {
 body.show-tipsbar .copy{
     display: none;
 }
-body.show-beautified {
-    font-size: 14px;
-}
 body.show-beautified .copy {
     display: inline-block;
-}
-body.show-beautified .doing {
-    display: none;
 }
 
 body.processing > :not(#fehelper_tips) {

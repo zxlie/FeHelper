@@ -4,3 +4,6 @@
 #codeSource {
     height: 150px;
 }
+#btnFormat {
+    outline: none;
+}

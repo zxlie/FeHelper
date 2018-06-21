@@ -28,6 +28,9 @@ new Vue({
 
     methods: {
         format: function () {
+            if(!this.sourceContent.trim()) {
+                return alert('内容为空，不需要美化处理！');
+            }
 
             let beauty = (result) => {
                 result = result.replace(/>/g, '&gt;').replace(/</g, '&lt;');
@@ -37,11 +40,11 @@ new Vue({
                 // 代码高亮
                 this.$nextTick(() => {
                     Prism.highlightAll();
-                })
+                });
             };
 
             switch (this.selectedType) {
-                case 'javascript':
+                case 'Javascript':
                     let opts = {
                         brace_style: "collapse",
                         break_chained_methods: false,
@@ -57,14 +60,14 @@ new Vue({
                     };
                     Tarp.require('./beautify.js').js_beautify(this.sourceContent, opts, result => beauty(result));
                     break;
-                case 'css':
+                case 'CSS':
                     Tarp.require('./beautify-css.js').css_beautify(this.sourceContent, {}, result => beauty(result));
                     break;
-                case 'html':
+                case 'HTML':
                     Tarp.require('./beautify-html.js');
                     beauty(html_beautify(this.sourceContent));
                     break;
-                case 'sql':
+                case 'SQL':
                     Tarp.require('./vkbeautify.js');
                     beauty(vkbeautify.sql(this.sourceContent, 4));
                     break;
