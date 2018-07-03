@@ -69,6 +69,8 @@ const MSG_TYPE = {
     TIME_STAMP: 'timestamp',
     // 图片base64
     IMAGE_BASE64: 'image-base64',
+    // 随机密码生成
+    RANDOM_PASSWORD:'password',
     // 二维码解码
     QR_DECODE: 'qr-decode',
     // JSON页面自动格式化

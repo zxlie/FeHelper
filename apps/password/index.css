@@ -1,0 +1,31 @@
+@import url("../static/css/bootstrap.min.css");
+
+.wrapper {
+    width: 600px;
+}
+#rstCode {
+    min-height: 80px;
+    width:530px;
+    resize: none;
+    margin: 15px;
+}
+.row .checkbox {
+    margin:0 15px;
+    padding: 15px 0;
+    border-bottom: 1px dashed #ccc;
+    user-select: none;
+}
+.row .checkbox.no-border {
+    border:none;
+}
+.row .checkbox span {
+    color:#ccc;
+    padding:0 5px;
+}
+.row .checkbox .form-control {
+    width:80px;
+    display: inline-block;
+}
+#btnCodeChange {
+    outline: none;
+}

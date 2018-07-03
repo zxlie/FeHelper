@@ -93,6 +93,9 @@ ul.fe-function-list li.-x-markdown b {
 ul.fe-function-list li.-x-pagecapture b {
 	background-position:-16px -111px;
 }
+ul.fe-function-list li.-x-password b {
+	background-position: -144px -95px;
+}
 
 ul.fe-function-list li i {
     color: #aaa;

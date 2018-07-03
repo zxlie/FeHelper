@@ -24,7 +24,8 @@ module.exports = (() => {
         'AJAX_DEBUGGER',
         'JS_CSS_PAGE_BEAUTIFY',
         'HTML_TO_MARKDOWN',
-        'PAGE_CAPTURE'
+        'PAGE_CAPTURE',
+        'RANDOM_PASSWORD'
     ];
 
     /**

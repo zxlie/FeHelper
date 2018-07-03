@@ -37,6 +37,7 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 - Js正则表达式（正则测试、常用正则列表）
 - 时间(戳)转换（Unix戳与本地时间的互转）
 - 图片Base64（任意图片转DataURI格式）
+- 随机密码生成（任意字符、任意长度、随机生成）
 - 编码规范检测（HTML/CSS/JS规范检测）
 - 页面性能检测（页面响应时间、Header监测）
 - Ajax调试功能（需在控制台中使用）
