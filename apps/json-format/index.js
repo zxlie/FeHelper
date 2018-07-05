@@ -50,6 +50,7 @@ new Vue({
             }
         };
         editor.on('change', (editor, changes) => {
+            this.jsonFormattedSource = editor.getValue().replace(/\n/gm, ' ');
             this.fireChange && this.format();
         });
 
@@ -74,7 +75,7 @@ new Vue({
 
             let source = editor.getValue().replace(/\n/gm, ' ');
             if (!source) {
-                return true;
+                return false;
             }
 
             // JSONP形式下的callback name
@@ -142,9 +143,11 @@ new Vue({
                     return this.lintOn();
                 } else {
                     this.resultContent = '<span class="x-error">' + this.errorMsg + '</span>';
-                    return true;
+                    return false;
                 }
             }
+
+            return true;
         },
 
         compress: function () {
