@@ -12,6 +12,7 @@ new Vue({
     },
 
     created: function () {
+
         Settings.getOptions((opts) => {
             this.selectedOpts = Object.keys(opts);
         });

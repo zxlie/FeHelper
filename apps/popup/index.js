@@ -6,10 +6,14 @@ new Vue({
     el: '#pageContainer',
     data: {
         ajaxDebugger: '已开',
-        canMeShow: {}
+        canMeShow: {},
+        manifest:{}
     },
 
     created: function () {
+        // 获取当前ctx的version
+        this.manifest = chrome.runtime.getManifest();
+
         let Settings = Tarp.require('../options/settings');
 
         // 根据配置，控制功能菜单的显示与隐藏

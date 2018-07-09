@@ -1,13 +1,44 @@
 @import "../static/css/bootstrap.min.css";
+@import "../popup/index.css";
 
 .wrapper {
-    width:660px;
+    width:900px;
 }
 #pageContainer label {
     font-weight: normal;
 }
 
 #pageContainer h4 {
-    color: #000;
+    color: #888;
     font-size: 18px;
+}
+
+fieldset {
+    padding: 10px;
+    margin: 10px;
+    border:1px solid #ddd;
+}
+fieldset legend {
+    font-size: 12px;
+    width: auto;
+    border:none;
+    padding:0 10px;
+    margin-bottom: 5px;
+}
+.fe-whole-page {
+    border: 1px solid #ddd;
+    box-shadow: 0 0 50px 1px;
+    width: 150px;
+}
+
+ul.fe-function-list li {
+    padding: 0;
+    height: 28px;
+    line-height: 28px;
+}
+
+h5,h4 {
+    border-bottom : 1px solid #eee;
+    padding-bottom: 5px;
+    width: 60%;
 }
