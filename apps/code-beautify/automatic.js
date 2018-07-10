@@ -51,13 +51,8 @@ module.exports = (() => {
      * 检测
      * @returns {boolean}
      */
-    let detect = () => {
+    let detect = (fileType) => {
 
-        let ext = location.pathname.substring(location.pathname.lastIndexOf(".") + 1).toLowerCase();
-        let fileType = ({'js': 'javascript', 'css': 'css'})[ext];
-        if (!fileType || document.contentType.toLowerCase() === 'text/html') {
-            return false;
-        }
         let source = document.body.textContent;
 
         let cssUrl = chrome.extension.getURL('code-beautify/automatic.css');

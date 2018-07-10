@@ -73,6 +73,9 @@ const MSG_TYPE = {
     RANDOM_PASSWORD:'password',
     // 二维码解码
     QR_DECODE: 'qr-decode',
+
+    // JSON比对
+    JSON_COMPARE:'json-diff',
     // JSON页面自动格式化
     JSON_PAGE_FORMAT: 'JSON_PAGE_FORMAT',
     JSON_PAGE_FORMAT_REQUEST: 'JSON_PAGE_FORMAT_REQUEST',

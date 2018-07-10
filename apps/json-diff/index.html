@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <head>
+        <title>JSON比对工具</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="index.css" />
+        <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    </head>
+    <body>
+        <div class="wrapper wp-json" id="pageContainer">
+            <div class="panel panel-default" style="margin-bottom: 0px;">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="x-error" v-bind:class="{'x-hlt' : errorHighlight}" v-html="errorMessage"></span>
+                        <a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank" class="x-a-high">
+                            <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：JSON比对工具
+                    </h3>
+                </div>
+            </div>
+
+            <div class="panel-body mod-json">
+                <div class="col-md-6 box-wrapper-left">
+                    <textarea class="form-control mod-textarea" id="jsonSourceLeft" ref="srcLeft" placeholder="在这里粘贴JSON代码"></textarea>
+                </div>
+                <div class="col-md-6 box-wrapper-right">
+                    <textarea class="form-control mod-textarea" id="jsonSourceRight" ref="srcRight" placeholder="在这里粘贴JSON代码"></textarea>
+                </div>
+            </div>
+
+        </div>
+        <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+        <script src="../static/vendor/codemirror/codemirror.js"></script>
+        <script src="../static/vendor/codemirror/javascript.js"></script>
+        <script src="../static/vendor/codemirror/active-line.js"></script>
+        <script src="../static/vendor/codemirror/matchbrackets.js"></script>
+        <script src="../static/vendor/codemirror/placeholder.js"></script>
+        <script src="../static/vendor/codemirror/formatting.js"></script>
+        <script src="../static/vendor/json-diff/backbone-events.min.js"></script>
+        <script src="../static/vendor/json-diff/json-patch-duplex.min.js"></script>
+        <script src="../static/vendor/json-diff/json-source-map.js"></script>
+        <script src="../static/vendor/json-diff/json-diff.js"></script>
+        <script src="./index.js"></script>
+    </body>
+</html>

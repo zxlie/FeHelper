@@ -82,27 +82,23 @@ ul.fe-function-list li:hover > b {
 }
 
 ul.fe-function-list li.-x-fcp b {
-    background-position: 0px -145px;
-}
-
-ul.fe-function-list li.-x-grid b {
-    background-position: -113px -113px;
+    background-position: 0 -143px;
 }
 
 ul.fe-function-list li.-x-regexp b {
-    background-position: -144px 0;
+    background-position: -144px 1px;
 }
 
 ul.fe-function-list li.-x-endecode b {
-    background-position: -113px -81px;
+    background-position: -113px -80px;
 }
 
 ul.fe-function-list li.-x-loadtime b {
-    background-position: -81px -113px;
+    background-position: -81px -111px;
 }
 
 ul.fe-function-list li.-x-jsonformat b {
-    background-position: -224px -113px;
+    background-position: -224px -111px;
 }
 
 ul.fe-function-list li.-x-qrcode b {
@@ -110,7 +106,7 @@ ul.fe-function-list li.-x-qrcode b {
 }
 
 ul.fe-function-list li.-x-codebeautify b {
-    background-position: -64px -145px;
+    background-position: -64px -144px;
 }
 
 ul.fe-function-list li.-x-tracker b {
@@ -118,15 +114,15 @@ ul.fe-function-list li.-x-tracker b {
 }
 
 ul.fe-function-list li.-x-timestamp b {
-    background-position: 0px -161px;
+    background-position: 0 -160px;
 }
 
 ul.fe-function-list li.-x-codecompress b {
-    background-position: -65px -81px;
+    background-position: -65px -80px;
 }
 
 ul.fe-function-list li.-x-base64 b {
-    background-position: -33px -209px;
+    background-position: -33px -208px;
 }
 
 ul.fe-function-list li.-x-colorpicker b {
@@ -134,7 +130,7 @@ ul.fe-function-list li.-x-colorpicker b {
 }
 
 ul.fe-function-list li.-x-ajax-debugger b {
-    background-position: -81px -129px;
+    background-position: -81px -127px;
 }
 
 ul.fe-function-list li.-x-markdown b {
@@ -148,6 +144,10 @@ ul.fe-function-list li.-x-pagecapture b {
 ul.fe-function-list li.-x-password b {
     background-position: -144px -95px;
 }
+ul.fe-function-list li.-x-jsondiff b {
+    background-position: -113px -111px;
+}
+
 
 ul.fe-function-list li i {
     color: #aaa;

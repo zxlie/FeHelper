@@ -556,18 +556,37 @@ var BgPageInstance = (function () {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 
             let tab = tabs[0];
-            let url = new URL(tab.url);
-            let ext = url.pathname.substring(url.pathname.lastIndexOf(".") + 1).toLowerCase();
-            let fileType = ({'js': 'Javascript', 'css': 'CSS'})[ext];
-            if (!fileType) {
-                return false;
-            }
 
-            Settings.getOptsFromBgPage(opts => {
-                opts.JS_CSS_PAGE_BEAUTIFY && chrome.tabs.sendMessage(tab.id, {
-                    type: MSG_TYPE.JS_CSS_PAGE_BEAUTIFY
-                });
+            chrome.tabs.executeScript(tab.id, {
+                code: '(' + (() => {
+
+                    let ext = location.pathname.substring(location.pathname.lastIndexOf(".") + 1).toLowerCase();
+                    let fileType = ({'js': 'javascript', 'css': 'css'})[ext];
+                    let contentType = document.contentType.toLowerCase();
+
+                    if (!fileType) {
+                        if (/\/javascript$/.test(contentType)) {
+                            fileType = 'javascript';
+                        } else if (/\/css$/.test(contentType)) {
+                            fileType = 'css';
+                        }
+                    } else if (contentType === 'text/html') {
+                        fileType = undefined;
+                    }
+
+                    return fileType;
+                }).toString() + ')()'
+            }, function (fileType) {
+                if (fileType[0] === 'javascript' || fileType[0] === 'css') {
+                    Settings.getOptsFromBgPage(opts => {
+                        opts.JS_CSS_PAGE_BEAUTIFY && chrome.tabs.sendMessage(tab.id, {
+                            type: MSG_TYPE.JS_CSS_PAGE_BEAUTIFY,
+                            content:fileType[0]
+                        });
+                    });
+                }
             });
+
         });
     };
 

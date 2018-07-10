@@ -14,6 +14,7 @@ module.exports = (() => {
         'CODE_BEAUTIFY',
         'CODE_COMPRESS',
         'JSON_FORMAT',
+        'JSON_COMPARE',
         'QR_CODE',
         'COLOR_PICKER',
         'REGEXP_TOOL',

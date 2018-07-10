@@ -130,3 +130,6 @@ body.processing > :not(#fehelper_tips) {
     pointer-events: none;
     cursor: wait;
 }
+pre>code[class*="language"] {
+    overflow: initial;
+}

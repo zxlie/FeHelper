@@ -24,8 +24,9 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 ![安装教程](/apps/static/screenshot/how-to-install.gif)
 
 ## 三、扩展功能：
-- Json自动美化（页面自动检测并格式化）
-- Json手动美化（粘贴文本、手动格式化）
+- JSON自动美化（页面自动检测并格式化）
+- JSON手动美化（粘贴文本、手动格式化）
+- JSON比对工具（支持左右两个JSON片段进行键值对比较）
 - 字符串编解码（Unicode/UTF8/Base64/MD5）
 - 代码美化工具（HTML/CSS/JS/XML/SQL）
 - 代码压缩工具（HTML/CSS/JS）
