@@ -159,24 +159,34 @@ var BgPageInstance = (function () {
      */
     let _openFileAndRun = function (tab, file, txt) {
         chrome.tabs.query({windowId: chrome.windows.WINDOW_ID_CURRENT}, function (tabs) {
-            let isOpened = false;
-            let tabId;
-            let reg = new RegExp("^chrome.*/" + file + "/index.html$", "i");
-            for (let i = 0, len = tabs.length; i < len; i++) {
-                if (reg.test(tabs[i].url)) {
-                    isOpened = true;
-                    tabId = tabs[i].id;
-                    break;
+
+            Settings.getOptsFromBgPage((opts) => {
+                let isOpened = false;
+                let tabId;
+
+                // 允许在新窗口打开
+                if (opts['FORBID_OPEN_IN_NEW_TAB']) {
+                    let reg = new RegExp("^chrome.*/" + file + "/index.html$", "i");
+                    for (let i = 0, len = tabs.length; i < len; i++) {
+                        if (reg.test(tabs[i].url)) {
+                            isOpened = true;
+                            tabId = tabs[i].id;
+                            break;
+                        }
+                    }
                 }
-            }
-            if (!isOpened) {
-                chrome.tabs.create({
-                    url: '' + file + '/index.html',
-                    active: true
-                }, _tabUpdatedCallback(file, txt));
-            } else {
-                chrome.tabs.update(tabId, {highlighted: true}, _tabUpdatedCallback(file, txt));
-            }
+
+                if (!isOpened) {
+                    chrome.tabs.create({
+                        url: '' + file + '/index.html',
+                        active: true
+                    }, _tabUpdatedCallback(file, txt));
+                } else {
+                    chrome.tabs.update(tabId, {highlighted: true}, _tabUpdatedCallback(file, txt));
+                }
+
+            });
+
         });
     };
 
@@ -581,7 +591,7 @@ var BgPageInstance = (function () {
                     Settings.getOptsFromBgPage(opts => {
                         opts.JS_CSS_PAGE_BEAUTIFY && chrome.tabs.sendMessage(tab.id, {
                             type: MSG_TYPE.JS_CSS_PAGE_BEAUTIFY,
-                            content:fileType[0]
+                            content: fileType[0]
                         });
                     });
                 }

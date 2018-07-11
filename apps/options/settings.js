@@ -26,7 +26,8 @@ module.exports = (() => {
         'JS_CSS_PAGE_BEAUTIFY',
         'HTML_TO_MARKDOWN',
         'PAGE_CAPTURE',
-        'RANDOM_PASSWORD'
+        'RANDOM_PASSWORD',
+        'FORBID_OPEN_IN_NEW_TAB'
     ];
 
     /**

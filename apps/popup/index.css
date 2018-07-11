@@ -158,7 +158,7 @@ ul.fe-function-list li i {
 .fe-feedback {
     font-size: 12px;
     border-top: 1px dotted #ddd;
-    padding: 5px 10px 5px 10px;
+    padding: 5px 15px 5px 15px;
     line-height: 20px;
     color: #888;
 }
@@ -170,7 +170,7 @@ ul.fe-function-list li i {
 }
 
 .fe-feedback a:hover {
-    color: #a00;
+    color: #c00;
 }
 
 svg:not(:root) {
@@ -184,7 +184,12 @@ svg:not(:root) {
 }
 
 .fe-feedback img {
-    opacity: 0.7;
+    opacity: 0.6;
+    position: relative;
+    top: 1px;
+}
+.fe-feedback a:hover img {
+    opacity: 1.0;
 }
 
 .fe-feedback .x-settings {
@@ -193,6 +198,6 @@ svg:not(:root) {
 }
 
 .fe-feedback .x-settings:hover {
-    color: #a00;
+    color: #c00;
 }
 

@@ -24,6 +24,12 @@ body {
 .wp-json .panel-body {
     padding:15px 0;
 }
+.wp-json .CodeMirror {
+    height: auto;
+}
+.wp-json .CodeMirror-scroll {
+    min-height: 550px;
+}
 
 .box-wrapper-left {
     height: 100%;
