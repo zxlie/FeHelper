@@ -10,6 +10,7 @@ let JsonFormatEntrance = (function () {
         jfPre,
         jfStyleEl,
         jfOptEl,
+        jfPathEl,
         formattingMsg;
 
     let lastKvovIdGiven = 0;
@@ -46,6 +47,7 @@ let JsonFormatEntrance = (function () {
             jfContent.html('').show();
             jfPre.html('').hide();
             jfOptEl.hide();
+            jfPathEl.hide();
             formattingMsg.hide();
         } catch (e) {
         }
@@ -242,6 +244,7 @@ let JsonFormatEntrance = (function () {
             alert('节点已删除成功！');
             el.remove();
             jfOptEl.css('top', -1000).hide();
+            jfPathEl.hide();
         };
 
         jfOptEl.find('a.opt-download').unbind('click').bind('click', fnDownload);
@@ -316,6 +319,7 @@ let JsonFormatEntrance = (function () {
             optionBar.find('button').removeClass('selected');
             buttonFormatted.addClass('selected');
             jfOptEl.hide();
+            jfPathEl.hide();
         });
 
         buttonCollapseAll.bind('click', function (e) {
@@ -337,8 +341,41 @@ let JsonFormatEntrance = (function () {
                 buttonCollapseAll.addClass('selected');
             }
             jfOptEl.hide();
+            jfPathEl.hide();
         });
 
+    };
+
+    // 显示当前节点的Key
+    let _showJsonKey = function (curEl) {
+        let keys = [];
+        do {
+            if (curEl.hasClass('arrElem')) {
+                if (!curEl.hasClass('rootKvov')) {
+                    keys.unshift('[' + curEl.prevAll('.kvov').length + ']');
+                }
+            } else {
+                keys.unshift(curEl.find('>.k').text());
+            }
+
+            curEl = curEl.parent().parent();
+
+        } while (!curEl.hasClass('rootKvov'));
+
+        let path = keys.join('#@#').replace(/#@#\[/g, '[').replace(/#@#/g, '.');
+        if (!jfPathEl) {
+            jfPathEl = $('<div/>').css({
+                position: 'fixed',
+                bottom: 0,
+                left: 0,
+                background: 'rgb(0, 0, 0,0.6)',
+                color: '#ff0',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                padding: '2px 10px 2px 2px'
+            }).appendTo('body');
+        }
+        jfPathEl.html('当前路径：' + path).show();
     };
 
     // 附加操作
@@ -361,6 +398,7 @@ let JsonFormatEntrance = (function () {
 
             if ($(this).hasClass('x-outline')) {
                 jfOptEl.hide();
+                jfPathEl.hide();
                 $(this).removeClass('x-outline');
                 e.stopPropagation();
                 return true;
@@ -371,6 +409,8 @@ let JsonFormatEntrance = (function () {
 
             // 增加复制、删除功能
             _addOptForItem(el);
+            // 显示key
+            _showJsonKey(el);
 
             if (!$(e.target).is('.kvov .e')) {
                 e.stopPropagation();

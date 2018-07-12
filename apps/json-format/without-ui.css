@@ -20,6 +20,9 @@
 #formattedJson{padding-left:28px;padding-top:6px}pre{padding:36px 5px 5px 5px}
 .kvov{display:block;padding-left:20px;margin-left:-20px;position:relative;padding-top: 2px;}
 
+#jfContent {
+    margin-bottom: 25px;
+}
 #jfContent .kvov .s a {
     color:#00b;text-decoration: underline;
 }
