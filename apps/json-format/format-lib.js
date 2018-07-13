@@ -358,9 +358,13 @@ let JsonFormatEntrance = (function () {
                 keys.unshift(curEl.find('>.k').text());
             }
 
+            if(curEl.parent().hasClass('rootKvov') || curEl.parent().parent().hasClass('rootKvov')) {
+                break;
+            }
+
             curEl = curEl.parent().parent();
 
-        } while (!curEl.hasClass('rootKvov'));
+        } while (curEl.length && !curEl.hasClass('rootKvov'));
 
         let path = keys.join('#@#').replace(/#@#\[/g, '[').replace(/#@#/g, '.');
         if (!jfPathEl) {
