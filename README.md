@@ -2,14 +2,14 @@ Web前端助手（FeHelper）- Chrome Extension
 =============================
 
 ## 一、官网地址
-http://www.baidufe.com/fehelper
+https://www.baidufe.com/fehelper
 
 ![Web前端助手-FeHelper](/apps/static/screenshot/menu.png)
 
 ## 二、扩展安装地址：
 
 ### 1、官方安装地址
-http://www.baidufe.com/fehelper/install.html
+https://www.baidufe.com/fehelper/install.html
 
 ### 2、Chrome web store地址
 https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh-cn
@@ -44,7 +44,7 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 - Ajax调试功能（需在控制台中使用）
 
 ### 四、用户反馈渠道
-http://www.baidufe.com/fehelper/feedback.html
+https://www.baidufe.com/fehelper/feedback.html
 
 ### 五、作者
 - Mail：xianliezhao@foxmail.com
