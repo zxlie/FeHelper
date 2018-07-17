@@ -554,7 +554,8 @@ var BgPageInstance = (function () {
         Settings.getOptsFromBgPage(opts => {
             opts.JSON_PAGE_FORMAT && chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                 chrome.tabs.sendMessage(tabs[0].id, {
-                    type: MSG_TYPE.JSON_PAGE_FORMAT
+                    type: MSG_TYPE.JSON_PAGE_FORMAT,
+                    options: {MAX_JSON_KEYS_NUMBER: opts.MAX_JSON_KEYS_NUMBER}
                 });
             });
         });
@@ -617,7 +618,7 @@ var BgPageInstance = (function () {
                 //管理右键菜单
                 _createOrRemoveContextMenu();
                 notifyText({
-                    message: '恭喜，FeHelper配置修改成功!',
+                    message: '配置已生效，请继续使用!',
                     autoClose: 2000
                 });
             }

@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
     switch (request.type) {
         // JSON页面自动格式化
         case MSG_TYPE.JSON_PAGE_FORMAT:
-            Tarp.require('../json-format/automatic').format();
+            Tarp.require('../json-format/automatic').format(request.options);
             break;
 
         // js、css页面自动检测，提示格式化

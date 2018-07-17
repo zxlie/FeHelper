@@ -28,6 +28,30 @@ module.exports = (() => {
     };
 
     /**
+     * 自动消失的Alert弹窗
+     * @param content
+     */
+    window.alert = function (content) {
+        window.clearTimeout(window.feHelperAlertMsgTid);
+        let elAlertMsg = document.querySelector("#fehelper_alertmsg");
+        if (!elAlertMsg) {
+            let elWrapper = document.createElement('div');
+            elWrapper.innerHTML = '<div id="fehelper_alertmsg" style="position:fixed;top:5px;right:5px;z-index:1000000">' +
+                '<p style="background:#000;display:inline-block;color:#fff;text-align:center;' +
+                'padding:10px 10px;margin:0 auto;font-size:14px;border-radius:4px;">' + content + '</p></div>';
+            elAlertMsg = elWrapper.childNodes[0];
+            document.body.appendChild(elAlertMsg);
+        } else {
+            elAlertMsg.querySelector('p').innerHTML = content;
+            elAlertMsg.style.display = 'block';
+        }
+
+        window.feHelperAlertMsgTid = window.setTimeout(function () {
+            elAlertMsg.style.display = 'none';
+        }, 3000);
+    };
+
+    /**
      * 从页面提取JSON文本
      * @returns {string}
      * @private
@@ -92,10 +116,33 @@ module.exports = (() => {
     };
 
     /**
+     * 获取一个JSON的所有Key数量
+     * @param json
+     * @returns {number}
+     * @private
+     */
+    let _getAllKeysCount = function (json) {
+        let count = 0;
+
+        if (typeof json === 'object') {
+            let keys = Object.keys(json);
+            count += keys.length;
+
+            keys.forEach(key => {
+                if (json[key] && typeof json[key] === 'object') {
+                    count += _getAllKeysCount(json[key]);
+                }
+            });
+        }
+
+        return count;
+    };
+
+    /**
      * 执行format操作
      * @private
      */
-    let _format = function () {
+    let _format = function (options) {
 
         let source = _getJsonText();
         if (!source) {
@@ -176,6 +223,15 @@ module.exports = (() => {
             } catch (ex) {
                 // 通过JSON反解不出来的，一定有问题
                 return;
+            }
+
+            // JSON的所有key不能超过预设的值，比如 10000 个，要不然自动格式化会比较卡
+            if (options && options['MAX_JSON_KEYS_NUMBER']) {
+                let keysCount = _getAllKeysCount(jsonObj);
+                if (keysCount > options['MAX_JSON_KEYS_NUMBER']) {
+                    let msg = '当前JSON共 <b style="color:red">' + keysCount + '</b> 个Key，大于预设值' + options['MAX_JSON_KEYS_NUMBER'] + '，已取消自动格式化；可到FeHelper设置页调整此配置！';
+                    return alert(msg);
+                }
             }
 
             _loadCss();

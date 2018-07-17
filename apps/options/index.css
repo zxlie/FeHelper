@@ -42,3 +42,13 @@ h5,h4 {
     padding-bottom: 5px;
     width: 60%;
 }
+
+#MAX_JSON_KEYS_NUMBER {
+    width: 80px;
+    height: auto;
+    display: inline-block;
+    padding: 4px 10px;
+}
+.box-inner.x-disabled {
+    opacity: 0.2;
+}
