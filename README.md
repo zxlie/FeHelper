@@ -17,6 +17,7 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 ### 3、crx文件下载=>本地安装
 - 官网下载：https://www.baidufe.com/fehelper
 - 翻墙下载：https://chrome-extension-downloader.com/?extension=pkgccpejnmalmdinmhkkfafefagiiiad
+- 本站下载：![点击进入下载页](/apps/static/screenshot/crx)
 
 ### 4、安装教程
 > 参考： https://www.baidufe.com/item/d1b710c290b38bda6b44.html
