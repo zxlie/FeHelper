@@ -50,4 +50,4 @@ https://www.baidufe.com/fehelper/feedback.html
 ### 五、作者
 - Mail：xianliezhao@foxmail.com
 - Wechat：398824681
-![微信](https://static.baidufe.com/blog/static/img/wx-private-qrcode.png?v=175e2ee6fb)
+![微信](/apps/static/screenshot/wx-private-qrcode.png)
