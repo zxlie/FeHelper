@@ -49,5 +49,5 @@ https://www.baidufe.com/fehelper/feedback.html
 
 ### 五、作者
 - Mail：xianliezhao@foxmail.com
-- Wechat：398824681
+- Wechat：398824681 <br>
 ![微信](/apps/static/screenshot/wx-private-qrcode.png)

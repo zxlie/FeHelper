@@ -10,5 +10,5 @@ Web前端助手（FeHelper）- crx文件安装方法
 
 ### 实在不会？
 - Mail：xianliezhao@foxmail.com
-- Wechat：398824681
+- Wechat：398824681 <br>
 ![微信](/apps/static/screenshot/wx-private-qrcode.png)
