@@ -45,7 +45,9 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 - Ajax调试功能（需在控制台中使用）
 
 ### 四、用户反馈渠道
-https://www.baidufe.com/fehelper/feedback.html
+- https://www.baidufe.com/fehelper/feedback.html
+- 扫码进群 <br>
+![FeHelper微信群](/apps/static/screenshot/wx-qrcode-fehelper-group.png)
 
 ### 五、作者
 - Mail：xianliezhao@foxmail.com
