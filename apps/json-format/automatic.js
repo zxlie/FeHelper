@@ -97,7 +97,7 @@ module.exports = (() => {
      * @param {Object} text
      */
     let _uniDecode = function (text) {
-        text = text.replace(/\\/g, "%").replace('%U', '%u').replace('%u0025', '%25');
+        text = text.replace(/(\\)?\\u/gi, "%u").replace('%u0025', '%25');
 
         text = unescape(text.toString().replace(/%2B/g, "+"));
         let matches = text.match(/(%u00([0-9A-F]{2}))/gi);
@@ -148,6 +148,8 @@ module.exports = (() => {
         if (!source) {
             return;
         }
+
+        source = _uniDecode(source);
 
         // JSONP形式下的callback name
         let funcName = null;
@@ -209,17 +211,7 @@ module.exports = (() => {
         if (jsonObj != null && typeof jsonObj === "object") {
             try {
                 // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
-                let jsonStr = JSON.stringify(jsonObj);
-                // 如果newSource的长度比原source长度短很多的话，猜测应该是格式化错了，需要撤销操作
-                // 这里一定要unicode decode一下，要不然会出现误判
-                let len1 = jsonStr.replace(/'|"|\s/g, '').length;
-                let len2 = (_uniDecode(source)).replace(/'|"|\s/g, '').length;
-                // 误差不允许超过20%
-                if (Math.abs(len1 - len2) / ((len1 + len2) / 2) > 0.2) {
-                    return;
-                }
-
-                source = jsonStr;
+                source = JSON.stringify(jsonObj);
             } catch (ex) {
                 // 通过JSON反解不出来的，一定有问题
                 return;

@@ -46,8 +46,8 @@ let JsonFormatEntrance = (function () {
         try {
             jfContent.html('').show();
             jfPre.html('').hide();
-            jfOptEl.hide();
-            jfPathEl.hide();
+            jfOptEl && jfOptEl.hide();
+            jfPathEl && jfPathEl.hide();
             formattingMsg.hide();
         } catch (e) {
         }
@@ -244,7 +244,7 @@ let JsonFormatEntrance = (function () {
             alert('节点已删除成功！');
             el.remove();
             jfOptEl.css('top', -1000).hide();
-            jfPathEl.hide();
+            jfPathEl && jfPathEl.hide();
         };
 
         jfOptEl.find('a.opt-download').unbind('click').bind('click', fnDownload);
@@ -299,7 +299,7 @@ let JsonFormatEntrance = (function () {
         }
         optionBar = $('<div id="optionBar" />').appendTo(jfContent.parent());
 
-        let buttonFormatted = $('<button id="buttonFormatted" class="selected">元数据</button>').appendTo(optionBar);
+        let buttonFormatted = $('<button id="buttonFormatted">元数据</button>').appendTo(optionBar);
         let buttonCollapseAll = $('<button id="buttonCollapseAll">折叠所有</button>').appendTo(optionBar);
         let plainOn = false;
 
@@ -316,10 +316,8 @@ let JsonFormatEntrance = (function () {
                 buttonFormatted.text('格式化');
             }
 
-            optionBar.find('button').removeClass('selected');
-            buttonFormatted.addClass('selected');
-            jfOptEl.hide();
-            jfPathEl.hide();
+            jfOptEl && jfOptEl.hide();
+            jfPathEl && jfPathEl.hide();
         });
 
         buttonCollapseAll.bind('click', function (e) {
@@ -328,20 +326,15 @@ let JsonFormatEntrance = (function () {
                 buttonFormatted.trigger('click');
             }
 
-            if (!plainOn) {
-                if (buttonCollapseAll.text() === '折叠所有') {
-                    buttonCollapseAll.text('展开所有');
-                    collapse($('.objProp'));
-                } else {
-                    buttonCollapseAll.text('折叠所有');
-                    $('.objProp').removeClass('collapsed');
-                }
-
-                optionBar.find('button').removeClass('selected');
-                buttonCollapseAll.addClass('selected');
+            if (buttonCollapseAll.text() === '折叠所有') {
+                buttonCollapseAll.text('展开所有');
+                collapse($('.objProp,.arrElem'));
+            } else {
+                buttonCollapseAll.text('折叠所有');
+                $('.objProp,.arrElem').removeClass('collapsed');
             }
-            jfOptEl.hide();
-            jfPathEl.hide();
+            jfOptEl && jfOptEl.hide();
+            jfPathEl && jfPathEl.hide();
         });
 
     };
@@ -401,8 +394,8 @@ let JsonFormatEntrance = (function () {
         $('#jfContent .kvov').bind('click', function (e) {
 
             if ($(this).hasClass('x-outline')) {
-                jfOptEl.hide();
-                jfPathEl.hide();
+                jfOptEl && jfOptEl.hide();
+                jfPathEl && jfPathEl.hide();
                 $(this).removeClass('x-outline');
                 e.stopPropagation();
                 return true;
