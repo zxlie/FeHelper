@@ -236,6 +236,9 @@ new Vue({
          * @param {Object} text
          */
         _uniDecode : function (text) {
+            try{
+                text = decodeURIComponent(text);
+            }catch(e){}
             text = text.replace(/(\\)?\\u/gi, "%u").replace('%u0025', '%25');
 
             text = unescape(text.toString().replace(/%2B/g, "+"));
