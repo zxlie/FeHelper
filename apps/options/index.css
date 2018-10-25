@@ -52,3 +52,6 @@ h5,h4 {
 .box-inner.x-disabled {
     opacity: 0.2;
 }
+.row-line {
+    line-height: 24px;
+}

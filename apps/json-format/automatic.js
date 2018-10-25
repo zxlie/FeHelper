@@ -152,7 +152,9 @@ module.exports = (() => {
             return;
         }
 
-        source = _uniDecode(source);
+        if (options && options['AUTO_TEXT_DECODE']) {
+            source = _uniDecode(source);
+        }
 
         // JSONP形式下的callback name
         let funcName = null;
