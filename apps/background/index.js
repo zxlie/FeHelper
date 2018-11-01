@@ -280,6 +280,15 @@ var BgPageInstance = (function () {
             contexts: ['page', 'selection', 'editable', 'link', 'image'],
             documentUrlPatterns: ['http://*/*', 'https://*/*', 'file://*/*']
         });
+
+        // 网页编码设置的menu
+        PageEncoding.createMenu(feHelper.contextMenuId);
+
+        chrome.contextMenus.create({
+            type: 'separator',
+            contexts: ['all'],
+            parentId: feHelper.contextMenuId
+        });
         chrome.contextMenus.create({
             title: "▣  二维码生成",
             contexts: ['page', 'selection', 'editable', 'link', 'image'],
@@ -695,7 +704,6 @@ var BgPageInstance = (function () {
                 _detectReadyState('html', callback);
             }
             // ===========================以上为编码规范检测====end==================================
-
 
             return true;
         });
