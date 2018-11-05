@@ -55,3 +55,7 @@ h5,h4 {
 .row-line {
     line-height: 24px;
 }
+.box-preview {
+    position: relative;
+    top:-145px;
+}

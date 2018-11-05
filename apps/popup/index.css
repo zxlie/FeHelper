@@ -38,7 +38,7 @@ ul.fe-function-list li {
     padding: 3px 5px 3px 5px;
     cursor: pointer;
     color: #555;
-    -webkit-transition: all .4s ease;
+    /*-webkit-transition: all .4s ease;*/
     text-align: justify;
     display: block;
     height: 20px;
@@ -72,13 +72,13 @@ ul.fe-function-list li > b {
     width: 14px;
     height: 14px;
     background: url(../popup/ui-icons.png) no-repeat;
-    -webkit-transition: all .5s ease;
+    /*-webkit-transition: all .5s ease;*/
     display: inline-block;
     margin-right: 5px;
 }
 
 ul.fe-function-list li:hover > b {
-    -webkit-transform: rotate(360deg);
+    /*-webkit-transform: rotate(360deg);*/
 }
 
 ul.fe-function-list li.-x-fcp b {
@@ -146,6 +146,9 @@ ul.fe-function-list li.-x-password b {
 }
 ul.fe-function-list li.-x-jsondiff b {
     background-position: -113px -111px;
+}
+ul.fe-function-list li.-x-sticky-notes b {
+    background-position: -65px -96px;
 }
 
 

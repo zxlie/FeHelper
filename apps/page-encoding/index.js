@@ -13,10 +13,10 @@ let PageEncoding = (() => {
     let EncodingList = [
         ['default', '默认'],
         ['UTF-8', 'Unicode'],
-        ['GBK', '中文（简体全）'],
-        ['GB3212', '中文（简体）'],
-        ['GB18030', '中文（简体）'],
-        ['Big5', '中文（繁体）'],
+        ['GBK', '简体中文'],
+        ['GB3212', '简体中文'],
+        ['GB18030', '简体中文'],
+        ['Big5', '繁体中文'],
         ['UTF-16LE', 'Unicode'],
         ['EUC-KR', '韩文'],
         ['Shift_JIS', '日文'],
@@ -164,15 +164,6 @@ let PageEncoding = (() => {
         chrome.tabs.onActivated.addListener((activeInfo) => {
             if (Object.keys(menuMap).length) {
                 updateMenu(activeInfo.tabId);
-            }
-        });
-        chrome.windows.onFocusChanged.addListener(() => {
-            if (Object.keys(menuMap).length) {
-                chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                    if (tabs.length) {
-                        updateMenu(tabs[0].id);
-                    }
-                });
             }
         });
     };

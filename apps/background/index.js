@@ -428,6 +428,20 @@ var BgPageInstance = (function () {
                 PageCapture.full(tab);
             }
         });
+
+        chrome.contextMenus.create({
+            type: 'separator',
+            contexts: ['all'],
+            parentId: feHelper.contextMenuId
+        });
+        chrome.contextMenus.create({
+            title: "▤  我的便签笔记",
+            contexts: ['all'],
+            parentId: feHelper.contextMenuId,
+            onclick: function (info, tab) {
+                _openFileAndRun(tab, MSG_TYPE.STICKY_NOTES);
+            }
+        });
     };
 
     /**

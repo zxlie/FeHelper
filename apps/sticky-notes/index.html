@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8"/>
+        <title>我的便签笔记</title>
+        <link rel="stylesheet" href="index.css"/>
+    </head>
+
+    <body>
+
+        <div class="wrapper wp-notes" id="pageContainer">
+            <div class="panel panel-default" style="margin-bottom: 0px;">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank" class="x-a-high">
+                            <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：我的便签笔记
+
+                        <span class="x-toolbox">
+                            <a href="#" id="addnote" class="x-tooltip blue-tooltip">新建</a><span class="x-line">|</span>
+                            <a href="#" id="collapse" class="x-tooltip blue-tooltip">折叠模式</a><span class="x-line">|</span>
+                            <a href="#" id="expand" class="x-tooltip blue-tooltip">预览模式</a><span class="x-line">|</span>
+                            <a href="#" id="removenotes" class="x-tooltip blue-tooltip">全部删除</a><span class="x-line">|</span>
+                            <a href="#" id="export" class="x-tooltip blue-tooltip">全部导出</a>
+                        </span>
+
+                    </h3>
+                </div>
+
+                <div id="main"></div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+
+        <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+        <script src="../sticky-notes/date-utils.js"></script>
+        <script src="../sticky-notes/html5sticky.js"></script>
+        <script src="index.js"></script>
+        <script src="../static/vendor/jszip/jszip.js"></script>
+    </body>
+</html>

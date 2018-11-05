@@ -93,6 +93,9 @@ const MSG_TYPE = {
     PAGE_CAPTURE_SCROLL:"page_capture_scroll",
     PAGE_CAPTURE_CAPTURE:"page_capture_capture",
 
+    // 便签几笔
+    STICKY_NOTES: 'sticky-notes',
+
     // dev tools页面
     DEV_TOOLS: 'dev-tools',
 

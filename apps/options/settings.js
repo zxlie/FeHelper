@@ -32,7 +32,8 @@ module.exports = (() => {
         'RANDOM_PASSWORD',
         'FORBID_OPEN_IN_NEW_TAB',
         'MAX_JSON_KEYS_NUMBER',
-        'AUTO_TEXT_DECODE'
+        'AUTO_TEXT_DECODE',
+        'STICKY_NOTES'
     ];
 
     /**
