@@ -41,7 +41,7 @@ body {
 }
 #jsonSource,.CodeMirror {
     height: calc(100% - 50px);
-    font-size: 10px;
+    /*font-size: 10px;*/
 }
 #errorMsg {
     color: #f00;

@@ -7,7 +7,7 @@ new Vue({
     data: {
         ajaxDebugger: '已开',
         canMeShow: {},
-        manifest:{}
+        manifest: {}
     },
 
     created: function () {

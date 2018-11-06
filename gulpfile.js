@@ -118,6 +118,16 @@ gulp.task('zip', () => {
         } else if (file.match(/\.js$/) && !/index\.js$/.test(file)) {
             included = shell.grep('-l', file.replace(/\.js$/, ''), './**/*.{html,js}').stdout;
         }
+
+        // 如果没有搜索到，再尝试下在js、css文件的当前目录下搜寻
+        if(!included.trim().length && /\.(js|css)$/.test(file)) {
+            let arr = file.split(/\//);
+            let filename = arr.splice(-1);
+            let dirname = arr.join('/');
+
+            included = shell.grep('-l', filename, (dirname || '.') +  '/*.{html,js,css}').stdout;
+        }
+
         return !included.trim().length;
     });
     fileList = fileList.filter(f => excludes.indexOf(f) === -1);
