@@ -84,6 +84,20 @@ let JsonFormatEntrance = (function () {
         }
     };
 
+    /**
+     * HTML特殊字符格式化
+     * @param str
+     * @returns {*}
+     */
+    let htmlspecialchars = function(str){
+        str = str.replace(/&/g, '&amp;');
+        str = str.replace(/</g, '&lt;');
+        str = str.replace(/>/g, '&gt;');
+        str = str.replace(/"/g, '&quot;');
+        str = str.replace(/'/g, '&#039;');
+        return str;
+    };
+
 
     /**
      * 执行代码格式化
@@ -94,7 +108,7 @@ let JsonFormatEntrance = (function () {
         cachedJsonString = JSON.stringify(JSON.parse(jsonStr), null, 4);
 
         _initElements();
-        jfPre.html(cachedJsonString);
+        jfPre.html(htmlspecialchars(cachedJsonString));
 
         JsonFormatDealer.postMessage({
             type: "SENDING TEXT",
