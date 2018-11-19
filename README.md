@@ -46,12 +46,17 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 - 网页编码设置（UTF-8、GBK、日文、韩文等）
 - 我的便签笔记（便签笔记，支持导出）
 
-### 四、用户反馈渠道
+### 四、使用方法
+- iCON点击后的Popup窗口模式
+- 页面右键菜单模式
+![FeHelper右键菜单使用说明](/apps/static/screenshot/fehelper-context-menu.gif)
+
+### 五、用户反馈渠道
 - https://www.baidufe.com/fehelper/feedback.html
 - 扫码进群 <br>
 ![FeHelper微信群](/apps/static/screenshot/wx-qrcode-fehelper-group.png)
 
-### 五、作者
+### 六、作者
 - Mail：xianliezhao@foxmail.com
 - Wechat：398824681 <br>
 ![微信](/apps/static/screenshot/wx-private-qrcode.png)
