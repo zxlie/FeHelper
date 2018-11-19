@@ -240,7 +240,7 @@ html5sticky.getNotes = function () {
 
         // set width and height of the sticky note
         $('.note_common').css({width: stickywidth + 'px', height: stickyheight + 'px'});
-        $('.note_common p').css({height: (stickyheight - 60) + 'px', width: (stickywidth + 9) + 'px'});
+        $('.note_common p').css({height: (stickyheight - 60) + 'px', width: (stickywidth - 24) + 'px'});
 
     });
 };

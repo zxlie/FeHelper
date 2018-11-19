@@ -36,12 +36,99 @@ module.exports = (() => {
         'STICKY_NOTES'
     ];
 
+    // 邮件菜单配置项
+    let menuOptions = {
+        MENU_PAGE_ENCODING: {
+            icon: '↺',
+            text: '网页编码设置'
+        },
+        MENU_QRCODE_CREATE: {
+            icon: '▣',
+            text: '二维码生成器',
+            contexts: ['page', 'selection', 'editable', 'link', 'image']
+        },
+        MENU_QRCODE_DECODE: {
+            icon: '◈',
+            text: '二维码解码器',
+            contexts: ['image']
+        },
+        MENU_PAGE_CAPTURE: {
+            icon: '✂',
+            text: '页面滚动截屏'
+        },
+        MENU_COLOR_PICKER: {
+            icon: '☀',
+            text: '页面取色工具',
+            contexts: ['page', 'selection', 'editable']
+        },
+        MENU_IMAGE_BASE64: {
+            icon: '⇄',
+            text: '图片与base64',
+            contexts: ['image']
+        },
+        MENU_STR_ENDECODE: {
+            icon: '♨',
+            text: '字符串编解码',
+            contexts: ['page', 'selection', 'editable']
+        },
+        MENU_JSON_FORMAT: {
+            icon: '★',
+            text: 'JSON格式化',
+            contexts: ['page', 'selection', 'editable']
+        },
+        MENU_JSON_COMPARE: {
+            icon: '☃',
+            text: 'JSON比对器'
+        },
+        MENU_CODE_FORMAT: {
+            icon: '☂',
+            text: '代码美化工具',
+            contexts: ['page', 'selection', 'editable']
+        },
+        MENU_CODE_COMPRESS: {
+            icon: '〓',
+            text: '代码压缩工具'
+        },
+        MENU_AJAX_DEBUGGER: {
+            icon: '▶',
+            text: 'Ajax调试功能'
+        },
+        MENU_PAGE_OPTIMI: {
+            icon: '√',
+            text: '页面性能检测'
+        },
+        MENU_TIME_STAMP: {
+            icon: '♖',
+            text: '时间(戳)转换'
+        },
+        MENU_RANDOM_PASS: {
+            icon: '☽',
+            text: '随机密码生成'
+        },
+        MENU_JS_REGEXP: {
+            icon: '✙',
+            text: 'JS正则表达式'
+        },
+        MENU_MARKDOWN_TL: {
+            icon: 'ⓜ',
+            text: 'markown工具'
+        },
+        MENU_CODE_STANDARD: {
+            icon: '☊',
+            text: '编码规范检测'
+        },
+        MENU_STICKY_NOTE: {
+            icon: '▤',
+            text: '我的便签笔记'
+        }
+    };
+
     /**
      * 获取全部配置项
      * @returns {string[]}
      * @private
      */
-    let _getAllOpts = () => optionItems;
+    let _getAllOpts = () => optionItems.concat(Object.keys(menuOptions));
 
 
     /**
@@ -72,7 +159,7 @@ module.exports = (() => {
     let _getOptsFromBgPage = function (callback) {
         if (callback && typeof callback === 'function') {
             let rst = {};
-            optionItems.forEach((item) => {
+            _getAllOpts().forEach((item) => {
                 let opt = localStorage.getItem(item);
                 if (item === 'MAX_JSON_KEYS_NUMBER') {
                     rst[item] = opt || maxJsonKeysNumber;
@@ -92,7 +179,7 @@ module.exports = (() => {
      */
     let _setOptsFromBgPage = function (items) {
 
-        optionItems.forEach((opt) => {
+        _getAllOpts().forEach((opt) => {
             let found = items.some(it => {
                 if (typeof(it) === 'string' && it === opt) {
                     localStorage.setItem(opt, 'true');
@@ -110,11 +197,66 @@ module.exports = (() => {
         });
     };
 
+    /**
+     * 获取菜单配置项
+     */
+    let _getMenuOpts = function () {
+        return menuOptions;
+    };
+
+    /**
+     * 询问一下，菜单是否已保存
+     * @param callback
+     * @private
+     */
+    let _askMenuSavedOrNot = function (callback) {
+        chrome.runtime.sendMessage({
+            type: MSG_TYPE.MENU_SAVED
+        }, callback);
+    };
+
+    /**
+     * 判断menu是否已经设置过了，判断方法是：
+     * 随便挑选一个Menu项，看它是否在localStorage中被存储过了
+     * @private
+     */
+    let _didMenuSettingSaved = function (callback) {
+        let flag = !!localStorage.getItem('MENU_PAGE_ENCODING');
+        if (callback && typeof callback === 'function') {
+            callback(flag);
+        } else {
+            return flag;
+        }
+    };
+
+    /**
+     * 默认的菜单列表
+     * @returns {string[]}
+     * @private
+     */
+    let _getDefaultContextMenus = function () {
+        return [
+            'MENU_PAGE_ENCODING',
+            'MENU_QRCODE_CREATE',
+            'MENU_QRCODE_DECODE',
+            'MENU_PAGE_CAPTURE',
+            'MENU_COLOR_PICKER',
+            'MENU_IMAGE_BASE64',
+            'MENU_STR_ENDECODE',
+            'MENU_JSON_FORMAT',
+            'MENU_CODE_FORMAT'
+        ];
+    };
+
     return {
         getAllOpts: _getAllOpts,
         setOptsFromBgPage: _setOptsFromBgPage,
         getOptsFromBgPage: _getOptsFromBgPage,
         getOptions: _getOptions,
-        setOptions: _setOptions
+        setOptions: _setOptions,
+        getMenuOpts: _getMenuOpts,
+        didMenuSettingSaved: _didMenuSettingSaved,
+        getDefaultContextMenus: _getDefaultContextMenus,
+        askMenuSavedOrNot: _askMenuSavedOrNot
     };
 })();

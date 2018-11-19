@@ -35,6 +35,8 @@ const MSG_TYPE = {
     GET_OPTIONS: 'get_options',
     //set options
     SET_OPTIONS: 'set_options',
+    // MENU SAVED
+    MENU_SAVED: 'menu_saved',
 
     //启动项
     START_OPTION: 'start-option',

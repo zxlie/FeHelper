@@ -68,6 +68,6 @@ body {
 textarea{
     resize: vertical;
 }
-a.x-a-high {
+a.x-a-high, a.x-a-high:visited {
     color:blue;
 }

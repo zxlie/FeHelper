@@ -220,15 +220,17 @@ var BgPageInstance = (function () {
             callback && callback(feHelper.ajaxDebuggerMgr[tab.id]);
 
             if (withAlert) {
+                let msg = '';
                 if (feHelper.ajaxDebuggerMgr[tab.id]) {
-                    let msg = '';
                     if (devToolsDetected) {
                         msg = 'DevTools已打开，确保已切换到【Console】界面，并关注信息输出，愉快的进行Ajax Debugger！'
                     } else {
                         msg = '请打开DevTools，并切换到【Console】界面，关注信息输出，愉快的进行Ajax Debugger！';
                     }
-                    alert(msg);
+                } else {
+                    msg = '已停止当前页面的Ajax Debugger功能！';
                 }
+                alert(msg);
             }
         });
     };
@@ -271,6 +273,126 @@ var BgPageInstance = (function () {
     };
 
     /**
+     * 右键菜单创建工具
+     * @param menuList
+     * @private
+     */
+    let _contextMenuCreator = function (menuList) {
+        let menus = Settings.getMenuOpts();
+
+        menuList.forEach(m => {
+            if (m === 'MENU_PAGE_ENCODING') {
+                // 网页编码设置的menu
+                PageEncoding.createMenu(feHelper.contextMenuId, menus.MENU_PAGE_ENCODING);
+            } else {
+                let onClick = {
+                    MENU_QRCODE_CREATE: function (info, tab) {
+                        chrome.tabs.executeScript(tab.id, {
+                            code: '(' + (function (pInfo) {
+                                let linkUrl = pInfo.linkUrl;
+                                let pageUrl = pInfo.pageUrl;
+                                let imgUrl = pInfo.srcUrl;
+                                let selection = pInfo.selectionText;
+
+                                return linkUrl || imgUrl || selection || pageUrl;
+                            }).toString() + ')(' + JSON.stringify(info) + ')',
+                            allFrames: false
+                        }, function (txt) {
+                            _openFileAndRun(tab, MSG_TYPE.QR_CODE, (typeof txt === 'object') ? txt[0] : txt);
+                        });
+                    },
+
+                    MENU_QRCODE_DECODE: function (info, tab) {
+                        _qrDecode(info, tab);
+                    },
+
+                    MENU_PAGE_CAPTURE: function (info, tab) {
+                        PageCapture.full(tab);
+                    },
+                    MENU_COLOR_PICKER: function (info, tab) {
+                        _showColorPicker();
+                    },
+                    MENU_STR_ENDECODE: function (info, tab) {
+                        chrome.tabs.executeScript(tab.id, {
+                            code: '(' + (function (pInfo) {
+
+                                return pInfo.selectionText;
+                            }).toString() + ')(' + JSON.stringify(info) + ')',
+                            allFrames: false
+                        }, function (txt) {
+                            _openFileAndRun(tab, MSG_TYPE.EN_DECODE, (typeof txt === 'object') ? txt[0] : txt);
+                        });
+                    },
+                    MENU_JSON_FORMAT: function (info, tab) {
+                        chrome.tabs.executeScript(tab.id, {
+                            code: '(' + (function (pInfo) {
+                                return pInfo.selectionText;
+                            }).toString() + ')(' + JSON.stringify(info) + ')',
+                            allFrames: false
+                        }, function (txt) {
+                            _openFileAndRun(tab, MSG_TYPE.JSON_FORMAT, (typeof txt === 'object') ? txt[0] : txt);
+                        });
+                    },
+                    MENU_CODE_FORMAT: function (info, tab) {
+                        chrome.tabs.executeScript(tab.id, {
+                            code: '(' + (function (pInfo) {
+                                return pInfo.selectionText;
+                            }).toString() + ')(' + JSON.stringify(info) + ')',
+                            allFrames: false
+                        }, function (txt) {
+                            _openFileAndRun(tab, MSG_TYPE.CODE_BEAUTIFY, (typeof txt === 'object') ? txt[0] : txt);
+                        });
+                    },
+                    MENU_AJAX_DEBUGGER: function (info, tab) {
+                        _debuggerSwitchOn(() => {
+                            _tellDevToolsDbgSwitchOn(null, true);
+                        });
+                    },
+
+                    MENU_CODE_STANDARD: function (info, tab) {
+                        _doFcpDetect(tab);
+                    },
+                    MENU_IMAGE_BASE64: function (info, tab) {
+                        _openFileAndRun(tab, MSG_TYPE.IMAGE_BASE64, info.srcUrl);
+                    },
+                    MENU_JSON_COMPARE: function (info, tab) {
+                        _openFileAndRun(tab, MSG_TYPE.JSON_COMPARE);
+                    },
+                    MENU_CODE_COMPRESS: function (info, tab) {
+                        _openFileAndRun(tab, MSG_TYPE.CODE_COMPRESS);
+                    },
+                    MENU_PAGE_OPTIMI: function (info, tab) {
+                        _openFileAndRun(tab, MSG_TYPE.SHOW_PAGE_LOAD_TIME);
+                    },
+                    MENU_TIME_STAMP: function (info, tab) {
+                        _openFileAndRun(tab, MSG_TYPE.TIME_STAMP);
+                    },
+                    MENU_RANDOM_PASS: function (info, tab) {
+                        _openFileAndRun(tab, MSG_TYPE.RANDOM_PASSWORD);
+                    },
+                    MENU_JS_REGEXP: function (info, tab) {
+                        _openFileAndRun(tab, MSG_TYPE.REGEXP_TOOL);
+                    },
+                    MENU_MARKDOWN_TL: function (info, tab) {
+                        _openFileAndRun(tab, MSG_TYPE.HTML_TO_MARKDOWN);
+                    },
+                    MENU_STICKY_NOTE: function (info, tab) {
+                        _openFileAndRun(tab, MSG_TYPE.STICKY_NOTES);
+                    }
+                };
+
+                chrome.contextMenus.create({
+                    title: menus[m].icon + '  ' + menus[m].text,
+                    contexts: menus[m].contexts || ['all'],
+                    parentId: feHelper.contextMenuId,
+                    onclick: onClick[m]
+                });
+
+            }
+        });
+    };
+
+    /**
      * 创建扩展专属的右键菜单
      */
     let _createContextMenu = function () {
@@ -281,167 +403,14 @@ var BgPageInstance = (function () {
             documentUrlPatterns: ['http://*/*', 'https://*/*', 'file://*/*']
         });
 
-        // 网页编码设置的menu
-        PageEncoding.createMenu(feHelper.contextMenuId);
+        if (!Settings.didMenuSettingSaved()) {
+            _contextMenuCreator(Settings.getDefaultContextMenus());
+        } else {
+            Settings.getOptsFromBgPage((opts) => {
+                _contextMenuCreator(Object.keys(opts).filter(m => /^MENU_/.test(m)));
+            });
+        }
 
-        chrome.contextMenus.create({
-            type: 'separator',
-            contexts: ['all'],
-            parentId: feHelper.contextMenuId
-        });
-        chrome.contextMenus.create({
-            title: "▣  二维码生成",
-            contexts: ['page', 'selection', 'editable', 'link', 'image'],
-            parentId: feHelper.contextMenuId,
-            onclick: function (info, tab) {
-                chrome.tabs.executeScript(tab.id, {
-                    code: '(' + (function (pInfo) {
-                        let linkUrl = pInfo.linkUrl;
-                        let pageUrl = pInfo.pageUrl;
-                        let imgUrl = pInfo.srcUrl;
-                        let selection = pInfo.selectionText;
-
-                        return linkUrl || imgUrl || selection || pageUrl;
-                    }).toString() + ')(' + JSON.stringify(info) + ')',
-                    allFrames: false
-                }, function (txt) {
-                    _openFileAndRun(tab, MSG_TYPE.QR_CODE, (typeof txt === 'object') ? txt[0] : txt);
-                });
-            }
-        });
-
-        chrome.contextMenus.create({
-            type: 'separator',
-            contexts: ['image'],
-            parentId: feHelper.contextMenuId
-        });
-        chrome.contextMenus.create({
-            title: "◈  二维码解码",
-            contexts: ['image'],
-            parentId: feHelper.contextMenuId,
-            onclick: function (info, tab) {
-                _qrDecode(info, tab);
-            }
-        });
-
-
-        chrome.contextMenus.create({
-            type: 'separator',
-            contexts: ['image'],
-            parentId: feHelper.contextMenuId
-        });
-        chrome.contextMenus.create({
-            title: "♛  图片转Base64",
-            contexts: ['image'],
-            parentId: feHelper.contextMenuId,
-            onclick: function (info, tab) {
-                _openFileAndRun(tab, MSG_TYPE.IMAGE_BASE64, info.srcUrl);
-            }
-        });
-
-        chrome.contextMenus.create({
-            type: 'separator',
-            contexts: ['all'],
-            parentId: feHelper.contextMenuId
-        });
-        chrome.contextMenus.create({
-            title: "♨  字符串编解码",
-            contexts: ['page', 'selection', 'editable'],
-            parentId: feHelper.contextMenuId,
-            onclick: function (info, tab) {
-                chrome.tabs.executeScript(tab.id, {
-                    code: '(' + (function (pInfo) {
-
-                        return pInfo.selectionText;
-                    }).toString() + ')(' + JSON.stringify(info) + ')',
-                    allFrames: false
-                }, function (txt) {
-                    _openFileAndRun(tab, MSG_TYPE.EN_DECODE, (typeof txt === 'object') ? txt[0] : txt);
-                });
-            }
-        });
-        chrome.contextMenus.create({
-            type: 'separator',
-            contexts: ['all'],
-            parentId: feHelper.contextMenuId
-        });
-        chrome.contextMenus.create({
-            title: "★  JSON格式化",
-            contexts: ['page', 'selection', 'editable'],
-            parentId: feHelper.contextMenuId,
-            onclick: function (info, tab) {
-                chrome.tabs.executeScript(tab.id, {
-                    code: '(' + (function (pInfo) {
-                        return pInfo.selectionText;
-                    }).toString() + ')(' + JSON.stringify(info) + ')',
-                    allFrames: false
-                }, function (txt) {
-                    _openFileAndRun(tab, MSG_TYPE.JSON_FORMAT, (typeof txt === 'object') ? txt[0] : txt);
-                });
-            }
-        });
-        chrome.contextMenus.create({
-            type: 'separator',
-            contexts: ['all'],
-            parentId: feHelper.contextMenuId
-        });
-        chrome.contextMenus.create({
-            title: "☂  代码格式化",
-            contexts: ['page', 'selection', 'editable'],
-            parentId: feHelper.contextMenuId,
-            onclick: function (info, tab) {
-                chrome.tabs.executeScript(tab.id, {
-                    code: '(' + (function (pInfo) {
-                        return pInfo.selectionText;
-                    }).toString() + ')(' + JSON.stringify(info) + ')',
-                    allFrames: false
-                }, function (txt) {
-                    _openFileAndRun(tab, MSG_TYPE.CODE_BEAUTIFY, (typeof txt === 'object') ? txt[0] : txt);
-                });
-            }
-        });
-
-        chrome.contextMenus.create({
-            type: 'separator',
-            contexts: ['all'],
-            parentId: feHelper.contextMenuId
-        });
-        chrome.contextMenus.create({
-            title: "☀  页面取色器",
-            contexts: ['page', 'selection', 'editable'],
-            parentId: feHelper.contextMenuId,
-            onclick: function (info, tab) {
-                _showColorPicker();
-            }
-        });
-
-        chrome.contextMenus.create({
-            type: 'separator',
-            contexts: ['all'],
-            parentId: feHelper.contextMenuId
-        });
-        chrome.contextMenus.create({
-            title: "✂  网页滚动截屏",
-            contexts: ['all'],
-            parentId: feHelper.contextMenuId,
-            onclick: function (info, tab) {
-                PageCapture.full(tab);
-            }
-        });
-
-        chrome.contextMenus.create({
-            type: 'separator',
-            contexts: ['all'],
-            parentId: feHelper.contextMenuId
-        });
-        chrome.contextMenus.create({
-            title: "▤  我的便签笔记",
-            contexts: ['all'],
-            parentId: feHelper.contextMenuId,
-            onclick: function (info, tab) {
-                _openFileAndRun(tab, MSG_TYPE.STICKY_NOTES);
-            }
-        });
     };
 
     /**
@@ -580,7 +549,7 @@ var BgPageInstance = (function () {
                     type: MSG_TYPE.JSON_PAGE_FORMAT,
                     options: {
                         MAX_JSON_KEYS_NUMBER: opts.MAX_JSON_KEYS_NUMBER,
-                        AUTO_TEXT_DECODE:opts.AUTO_TEXT_DECODE === 'true'
+                        AUTO_TEXT_DECODE: opts.AUTO_TEXT_DECODE === 'true'
                     }
                 });
             });
@@ -647,6 +616,10 @@ var BgPageInstance = (function () {
                     message: '配置已生效，请继续使用!',
                     autoClose: 2000
                 });
+            }
+            // 判断菜单是否保存过
+            else if(request.type === MSG_TYPE.MENU_SAVED){
+                Settings.didMenuSettingSaved(callback);
             }
             //判断是否可以针对json页面进行自动格式化
             else if (request.type === MSG_TYPE.JSON_PAGE_FORMAT_REQUEST) {

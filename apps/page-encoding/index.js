@@ -43,11 +43,11 @@ let PageEncoding = (() => {
     /**
      * 创建右键菜单
      */
-    let createMenu = (parentMenuId) => {
+    let createMenu = (parentMenuId, menuConfig) => {
 
         let encodingMenu = chrome.contextMenus.create({
-            title: "♨  网页编码设置",
-            contexts: ["all"],
+            title: menuConfig.icon + '  ' + menuConfig.text,
+            contexts: menuConfig.contexts || ["all"],
             documentUrlPatterns: ['http://*/*', 'https://*/*', 'file://*/*'],
             parentId: parentMenuId
         });

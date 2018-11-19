@@ -15,10 +15,17 @@ module.exports = (() => {
                 '<textarea style="display:block;border-radius:5px 5px;width:398px;border:1px solid #aaa;min-height:80px;resize:none;box-shadow:2px 2px 5px #aaa;padding:10px;font-size:14px;color:#888;"></textarea>' +
                 '<div style="margin-top:10px;">' +
                 '<span id="__fehelper_qr_msg_" style="float: right;color:#f00;display:none;">复制成功！</span>' +
-                '<a id="__fehelper_qr_copy_" style="margin-right:20px;color: #00f;text-decoration: underline" href="#">复制</a>' +
-                '<a id="__fehelper_qr_close_" style="margin-top:10px;color: #00f;text-decoration: underline" href="#">关闭</a>' +
+                '<a id="__fehelper_qr_open_" style="margin-right:20px;color: #00f;text-decoration: underline;display: inline;" href="#">打开</a>' +
+                '<a id="__fehelper_qr_copy_" style="margin-right:20px;color: #00f;text-decoration: underline;display: inline;" href="#">复制</a>' +
+                '<a id="__fehelper_qr_close_" style="margin-top:10px;color: #00f;text-decoration: underline;display: inline" href="#">关闭</a>' +
                 '</div></div>' +
                 '</div>').appendTo('body');
+
+
+            el.find('a#__fehelper_qr_open_').click(function (e) {
+                e.preventDefault();
+                window.open(el.find('textarea').val());
+            });
 
             el.find('a#__fehelper_qr_copy_').click(function (e) {
                 e.preventDefault();

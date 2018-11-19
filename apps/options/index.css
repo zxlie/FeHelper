@@ -2,7 +2,7 @@
 @import "../popup/index.css";
 
 .wrapper {
-    width:900px;
+    width:940px;
 }
 #pageContainer label {
     font-weight: normal;
@@ -49,13 +49,69 @@ h5,h4 {
     display: inline-block;
     padding: 4px 10px;
 }
-.box-inner.x-disabled {
+.x-disabled {
     opacity: 0.2;
+}
+.x-disabled .box-mpreview ul.x-menus li:hover {
+    background-color: transparent;
+    color: inherit;
 }
 .row-line {
     line-height: 24px;
 }
 .box-preview {
     position: relative;
-    top:-145px;
+    left: 10px;
+    top: -40px;
+    border-left: 1px solid #f1f1f1;
+    padding-left: 24px;
+    width: 300px;
+}
+.ul-menu {
+    width: 550px;
+    list-style: none;
+    user-select: none;
+}
+.ul-menu li {
+    float: left;
+    width: 160px;
+}
+.ct-menu {
+    position: relative;
+}
+.ct-popup .ct-fun{
+    width: 550px;
+}
+.box-mpreview {
+    position: relative;
+    left: 560px;
+    top: -407px;
+    width: 450px;
+    margin-bottom: -547px;
+    border-left: 1px solid #f1f1f1;
+    user-select:none;
+}
+.box-mpreview h5 {
+    margin: 0 0 -10px 20px;
+}
+.box-mpreview ul.x-menus {
+    position: relative;
+    top: -145px;
+    left: 210px;
+    background: #f2f2f2;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    padding: 3px 0;
+    list-style: none;
+    width: 160px;
+}
+.box-mpreview ul.x-menus li {
+    padding: 2px 20px;
+    font-weight: 500;
+    font-size: 14px;
+}
+.box-mpreview ul.x-menus li:hover {
+    background-color: #276cf9;
+    color: #fff;
+    cursor: default;
 }
