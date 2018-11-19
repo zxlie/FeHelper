@@ -168,7 +168,7 @@ module.exports = (() => {
             // 再看看是不是jsonp的格式
             let reg = /^([\w\.]+)\(\s*([\s\S]*)\s*\)$/gm;
             let reTry = /^(try\s*\{\s*)?/g;
-            let reCatch = /(\}\s*catch\s*\(\s*\S+\s*\)\s*\{([\s\S])*\})?$/g;
+            let reCatch = /([;\s]*\}\s*catch\s*\(\s*\S+\s*\)\s*\{([\s\S])*\})?[;\s]*$/g;
 
             // 检测是否有try-catch包裹
             let sourceReplaced = source.replace(reTry, function () {
