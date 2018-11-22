@@ -20,10 +20,62 @@
 	margin-left: 10px;
 	color: #bbb;
 }
+.x-wrapper {
+	position: relative;
+	color: #666;
+}
+.x-wrapper .x-sidebar {
+	position: absolute;
+	left: 0;
+	top:0;
+	width: 300px;
+	bottom: 0;
+	background: #fefefe;
+	border-right: 1px solid #ddd;
+}
+.x-wrapper #main {
+	margin-left:300px;
+	padding: 20px;
+	min-height: 500px;
+}
+.x-sidebar .x-tools {
+	background: #f1f1f1;
+	padding: 2px 10px;
+	text-align: right;
+	border-bottom: 1px solid #ccc;
+}
+.x-sidebar .x-tools a{
+	color:#48b;
+	font-size: 12px;
+}
+.x-sidebar ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.x-sidebar ul li {
+	padding: 5px 10px;
+	background-color: #fff;
+	border-bottom: 1px solid #eee;
+	cursor: default;
+	font-size: 14px;
+	overflow: hidden;
+	text-overflow:ellipsis;
+	white-space: nowrap;
+	position: relative;
+}
+.x-sidebar ul li.x-selected:after {
+	content: '\2714';
+	position: absolute;
+	right: 10px;
+}
+.x-sidebar ul li:hover {
+	background: #f5f5f5;
+	color: #48b;
+}
 
 
-
-/* common styles start */
+	/* common styles start */
 h1{font-size:1.6em;}
 h2{font-size:1em;}
 a,a:visited{color:#fff;outline:none !important;text-decoration:none;}
@@ -43,10 +95,6 @@ h1{float:left; margin-right:30px; line-height:20px;color:#f6f6f6;text-shadow: 1p
 .topsection img{margin-top:7px;float:left;margin-right:3px;}
 .topsection a{float:left;display:inline;}
 
-#main{
-	margin: 20px;
-	min-height: 200px;
-}
 
 #head{
 	position:absolute;

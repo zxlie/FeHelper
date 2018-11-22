@@ -16,7 +16,7 @@
                             <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：我的便签笔记
 
                         <span class="x-toolbox">
-                            <a href="#" id="addnote" class="x-tooltip blue-tooltip">新建</a><span class="x-line">|</span>
+                            <a href="#" id="addnote" class="x-tooltip blue-tooltip">新建笔记</a><span class="x-line">|</span>
                             <a href="#" id="collapse" class="x-tooltip blue-tooltip">折叠模式</a><span class="x-line">|</span>
                             <a href="#" id="expand" class="x-tooltip blue-tooltip">预览模式</a><span class="x-line">|</span>
                             <a href="#" id="removenotes" class="x-tooltip blue-tooltip">全部删除</a><span class="x-line">|</span>
@@ -26,7 +26,15 @@
                     </h3>
                 </div>
 
-                <div id="main"></div>
+                <div class="x-wrapper">
+                    <div class="x-sidebar">
+                        <div class="x-tools">
+                            <a href="#" id="createFolder">新建文件夹</a>
+                        </div>
+                        <ul id="folders"></ul>
+                    </div>
+                    <div id="main"></div>
+                </div>
                 <div class="clearfix"></div>
             </div>
         </div>

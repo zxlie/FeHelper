@@ -17,6 +17,8 @@ let allowed_tags = '<br /><br><ol></ol><ul></ul><li></li><strong></strong><i></i
 
 let html5sticky = {};
 const STICKYNOTES_ALLKEYS = 'stickynotes|allkeys';
+const STICKYNOTES_FOLDERS = 'stickynotes|folders';
+const STICKYNOTES_SELECTED_FOLDER = 'stickynotes|selected|folder';
 
 // add a note
 html5sticky.addNote = function () {
@@ -66,6 +68,7 @@ html5sticky.addNote = function () {
     allKeys.push(nindex + '|text');
     allKeys.push(nindex + '|bgcolor');
     allKeys.push(nindex + '|dated');
+    allKeys.push(nindex + '|folderid');
     localStorage.setItem(STICKYNOTES_ALLKEYS, allKeys.join(','));
 
     // 存数据
@@ -73,6 +76,8 @@ html5sticky.addNote = function () {
     localStorage.setItem(nindex + '|text', $(stickynote).find('h2').text() + '|' + $(stickynote).find('p').text());
     localStorage.setItem(nindex + '|bgcolor', bgcolor);
     localStorage.setItem(nindex + '|dated', dated + '|' + getISODateTime(dateStr));
+    let folder = html5sticky.getCurrentFolder();
+    localStorage.setItem(nindex + '|folderid', folder[1]);
 
     html5sticky.enlargeNote(stickynote);
 };
@@ -122,9 +127,10 @@ html5sticky.deleteNote = function (el) {
         localStorage.removeItem(identifier + '|text');
         localStorage.removeItem(identifier + '|bgcolor');
         localStorage.removeItem(identifier + '|dated');
+        localStorage.removeItem(identifier + '|folderid');
 
         let allKeys = (localStorage.getItem(STICKYNOTES_ALLKEYS) || '').split(',');
-        ['text', 'bgcolor', 'dated'].forEach(function (item) {
+        ['text', 'bgcolor', 'dated', 'folderid'].forEach(function (item) {
             let id = identifier + '|' + item;
             allKeys.indexOf(id) > -1 && allKeys.splice(allKeys.indexOf(id), 1);
         });
@@ -207,8 +213,8 @@ html5sticky.editNote = function ($clone, el) {
 };
 
 // get all notes
-html5sticky.getNotes = function () {
-
+html5sticky.getNotes = function (folderId) {
+    let mainEl = $('#main').html('');
     let allKeys = (localStorage.getItem(STICKYNOTES_ALLKEYS) || '').split(',');
     allKeys.forEach(key => {
 
@@ -217,7 +223,13 @@ html5sticky.getNotes = function () {
         }
 
         let id = key.replace('|text', '');
-        let stickynote, bgcolor, htext, ptext, temp_array;
+        let stickynote, bgcolor, htext, ptext, temp_array, folderid;
+
+        // 按照folder id寻找对应目录下的便签
+        folderid = localStorage.getItem(id + '|folderid') || '0';
+        if (folderId !== folderid) {
+            return false;
+        }
 
         // get color and rotation level
         bgcolor = localStorage.getItem(id + '|bgcolor');
@@ -227,7 +239,7 @@ html5sticky.getNotes = function () {
         htext = temp_array[0];
         ptext = temp_array[1];
 
-        stickynote = $('<div class="note_common ' + bgcolor + '" />').appendTo($('#main'));
+        stickynote = $('<div class="note_common ' + bgcolor + '" />').appendTo(mainEl);
         html5sticky.addPin(stickynote);
 
         $(stickynote).append($('<h2></h2>'));
@@ -413,26 +425,6 @@ html5sticky.enlargeNote = function (el) {
     html5sticky.editNote($clone, el);
 };
 
-html5sticky.setup = function () {
-
-    let fontFamily = $('.note_common p').css('font-family');
-
-    // Architects font needs to have lesser line height / spacing for lists
-    if (typeof fontFamily !== 'undefined' && fontFamily.indexOf('Architects') >= 0) {
-        $('.note_common ul').css({lineHeight: '10px', padding: '0px', margin: '0px'});
-        $('.note_common ol').css({lineHeight: '0px', padding: '0px', margin: '0px'});
-    }
-
-    // sticky notes can't be less than 200x200
-    if (stickywidth < 200) {
-        stickywidth = 200;
-    }
-
-    if (stickyheight < 200) {
-        stickyheight = 200;
-    }
-};
-
 // http://phpjs.org/functions/strip_tags:535
 html5sticky.stripTags = function (input, allowed) {
     allowed = (((allowed || "") + "").toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join('');
@@ -456,6 +448,7 @@ html5sticky.export = function () {
             if (allKeys.length) {
                 zipper = new JSZip();
             }
+            let zpFolder = {};
             allKeys.forEach(key => {
 
                 if (!/\|text/.test(key)) {
@@ -463,16 +456,21 @@ html5sticky.export = function () {
                 }
 
                 let id = key.replace('|text', '');
-                let dated, htext, ptext, temp_array;
+                let dated, htext, ptext, temp_array, folderid;
 
                 dated = localStorage.getItem(id + '|dated');
+                folderid = localStorage.getItem(id + '|folderid') || '0';
+                if (!zpFolder[folderid]) {
+                    let forderName = html5sticky.findFolderNameById(folderid);
+                    zpFolder[folderid] = zipper.folder(forderName);
+                }
 
                 // get text info
                 temp_array = localStorage.getItem(id + '|text').split('|');
                 htext = temp_array[0];
                 ptext = temp_array[1];
 
-                zipper.file(htext + '.txt', [
+                zpFolder[folderid].file(htext + '.txt', [
                     '# title：' + htext,
                     '# date：' + dated,
                     '# content：\n' + ptext
@@ -486,7 +484,7 @@ html5sticky.export = function () {
                             url: URL.createObjectURL(new Blob([content], {type: 'application/octet-stream'})),
                             saveAs: true,
                             conflictAction: 'overwrite',
-                            filename: 'fehelper-sticky-notes-' + (new Date*1) + '.zip'
+                            filename: '我的便签笔记-' + (new Date * 1) + '.zip'
                         });
                     });
             }
@@ -494,4 +492,65 @@ html5sticky.export = function () {
             alert('必须接受授权，才能正常下载！');
         }
     });
+};
+
+html5sticky.buildFoldersAndInitNotes = function () {
+    let folders = html5sticky.loadFolders();
+    Object.keys(folders).forEach((f, idx) => {
+        html5sticky.createFolder(f, folders[f]);
+    });
+
+    let current = html5sticky.getCurrentFolder();
+    $('li#f_' + current[1]).addClass('x-selected');
+    html5sticky.getNotes(current[1]);
+
+};
+
+html5sticky.loadFolders = function () {
+    let folders = JSON.parse(localStorage.getItem(STICKYNOTES_FOLDERS) || '{}') || {};
+    if (!folders['默认文件夹']) {
+        folders['默认文件夹'] = '0';
+    }
+    return folders;
+};
+
+html5sticky.saveFolder = function (folder, time) {
+    let folders = html5sticky.loadFolders();
+    folders[folder] = time;
+    localStorage.setItem(STICKYNOTES_FOLDERS, JSON.stringify(folders));
+};
+
+html5sticky.createFolder = function (folder, time) {
+    folder = folder || window.prompt('新建文件夹');
+    if (folder) {
+        if (!time) {
+            let folders = html5sticky.loadFolders();
+            if (folders[folder]) {
+                return alert('你已经创建过这个文件夹！');
+            }
+        }
+        time = time || new Date().getTime();
+        html5sticky.saveFolder(folder, time);
+        return $('<li/>').text(folder).attr('id', 'f_' + time).appendTo('#folders');
+    } else {
+        return alert('文件夹名不能为空！');
+    }
+};
+
+html5sticky.getCurrentFolder = function () {
+    let folder = JSON.parse(localStorage.getItem(STICKYNOTES_SELECTED_FOLDER) || '[]') || [];
+    if (!folder.length) {
+        folder = ['默认文件夹', '0'];
+    }
+    return folder;
+};
+
+html5sticky.setCurrentFolder = function (txt, id) {
+    localStorage.setItem(STICKYNOTES_SELECTED_FOLDER, JSON.stringify([txt, id]));
+};
+
+html5sticky.findFolderNameById = function (folderId) {
+    let folders = html5sticky.loadFolders();
+    let arr = Object.keys(folders).filter(f => String(folders[f]) === String(folderId));
+    return arr.length ? arr[0] : '默认文件夹';
 };

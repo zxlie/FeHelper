@@ -65,8 +65,26 @@ let StickyNotes = (() => {
         });
 
         // 下载
-        $('#export').click(function(e){
+        $('#export').click(function (e) {
             html5sticky.export();
+            return false;
+        });
+
+        // 文件夹选中
+        $('#folders').delegate('li', 'click', function (e) {
+            $(this).addClass('x-selected').siblings('li').removeClass('x-selected');
+            let txt = $(this).text();
+            let id = $(this).attr('id').replace(/^f_/, '');
+            html5sticky.setCurrentFolder(txt, id);
+            html5sticky.getNotes(id);
+        });
+
+        // 创建文件夹
+        $('#createFolder').click(function (e) {
+            let el = html5sticky.createFolder();
+            if (el) {
+                el.trigger('click');
+            }
             return false;
         });
     };
@@ -74,11 +92,7 @@ let StickyNotes = (() => {
     // 初始化
     let init = () => {
         $(function () {
-            // initial setup
-            html5sticky.setup();
-
-            // get any saved notes on page load
-            html5sticky.getNotes();
+            html5sticky.buildFoldersAndInitNotes();
 
             addListener();
         });
