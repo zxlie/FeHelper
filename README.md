@@ -1,6 +1,8 @@
 Web前端助手（FeHelper）- Chrome Extension
 =============================
 
+[TOC]
+
 ## 一、官网地址
 https://www.baidufe.com/fehelper
 
@@ -60,3 +62,21 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 - Mail：xianliezhao@foxmail.com
 - Wechat：398824681 <br>
 ![微信](/apps/static/screenshot/wx-private-qrcode.png)
+
+### 七、一些样例
+- ![autojson](/apps/static/screenshot/demo/autojson.png)
+- ![jsonformat](/apps/static/screenshot/demo/jsonformat.png)
+- ![qrcode](/apps/static/screenshot/demo/qrcode.png)
+- ![qrdecode](/apps/static/screenshot/demo/qrdecode.png)
+- ![imagebase64](/apps/static/screenshot/demo/imagebase64.png)
+- ![coebeautify](/apps/static/screenshot/demo/coebeautify.png)
+- ![codecompress](/apps/static/screenshot/demo/codecompress.png)
+- ![endecode](/apps/static/screenshot/demo/endecode.png)
+- ![pagecapture](/apps/static/screenshot/demo/pagecapture.png)
+- ![markdown](/apps/static/screenshot/demo/markdown.png)
+- ![randompass](/apps/static/screenshot/demo/randompass.png)
+- ![stickynotes](/apps/static/screenshot/demo/stickynotes.png)
+- ![regexp](/apps/static/screenshot/demo/regexp.png)
+- ![timestamp](/apps/static/screenshot/demo/timestamp.png)
+- ![colorpicker](/apps/static/screenshot/demo/colorpicker.png)
+- ![wpo](/apps/static/screenshot/demo/wpo.png)
