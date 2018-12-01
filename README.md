@@ -92,7 +92,7 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 - Markdown与HTML互转
 ![markdown](/apps/static/screenshot/demo/markdown.png)
 
-- 随机密码生成
+- 随机密码生成 <br>
 ![randompass](/apps/static/screenshot/demo/randompass.png)
 
 - 浏览器便签笔记
