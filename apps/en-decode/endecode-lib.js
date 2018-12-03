@@ -223,23 +223,11 @@ module.exports = (() => {
      * @return {String}
      */
     let _utf16to8 = function (str) {
-        let out, i, len, c;
-        out = "";
-        len = str.length;
-        for (i = 0; i < len; i++) {
-            c = str.charCodeAt(i);
-            if ((c >= 0x0001) && (c <= 0x007F)) {
-                out += str.charAt(i);
-            } else if (c > 0x07FF) {
-                out += String.fromCharCode(0xE0 | ((c >> 12) & 0x0F));
-                out += String.fromCharCode(0x80 | ((c >> 6) & 0x3F));
-                out += String.fromCharCode(0x80 | ((c >> 0) & 0x3F));
-            } else {
-                out += String.fromCharCode(0xC0 | ((c >> 6) & 0x1F));
-                out += String.fromCharCode(0x80 | ((c >> 0) & 0x3F));
-            }
-        }
-        return out;
+        return str.replace(/\\x/g,'%');
+    };
+
+    let _utf8to16 = function(str){
+        return str.replace(/%/g,'\\x');
     };
 
     /**
@@ -259,6 +247,7 @@ module.exports = (() => {
         utf8Encode: _utf8Encode,
         utf8Decode: _utf8Decode,
         utf16to8: _utf16to8,
+        utf8to16: _utf8to16,
         md5: md5
     };
 })();

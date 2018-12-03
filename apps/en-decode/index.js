@@ -42,6 +42,12 @@ new Vue({
                 } else if (this.selectedType === 'utf8Decode') {
 
                     this.resultContent = decodeURIComponent(this.sourceContent);
+                } else if (this.selectedType === 'utf16Encode') {
+
+                    this.resultContent = tools.utf8to16(encodeURIComponent(this.sourceContent));
+                } else if (this.selectedType === 'utf16Decode') {
+
+                    this.resultContent = decodeURIComponent(tools.utf16to8(this.sourceContent));
                 } else if (this.selectedType === 'base64Encode') {
 
                     this.resultContent = tools.base64Encode(tools.utf8Encode(this.sourceContent));

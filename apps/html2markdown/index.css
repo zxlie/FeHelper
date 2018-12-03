@@ -22,6 +22,8 @@
 }
 .x-preview {
     height: auto;
+    word-break: break-all;
+    white-space: pre-wrap;
 }
 .x-xdemo,.x-switch {
     margin-left: 30px;
