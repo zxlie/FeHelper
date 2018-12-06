@@ -223,11 +223,11 @@ module.exports = (() => {
      * @return {String}
      */
     let _utf16to8 = function (str) {
-        return str.replace(/\\x/g,'%');
+        return str.replace(/\\x/g, '%');
     };
 
-    let _utf8to16 = function(str){
-        return str.replace(/%/g,'\\x');
+    let _utf8to16 = function (str) {
+        return str.replace(/%/g, '\\x');
     };
 
     /**
@@ -239,6 +239,42 @@ module.exports = (() => {
         return md5(str);
     };
 
+    /**
+     * gzip加密
+     * @param str
+     * @returns {*}
+     */
+    let gzipEncode = str => {
+        let pako = Tarp.require('./pako');
+        try {
+            return window.btoa(pako.gzip(escape(str), {to: "string"}));
+        } catch (e) {
+            return 'Error: 当前字符串不能被Gzip加密';
+        }
+    };
+
+    /**
+     * gzip解密
+     * @param str
+     * @returns {string}
+     */
+    let gzipDecode = str => {
+        let pako = Tarp.require('./pako');
+
+        try {
+            let charData = window.atob(str).split('').map(x => x.charCodeAt(0));
+            let data = pako.inflate(new Uint8Array(charData));
+            let result = String.fromCharCode.apply(null, new Uint16Array(data));
+            try {
+                return unescape(result);
+            } catch (ee) {
+                return result;
+            }
+        } catch (e) {
+            return 'Error: 当前字符串不能被Gzip解密';
+        }
+    };
+
     return {
         uniEncode: _uniEncode,
         uniDecode: _uniDecode,
@@ -248,7 +284,9 @@ module.exports = (() => {
         utf8Decode: _utf8Decode,
         utf16to8: _utf16to8,
         utf8to16: _utf8to16,
-        md5: md5
+        md5: md5,
+        gzipEncode: gzipEncode,
+        gzipDecode: gzipDecode
     };
 })();
 

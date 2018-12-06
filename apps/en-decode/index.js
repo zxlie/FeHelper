@@ -57,7 +57,13 @@ new Vue({
                 } else if (this.selectedType === 'md5Encode') {
 
                     this.resultContent = tools.md5(this.sourceContent);
-                } else if (this.selectedType === 'html2js') {
+                }else if (this.selectedType === 'gzipEncode') {
+
+                    this.resultContent = tools.gzipEncode(this.sourceContent);
+                } else if (this.selectedType === 'gzipDecode') {
+
+                    this.resultContent = tools.gzipDecode(this.sourceContent);
+                }  else if (this.selectedType === 'html2js') {
 
                     this.resultContent = this.html2js(this.sourceContent);
                 }
