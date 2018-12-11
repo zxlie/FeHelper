@@ -91,7 +91,8 @@ Date.prototype.format = function (pattern) {
         date2 = this.getDate(),
         hours = this.getHours(),
         minutes = this.getMinutes(),
-        seconds = this.getSeconds();
+        seconds = this.getSeconds(),
+        milliSec = this.getMilliseconds();
 
     replacer(/yyyy/g, pad(year, 4));
     replacer(/yy/g, pad(parseInt(year.toString().slice(2), 10), 2));
@@ -108,6 +109,8 @@ Date.prototype.format = function (pattern) {
     replacer(/m/g, minutes);
     replacer(/ss/g, pad(seconds, 2));
     replacer(/s/g, seconds);
+    replacer(/SSS/g, pad(milliSec,3));
+    replacer(/S/g, milliSec);
 
     return pattern;
 };

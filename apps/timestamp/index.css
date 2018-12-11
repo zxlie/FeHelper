@@ -24,3 +24,21 @@
 .mod-time-input{
     width: 80px;
 }
+.x-sel-sec {
+    display: inline-block;
+    width: 80px;
+}
+.x-wd {
+    margin-top: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+    font-size: 16px;
+    color: #428bca;
+}
+.x-cnt {
+    padding:0 15px;
+}
+thead th {
+    text-align: center;
+    background: #f9f9f9;
+}

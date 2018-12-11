@@ -1,6 +1,8 @@
 /**
  * FeHelper Timestamp Tools
  */
+
+Tarp.require('../static/js/utils');
 new Vue({
     el: '#pageContainer',
     data: {
@@ -9,16 +11,31 @@ new Vue({
         txtSrcStamp: '',
         txtDesDate: '',
         txtLocale: '',
-        txtDesStamp: ''
+        txtDesStamp: '',
+        secFrom: 's',
+        secTo: 's',
+        worldTime: {}
     },
     mounted: function () {
         this.startTimestamp();
     },
     methods: {
         startTimestamp: function () {
+            let formatter = 'yyyy-MM-dd HH:mm:ss';
             window.intervalId = window.setInterval(() => {
-                this.txtNowDate = (new Date()).toLocaleString();
-                this.txtNow = Math.round((new Date()).getTime() / 1000);
+                let localDate = new Date();
+
+                this.txtNowDate = localDate.format(formatter);
+                this.txtNow = Math.round(localDate.getTime() / 1000) + ' s   / ' + localDate.getTime() + ' ms';
+
+                let gmtTime = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
+                this.worldTime['local'] = this.txtNowDate;
+                this.worldTime['gmt'] = gmtTime.format(formatter);
+
+                for (let offset = -12; offset <= 12; offset++) {
+                    this.worldTime[ offset > 0 ? ('+' + offset) : offset] = new Date(gmtTime.getTime() + offset * 60 * 60000).format(formatter);
+                }
+
             }, 1000);
         },
         unixToggle: function () {
@@ -34,7 +51,6 @@ new Vue({
             }
         },
         stampToLocale: function () {
-            Tarp.require('../static/js/utils');
             if (this.txtSrcStamp.length === 0) {
                 alert('请先填写你需要转换的Unix时间戳');
                 return;
@@ -43,17 +59,22 @@ new Vue({
                 alert('请输入合法的Unix时间戳');
                 return;
             }
-            this.txtDesDate = (new Date(parseInt(this.txtSrcStamp, 10) * 1000)).format('yyyy-MM-dd HH:mm:ss');
+
+            let base = this.secFrom === 's' ? 1000 : 1;
+            let format = 'yyyy-MM-dd HH:mm:ss' + (this.secFrom === 's' ? '' : ':SSS');
+
+            this.txtDesDate = (new Date(parseInt(this.txtSrcStamp, 10) * base)).format(format);
         },
         localeToStamp: function () {
-            if(this.txtLocale && !/\s\d+:\d+:\d+/.test(this.txtLocale)) {
+            if (this.txtLocale && !/\s\d+:\d+:\d+/.test(this.txtLocale)) {
                 this.txtLocale += ' 00:00:00';
             }
             let locale = Date.parse(this.txtLocale);
             if (isNaN(locale)) {
                 alert('请输入合法的时间格式，如：2014-04-01 10:01:01，或：2014-01-01');
             }
-            this.txtDesStamp = locale / 1000;
+            let base = this.secTo === 's' ? 1000 : 1;
+            this.txtDesStamp = Math.round(locale / base);
         }
     }
 });
