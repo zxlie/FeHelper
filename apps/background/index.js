@@ -236,6 +236,15 @@ var BgPageInstance = (function () {
     };
 
     /**
+     * 屏幕栅格标尺
+     */
+    let _doGridDetect = function(tab){
+        chrome.tabs.sendMessage(tab.id, {
+            type : MSG_TYPE.GRID_RULER
+        });
+    };
+
+    /**
      * 根据给定参数，运行对应的Helper
      */
     let _runHelper = function (config, callback) {
@@ -264,6 +273,10 @@ var BgPageInstance = (function () {
                     //Ajax调试
                     case MSG_TYPE.AJAX_DEBUGGER:
                         _debuggerSwitchOn(callback);
+                        break;
+                    // 屏幕栅格标尺
+                    case MSG_TYPE.GRID_RULER:
+                        _doGridDetect(tab);
                         break;
                     default :
                         break;
@@ -378,6 +391,9 @@ var BgPageInstance = (function () {
                     },
                     MENU_STICKY_NOTE: function (info, tab) {
                         _openFileAndRun(tab, MSG_TYPE.STICKY_NOTES);
+                    },
+                    MENU_GRID_RULER: function(info,tab){
+                        _doGridDetect(tab);
                     }
                 };
 
@@ -649,6 +665,7 @@ var BgPageInstance = (function () {
             else if (request.type === MSG_TYPE.OPEN_OPTIONS_PAGE) {
                 chrome.runtime.openOptionsPage();
             }
+
 
             // ===========================以下为编码规范检测====start==================================
             //处理CSS的请求

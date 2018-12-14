@@ -80,6 +80,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
                 }
             });
             break;
+
+        // 屏幕栅格标尺
+        case MSG_TYPE.GRID_RULER:
+            Tarp.require('../ruler/index',true).then(ruler => ruler.detect(callback));
+            break;
     }
 
 });

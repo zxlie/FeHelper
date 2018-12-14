@@ -33,7 +33,8 @@ module.exports = (() => {
         'FORBID_OPEN_IN_NEW_TAB',
         'MAX_JSON_KEYS_NUMBER',
         'AUTO_TEXT_DECODE',
-        'STICKY_NOTES'
+        'STICKY_NOTES',
+        'GRID_RULER'
     ];
 
     // 邮件菜单配置项
@@ -120,6 +121,10 @@ module.exports = (() => {
         MENU_STICKY_NOTE: {
             icon: '▤',
             text: '我的便签笔记'
+        },
+        MENU_GRID_RULER: {
+            icon: '✚',
+            text: '页面栅格标尺'
         }
     };
 

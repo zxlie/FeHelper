@@ -1,0 +1,97 @@
+#fe-helper-box {
+    position: fixed;
+    left: 1px;
+    bottom: 0;
+    right:8px;
+    z-index: 2147483646;
+    font-size:12px;
+}
+#fe-helper-grid {
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:2147483647;
+    opacity:0.03;
+    overflow:hidden;
+    -webkit-user-select:none;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAADCAYAAACTWi8uAAAANElEQVQYGWP8Jij7n4EIwPnuERGqGBiYwKrQjUTnE2UURBHEQEYGBgZkQ0B8EEAWgwoRogAZUQgA7keT1AAAAABJRU5ErkJggg==) repeat;
+}
+#fe-helper-btn-close-grid {
+    position:fixed;
+    bottom:10px;
+    right:10px;
+    font-size:12px;
+    font-weight:bold;
+    color:#00f;
+    z-index:2147483647;
+    cursor:pointer;
+}
+#fe-helper-btn-close-grid:hover {
+    color:#f00;
+}
+#fe-helper-g-pos {
+    background:none;
+    position:absolute;
+    top:0;
+    left:0;
+    z-index:2147483646;
+    border:1px solid #0b0;
+    border-width:0 1px 1px 0;
+}
+#fe-helper-gp-info {
+    position:absolute;
+    z-index:2147483646;
+    background:#ffc;
+    border:1px solid #666;
+    font-size:12px;
+    text-align:left;
+    padding:2px 10px;
+    display:none;
+    color:#000;
+}
+#fe-helper-ruler-top {
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:30px;
+    background:#fc0;
+    border-bottom:1px solid #000;
+    z-index:2147483647;
+    overflow:hidden;
+}
+#fe-helper-ruler-left {
+    position:fixed;
+    top:0;
+    left:0;
+    bottom:0;
+    width:30px;
+    background:#fc0;
+    border-right:1px solid #000;
+    z-index:2147483647;
+    overflow:hidden;
+}
+#fe-helper-ruler-top .h-line{
+    position:absolute;
+    width:1px;
+    background:#000;
+}
+#fe-helper-ruler-top .h-text{
+    position:absolute;
+    top:0;
+    font-size:8px;
+    color:#000;
+}
+#fe-helper-ruler-left .v-line{
+    position:absolute;
+    height:1px;
+    background:#000;
+}
+#fe-helper-ruler-left .v-text{
+    position:absolute;
+    left:0;
+    font-size:8px;
+    color:#000;
+    -webkit-transform:rotate(90deg);
+    margin-top:4px;
+}

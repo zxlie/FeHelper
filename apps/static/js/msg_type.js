@@ -101,7 +101,10 @@ const MSG_TYPE = {
     // dev tools页面
     DEV_TOOLS: 'dev-tools',
 
-    OPEN_OPTIONS_PAGE:'open-options-page'
+    OPEN_OPTIONS_PAGE:'open-options-page',
+
+    // 屏幕栅格标尺
+    GRID_RULER: 'grid-ruler'
 };
 
 (typeof module === 'object') ? module.exports = MSG_TYPE : '';

@@ -42,6 +42,7 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 - 随机密码生成（任意字符、任意长度、随机生成）
 - 编码规范检测（HTML/CSS/JS规范检测）
 - 页面性能检测（页面响应时间、Header监测）
+- 页面栅格标尺（页面栅格化、屏幕标尺）
 - Ajax调试功能（需在控制台中使用）
 - 网页编码设置（UTF-8、GBK、日文、韩文等）
 - 我的便签笔记（便签笔记，支持导出）
