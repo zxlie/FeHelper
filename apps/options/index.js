@@ -7,6 +7,7 @@ let Settings = Tarp.require('./settings');
 new Vue({
     el: '#pageContainer',
     data: {
+        defaultKey: 'Alt+Shift+F',
         selectedOpts: [],
         maxJsonKeysNumber: 0,
         auto_text_decode: false,
@@ -17,6 +18,16 @@ new Vue({
     },
 
     created: function () {
+
+        // 获取当前热键
+        chrome.commands && chrome.commands.getAll && chrome.commands.getAll(keys => {
+            keys.some(key => {
+                if (key.name === '_execute_browser_action' && key.shortcut) {
+                    this.defaultKey = key.shortcut;
+                    return true;
+                }
+            });
+        });
 
         Settings.getOptions((opts) => {
             this.selectedOpts = Object.keys(opts).filter(k => {
@@ -63,6 +74,13 @@ new Vue({
             setTimeout(() => {
                 this.close();
             }, 1000);
+        },
+
+        setShortcuts: function () {
+            chrome.tabs.create({
+                url: 'chrome://extensions/shortcuts'
+            });
+            return false;
         }
     }
 });

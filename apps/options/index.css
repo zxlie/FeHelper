@@ -115,3 +115,17 @@ h5,h4 {
     color: #fff;
     cursor: default;
 }
+#setShortcuts {
+    font-size: 14px;
+    text-decoration: underline;
+    color: #666;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+#setShortcuts:hover {
+    color:#f00;
+}
+.x-tips {
+    font-size: 12px;
+    color: #aaa;
+}

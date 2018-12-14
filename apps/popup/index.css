@@ -51,6 +51,7 @@ ul.fe-function-list li:last-child {
     border-bottom: none;
 }
 
+ul.fe-function-list li.x-hovered,
 ul.fe-function-list li:hover {
     color: #ff3C11;
     background: #f1f1f1;
