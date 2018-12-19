@@ -46,6 +46,7 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 - Ajax调试功能（需在控制台中使用）
 - 网页编码设置（UTF-8、GBK、日文、韩文等）
 - 我的便签笔记（便签笔记，支持导出）
+- 人像背景移除（将人物照片中的背景移除：抠图工具）
 
 ### 四、使用方法
 - iCON点击后的Popup窗口模式
