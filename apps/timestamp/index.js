@@ -14,7 +14,8 @@ new Vue({
         txtDesStamp: '',
         secFrom: 's',
         secTo: 's',
-        worldTime: {}
+        worldTime: {},
+        curGMT:(new Date()).getTimezoneOffset() / 60 * -1
     },
     mounted: function () {
         this.startTimestamp();
@@ -24,11 +25,12 @@ new Vue({
             let formatter = 'yyyy-MM-dd HH:mm:ss';
             window.intervalId = window.setInterval(() => {
                 let localDate = new Date();
-
-                this.txtNowDate = localDate.format(formatter);
-                this.txtNow = Math.round(localDate.getTime() / 1000) + ' s   / ' + localDate.getTime() + ' ms';
-
                 let gmtTime = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
+
+                let nowDate = new Date(gmtTime.getTime() + this.curGMT * 60 * 60000);
+                this.txtNowDate = nowDate.format(formatter);
+                this.txtNow = Math.round(nowDate.getTime() / 1000) + ' s   / ' + nowDate.getTime() + ' ms';
+
                 this.worldTime['local'] = this.txtNowDate;
                 this.worldTime['gmt'] = gmtTime.format(formatter);
 

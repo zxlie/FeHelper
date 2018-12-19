@@ -392,6 +392,9 @@ var BgPageInstance = (function () {
                     MENU_STICKY_NOTE: function (info, tab) {
                         _openFileAndRun(tab, MSG_TYPE.STICKY_NOTES);
                     },
+                    MENU_REMOVE_BG: function(info,tab){
+                        _openFileAndRun(tab, MSG_TYPE.REMOVE_BG);
+                    },
                     MENU_GRID_RULER: function(info,tab){
                         _doGridDetect(tab);
                     }
@@ -664,6 +667,10 @@ var BgPageInstance = (function () {
             // 打开设置页
             else if (request.type === MSG_TYPE.OPEN_OPTIONS_PAGE) {
                 chrome.runtime.openOptionsPage();
+            }
+            // 开启remove-bg功能
+            else if(request.type === MSG_TYPE.REMOVE_PERSON_IMG_BG) {
+                Tarp.require('../remove-bg/proxy').addBackgroundRemoveListener(callback);
             }
 
 

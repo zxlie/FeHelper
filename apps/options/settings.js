@@ -34,7 +34,16 @@ module.exports = (() => {
         'MAX_JSON_KEYS_NUMBER',
         'AUTO_TEXT_DECODE',
         'STICKY_NOTES',
-        'GRID_RULER'
+        'GRID_RULER',
+        'REMOVE_BG'
+    ];
+
+    // 默认处理关闭状态的功能，除非用户手动打开
+    let offDefaultList = [
+        'GRID_RULER',
+        'MENU_GRID_RULER',
+        'REMOVE_BG',
+        'MENU_REMOVE_BG'
     ];
 
     // 邮件菜单配置项
@@ -125,6 +134,10 @@ module.exports = (() => {
         MENU_GRID_RULER: {
             icon: '✚',
             text: '页面栅格标尺'
+        },
+        MENU_REMOVE_BG: {
+            icon: '⚘',
+            text: '人像背景移除'
         }
     };
 
@@ -171,7 +184,9 @@ module.exports = (() => {
                 } else if (typeof(opt) === 'number') {
                     rst[item] = opt;
                 } else if (opt !== 'false') {
-                    rst[item] = 'true';
+                    if(opt || !offDefaultList.includes(item)) {
+                        rst[item] = 'true';
+                    }
                 }
             });
             callback.call(null, rst);

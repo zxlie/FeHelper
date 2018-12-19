@@ -42,3 +42,14 @@ thead th {
     text-align: center;
     background: #f9f9f9;
 }
+.x-gmt-setting {
+    display: inline-block;
+    float: right;
+    position: relative;
+    top: -8px;
+    right: -13px;
+}
+.x-gmt-setting select {
+    width:auto;
+    display: inline;
+}

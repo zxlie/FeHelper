@@ -104,7 +104,11 @@ const MSG_TYPE = {
     OPEN_OPTIONS_PAGE:'open-options-page',
 
     // 屏幕栅格标尺
-    GRID_RULER: 'grid-ruler'
+    GRID_RULER: 'grid-ruler',
+
+    // 人像背景移除
+    REMOVE_PERSON_IMG_BG:'remove-person-img-bg',
+    REMOVE_BG:'remove-bg'
 };
 
 (typeof module === 'object') ? module.exports = MSG_TYPE : '';

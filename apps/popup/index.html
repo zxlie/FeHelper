@@ -47,6 +47,8 @@
                     <b></b>Ajax调试:<i>{{ ajaxDebugger }}</i></li>
                 <li class="-x-sticky-notes" @click="runHelper('STICKY_NOTES',1)" v-if="canMeShow.STICKY_NOTES">
                     <b></b>我的便签笔记</li>
+                <li class="-x-remove-bg" @click="runHelper('REMOVE_BG',1)" v-if="canMeShow.REMOVE_BG">
+                    <b></b>人像背景移除</li>
             </ul>
             <div class="fe-feedback">
 
