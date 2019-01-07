@@ -37,7 +37,7 @@ module.exports = (() => {
                     wrap_line_length: "120"
                 };
                 Tarp.require('../code-beautify/beautify.js');
-                js_beautify(source, opts, resp => beauty(resp));
+                beauty(js_beautify(source, opts));
                 break;
             case 'css':
                 Tarp.require('../code-beautify/beautify-css.js');
@@ -71,7 +71,7 @@ module.exports = (() => {
 
         tipsBar.find('button.yes').click((evt) => {
             tipsBar.find('button.yes,button.no').hide();
-            let elAsk = tipsBar.find('span.ask').text('正在努力美化，请稍后...');
+            let elAsk = tipsBar.find('span.ask').text('正在努力美化，请稍候...');
             format(fileType, source, () => {
                 elAsk.text('已为您美化完毕！');
                 $(document.body).removeClass('show-tipsbar').addClass('show-beautified');

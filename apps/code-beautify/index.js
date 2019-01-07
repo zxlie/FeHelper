@@ -6,7 +6,8 @@ new Vue({
     data: {
         selectedType: 'Javascript',
         sourceContent: '',
-        resultContent: ''
+        resultContent: '',
+        showCopyBtn: false
     },
 
     mounted: function () {
@@ -40,6 +41,7 @@ new Vue({
                 // 代码高亮
                 this.$nextTick(() => {
                     Prism.highlightAll();
+                    this.showCopyBtn = true;
                 });
             };
 
@@ -56,26 +58,51 @@ new Vue({
                         space_after_anon_function: true,
                         space_before_conditional: true,
                         unescape_strings: false,
-                        wrap_line_length: "120"
+                        wrap_line_length: "120",
+                        "max_preserve_newlines": "5",
+                        "jslint_happy": false,
+                        "end_with_newline": false,
+                        "indent_inner_html": false,
+                        "comma_first": false,
+                        "e4x": false
                     };
-                    Tarp.require('./beautify.js').js_beautify(this.sourceContent, opts, result => beauty(result));
+                    beauty(Tarp.require('../code-beautify/beautify.js').js_beautify(this.sourceContent, opts));
                     break;
                 case 'CSS':
-                    Tarp.require('./beautify-css.js').css_beautify(this.sourceContent, {}, result => beauty(result));
+                    Tarp.require('../code-beautify/beautify-css.js').css_beautify(this.sourceContent, {}, result => beauty(result));
                     break;
                 case 'HTML':
-                    Tarp.require('./beautify-html.js');
+                    Tarp.require('../code-beautify/beautify-html.js');
                     beauty(html_beautify(this.sourceContent));
                     break;
                 case 'SQL':
-                    Tarp.require('./vkbeautify.js');
+                    Tarp.require('../code-beautify/vkbeautify.js');
                     beauty(vkbeautify.sql(this.sourceContent, 4));
                     break;
                 default:
-                    Tarp.require('./vkbeautify.js');
+                    Tarp.require('../code-beautify/vkbeautify.js');
                     beauty(vkbeautify.xml(this.sourceContent));
             }
 
+        },
+
+        copy: function(){
+
+            let _copyToClipboard = function (text) {
+                let input = document.createElement('textarea');
+                input.style.position = 'fixed';
+                input.style.opacity = 0;
+                input.value = text;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('Copy');
+                document.body.removeChild(input);
+
+                alert('复制成功，随处粘贴可用！')
+            };
+
+            let txt = this.$refs.jfContentBox.textContent;
+            _copyToClipboard(txt);
         }
     }
 });

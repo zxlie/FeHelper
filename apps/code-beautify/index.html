@@ -45,8 +45,9 @@
             </div>
 
             <button id="btnFormat" class="btn btn-success ui-fl-r" @click="format">格式化</button>
+            <button id="btnCopy" class="btn btn-warning ui-fl-r ui-mr-10" @click="copy" v-show="showCopyBtn">复制结果</button>
         </div>
-        <div class="row" id="jfContent" v-html="resultContent"></div>
+        <div class="row" id="jfContent" ref="jfContentBox" v-html="resultContent"></div>
     </div>
 </div>
 <script src="../static/vendor/prism/prism.js"></script>
