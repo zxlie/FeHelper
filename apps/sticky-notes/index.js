@@ -7,8 +7,19 @@ let StickyNotes = (() => {
 
     // 添加事件监听
     let addListener = () => {
+
+        // 正在编辑中
+        let editing = false;
+
+        window.onbeforeunload = function(e){
+            if(editing) {
+                (e || window.event).returnValue = '当前还有未保存的笔记，确定要离开么？';
+            }
+        };
+
         // add note
         $('#addnote').click(function () {
+            editing = true;
             html5sticky.addNote();
             return false;
         });
@@ -24,10 +35,12 @@ let StickyNotes = (() => {
             html5sticky.deleteNote($(this));
             return false;
         }).delegate('.close_stickynote', 'click', function (e) {
+            editing = false;
             // close enlarged note
             html5sticky.closeNote($(this));
             return false;
         }).delegate('.save_stickynote', 'click', function (e) {
+            editing = false;
             // save the note
             html5sticky.saveNote($(this));
             return false;
