@@ -365,6 +365,9 @@ var BgPageInstance = (function () {
                     MENU_CODE_STANDARD: function (info, tab) {
                         _doFcpDetect(tab);
                     },
+                    MENU_PAGE_OPTIMI: function (info, tab) {
+                        _getPageWpoInfo();
+                    },
                     MENU_IMAGE_BASE64: function (info, tab) {
                         _openFileAndRun(tab, MSG_TYPE.IMAGE_BASE64, info.srcUrl);
                     },
@@ -373,9 +376,6 @@ var BgPageInstance = (function () {
                     },
                     MENU_CODE_COMPRESS: function (info, tab) {
                         _openFileAndRun(tab, MSG_TYPE.CODE_COMPRESS);
-                    },
-                    MENU_PAGE_OPTIMI: function (info, tab) {
-                        _openFileAndRun(tab, MSG_TYPE.SHOW_PAGE_LOAD_TIME);
                     },
                     MENU_TIME_STAMP: function (info, tab) {
                         _openFileAndRun(tab, MSG_TYPE.TIME_STAMP);

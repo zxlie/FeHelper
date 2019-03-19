@@ -49,7 +49,7 @@ const MSG_TYPE = {
     GET_PAGE_WPO_INFO: 'get_page_wpo_info',
 
     //查看加载时间
-    SHOW_PAGE_LOAD_TIME: "show-page-load-time",
+    SHOW_PAGE_LOAD_TIME: "wpo",
 
     TAB_CREATED_OR_UPDATED: 'tab_created_or_updated',
 
