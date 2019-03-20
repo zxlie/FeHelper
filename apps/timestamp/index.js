@@ -65,13 +65,13 @@ new Vue({
             let base = this.secFrom === 's' ? 1000 : 1;
             let format = 'yyyy-MM-dd HH:mm:ss' + (this.secFrom === 's' ? '' : ':SSS');
 
-            this.txtDesDate = (new Date(parseInt(this.txtSrcStamp, 10) * base)).format(format);
+            this.txtDesDate = (new Date(parseInt(this.txtSrcStamp, 10) * base + ( (new Date()).getTimezoneOffset() + this.curGMT * 60 ) * 60000)).format(format);
         },
         localeToStamp: function () {
             if (this.txtLocale && !/\s\d+:\d+:\d+/.test(this.txtLocale)) {
                 this.txtLocale += ' 00:00:00';
             }
-            let locale = Date.parse(this.txtLocale);
+            let locale = (new Date(Date.parse(this.txtLocale) - ( (new Date()).getTimezoneOffset() + this.curGMT * 60 ) * 60000)).getTime();
             if (isNaN(locale)) {
                 alert('请输入合法的时间格式，如：2014-04-01 10:01:01，或：2014-01-01');
             }
