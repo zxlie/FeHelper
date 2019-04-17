@@ -138,6 +138,10 @@ module.exports = (() => {
         MENU_REMOVE_BG: {
             icon: '⚘',
             text: '人像背景移除'
+        },
+        MENU_DOWNLOAD_CRX: {
+            icon:'↬',
+            text: '下载/分享插件'
         }
     };
 

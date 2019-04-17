@@ -7,8 +7,8 @@
 
 module.exports = function (MSG_TYPE) {
 
-    let MAX_PRIMARY_DIMENSION = 15000 * 2,
-        MAX_SECONDARY_DIMENSION = 4000 * 2,
+    let MAX_PRIMARY_DIMENSION = 50000 * 2,
+        MAX_SECONDARY_DIMENSION = 20000 * 2,
         MAX_AREA = MAX_PRIMARY_DIMENSION * MAX_SECONDARY_DIMENSION;
 
     let matches = ['http://*/*', 'https://*/*', 'ftp://*/*', 'file://*/*'],

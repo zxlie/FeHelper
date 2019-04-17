@@ -1,9 +1,9 @@
 {
   "name": "WEB前端助手(FeHelper)",
-  "version": "2019.03.2016",
+  "version": "2019.04.1715",
   "manifest_version": 2,
   "default_locale": "zh_CN",
-  "description": "FE助手：包括JSON格式化、二维码生成与解码、信息编解码、代码压缩、美化、页面取色、Markdown与HTML互转、网页滚动截屏、正则表达式、时间转换工具、编码规范检测、页面性能检测、Ajax接口调试、密码生成器、JSON比对工具、网页编码设置、便签笔记",
+  "description": "FE助手：JSON格式化、JSON比对、二维码生成与解码、信息编解码、代码压缩&美化、页面取色、Markdown与HTML、网页截屏、编码设置、正则、时间转换、网页性能检测、Ajax调试、密码生成器、便签笔记、chrome插件下载",
   "icons": {
     "16": "static/img/fe-16.png",
     "48": "static/img/fe-48.png",
