@@ -14,8 +14,8 @@ new Vue({
     mounted: function () {
         let bpInstance = chrome.extension.getBackgroundPage().BgPageInstance;
         let capturedData = bpInstance.getCapturedData();
-        if (capturedData && capturedData.imageURI && capturedData.imageURI.length) {
-            this.capturedImage = capturedData.imageURI[0];
+        if (capturedData && capturedData.fileSystemUrl) {
+            this.capturedImage = capturedData.fileSystemUrl;
             this.imageHTML = `<img class="img-result" src="${this.capturedImage}" />`;
             this.originPageInfo = JSON.stringify(capturedData.pageInfo, null, 4);
             this.defaultFilename = capturedData.filename;

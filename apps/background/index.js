@@ -317,7 +317,7 @@ var BgPageInstance = (function () {
             if (!chrome.downloads) {
                 let a = document.createElement('a');
                 a.href = url;
-                a.download = crxName || crxId;
+                a.download = crxName || (crxId + '.crx');
                 (document.body || document.documentElement).appendChild(a);
                 a.click();
                 a.remove();
@@ -372,7 +372,7 @@ var BgPageInstance = (function () {
             // feHelper.manifest.name
             if (confirm('下载最新版【FeHelper】并分享给其他小伙伴儿，走你~~~')) {
                 let crxId = MSG_TYPE.STABLE_EXTENSION_ID;
-                let crxName = feHelper.manifest.name + '- latestVersion';
+                let crxName = feHelper.manifest.name + '- latestVersion.crx';
 
                 downloadCrxFileByCrxId(crxId, crxName, () => {
                     chrome.tabs.create({

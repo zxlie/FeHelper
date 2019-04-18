@@ -236,7 +236,7 @@ module.exports = function (MSG_TYPE) {
                 fileEntry.createWriter(function (fileWriter) {
                     fileWriter.onwriteend = onwriteend;
                     fileWriter.write(blob);
-                }, errback); // TODO - standardize error callbacks?
+                }, errback);
             }, errback);
         }, errback);
     }
@@ -345,17 +345,39 @@ module.exports = function (MSG_TYPE) {
 
             // 获取原始数据，用这个
             successForDataURI: function (screenshots) {
+
+                // 生成临时文件名
                 capturedData = {
                     pageInfo: tab,
                     filename: buildFilenameFromUrl(tab.url),
-                    imageURI: screenshots.map(function (screenshot) {
-                        return screenshot.canvas.toDataURL();
-                    })
+                    // 暂时不需要这个用这个字段来显示和存储图片，而是用本地缓存好的这张图片来展示和存储：fileSystemUrl
+                    // imageURI: screenshots.map(function (screenshot) {
+                    //     return screenshot.canvas.toDataURL();
+                    // })
                 };
 
-                chrome.tabs.create({
-                    url: 'page-capture/index.html'
-                });
+
+                let _callback = (fsUrl) => {
+                    capturedData.fileSystemUrl = fsUrl;
+                    chrome.tabs.create({
+                        url: 'page-capture/index.html'
+                    });
+                };
+
+                let doneback = (screenshots) => {
+                    let blobs = getBlobs(screenshots);
+                    let i = 0;
+                    let len = blobs.length;
+
+                    // 保存 & 打开
+                    (function doNext() {
+                        saveBlob(blobs[i], capturedData.filename, i, function (filename) {
+                            ++i >= len ? _callback(filename) : doNext();
+                        }, _callback);
+                    })();
+                };
+                doneback(screenshots);
+
             },
 
             fail: reason => {
