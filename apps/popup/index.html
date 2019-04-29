@@ -43,6 +43,8 @@
                     <b></b>页面性能检测</li>
                 <li class="-x-grid-ruler" @click="runHelper('GRID_RULER',0)" v-if="canMeShow.GRID_RULER">
                     <b></b>页面栅格标尺</li>
+                <li class="-x-multi-toolkit" @click="runHelper('MULTI_TOOLKIT',1)" v-if="canMeShow.MULTI_TOOLKIT">
+                    <b></b>多维小工具集</li>
                 <li class="-x-ajax-debugger" title="在开发者工具-Console面板使用" @click="runHelper('AJAX_DEBUGGER',0)" v-if="canMeShow.AJAX_DEBUGGER">
                     <b></b>Ajax调试:<i>{{ ajaxDebugger }}</i></li>
                 <li class="-x-sticky-notes" @click="runHelper('STICKY_NOTES',1)" v-if="canMeShow.STICKY_NOTES">

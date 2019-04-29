@@ -493,6 +493,9 @@ var BgPageInstance = (function () {
                     MENU_REMOVE_BG: function (info, tab) {
                         _openFileAndRun(tab, MSG_TYPE.REMOVE_BG);
                     },
+                    MENU_MULTI_TOOLKIT: function (info, tab) {
+                        _openFileAndRun(tab, MSG_TYPE.MULTI_TOOLKIT);
+                    },
                     MENU_GRID_RULER: function (info, tab) {
                         _doGridDetect(tab);
                     },

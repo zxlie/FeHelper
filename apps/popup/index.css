@@ -154,9 +154,11 @@ ul.fe-function-list li.-x-sticky-notes b {
 ul.fe-function-list li.-x-grid-ruler b {
     background-position: -33px -127px;
 }
-
 ul.fe-function-list li.-x-remove-bg b {
     background-position: -145px -127px;
+}
+ul.fe-function-list li.-x-multi-toolkit b {
+    background-position: -176px -111px;
 }
 
 ul.fe-function-list li i {

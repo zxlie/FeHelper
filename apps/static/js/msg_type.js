@@ -111,6 +111,9 @@ const MSG_TYPE = {
     // 屏幕栅格标尺
     GRID_RULER: 'grid-ruler',
 
+    // 多维小工具
+    MULTI_TOOLKIT: 'toolkit',
+
     // 人像背景移除
     REMOVE_PERSON_IMG_BG:'remove-person-img-bg',
     REMOVE_BG:'remove-bg'

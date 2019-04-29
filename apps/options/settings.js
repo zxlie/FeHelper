@@ -35,7 +35,8 @@ module.exports = (() => {
         'AUTO_TEXT_DECODE',
         'STICKY_NOTES',
         'GRID_RULER',
-        'REMOVE_BG'
+        'REMOVE_BG',
+        'MULTI_TOOLKIT'
     ];
 
     // 默认处理关闭状态的功能，除非用户手动打开
@@ -134,6 +135,10 @@ module.exports = (() => {
         MENU_GRID_RULER: {
             icon: '✚',
             text: '页面栅格标尺'
+        },
+        MENU_MULTI_TOOLKIT: {
+            icon: '❖',
+            text: '多维小工具集'
         },
         MENU_REMOVE_BG: {
             icon: '⚘',
