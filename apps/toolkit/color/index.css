@@ -1,0 +1,17 @@
+#tab-color .col-input {
+    display: inline-block;
+    width: 220px;
+}
+#tab-color label {
+    margin-right: 0;
+}
+#tab-color .demo-color {
+    display: inline-block;
+    width: 60px;
+    height: 24px;
+    border: 1px solid #000;
+    margin-left: 5px;
+}
+#tab-color .x-xlabel {
+    margin-left: 80px;
+}

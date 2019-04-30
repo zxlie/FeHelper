@@ -1,0 +1,21 @@
+.mod-radios {
+    font-size: 14px;
+}
+.mod-value label{
+    margin-right: 0;
+    font-size: 16px;
+}
+.mod-value .x-input {
+    display: inline-block;
+    width: 400px;
+}
+select.x-select {
+    display: inline-block;
+    width: 114px;
+}
+.radix-tips {
+    margin-left: 160px;
+    font-size: 12px;
+    color: #bbb;
+    font-style: italic;
+}

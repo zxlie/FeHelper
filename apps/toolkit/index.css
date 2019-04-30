@@ -26,38 +26,11 @@
     color: #48b;
 }
 
-
 .mod-tab {
     display: none;
 }
 .ui-tabs {
     padding-bottom: 5em;
-}
-.mod-radios {
-    font-size: 14px;
-}
-.mod-tab label {
-    margin-right: 20px;
-    font-weight: normal;
-    font-size: 14px;
-}
-.mod-value label{
-    margin-right: 0;
-    font-size: 16px;
-}
-.mod-value .x-input {
-    display: inline-block;
-    width: 400px;
-}
-select.x-select {
-    display: inline-block;
-    width: 114px;
-}
-.radix-tips {
-    margin-left: 160px;
-    font-size: 12px;
-    color: #bbb;
-    font-style: italic;
 }
 .row.x-tips {
     font-size: 14px;
@@ -65,21 +38,8 @@ select.x-select {
     font-style: italic;
     margin-bottom: 40px;
 }
-
-.mod-color .col-input {
-    display: inline-block;
-    width: 220px;
-}
-.mod-color label {
-    margin-right: 0;
-}
-.mod-color .demo-color {
-    display: inline-block;
-    width: 60px;
-    height: 24px;
-    border: 1px solid #000;
-    margin-left: 5px;
-}
-.mod-color .x-xlabel {
-    margin-left: 80px;
+.mod-tab label {
+    margin-right: 20px;
+    font-weight: normal;
+    font-size: 14px;
 }
