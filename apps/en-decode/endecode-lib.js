@@ -275,6 +275,121 @@ module.exports = (() => {
         }
     };
 
+    /**
+     * 字符串与Hex编码互转
+     * @param input
+     * @returns {string}
+     */
+    let hexTools = (function (input) {
+        let utf8encode = function (str, isGetBytes) {
+            let back = [];
+            let byteSize = 0;
+            for (let i = 0; i < str.length; i++) {
+                let code = str.charCodeAt(i);
+                if (0x00 <= code && code <= 0x7f) {
+                    byteSize += 1;
+                    back.push(code);
+                } else if (0x80 <= code && code <= 0x7ff) {
+                    byteSize += 2;
+                    back.push((192 | (31 & (code >> 6))));
+                    back.push((128 | (63 & code)))
+                } else if ((0x800 <= code && code <= 0xd7ff)
+                    || (0xe000 <= code && code <= 0xffff)) {
+                    byteSize += 3;
+                    back.push((224 | (15 & (code >> 12))));
+                    back.push((128 | (63 & (code >> 6))));
+                    back.push((128 | (63 & code)))
+                }
+            }
+            for (i = 0; i < back.length; i++) {
+                back[i] &= 0xff;
+            }
+            if (isGetBytes) {
+                return back
+            }
+            if (byteSize <= 0xff) {
+                return [0, byteSize].concat(back);
+            } else {
+                return [byteSize >> 8, byteSize & 0xff].concat(back);
+            }
+        };
+
+
+        let utf8decode = function (arr) {
+            if (typeof arr === 'string') {
+                return arr;
+            }
+            let UTF = '', _arr = arr;
+            for (let i = 0; i < _arr.length; i++) {
+                let one = _arr[i].toString(2),
+                    v = one.match(/^1+?(?=0)/);
+                if (v && one.length === 8) {
+                    let bytesLength = v[0].length;
+                    let store = _arr[i].toString(2).slice(7 - bytesLength);
+                    for (let st = 1; st < bytesLength; st++) {
+                        store += _arr[st + i].toString(2).slice(2)
+                    }
+                    UTF += String.fromCharCode(parseInt(store, 2));
+                    i += bytesLength - 1
+                } else {
+                    UTF += String.fromCharCode(_arr[i])
+                }
+            }
+            return UTF
+        };
+
+
+        let hexEncode = function (str) {
+            let charBuf = utf8encode(str, true);
+            let re = '';
+
+            for (let i = 0; i < charBuf.length; i++) {
+                let x = (charBuf[i] & 0xFF).toString(16);
+                if (x.length === 1) {
+                    x = '0' + x;
+                }
+                re += x;
+            }
+            return re;
+        };
+
+
+        let hexDecode = function (str) {
+            let buf = [];
+            for (let i = 0; i < str.length; i += 2) {
+                buf.push(parseInt(str.substring(i, i + 2), 16));
+            }
+            return utf8decode(buf);
+        };
+
+        return {hexEncode, hexDecode};
+    })();
+
+
+    /**
+     * html代码转换成js
+     * @param txt
+     * @returns {string}
+     */
+    let _html2js = function (txt) {
+        let htmlArr = txt.replace(/\\/g, "\\\\").replace(/\\/g, "\\/").replace(/\'/g, "\\\'").split('\n');
+        let len = htmlArr.length;
+        let outArr = [];
+        outArr.push("let htmlCodes = [\n");
+        htmlArr.forEach((value, index) => {
+            if (value !== "") {
+                if (index === len - 1) {
+                    outArr.push("\'" + value + "\'");
+                } else {
+                    outArr.push("\'" + value + "\',\n");
+                }
+            }
+
+        });
+        outArr.push("\n].join(\"\");");
+        return outArr.join("");
+    };
+
     return {
         uniEncode: _uniEncode,
         uniDecode: _uniDecode,
@@ -286,7 +401,10 @@ module.exports = (() => {
         utf8to16: _utf8to16,
         md5: md5,
         gzipEncode: gzipEncode,
-        gzipDecode: gzipDecode
+        gzipDecode: gzipDecode,
+        hexEncode: hexTools.hexEncode,
+        hexDecode: hexTools.hexDecode,
+        html2js: _html2js
     };
 })();
 

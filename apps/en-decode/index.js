@@ -57,6 +57,12 @@ new Vue({
                 } else if (this.selectedType === 'md5Encode') {
 
                     this.resultContent = tools.md5(this.sourceContent);
+                } else if (this.selectedType === 'hexEncode') {
+
+                    this.resultContent = tools.hexEncode(this.sourceContent);
+                } else if (this.selectedType === 'hexDecode') {
+
+                    this.resultContent = tools.hexDecode(this.sourceContent);
                 }else if (this.selectedType === 'gzipEncode') {
 
                     this.resultContent = tools.gzipEncode(this.sourceContent);
@@ -65,7 +71,7 @@ new Vue({
                     this.resultContent = tools.gzipDecode(this.sourceContent);
                 }  else if (this.selectedType === 'html2js') {
 
-                    this.resultContent = this.html2js(this.sourceContent);
+                    this.resultContent = tools.html2js(this.sourceContent);
                 }
             });
         },
@@ -73,25 +79,6 @@ new Vue({
         clear: function() {
             this.sourceContent = '';
             this.resultContent = '';
-        },
-
-        html2js: function (txt) {
-            let htmlArr = txt.replace(/\\/g, "\\\\").replace(/\\/g, "\\/").replace(/\'/g, "\\\'").split('\n');
-            let len = htmlArr.length;
-            let outArr = [];
-            outArr.push("var htmlCodes = [\n");
-            htmlArr.forEach((value, index) => {
-                if (value !== "") {
-                    if (index === len - 1) {
-                        outArr.push("\'" + value + "\'");
-                    } else {
-                        outArr.push("\'" + value + "\',\n");
-                    }
-                }
-
-            });
-            outArr.push("\n].join(\"\");");
-            return outArr.join("");
         },
 
         getResult: function () {
