@@ -139,6 +139,7 @@ gulp.task('zip', () => {
 
     // web_accessible_resources 中也不需要加载这些冗余的文件了
     manifest.web_accessible_resources = manifest.web_accessible_resources.filter(f => fileList.indexOf(f) === -1);
+    manifest.name = manifest.name.replace('-Dev','');
     fs.writeFileSync(pathOfMF, JSON.stringify(manifest));
 
     // ============压缩打包================================================

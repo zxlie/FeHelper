@@ -1,0 +1,73 @@
+.mod-radios {
+    font-size: 14px;
+}
+.mod-value label{
+    margin-right: 0;
+    font-size: 16px;
+}
+.mod-value .x-input {
+    display: inline-block;
+    width: 400px;
+}
+select.x-select {
+    display: inline-block;
+    width: 114px;
+}
+.radix-tips {
+    margin-left: 160px;
+    font-size: 12px;
+    color: #bbb;
+    font-style: italic;
+}
+
+#containerPayback table th {
+    vertical-align: middle;
+    text-align: center;
+    background-color: #f9f9f9;
+}
+#containerPayback table td {
+    font-weight: normal;
+    font-size: 14px;
+}
+#containerPayback table td.x-name {
+    text-align: center;
+}
+#containerPayback table td.x-bill {
+    color: #000;
+}
+#containerPayback table td.x-left {
+     color: #aaa;
+}
+#containerPayback table tr.x-all,
+#containerPayback table tr.x-last td.x-total {
+    background-color: #ffffe4;
+}
+#containerPayback table tr.x-all td.x-name ,
+#containerPayback table tr.x-all td.x-bill ,
+#containerPayback table tr.x-all td.x-amount ,
+#containerPayback table tr.x-all td.x-interest  {
+    color: #f00;
+}
+.mod-inputs {
+    font-size: 14px;
+}
+.mod-inputs .form-control {
+    width: 120px;
+    display: inline-block;
+    margin:0 10px 10px 0;
+}
+.mod-inputs label {
+    margin-right: 0;
+}
+.mod-inputs .x-sp {
+    margin-left: 50px;
+}
+.mod-inputs span {
+    color: #aaa;
+}
+#containerPayback .x-tips {
+    margin: 10px 0 20px 0;
+}
+#containerPayback .x-btn {
+    margin-left: 20px;
+}

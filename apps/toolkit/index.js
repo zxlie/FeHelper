@@ -4,10 +4,12 @@
 new Vue({
     el: '#pageContainer',
     data: {
-        loadManager: {
-            radix: 0,
-            color: 0
-        }
+        tools: {
+            radix: '进制转换',
+            color: '颜色转换',
+            payback: '还款计算器'
+        },
+        loadManager: {}
     },
 
     mounted: function () {
@@ -15,11 +17,16 @@ new Vue({
         // 通过Tab的切换，来动态加载小工具
         jQuery('#tabs').tabs({
             show: (event, ui) => {
+
                 window.location.hash = ui.panel.id;
                 let widget = ui.panel.id.replace('tab-', '');
+
+                document.title = '多维小工具集 - ' + this.tools[widget];
+
                 if (this.loadManager[widget]) {
                     return;
                 }
+
                 fetch(widget + '/index.html').then(resp => {
                     resp.text().then(html => {
                         this.loadManager[widget] = true;
@@ -42,7 +49,5 @@ new Vue({
         });
     },
 
-    methods: {
-
-    }
+    methods: {}
 });
