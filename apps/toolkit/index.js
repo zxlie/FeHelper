@@ -7,6 +7,7 @@ new Vue({
         tools: {
             radix: '进制转换',
             color: '颜色转换',
+            crontab: 'Crontab生成器',
             payback: '还款计算器'
         },
         loadManager: {}

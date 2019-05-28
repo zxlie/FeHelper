@@ -43,7 +43,7 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 - 编码规范检测（HTML/CSS/JS规范检测）
 - 页面性能检测（页面响应时间、Header监测）
 - 页面栅格标尺（页面栅格化、屏幕标尺）
-- 多维小工具集（进制转换、RGBA/HEX颜色转换等）
+- 多维小工具集（进制转换、RGB/HEX颜色转换、Crontab、还款计算器等）
 - Ajax调试功能（需在控制台中使用）
 - 网页编码设置（UTF-8、GBK、日文、韩文等）
 - 我的便签笔记（便签笔记，支持导出）

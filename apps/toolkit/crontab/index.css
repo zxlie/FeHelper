@@ -1,0 +1,235 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+::-moz-selection {
+    background-color: rgba(255, 255, 128, 0.2);
+}
+::selection {
+    background-color: rgba(255, 255, 128, 0.2);
+}
+
+.mod-crontab {
+    text-align: center;
+}
+.mod-crontab a,
+.mod-crontab a:visited,
+.mod-crontab a.active {
+    color: #cccccc;
+}
+.mod-crontab h1,
+.mod-crontab .text-highlight {
+    color: gold;
+    font-size: 75%;
+    margin-bottom: 10px;
+    margin-top: 25px;
+}
+.mod-crontab .text-highlight a {
+    color: gold;
+}
+.mod-crontab .monitoring {
+    font-size: 75%;
+    line-height: 1.25em;
+    color: #a8a8a8;
+    margin-bottom: 25px;
+}
+.mod-crontab div.select {
+    position: relative;
+    display: inline-block;
+    height: 15em;
+}
+.mod-crontab div.select label {
+    position: absolute;
+    top: 28px;
+    left: 25px;
+    transform: rotate(45deg);
+    transform-origin: left top 0;
+}
+.mod-crontab table {
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse: collapse;
+    border-top: 1px solid #333333;
+    border-bottom: 1px solid #333333;
+    width: 100%;
+    max-width: 400px;
+}
+.mod-crontab table th,
+.mod-crontab table td {
+    border-top: 1px solid #333333;
+    border-bottom: 1px solid #333333;
+}
+.mod-crontab table th {
+    width: 13em;
+    text-align: right;
+    padding: 0.2em 1em 0.2em 0;
+}
+.mod-crontab table td {
+    text-align: left;
+    padding: 0.2em 0 0.2em 1em;
+}
+.mod-crontab .blurb {
+    font-size: 75%;
+    color: #fff !important;
+}
+.mod-crontab .blurb a {
+    color: #fff;
+}
+#contabContentBox {
+    min-height: 500px;
+}
+.mod-crontab div.warning {
+    color: saddlebrown;
+    font-size: 75%;
+    height: 0;
+}
+.mod-crontab .text-editor input {
+    font-family: "Courier New", Courier, monospace;
+    text-align: center;
+    font-size: 250%;
+    width: 100%;
+    background-color: #333333;
+    border: 1px solid #cccccc;
+    border-radius: 0.6em;
+    color: #ffffff;
+    padding-top: 0.075rem;
+    box-shadow: 0 0 20px #888;
+}
+.mod-crontab .text-editor {
+    margin-bottom: 10px;
+}
+.mod-crontab .text-editor input.invalid {
+    border: 1px solid darkred;
+}
+.mod-crontab .text-editor input.warning {
+    border: 1px solid saddlebrown;
+}
+.mod-crontab .text-editor input:focus {
+    outline: none;
+}
+.mod-crontab .text-editor input::-ms-clear {
+    width: 0;
+    height: 0;
+}
+.mod-crontab .text-editor input::-moz-selection {
+    color: #f00;
+    background-color: rgba(255, 255, 128, 0.2);
+}
+.mod-crontab .text-editor input::selection {
+    color: #f00;
+    background-color: rgba(255, 255, 128, 0.2);
+}
+.mod-crontab .clickable {
+    text-decoration: underline;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.mod-crontab .clickable:hover {
+    color:#b00;
+}
+.mod-crontab .part-explanation {
+    font-size: 75%;
+    color: #888;
+    height: 24em;
+}
+.mod-crontab .part-explanation div {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 1em 0 0;
+}
+.mod-crontab .part-explanation .active {
+    color: #f00;
+}
+.mod-crontab .part-explanation .invalid {
+    background-color: darkred;
+    color: #ff0;
+}
+.mod-crontab .part-explanation .warning {
+    background-color: saddlebrown;
+}
+.mod-crontab .part-explanation .clickable {
+    border-radius: 1em;
+    padding: 0.1em 0.36em;
+}
+.mod-crontab .part-explanation .clickable:last-child {
+    margin: 0;
+}
+.mod-crontab .human-readable {
+    font-size: 14px;
+    min-height: 2.2em;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-pack: end;
+    justify-content: flex-end;
+    -ms-flex-line-pack: end;
+    align-content: flex-end;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    margin-bottom: 0.2em;
+    margin-top: 1.25em;
+}
+.mod-crontab .human-readable .active {
+    color: #f00;
+}
+.mod-crontab .next-date {
+    font-size: 75%;
+    margin-left: 0.5em;
+}
+.mod-crontab .example {
+    text-align: right;
+    font-size: 75%;
+    margin-top: -1em;
+    margin-bottom: 3px;
+}
+.mod-crontab .monitor {
+    border: 1px dotted #666666;
+    border-radius: 0.2em;
+    margin: 3em 0;
+    padding: 0.2em 0;
+    min-height: 10em;
+    color: #666666;
+}
+.mod-crontab .monitor a,
+.mod-crontab .monitor a:visited,
+.mod-crontab .monitor a:active {
+    color: #666666;
+}
+.mod-crontab .monitor .input-copy {
+    display: -ms-flexbox;
+    display: flex;
+    margin: 0.5em 0;
+}
+.mod-crontab .monitor .input-copy input {
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    margin: 0 0;
+    border: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0.2em 0.5em;
+    background-color: #262626;
+}
+.mod-crontab .monitor .input-copy button {
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto;
+    line-height: 0;
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    background-color: #333333;
+    border-color: #666666;
+    border-width: 1px;
+}
+.mod-crontab .monitor .input-copy .copy {
+    fill: #666666;
+    color: inherit;
+}
+.mod-crontab .monitor .info {
+    font-size: 75%;
+    margin-top: 2em;
+}
