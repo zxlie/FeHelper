@@ -54,7 +54,7 @@ new Vue({
                 alert('在哪儿能贷30年？');
                 return false;
             }
-            if (!this.yearRate || /\D|\./.test(this.yearRate) || parseFloat(this.yearRate) <= 0) {
+            if (!this.yearRate || !/\d|\./.test(this.yearRate) || parseFloat(this.yearRate) <= 0) {
                 alert('请输入正确的贷款年化利率！');
                 return false;
             }
