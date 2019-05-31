@@ -1,9 +1,8 @@
 .mod-radios {
     font-size: 14px;
 }
-.mod-value label{
+.mod-value label {
     margin-right: 0;
-    font-size: 16px;
 }
 .mod-value .x-input {
     display: inline-block;
@@ -70,4 +69,22 @@ select.x-select {
 }
 #containerPayback .x-btn {
     margin-left: 20px;
+}
+#containerPayback .x-exchange {
+    float: right;
+    font-size: 12px;
+    color: #48b;
+    text-decoration: underline;
+}
+#containerPayback .x-exchange:hover {
+    cursor: pointer;
+    color: #f00;
+}
+.x-calc-title {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+.x-revrate {
+    color: #f00;
 }
