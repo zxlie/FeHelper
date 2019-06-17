@@ -1,0 +1,139 @@
+@import url("../static/vendor/codemirror/codemirror.css");
+@import url("../static/css/bootstrap.min.css");
+
+.wrapper.wp-modifiers {
+	width:auto;
+	background: transparent;
+}
+.panel-title a.x-tooltip {
+	font-size: 12px;
+	color: #48b;
+	margin-left: 10px;
+}
+.panel-title a.x-tooltip:hover {
+	text-decoration: underline;
+}
+.x-toolbox {
+	float: right;
+}
+.x-toolbox .x-line {
+	font-size: 12px;
+	margin-left: 10px;
+	color: #bbb;
+}
+.x-wrapper {
+	position: relative;
+	color: #666;
+}
+.x-wrapper .x-sidebar {
+	position: absolute;
+	left: 0;
+	top:0;
+	width: 300px;
+	bottom: 0;
+	background: #fefefe;
+	border-right: 1px solid #ddd;
+}
+.x-sidebar .x-tools {
+	background: #f1f1f1;
+	padding: 2px 10px;
+	text-align: right;
+	border-bottom: 1px solid #ccc;
+}
+.x-sidebar .x-tools a{
+	color:#48b;
+	font-size: 12px;
+}
+.x-sidebar ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.x-sidebar ul li {
+	padding: 5px 10px;
+	background-color: #fff;
+	border-bottom: 1px solid #eee;
+	cursor: pointer;
+	font-size: 14px;
+	overflow: hidden;
+	text-overflow:ellipsis;
+	white-space: nowrap;
+	position: relative;
+}
+.x-sidebar ul li.x-selected:after {
+	content: '\2714';
+	position: absolute;
+	right: 10px;
+}
+.x-sidebar ul li:hover {
+	background: #f5f5f5;
+	color: #48b;
+}
+
+#main {
+	margin-left:300px;
+	padding: 20px;
+	position: relative;
+}
+.m-mask {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	right: 10px;
+	bottom: 10px;
+	background: #000;
+	opacity: 0.03;
+	z-index: 100;
+	border-radius: 10px;
+}
+.m-form {
+	padding: 0 20px;
+}
+.m-form.x-masked {
+	opacity: 0.4;
+}
+#mName,#mPattern,#mFilter,#mRefresh {
+	width: 600px;
+}
+.m-form .CodeMirror {
+	height: auto;
+}
+.m-form .CodeMirror-scroll {
+	min-height: 300px;
+}
+.xm-icon {
+	color: #fff;
+	display: inline-block;
+	vertical-align: middle;
+	font: normal normal bold 12px/1 "normal";
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	padding: 2px 5px;
+	height: 16px;
+	border-radius: 4px;
+	text-align: center;
+	font-weight: bold;
+}
+.xm-icon.xm-enable {
+	background-color: #07C160;
+}
+.xm-icon.xm-enable::before {
+	content: "\542F\7528\4E2D";
+}
+.xm-icon.xm-disable {
+	background-color: #f0ad4e;
+}
+.xm-icon.xm-disable::before {
+	content: "\5DF2\505C\7528";
+}
+.xm-icon.xm-create {
+	background-color: #868482;
+}
+.xm-icon.xm-create::before {
+	content: "\672A\4FDD\5B58";
+}
+.x-tips {
+	font-size: 12px;
+	color: #f00;
+	background-color: #ffffdd;
+}

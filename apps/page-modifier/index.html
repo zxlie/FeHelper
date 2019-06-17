@@ -1,0 +1,116 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8"/>
+        <title>网页再造精灵</title>
+        <link rel="stylesheet" href="index.css"/>
+        <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    </head>
+
+    <body>
+
+        <div class="wrapper wp-modifiers" id="pageContainer">
+            <div class="panel panel-default" style="margin-bottom: 0px;">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank" class="x-a-high">
+                            <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：网页再造精灵
+
+                        <span class="x-toolbox">
+                            <a href="#" id="import" @click="importModifier" class="x-tooltip blue-tooltip">导入精灵</a><span class="x-line">|</span>
+                            <a href="#" id="export" @click="exportModifier" class="x-tooltip blue-tooltip">导出精灵</a><span class="x-line">|</span>
+                            <a href="#" id="disable" @click="disableModifier()" class="x-tooltip blue-tooltip">全部停用</a><span class="x-line">|</span>
+                            <a href="#" id="remove" @click="removeModifier" class="x-tooltip blue-tooltip">全部删除</a>
+                        </span>
+
+                    </h3>
+                </div>
+
+                <div class="x-wrapper">
+                    <div class="x-sidebar">
+                        <div class="x-tools">
+                            <a href="#" @click="createModifier">添加小精灵&gt;&gt;</a>
+                        </div>
+                        <ul id="modifiers">
+                            <li v-for="cm in cachedModifiers" :id="cm.id" :class="{'x-selected': editCM.id === cm.id}"
+                                @click="selectModifier(cm)">
+                                <i class="xm-icon" :class="cm.mDisabled === null ? 'xm-create' : (cm.mDisabled ? 'xm-disable' : 'xm-enable')"></i>
+                                <span v-html="cm.mName || '未命名'"></span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="main">
+                        <form action="#" class="m-form x-masked" ref="mForm">
+                            <div class="row">
+                                <label for="mName">网页精灵名称：</label>
+                                <input type="text" id="mName" v-model="editCM.mName" class="form-control ui-d-ib" placeholder="比如：百度搜索结果过滤广告">
+                            </div>
+
+                            <div class="row ui-mt-10">
+                                <label for="mPattern">网址匹配规则：</label>
+                                <input type="text" id="mPattern" v-model="editCM.mPattern" class="form-control ui-d-ib" placeholder="如：/^https:\/\/www\.baidu\.com\/s/">
+                            </div>
+
+                            <div class="row ui-mt-10">
+                                <label for="mFilter">网页特效设定：</label>
+                                <select id="mFilter" v-model="editCM.mFilter" class="form-control ui-d-ib">
+                                    <option value="0">无特效</option>
+                                    <option value="1">特效模式一</option>
+                                    <option value="2">特效模式二</option>
+                                    <option value="3">特效模式三</option>
+                                    <option value="4">特效模式四</option>
+                                    <option value="5">特效模式五</option>
+                                </select>
+                            </div>
+
+                            <div class="row ui-mt-10">
+                                <label for="mRefresh">网页自动刷新：</label>
+                                <select id="mRefresh" v-model="editCM.mRefresh" class="form-control ui-d-ib">
+                                    <option value="0">不自动刷新</option>
+                                    <option value="1">每 1秒 一次</option>
+                                    <option value="3">每 3秒 一次</option>
+                                    <option value="5">每 5秒 一次</option>
+                                    <option value="10">每 10秒 一次</option>
+                                    <option value="15">每 15秒 一次</option>
+                                    <option value="30">每 30秒 一次</option>
+                                    <option value="60">每 1分（60秒） 一次</option>
+                                    <option value="90">每 1分半（90秒） 一次</option>
+                                    <option value="120">每 2分（120秒） 一次</option>
+                                    <option value="180">每 3分（180秒） 一次</option>
+                                    <option value="300">每 5分（300秒） 一次</option>
+                                    <option value="600">每 10分（600秒） 一次</option>
+                                </select>
+
+                            </div>
+
+                            <div class="row ui-mt-10">
+                                <label for="mScript">精灵注入脚本：</label>
+                                <span class="x-tips">（Tips：可以注入任意JS代码，甚至编写一个智能机器人也是可以的，比如网页定制、自动抢票啥的！）</span>
+                                <textarea id="mScript" ref="mScript" v-model="editCM.mScript" cols="30" rows="10" class="form-control"></textarea>
+                            </div>
+
+                            <div class="row ui-mt-10">
+                                <input type="button" @click="saveModifier(true)" value="保存" class="btn btn-success ui-mr-20">
+                                <input type="button" @click="disableModifier(editCM)" :value="editCM.mDisabled ? '启用' : '停用'" class="btn btn-warning ui-mr-20">
+                                <input type="button" @click="removeModifier(editCM)" value="删除" class="btn btn-danger">
+                            </div>
+                        </form>
+
+                        <div class="m-mask"></div>
+
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+
+        <script src="../static/js/msg_type.js"></script>
+        <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+        <script src="../static/vendor/codemirror/codemirror.js"></script>
+        <script src="../static/vendor/codemirror/javascript.js"></script>
+        <script src="../static/vendor/codemirror/active-line.js"></script>
+        <script src="../static/vendor/codemirror/matchbrackets.js"></script>
+        <script src="../static/vendor/codemirror/placeholder.js"></script>
+        <script src="index.js"></script>
+    </body>
+</html>

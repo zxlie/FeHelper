@@ -160,6 +160,9 @@ ul.fe-function-list li.-x-remove-bg b {
 ul.fe-function-list li.-x-multi-toolkit b {
     background-position: -176px -111px;
 }
+ul.fe-function-list li.-x-page-modifier b {
+    background-position: -32px -95px;
+}
 
 ul.fe-function-list li i {
     color: #aaa;

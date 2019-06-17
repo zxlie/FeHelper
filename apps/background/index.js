@@ -217,21 +217,24 @@ var BgPageInstance = (function () {
 
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             let tab = tabs[0];
-            callback && callback(feHelper.ajaxDebuggerMgr[tab.id]);
+            if (tab) {
+                callback && callback(feHelper.ajaxDebuggerMgr[tab.id]);
 
-            if (withAlert) {
-                let msg = '';
-                if (feHelper.ajaxDebuggerMgr[tab.id]) {
-                    if (devToolsDetected) {
-                        msg = 'DevTools已打开，确保已切换到【Console】界面，并关注信息输出，愉快的进行Ajax Debugger！'
+                if (withAlert) {
+                    let msg = '';
+                    if (feHelper.ajaxDebuggerMgr[tab.id]) {
+                        if (devToolsDetected) {
+                            msg = 'DevTools已打开，确保已切换到【Console】界面，并关注信息输出，愉快的进行Ajax Debugger！'
+                        } else {
+                            msg = '请打开DevTools，并切换到【Console】界面，关注信息输出，愉快的进行Ajax Debugger！';
+                        }
                     } else {
-                        msg = '请打开DevTools，并切换到【Console】界面，关注信息输出，愉快的进行Ajax Debugger！';
+                        msg = '已停止当前页面的Ajax Debugger功能！';
                     }
-                } else {
-                    msg = '已停止当前页面的Ajax Debugger功能！';
+                    alert(msg);
                 }
-                alert(msg);
             }
+
         });
     };
 
@@ -496,6 +499,9 @@ var BgPageInstance = (function () {
                     MENU_MULTI_TOOLKIT: function (info, tab) {
                         _openFileAndRun(tab, MSG_TYPE.MULTI_TOOLKIT);
                     },
+                    MENU_PAGE_MODIFIER: function (info, tab) {
+                        _openFileAndRun(tab, MSG_TYPE.PAGE_MODIFIER);
+                    },
                     MENU_GRID_RULER: function (info, tab) {
                         _doGridDetect(tab);
                     },
@@ -706,7 +712,7 @@ var BgPageInstance = (function () {
                     return fileType;
                 }).toString() + ')()'
             }, function (fileType) {
-                if (fileType[0] === 'javascript' || fileType[0] === 'css') {
+                if (fileType && fileType.length && (fileType[0] === 'javascript' || fileType[0] === 'css')) {
                     Settings.getOptsFromBgPage(opts => {
                         opts.JS_CSS_PAGE_BEAUTIFY && chrome.tabs.sendMessage(tab.id, {
                             type: MSG_TYPE.JS_CSS_PAGE_BEAUTIFY,
@@ -717,6 +723,45 @@ var BgPageInstance = (function () {
             });
 
         });
+    };
+
+    /**
+     * 存储 网页涂鸦精灵 的配置
+     * @param params
+     * @param callback
+     * @private
+     */
+    let _savePageModifierConfigs = function (params, callback) {
+        !RegExp.prototype.toJSON && Object.defineProperty(RegExp.prototype, "toJSON", {
+            value: RegExp.prototype.toString
+        });
+        localStorage.setItem(MSG_TYPE.PAGE_MODIFIER_KEY, JSON.stringify(params));
+        callback && callback();
+    };
+
+    /**
+     * 获取 网页涂鸦精灵 的配置，如果指定了url参数，则表示只获取对应的一条配置，否则获取全部
+     * @param params
+     * @param callback
+     * @returns {*}
+     * @private
+     */
+    let _getPageModifierConfigs = function (params, callback) {
+        let cacheModifiers = JSON.parse(localStorage.getItem(MSG_TYPE.PAGE_MODIFIER_KEY) || '[]');
+        if (params && params.url) {
+            let result = null;
+            cacheModifiers.some(cm => {
+                let m = cm.mPattern.match(/\/(.*)\/(.*)?/);
+                if ((new RegExp(m[1], m[2] || "")).test(params.url)) {
+                    result = cm;
+                    return true;
+                }
+                return false;
+            });
+            callback && callback(result);
+        } else {
+            callback && callback(cacheModifiers);
+        }
     };
 
 
@@ -776,7 +821,14 @@ var BgPageInstance = (function () {
             else if (request.type === MSG_TYPE.REMOVE_PERSON_IMG_BG) {
                 Tarp.require('../remove-bg/proxy').addBackgroundRemoveListener(callback);
             }
-
+            // 网页涂鸦精灵：获取配置
+            else if (request.type === MSG_TYPE.GET_PAGE_MODIFIER_CONFIG) {
+                _getPageModifierConfigs(request.params, callback);
+            }
+            // 网页涂鸦精灵：保存配置
+            else if (request.type === MSG_TYPE.SAVE_PAGE_MODIFIER_CONFIG) {
+                _savePageModifierConfigs(request.params, callback);
+            }
 
             // ===========================以下为编码规范检测====start==================================
             //处理CSS的请求

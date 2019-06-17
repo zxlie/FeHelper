@@ -36,7 +36,8 @@ module.exports = (() => {
         'STICKY_NOTES',
         'GRID_RULER',
         'REMOVE_BG',
-        'MULTI_TOOLKIT'
+        'MULTI_TOOLKIT',
+        'PAGE_MODIFIER'
     ];
 
     // 默认处理关闭状态的功能，除非用户手动打开
@@ -143,6 +144,10 @@ module.exports = (() => {
         MENU_REMOVE_BG: {
             icon: '⚘',
             text: '人像背景移除'
+        },
+        MENU_PAGE_MODIFIER: {
+            icon: '☃',
+            text: '网页再造精灵'
         },
         MENU_DOWNLOAD_CRX: {
             icon:'↬',

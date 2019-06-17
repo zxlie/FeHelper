@@ -114,6 +114,15 @@ const MSG_TYPE = {
     // 多维小工具
     MULTI_TOOLKIT: 'toolkit',
 
+    // 打开page-modifier配置页
+    PAGE_MODIFIER:'page-modifier',
+    // 获取某个url对应的page-modifier配置
+    GET_PAGE_MODIFIER_CONFIG:'get_page_modifier_config',
+    // 保存page-modifier配置
+    SAVE_PAGE_MODIFIER_CONFIG:'save_page_modifier_config',
+    // page-config配置项的本地缓存key
+    PAGE_MODIFIER_KEY:'PAGE-MODIFIER-LOCAL-STORAGE-KEY',
+
     // 人像背景移除
     REMOVE_PERSON_IMG_BG:'remove-person-img-bg',
     REMOVE_BG:'remove-bg'
