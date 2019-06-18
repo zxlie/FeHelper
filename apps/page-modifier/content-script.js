@@ -5,7 +5,6 @@
 let PageGrayTool = (function () {
 
     let mode;
-    let enabled = true;
     let scheme = '4';
 
     let svgContent = `
@@ -175,8 +174,6 @@ let PageGrayTool = (function () {
      * Add the elements to the pgae that make high-contrast adjustments possible.
      */
     function addOrUpdateExtraElements() {
-        if (!enabled)
-            return;
 
         let style = document.getElementById('hc_style');
         if (!style) {
@@ -204,12 +201,10 @@ let PageGrayTool = (function () {
         bg.style.display = 'block';
         bg.style.background = window.getComputedStyle(document.body).background;
 
-        let c = bg.style.backgroundColor;
-        c = c.replace(/\s\s*/g, '');
-        if (m = /^rgba\(([\d]+),([\d]+),([\d]+),([\d]+|[\d]*.[\d]+)\)/.exec(c)) {
-            if (m[4] == '0') {
-                bg.style.backgroundColor = '#fff';
-            }
+        let c = (bg.style.backgroundColor || '').replace(/\s\s*/g, '');
+        let match = /^rgba\(([\d]+),([\d]+),([\d]+),([\d]+|[\d]*.[\d]+)\)/i.exec(c);
+        if (match && match[4] === '0') {
+            bg.style.backgroundColor = '#fff';
         }
 
         let wrap = document.getElementById('_fh_page_modifier_svg_filters');
