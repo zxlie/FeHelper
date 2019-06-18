@@ -269,12 +269,11 @@ let PageGrayTool = (function () {
  * @constructor
  */
 let PageModify = function (pageConfig) {
-    let pageUrl = location.href;
-    if (pageConfig.id && pageConfig.mPattern && !pageConfig.mDisabled) {
+    if (pageConfig && pageConfig.id && pageConfig.mPattern && !pageConfig.mDisabled) {
 
         let m = pageConfig.mPattern.match(/\/(.*)\/(.*)?/);
         // 如果正则匹配的话才生效
-        if ((new RegExp(m[1], m[2] || '')).test(pageUrl)) {
+        if ((new RegExp(m[1], m[2] || '')).test(location.href)) {
 
             let el = document.createElement('script');
             el.type = 'text/javascript';
@@ -303,7 +302,7 @@ let ModifyCurrentPage = function () {
             url: location.href
         }
     }, function (pageConfig) {
-        PageModify(pageConfig);
+        pageConfig && PageModify(pageConfig);
     });
 };
 
