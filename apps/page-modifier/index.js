@@ -103,6 +103,7 @@ new Vue({
                         cm.mFilter = this.editCM.mFilter;
                         cm.mRefresh = this.editCM.mRefresh;
                         cm.mScript = editor.getValue();
+                        cm.mDisabled = !!cm.mDisabled;
                         return true;
                     }
                 });
