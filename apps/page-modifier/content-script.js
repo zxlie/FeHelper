@@ -292,7 +292,7 @@ let PageModify = function (pageConfig) {
 let ModifyCurrentPage = function () {
 
     chrome.runtime.sendMessage({
-        type: MSG_TYPE.GET_PAGE_MODIFIER_CONFIG,
+        type: 'get_page_modifier_config',
         params: {
             url: location.href
         }
