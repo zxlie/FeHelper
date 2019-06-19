@@ -128,6 +128,7 @@ new Vue({
             }, () => {
                 alert('数据操作成功！');
                 this.editCM = this.getANewCM();
+                editor.setValue('');
                 this.editing = false;
 
                 this.$refs.mForm.reset();
