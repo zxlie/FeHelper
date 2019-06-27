@@ -7,7 +7,8 @@ new Vue({
     data: {
         ajaxDebugger: '已开',
         canMeShow: {},
-        manifest: {}
+        manifest: {},
+        isFireFox: window.navigator && /firefox/i.test(navigator.userAgent)
     },
 
     created: function () {
@@ -31,12 +32,12 @@ new Vue({
         // 整个popup窗口支持上线选择
         document.body.addEventListener('keydown', e => {
             let keyCode = e.keyCode || e.which;
-            if(![38,40,13].includes(keyCode)) {
+            if (![38, 40, 13].includes(keyCode)) {
                 return false;
             }
             let ul = document.querySelector('#pageContainer ul');
             let hovered = ul.querySelector('li.x-hovered');
-            let next,prev;
+            let next, prev;
             if (hovered) {
                 hovered.classList.remove('x-hovered');
                 next = hovered.nextElementSibling;
@@ -45,7 +46,7 @@ new Vue({
             if (!next) {
                 next = ul.querySelector('li:first-child');
             }
-            if(!prev) {
+            if (!prev) {
                 prev = ul.querySelector('li:last-child');
             }
 
@@ -88,6 +89,18 @@ new Vue({
             window.close();
         },
 
-        openOptionsPage: () => chrome.runtime.openOptionsPage()
+        openOptionsPage: () => {
+            chrome.runtime.openOptionsPage();
+            window.close();
+        },
+
+        openUrl: function (event) {
+            event.preventDefault();
+            // 获取后台页面，返回window对象
+            let bgPage = chrome.extension.getBackgroundPage();
+            bgPage.BgPageInstance.openUrl(event.currentTarget.href);
+            window.close();
+            return false;
+        }
     }
 });

@@ -56,6 +56,11 @@ h5,h4 {
     background-color: transparent;
     color: inherit;
 }
+.b-firefox .x-disabled {
+    text-decoration: line-through;
+    text-decoration-color: red;
+    text-decoration-style: double;
+}
 .row-line {
     line-height: 24px;
 }

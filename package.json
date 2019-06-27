@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "chrome extension",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "sign-addon": "^0.3.1"
+  },
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-callback": "0.0.3",

@@ -14,7 +14,8 @@ new Vue({
         manifest: {},
         menuOpts: {},
         selectedMenu: [],
-        defaultMenu: Settings.getDefaultContextMenus()
+        defaultMenu: Settings.getDefaultContextMenus(),
+        isFireFox: window.navigator && /firefox/i.test(navigator.userAgent)
     },
 
     created: function () {
@@ -31,11 +32,17 @@ new Vue({
 
         Settings.getOptions((opts) => {
             this.selectedOpts = Object.keys(opts).filter(k => {
+                if (this.isFireFox) {
+                    if (this.disabledItem(k) || this.disabledItem(k, 'menu')) {
+                        return false;
+                    }
+                }
                 if (typeof(opts[k]) === 'string' && /^MENU_/.test(k)) {
                     this.selectedMenu.push(k);
                     return false;
                 }
-                return typeof(opts[k]) === 'string' && !['MAX_JSON_KEYS_NUMBER', 'AUTO_TEXT_DECODE'].includes(k)
+                return typeof(opts[k]) === 'string'
+                    && !['MAX_JSON_KEYS_NUMBER', 'AUTO_TEXT_DECODE'].includes(k);
             });
 
             this.maxJsonKeysNumber = opts['MAX_JSON_KEYS_NUMBER'];
@@ -44,15 +51,30 @@ new Vue({
             // 如果还没设置过menu，就用默认的了
             Settings.askMenuSavedOrNot(saved => {
                 if (!saved) {
-                    this.selectedMenu = this.defaultMenu;
+                    this.selectedMenu = this.defaultMenu.filter(m => {
+                        return !(this.isFireFox && this.disabledItem(m, 'menu'));
+                    });
                 }
             });
         });
         this.manifest = chrome.runtime.getManifest();
         this.menuOpts = Settings.getMenuOpts();
+
     },
 
     methods: {
+
+        disabledItem: (key, type) => {
+            if (!type || type !== 'menu') {
+                return ['PAGE_CAPTURE', 'COLOR_PICKER', 'FCP_HELPER_DETECT', 'REMOVE_BG',
+                    'SHOW_PAGE_LOAD_TIME', 'GRID_RULER', 'AJAX_DEBUGGER'].includes(key);
+            } else {
+                return ['MENU_PAGE_CAPTURE', 'MENU_COLOR_PICKER',
+                    'MENU_STR_ENDECODE', 'MENU_AJAX_DEBUGGER', 'MENU_PAGE_OPTIMI', 'MENU_DOWNLOAD_CRX',
+                    'MENU_CODE_STANDARD', 'MENU_GRID_RULER', 'MENU_REMOVE_BG'].includes(key);
+            }
+        },
+
 
         close: () => {
             chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
@@ -77,6 +99,9 @@ new Vue({
         },
 
         setShortcuts: function () {
+            if (this.isFireFox) {
+                return alert('此功能仅针对Google Chrome浏览器！')
+            }
             chrome.tabs.create({
                 url: 'chrome://extensions/shortcuts'
             });

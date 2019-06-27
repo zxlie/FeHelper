@@ -936,13 +936,23 @@ var BgPageInstance = (function () {
         _createOrRemoveContextMenu();
     };
 
+    /**
+     * 打开任意一个URL
+     * @param url
+     * @private
+     */
+    let _openUrl = function(url){
+        chrome.tabs.create({url: url});
+    };
+
     return {
         init: _init,
         runHelper: _runHelper,
         notify: notifyText,
         showColorPicker: _showColorPicker,
         tellMeAjaxDbgSwitch: _tellDevToolsDbgSwitchOn,
-        getCapturedData: PageCapture.getCapturedData
+        getCapturedData: PageCapture.getCapturedData,
+        openUrl: _openUrl
     };
 })();
 

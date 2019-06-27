@@ -1,9 +1,9 @@
 {
   "name": "WEB前端助手(FeHelper)-Dev",
-  "version": "2019.06.1915",
+  "version": "2019.06.2715",
   "manifest_version": 2,
   "default_locale": "zh_CN",
-  "description": "FE助手：JSON格式化、JSON比对、二维码、信息编解码、代码压缩&美化、页面取色、Markdown、网页截屏、编码设置、正则、Crontab、时间转换、网页性能检测、密码生成器、便签笔记、chrome插件下载等",
+  "description": "Awesome，All In One的一个工具，包含多个独立小应用，比如：Json工具、代码美化工具、代码压缩、二维码工具、markdown工具、网页定制工具、便签笔记工具、信息加密与解密、随机密码生成、Crontab等等！",
   "icons": {
     "16": "static/img/fe-16.png",
     "48": "static/img/fe-48.png",
@@ -23,7 +23,10 @@
       "background/index.js"
     ]
   },
-  "options_page": "options/index.html",
+  "options_ui": {
+    "page": "options/index.html",
+    "open_in_tab": true
+  },
   "devtools_page": "ajax-debugger/index.html",
   "permissions": [
     "tabs",

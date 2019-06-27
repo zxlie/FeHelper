@@ -1,10 +1,18 @@
-Web前端助手（FeHelper）- Chrome Extension
+Web前端助手（FeHelper）- Chrome&Firefox Extension
 =============================
 
 ## 一、官网地址
 https://www.baidufe.com/fehelper
 
+
+### 1、扩展示例
 ![Web前端助手-FeHelper](/apps/static/screenshot/menu.png)
+
+### 2、完整版FeHelper功能配置
+![Web前端助手-FeHelper](/apps/static/screenshot/fe-full-func.png)
+
+### 3、FeHelper右键菜单配置
+![Web前端助手-FeHelper](/apps/static/screenshot/fe-menu-func.png)
 
 ## 二、扩展安装地址：
 
@@ -14,12 +22,15 @@ https://www.baidufe.com/fehelper/install.html
 ### 2、Chrome web store地址
 https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh-cn
 
-### 3、crx文件下载=>本地安装
+### 3、Firefox Add-ons
+https://addons.mozilla.org/zh-CN/firefox/addon/web%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B-fehelper
+
+### 4、crx文件下载=>本地安装
 - 官网下载：https://www.baidufe.com/fehelper
 - 翻墙下载：https://chrome-extension-downloader.com/?extension=pkgccpejnmalmdinmhkkfafefagiiiad
 - 本站下载：[点击进入下载页](/apps/static/screenshot/crx)
 
-### 4、安装教程
+### 5、安装教程
 > 参考： https://www.baidufe.com/item/d1b710c290b38bda6b44.html
 
 ![安装教程](/apps/static/screenshot/how-to-install.gif)
