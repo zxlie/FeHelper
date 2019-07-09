@@ -147,7 +147,7 @@ module.exports = (() => {
         },
         MENU_PAGE_MODIFIER: {
             icon: '☃',
-            text: '网页再造精灵'
+            text: '网页油猴工具'
         },
         MENU_DOWNLOAD_CRX: {
             icon:'↬',
