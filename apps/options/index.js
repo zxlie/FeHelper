@@ -106,6 +106,18 @@ new Vue({
                 url: 'chrome://extensions/shortcuts'
             });
             return false;
+        },
+
+        donateToggle: function (event) {
+            let box = this.$refs.boxDonate;
+            if (box.classList.contains('hide')) {
+                box.classList.remove('hide');
+                box.style.top = (event.target.offsetTop + 30) + 'px';
+                box.style.left = event.target.offsetLeft + 'px';
+            } else {
+                box.classList.add('hide');
+            }
+
         }
     }
 });

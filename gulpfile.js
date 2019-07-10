@@ -167,7 +167,7 @@ gulp.task('firefox', () => {
     manifest.applications = {
         "gecko": {
             "id": "fehelper@baidufe.com",
-            "strict_min_version": "45.0"
+            "strict_min_version": "57.0"
         }
     };
     manifest.version = manifest.version.replace(/\./,'') + 'stable';

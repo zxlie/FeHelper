@@ -349,7 +349,8 @@ var BgPageInstance = (function () {
      */
     let downloadCrxFileFromWebStoreDetailPage = function (callback) {
 
-        chrome.tabs.getSelected(null, function (tab) {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            let tab = tabs[0];
             let crxId = tab.url.split("/")[6].split('?')[0];
             let crxName = tab.title.split(" - Chrome")[0] + ".crx";
             crxName = crxName.replace(/[&\/\\:"*<>|?]/g, '');

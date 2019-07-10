@@ -134,3 +134,19 @@ h5,h4 {
     font-size: 12px;
     color: #aaa;
 }
+.x-donate {
+    font-size: 14px;
+    color: #d00;
+    margin-left: 10px;
+    text-decoration: underline;
+    text-decoration-style: double;
+}
+.box-donate {
+    position: absolute;
+    top: 60px;
+    left: 150px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 5px;
+}
