@@ -119,7 +119,7 @@ Date.prototype.format = function (pattern) {
  * 自动消失的Alert弹窗
  * @param content
  */
-window.alert = function (content) {
+window.toast = function (content) {
     window.clearTimeout(window.feHelperAlertMsgTid);
     let elAlertMsg = document.querySelector("#fehelper_alertmsg");
     if (!elAlertMsg) {

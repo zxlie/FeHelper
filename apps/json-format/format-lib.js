@@ -122,7 +122,7 @@ let JsonFormatEntrance = (function () {
         if (typeof Tarp === 'object') {
             Tarp.require('../static/js/utils.js');
         } else {
-            alert('无法加载Tarp.require.js');
+            toast('无法加载Tarp.require.js');
         }
     };
 
@@ -143,7 +143,7 @@ let JsonFormatEntrance = (function () {
             button.click(function (e) {
                 let aLink = $('#aLinkDownload');
                 if (!aLink[0]) {
-                    aLink = $('<a id="aLinkDownload" target="_blank" title="保存到本地">下载JSON数据</a>').appendTo('body');
+                    aLink$('<a id="aLinkDownload" target="_blank" title="保存到本地">下载JSON数据</a>').appendTo('body');
                     aLink.attr('download', 'FeHelper-' + dt + '.json');
                     aLink.attr('href', URL.createObjectURL(blob));
                 }
@@ -163,7 +163,7 @@ let JsonFormatEntrance = (function () {
                             filename: 'FeHelper-' + dt + '.json'
                         });
                     } else {
-                        alert('必须接受授权，才能正常下载！');
+                        toast('必须接受授权，才能正常下载！');
                     }
                 });
             });
@@ -186,7 +186,7 @@ let JsonFormatEntrance = (function () {
         document.execCommand('Copy');
         document.body.removeChild(input);
 
-        alert('Json片段复制成功，随处粘贴可用！')
+        toast('Json片段复制成功，随处粘贴可用！')
     };
 
 
@@ -240,7 +240,7 @@ let JsonFormatEntrance = (function () {
                             filename: 'FeHelper-' + dt + '.json'
                         });
                     } else {
-                        alert('必须接受授权，才能正常下载！');
+                        toast('必须接受授权，才能正常下载！');
                     }
                 });
             }
@@ -255,10 +255,10 @@ let JsonFormatEntrance = (function () {
         // 删除json片段
         let fnDel = function (ed) {
             if (el.parent().is('#formattedJson')) {
-                alert('如果连最外层的Json也删掉的话，就没啥意义了哦！');
+                toast('如果连最外层的Json也删掉的话，就没啥意义了哦！');
                 return false;
             }
-            alert('节点已删除成功！');
+            toast('节点已删除成功！');
             el.remove();
             jfOptEl.css('top', -1000).hide();
             jfPathEl && jfPathEl.hide();
