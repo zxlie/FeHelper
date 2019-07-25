@@ -3,24 +3,30 @@
  * @author zhaoxianlie
  */
 
+
 // Tarp.require.config初始化
 (() => {
-    let absPath = (() => {
-        let stack;
-        try {
-            a.b();
-        }
-        catch (e) {
-            stack = e.fileName || e.sourceURL || e.stack || e.stacktrace;
-        }
-        if (stack) {
-            return /((?:http|https|file|chrome-extension):\/\/.*?\/[^:]+)(?::\d+)?:\d+/.exec(stack)[1];
-        }
-    })();
-    Tarp.require.config = {
-        paths: [absPath],
-        uri: absPath
-    };
+    try{
+        let absPath = (() => {
+            let stack;
+            try {
+                a.b();
+            }
+            catch (e) {
+                stack = e.fileName || e.sourceURL || e.stack || e.stacktrace;
+            }
+            if (stack) {
+                return /((?:http|https|file|chrome-extension|moz-extension):\/\/.*?\/[^:]+)(?::\d+:\d+)?/.exec(stack)[1];
+            }
+        })();
+        Tarp.require.config = {
+            paths: [absPath],
+            uri: absPath
+        };
+    }catch (ex){
+        console.log('FeHelper:',ex)
+    }
+
 })();
 
 // JSON页面自动格式化，事件注册

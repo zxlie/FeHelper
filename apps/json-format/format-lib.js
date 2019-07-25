@@ -89,7 +89,7 @@ let JsonFormatEntrance = (function () {
      * @param str
      * @returns {*}
      */
-    let htmlspecialchars = function(str){
+    let htmlspecialchars = function (str) {
         str = str.replace(/&/g, '&amp;');
         str = str.replace(/</g, '&lt;');
         str = str.replace(/>/g, '&gt;');
@@ -141,9 +141,12 @@ let JsonFormatEntrance = (function () {
 
         if (typeof chrome === 'undefined' || !chrome.permissions) {
             button.click(function (e) {
-                let aLink = $('<a id="btnDownload" target="_blank" title="保存到本地">下载JSON数据</a>');
-                aLink.attr('download', 'FeHelper-' + dt + '.json');
-                aLink.attr('href', URL.createObjectURL(blob));
+                let aLink = $('#aLinkDownload');
+                if (!aLink[0]) {
+                    aLink = $('<a id="aLinkDownload" target="_blank" title="保存到本地">下载JSON数据</a>').appendTo('body');
+                    aLink.attr('download', 'FeHelper-' + dt + '.json');
+                    aLink.attr('href', URL.createObjectURL(blob));
+                }
                 aLink[0].click();
             });
         } else {
@@ -365,7 +368,7 @@ let JsonFormatEntrance = (function () {
                 keys.unshift(curEl.find('>.k').text());
             }
 
-            if(curEl.parent().hasClass('rootKvov') || curEl.parent().parent().hasClass('rootKvov')) {
+            if (curEl.parent().hasClass('rootKvov') || curEl.parent().parent().hasClass('rootKvov')) {
                 break;
             }
 
