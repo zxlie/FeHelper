@@ -111,6 +111,9 @@ const MSG_TYPE = {
     // 屏幕栅格标尺
     GRID_RULER: 'grid-ruler',
 
+    // POST Man
+    POST_MAN:'postman',
+
     // 多维小工具
     MULTI_TOOLKIT: 'toolkit',
 

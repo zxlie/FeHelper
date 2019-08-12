@@ -231,7 +231,8 @@ function split_sql(str, tab) {
 				.replace(/\)\s{0,}SELECT /ig,")~::~SELECT ")
 				
 				.replace(/ THEN /ig," THEN~::~"+tab+"")
-				.replace(/ UNION /ig,"~::~UNION~::~")
+				.replace(/ UNION\s*/ig,"~::~UNION~::~")
+        		.replace(/~::~UNION~::~ALL /ig,"~::~UNION ALL~::~")
 				.replace(/ USING /ig,"~::~USING ")
 				.replace(/ WHEN /ig,"~::~"+tab+"WHEN ")
 				.replace(/ WHERE /ig,"~::~WHERE ")

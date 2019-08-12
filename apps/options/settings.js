@@ -37,7 +37,8 @@ module.exports = (() => {
         'GRID_RULER',
         'REMOVE_BG',
         'MULTI_TOOLKIT',
-        'PAGE_MODIFIER'
+        'PAGE_MODIFIER',
+        'POST_MAN'
     ];
 
     // 默认处理关闭状态的功能，除非用户手动打开
@@ -104,6 +105,10 @@ module.exports = (() => {
         MENU_AJAX_DEBUGGER: {
             icon: '▶',
             text: 'Ajax调试功能'
+        },
+        MENU_POST_MAN: {
+            icon:'☯',
+            text: '简易Postman'
         },
         MENU_PAGE_OPTIMI: {
             icon: '√',

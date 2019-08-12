@@ -143,7 +143,7 @@ let JsonFormatEntrance = (function () {
             button.click(function (e) {
                 let aLink = $('#aLinkDownload');
                 if (!aLink[0]) {
-                    aLink$('<a id="aLinkDownload" target="_blank" title="保存到本地">下载JSON数据</a>').appendTo('body');
+                    aLink = $('<a id="aLinkDownload" target="_blank" title="保存到本地">下载JSON数据</a>').appendTo('body');
                     aLink.attr('download', 'FeHelper-' + dt + '.json');
                     aLink.attr('href', URL.createObjectURL(blob));
                 }

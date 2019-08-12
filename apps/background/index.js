@@ -503,6 +503,9 @@ var BgPageInstance = (function () {
                     MENU_PAGE_MODIFIER: function (info, tab) {
                         _openFileAndRun(tab, MSG_TYPE.PAGE_MODIFIER);
                     },
+                    MENU_POST_MAN: function (info, tab) {
+                        _openFileAndRun(tab, MSG_TYPE.POST_MAN);
+                    },
                     MENU_GRID_RULER: function (info, tab) {
                         _doGridDetect(tab);
                     },

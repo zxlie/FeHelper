@@ -1,9 +1,9 @@
 {
   "name": "WEB前端助手(FeHelper)-Dev",
-  "version": "2019.07.2517",
+  "version": "2019.08.1217",
   "manifest_version": 2,
   "default_locale": "zh_CN",
-  "description": "Awesome，All In One的一个工具，包含多个独立小应用，比如：Json工具、代码美化工具、代码压缩、二维码工具、markdown工具、网页油猴工具、便签笔记工具、信息加密与解密、随机密码生成、Crontab等等！",
+  "description": "Awesome，All In One的一个工具，包含多个独立小应用，比如：Json工具、代码美化、代码压缩、二维码、Postman、markdown、网页油猴、便签笔记、信息加密与解密、随机密码生成、Crontab等等！",
   "icons": {
     "16": "static/img/fe-16.png",
     "48": "static/img/fe-48.png",

@@ -163,6 +163,9 @@ ul.fe-function-list li.-x-multi-toolkit b {
 ul.fe-function-list li.-x-page-modifier b {
     background-position: -32px -95px;
 }
+ul.fe-function-list li.-x-post-man b {
+    background-position: -32px -112px;
+}
 
 ul.fe-function-list li i {
     color: #aaa;

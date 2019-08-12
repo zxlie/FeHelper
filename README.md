@@ -53,6 +53,7 @@ https://addons.mozilla.org/zh-CN/firefox/addon/web%E5%89%8D%E7%AB%AF%E5%8A%A9%E6
 - 代码压缩工具（HTML/CSS/JS）
 - 二维码生成器（支持当前页面、图片、链接、选中的文字生成QrCode）
 - 二维码解码器（支持网页二维码`右键`解码）
+- 简易Postman（Api接口测试，模拟HEAD/GET/POST方式）
 - 网页滚动截屏（将当前整个网页转为图片并保存）
 - Markdown转换（支持Markdown与HTML的互转）
 - 页面取色工具（滑动鼠标随意取色）

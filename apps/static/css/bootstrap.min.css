@@ -71,3 +71,6 @@ textarea{
 a.x-a-high, a.x-a-high:visited {
     color:blue;
 }
+.btn:focus, .btn:active:focus, .btn.active:focus {
+    outline: none !important;
+}

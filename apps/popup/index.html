@@ -41,6 +41,8 @@
                     <b></b>编码规范检测</li>
                 <li class="-x-loadtime" @click="runHelper('SHOW_PAGE_LOAD_TIME',0)" v-if="canMeShow.SHOW_PAGE_LOAD_TIME && !isFireFox">
                     <b></b>页面性能检测</li>
+                <li class="-x-post-man" @click="runHelper('POST_MAN',1)" v-if="canMeShow.POST_MAN">
+                    <b></b>简易Postman</li>
                 <li class="-x-grid-ruler" @click="runHelper('GRID_RULER',0)" v-if="canMeShow.GRID_RULER && !isFireFox">
                     <b></b>页面栅格标尺</li>
                 <li class="-x-page-modifier" @click="runHelper('PAGE_MODIFIER',1)" v-if="canMeShow.PAGE_MODIFIER">
