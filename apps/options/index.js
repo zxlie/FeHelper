@@ -70,7 +70,7 @@ new Vue({
                     'SHOW_PAGE_LOAD_TIME', 'GRID_RULER', 'AJAX_DEBUGGER'].includes(key);
             } else {
                 return ['MENU_PAGE_CAPTURE', 'MENU_COLOR_PICKER',
-                    'MENU_STR_ENDECODE', 'MENU_AJAX_DEBUGGER', 'MENU_PAGE_OPTIMI', 'MENU_DOWNLOAD_CRX',
+                    'MENU_AJAX_DEBUGGER', 'MENU_PAGE_OPTIMI', 'MENU_DOWNLOAD_CRX',
                     'MENU_CODE_STANDARD', 'MENU_GRID_RULER', 'MENU_REMOVE_BG'].includes(key);
             }
         },

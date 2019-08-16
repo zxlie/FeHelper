@@ -159,6 +159,17 @@ gulp.task('zip', () => {
 gulp.task('firefox', () => {
     shell.exec('rm -rf output-firefox && cp -r output output-firefox && rm -rf output-firefox/fehelper.zip');
 
+    // 清理掉firefox里不支持的tools
+    let rmTools = ['page-capture', 'color-picker', 'ajax-debugger', 'wpo', 'code-standards', 'ruler', 'remove-bg'];
+    shell.cd('output-firefox/apps');
+    shell.find('./').forEach(f => {
+        if (rmTools.includes(f)) {
+            shell.rm('-rf', f);
+            console.log('已删除不支持的工具：', f);
+        }
+    });
+    shell.cd('../../');
+
     // 更新firefox所需的配置文件
     let pathOfMF = './output-firefox/apps/manifest.json';
     let manifest = require(pathOfMF);
@@ -170,7 +181,7 @@ gulp.task('firefox', () => {
             "strict_min_version": "57.0"
         }
     };
-    manifest.version = manifest.version.replace(/\./,'') + 'stable';
+    manifest.version = manifest.version.replace(/\./, '') + 'stable';
     fs.writeFileSync(pathOfMF, JSON.stringify(manifest));
 
     shell.exec('cd output-firefox/apps && zip -r ../fehelper.xpi ./ > /dev/null && cd ../../');
