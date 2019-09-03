@@ -9,6 +9,9 @@
 	color: #48b;
 	margin-left: 10px;
 }
+.panel-title a.x-tooltip.x-newnote {
+	color:#f00;
+}
 .panel-title a.x-tooltip:hover {
 	text-decoration: underline;
 }
@@ -72,6 +75,12 @@
 .x-sidebar ul li:hover {
 	background: #f5f5f5;
 	color: #48b;
+}
+
+
+#folders li>i {
+	margin-left: 5px;
+	color:#bbb;
 }
 
 

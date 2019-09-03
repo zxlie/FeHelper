@@ -182,6 +182,7 @@ gulp.task('firefox', () => {
         }
     };
     manifest.version = manifest.version.replace(/\./, '') + 'stable';
+    manifest.content_scripts.splice(1,2);
     fs.writeFileSync(pathOfMF, JSON.stringify(manifest));
 
     shell.exec('cd output-firefox/apps && zip -r ../fehelper.xpi ./ > /dev/null && cd ../../');

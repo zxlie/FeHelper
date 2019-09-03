@@ -11,8 +11,8 @@ let StickyNotes = (() => {
         // 正在编辑中
         let editing = false;
 
-        window.onbeforeunload = function(e){
-            if(editing) {
+        window.onbeforeunload = function (e) {
+            if (editing) {
                 (e || window.event).returnValue = '当前还有未保存的笔记，确定要离开么？';
             }
         };
@@ -25,7 +25,7 @@ let StickyNotes = (() => {
         });
 
         // delete all notes
-        $('#removenotes').click(function () {
+        $('#remove').click(function () {
             html5sticky.deleteAllNotes();
             return false;
         });
@@ -83,13 +83,21 @@ let StickyNotes = (() => {
             return false;
         });
 
+        // 导入笔记
+        $('#import').click(function (event) {
+            if (confirm('仅支持再次导入【之前用本工具导出的*.zip包】，请确认zip包已准备好？')) {
+                html5sticky.importNotes();
+            }
+            return false;
+        });
+
         // 文件夹选中
         $('#folders').delegate('li', 'click', function (e) {
             $(this).addClass('x-selected').siblings('li').removeClass('x-selected');
             let txt = $(this).text();
             let id = $(this).attr('id').replace(/^f_/, '');
             html5sticky.setCurrentFolder(txt, id);
-            html5sticky.getNotes(id);
+            html5sticky.loadNotes(id);
         });
 
         // 创建文件夹
