@@ -35,9 +35,10 @@ module.exports = (() => {
     let _getJsonText = function () {
 
         let pre = $('body>pre:eq(0)')[0] || {textContent: ""};
-        let source = $.trim(pre.textContent);
+        let source = pre.textContent.trim();
+
         if (!source) {
-            source = $.trim(document.body.textContent || '')
+            source = (document.body.textContent || '').trim()
         }
         if (!source) {
             return false;
@@ -48,11 +49,12 @@ module.exports = (() => {
         let nodes = document.body.childNodes;
         let newSource = '';
         for (let i = 0, len = nodes.length; i < len; i++) {
+
             if (nodes[i].nodeType === Node.TEXT_NODE) {
                 newSource += nodes[i].textContent;
             } else if (nodes[i].nodeType === Node.ELEMENT_NODE) {
                 let tagName = nodes[i].tagName.toLowerCase();
-                let html = $.trim(nodes[i].textContent);
+                let html = (nodes[i].textContent || '').trim();
                 // 如果是pre标签，则看内容是不是和source一样，一样则continue
                 if (tagName === 'pre' && html === source) {
                 } else if ((nodes[i].offsetWidth === 0 || nodes[i].offsetHeight === 0 || !html) && ['script', 'link'].indexOf(tagName) === -1) {
@@ -65,7 +67,7 @@ module.exports = (() => {
             }
         }
 
-        return $.trim(newSource || '') || source;
+        return (newSource || '').trim() || source;
     };
 
     /**
