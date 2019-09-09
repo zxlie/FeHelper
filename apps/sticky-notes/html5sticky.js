@@ -633,7 +633,7 @@ html5sticky.createFolder = function (folder, time) {
         time = time || new Date().getTime();
         html5sticky.saveFolder(folder, time);
         return $('<li><span></span><i>(0)</i></li>').find('span').text(folder).end().attr('id', 'f_' + time).appendTo('#folders');
-    } else {
+    } else if (folder !== null) {
         return alert('文件夹名不能为空！');
     }
 };

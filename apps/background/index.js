@@ -735,7 +735,7 @@ var BgPageInstance = (function () {
      * @param callback
      * @private
      */
-    let _savePageModifierConfigs = function (params, callback) {
+    let _savePageMonkeyConfigs = function (params, callback) {
         !RegExp.prototype.toJSON && Object.defineProperty(RegExp.prototype, "toJSON", {
             value: RegExp.prototype.toString
         });
@@ -750,11 +750,11 @@ var BgPageInstance = (function () {
      * @returns {*}
      * @private
      */
-    let _getPageModifierConfigs = function (params, callback) {
-        let cacheModifiers = JSON.parse(localStorage.getItem(MSG_TYPE.PAGE_MODIFIER_KEY) || '[]');
+    let _getPageMonkeyConfigs = function (params, callback) {
+        let cacheMonkeys = JSON.parse(localStorage.getItem(MSG_TYPE.PAGE_MODIFIER_KEY) || '[]');
         if (params && params.url) {
             let result = null;
-            cacheModifiers.some(cm => {
+            cacheMonkeys.some(cm => {
                 let m = cm.mPattern.match(/\/(.*)\/(.*)?/);
                 if ((new RegExp(m[1], m[2] || "")).test(params.url)) {
                     result = cm;
@@ -764,7 +764,7 @@ var BgPageInstance = (function () {
             });
             callback && callback(result);
         } else {
-            callback && callback(cacheModifiers);
+            callback && callback(cacheMonkeys);
         }
     };
 
@@ -827,11 +827,11 @@ var BgPageInstance = (function () {
             }
             // 网页涂鸦精灵：获取配置
             else if (request.type === MSG_TYPE.GET_PAGE_MODIFIER_CONFIG) {
-                _getPageModifierConfigs(request.params, callback);
+                _getPageMonkeyConfigs(request.params, callback);
             }
             // 网页涂鸦精灵：保存配置
             else if (request.type === MSG_TYPE.SAVE_PAGE_MODIFIER_CONFIG) {
-                _savePageModifierConfigs(request.params, callback);
+                _savePageMonkeyConfigs(request.params, callback);
             }
 
             // ===========================以下为编码规范检测====start==================================
@@ -932,12 +932,135 @@ var BgPageInstance = (function () {
     };
 
     /**
+     * 将本地存储在localStorage的数据，同步到Google，确保每次更换浏览器，配置也能随之同步
+     * @private
+     */
+    let _localDataSyncByGoogle = function () {
+
+        let allNoteKeys = [];
+
+        // 数据下载
+        let funcDownload = function () {
+            // 从服务端同步数据
+            chrome.storage.sync.get({
+                fhConfigs: null,
+                stickyNotes: null,
+                pageMonkey: null,
+                otherData: null
+            }, result => {
+
+                // 先把服务端存储的所有笔记key存储起来，上报的时候要用
+                allNoteKeys = result.stickyNotes || [];
+
+                let localDataSize = localStorage.length;
+                // 做数据对比、数据更新、数据上报
+                ['fhConfigs', 'stickyNotes', 'pageMonkey', 'otherData'].forEach(key => {
+                    if (result[key] !== null && typeof result[key] === 'object') {
+                        // 以下情况都强制从服务端强制同步配置下来：
+                        // 1、如果本地缓存数量少于10
+                        // 2、本地数据缓存最后一次上报时间，比服务端已保存的时间早10天
+                        if (localDataSize < 10) {
+                            if (key === 'stickyNotes') {
+                                result[key].forEach(k => {
+                                    chrome.storage.sync.get(JSON.parse(`{"stickynote${k}":null}`), r => {
+                                        if (r !== null) {
+                                            localStorage.setItem('stickynote' + k, r['stickynote' + k]);
+                                        }
+                                    });
+                                });
+                            } else {
+                                Object.keys(result[key]).forEach(item => {
+                                    localStorage.setItem(item, result[key][item]);
+                                });
+                            }
+
+                            console.log(key, ' 相关数据均已从服务器同步至本地！');
+                        }
+                    }
+                });
+            });
+        };
+
+        // 数据上报
+        let funcUpload = function () {
+            // 获取本地缓存的数据
+            let theLocalData = {
+                fhConfigs: {},
+                stickyNotes: {},
+                pageMonkey: {},
+                otherData: {}
+            };
+            let theKey, theData;
+            for (let i = 0; i < localStorage.length; i++) {
+                theKey = localStorage.key(i);
+                theData = localStorage.getItem(localStorage.key(i));
+                if (/^stickynote/.test(theKey)) { // 便签笔记
+                    theLocalData.stickyNotes[theKey] = theData;
+                } else if (!/[^A-Z_]/.test(theKey)) { // FeHelper配置项
+                    theLocalData.fhConfigs[theKey] = theData;
+                } else if (theKey === 'PAGE-MODIFIER-LOCAL-STORAGE-KEY') { // 网页油猴
+                    theLocalData.pageMonkey[theKey] = theData;
+                } else if (!/FE_ENCODING_PREFIX_/.test(theKey)) {  // 其他缓存数据
+                    theLocalData.otherData[theKey] = theData;
+                }
+            }
+
+            // 做数据对比、数据更新、数据上报
+            ['fhConfigs', 'stickyNotes', 'pageMonkey', 'otherData'].forEach(key => {
+                if (Object.keys(theLocalData[key]).length) {
+
+                    // 上报数据
+                    let uploadData = {};
+                    if (key === 'stickyNotes') {
+                        // 服务器端的数据先做清空处理
+                        if (allNoteKeys && allNoteKeys.length) {
+                            chrome.storage.sync.remove(allNoteKeys);
+                        }
+
+                        uploadData[key] = Object.keys(theLocalData[key]).map(k => k.replace(/^stickynote/, ''));
+                        if (JSON.stringify(uploadData).length <= chrome.storage.sync.QUOTA_BYTES_PER_ITEM) {
+                            chrome.storage.sync.set(uploadData, () => {
+                                Object.keys(theLocalData.stickyNotes).forEach(k => {
+                                    let tmp = {};
+                                    tmp[k] = theLocalData.stickyNotes[k];
+                                    if (JSON.stringify(tmp).length <= chrome.storage.sync.QUOTA_BYTES_PER_ITEM) {
+                                        chrome.storage.sync.set(tmp);
+                                    } else {
+                                        console.log('便签笔记 ', k, ' 数据量太大，无法同步到服务器！');
+                                    }
+                                });
+                                console.log(key, ' 数据同步到服务器成功！')
+                            });
+                        } else {
+                            console.log(key, ' 数据量太大，无法同步到服务器！');
+                        }
+
+                    } else {
+                        uploadData[key] = theLocalData[key];
+
+                        if (JSON.stringify(uploadData).length <= chrome.storage.sync.QUOTA_BYTES_PER_ITEM) {
+                            chrome.storage.sync.set(uploadData, () => console.log(key, ' 数据同步到服务器成功！'));
+                        } else {
+                            console.log(key, ' 数据量太大，无法同步到服务器！');
+                        }
+                    }
+                }
+            });
+        };
+
+
+        setTimeout(() => funcDownload(), 0);    // 立即下载数据同步到本地
+        setTimeout(() => funcUpload(), 10000);  // 稍后将本地数据上报到服务器
+    };
+
+    /**
      * 初始化
      */
     let _init = function () {
         _checkUpdate();
         _addExtensionListener();
         _createOrRemoveContextMenu();
+        _localDataSyncByGoogle();
     };
 
     /**
@@ -945,7 +1068,7 @@ var BgPageInstance = (function () {
      * @param url
      * @private
      */
-    let _openUrl = function(url){
+    let _openUrl = function (url) {
         chrome.tabs.create({url: url});
     };
 
