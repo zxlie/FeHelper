@@ -31,6 +31,11 @@ https://www.baidufe.com/fehelper/install.html
 ### 2、Chrome web store地址
 https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh-cn
 
+- 官网安装，你可能需要额外的梯子
+    - [谷歌访问助手（官方正式版）](http://www.ggfwzs.com/)
+    - [谷歌访问助手（发烧友破解版）](https://github.com/haotian-wang/google-access-helper) 
+
+
 ### 3、Firefox Add-ons
 https://addons.mozilla.org/zh-CN/firefox/addon/web%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B-fehelper
 
