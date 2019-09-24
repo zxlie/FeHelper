@@ -7,8 +7,7 @@ Web前端助手（FeHelper）- Chrome&Firefox Extension
 [![Google Chrome](https://img.shields.io/chrome-web-store/v/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad) 
 [![Google Chrome](https://img.shields.io/chrome-web-store/stars/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad) 
 [![Google Chrome](https://img.shields.io/chrome-web-store/users/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)    
-[![Mozilla Add-on](https://img.shields.io/amo/dw/fehelper@baidufe.com.svg?label=firefox%20downloads&logo=Mozilla%20Firefox)](https://addons.mozilla.org/zh-CN/firefox/addon/web%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B-fehelper)
-[![Mozilla Add-on](https://img.shields.io/amo/users/fehelper@baidufe.com.svg?label=firefox%20users&logo=mozilla%20firefox)](https://addons.mozilla.org/zh-CN/firefox/addon/web%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B-fehelper)
+
 
 ## 一、官网地址
 https://www.baidufe.com/fehelper
@@ -37,7 +36,7 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 
 
 ### 3、Firefox Add-ons
-https://addons.mozilla.org/zh-CN/firefox/addon/web%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B-fehelper
+- 本站下载：[点击进入下载页](/apps/static/screenshot/xpi)
 
 ### 4、crx文件下载=>本地安装
 - 官网下载：https://www.baidufe.com/fehelper
