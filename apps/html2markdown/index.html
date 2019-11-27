@@ -16,6 +16,7 @@
                 <a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank" class="x-a-high">
                     <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：{{toolName[codeType]}}
                 <span class="x-xdemo" ref="demoLink1" @click="setDemo">示例：{{codeType}}片段</span>
+                <span class="x-xdemo" ref="importLink" @click="importContent">导入{{codeType}}文件</span>
 
                 <span class="x-switch ui-fl-r" ref="btnSwitch" @click="trans">切换为{{toolName[nextCodeType]}}&gt;&gt;</span>
             </h3>
@@ -29,7 +30,9 @@
         </div>
 
         <div id="rst" class="row ui-mt-10" v-show="resultContent.length > 0">
-            <a href="#" @click="preview" v-html="previewText"></a><hr>
+            <a href="#" class="x-xdemo" style="margin-left: 0" @click="preview" v-html="previewText"></a>
+            <a href="#" class="x-xdemo" @click="exportContent" title="在打印设置中，务必选择「PDF」">导出为PDF</a>
+            <hr>
             <textarea class="mod-textarea" id="rstCode" ref="rstCode" v-model="resultContent" @click="getResult" v-show="!showPreview"></textarea>
             <div class="x-preview" v-show="showPreview" v-html="previewHTML"></div>
         </div>
