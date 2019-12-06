@@ -40,7 +40,7 @@ body {
     padding: 10px;
 }
 #jsonSource,.CodeMirror {
-    height: calc(100% - 50px);
+    height: calc(100% - 70px);
     /*font-size: 10px;*/
 }
 #errorMsg {
@@ -166,7 +166,29 @@ input[type=checkbox] {
     padding-top: 0;
     text-align: left;
 }
-
+.x-sort {
+    display: block;
+    margin-left: 150px;
+}
+.x-sort .x-split {
+    display: none;
+}
+.layout-up-down .x-sort {
+    display: inline;
+    margin: 0;
+}
+.layout-up-down .x-sort .x-split {
+    margin: 0 20px;
+    color: #ccc;
+    display: inline;
+}
+.x-sort .x-stitle {
+    color: #f00;
+    font-weight: bold;
+}
+.x-sort input {
+    margin-right: 10px;
+}
 
 #layoutBar {margin-left:30px}
 #btnLeftRight,#btnUpDown{

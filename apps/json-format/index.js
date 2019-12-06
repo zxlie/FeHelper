@@ -115,7 +115,10 @@ new Vue({
             // 是json格式，可以进行JSON自动格式化
             if (jsonObj != null && typeof jsonObj === "object" && !this.errorMsg.length) {
                 try {
-                    // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
+                    let sortType = document.querySelectorAll('[name=jsonsort]:checked')[0].value;
+                    if (sortType !== '0') {
+                        jsonObj = Tarp.require('../json-format/jsonabc').sortObj(jsonObj, parseInt(sortType), true);
+                    }
                     source = JSON.stringify(jsonObj);
                 } catch (ex) {
                     // 通过JSON反解不出来的，一定有问题

@@ -767,8 +767,6 @@ let JsonFormatDealer = (function () {
     // Function to convert object to an HTML string
     function jsonObjToHTML(obj, jsonpFunctionName) {
 
-        // spin(5) ;
-
         // Format object (using recursive kvov builder)
         let rootKvov = getKvovDOM(obj, false);
 

@@ -1,6 +1,6 @@
 {
   "name": "WEB前端助手(FeHelper)-Dev",
-  "version": "2019.11.2717",
+  "version": "2019.12.1919",
   "manifest_version": 2,
   "default_locale": "zh_CN",
   "description": "Awesome，All In One的一个工具，包含多个独立小应用，比如：Json工具、代码美化、代码压缩、二维码、Postman、markdown、网页油猴、便签笔记、信息加密与解密、随机密码生成、Crontab等等！",
@@ -65,6 +65,7 @@
     "json-format/without-ui.css",
     "json-format/automatic.js",
     "json-format/format-lib.js",
+    "json-format/jsonabc.js",
     "qr-code/decode.js",
     "wpo/inject.js",
     "color-picker/index.js",

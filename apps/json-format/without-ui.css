@@ -170,3 +170,17 @@ html body {
 #boxOpt a:hover {
     color:#f00;
 }
+
+.jf-sort {
+    position: absolute;
+    top: 6px;
+    right: 250px;
+    font-size: 12px;
+    color: #615b5b;
+}
+.jf-sort .x-stitle {
+    font-weight: bold;
+}
+.jf-sort input {
+    margin-right: 10px;
+}

@@ -15,7 +15,7 @@
                         <a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank" class="x-a-high">
                             <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：JSON格式化查看
                         <span class="x-xdemo" ref="demoLink1" @click="setDemo">示例1：JSON片段</span>
-                        <a class="x-xdemo" href="https://www.sojson.com/api/qqmusic/8446666/json" target="_blank">示例2：在线JSON-1</a>
+                        <a class="x-xdemo" href="http://t.weather.sojson.com/api/weather/city/101030100" target="_blank">示例2：在线JSON-1</a>
 
                         <span id="layoutBar">
                             <button id="btnLeftRight" ref="btnLeftRight" class="selected" @click="changeLayout('left-right')">左右布局</button><button id="btnUpDown" ref="btnUpDown" @click="changeLayout('up-down')">上下布局</button>
@@ -31,7 +31,17 @@
                         <button id="btnFormat" class="btn btn-primary" @click="format">格式化</button>
                         <button id="btnCompress" class="btn btn-success" @click="compress">压缩</button>
                         <input type="checkbox" v-model="jsonLintSwitch" id="jsonLint" @click="lintOn"><label for="jsonLint">开启JSONLint</label>
-                        <input type="checkbox" v-model="overrideJson" id="jsonOvrd" @click="setCache"><label for="jsonOvrd">点选JSON项时默认进行编辑</label>
+                        <input type="checkbox" v-model="overrideJson" id="jsonOvrd" @click="setCache"><label for="jsonOvrd">选中JSON并编辑</label>
+                        <span class="x-sort">
+                            <span class="x-split">|</span>
+                            <span class="x-stitle">JSON排序：</span>
+                            <label for="sort_null">默认</label>
+                            <input type="radio" name="jsonsort" id="sort_null" value="0" checked @click="format">
+                            <label for="sort_asc">升序</label>
+                            <input type="radio" name="jsonsort" id="sort_asc" value="1" @click="format">
+                            <label for="sort_desc">降序</label>
+                            <input type="radio" name="jsonsort" id="sort_desc" value="-1" @click="format">
+                        </span>
                     </div>
                     <div id="errorTips" v-bind:style="{display:showTips?'block':'none'}">
                         <div id="errorBtn" @click="closeTips"><span id="closeError">☓</span></div>

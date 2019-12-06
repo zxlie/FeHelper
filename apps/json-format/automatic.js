@@ -11,9 +11,21 @@ module.exports = (() => {
 
     "use strict";
 
+    const JSON_SORT_TYPE_KEY = 'json_sort_type_key';
+
+    // 用于记录最原始的json串
+    let originalJsonStr = '';
+    let curSortType = 0;
+    // JSONP形式下的callback name
+    let funcName = null;
+    let jsonObj = null;
+    let fnTry = null;
+    let fnCatch = null;
+
     let _htmlFragment = [
         '<style type="text/css">.mod-contentscript #formattingMsg{position:absolute;top:0;font-size:14px;color:#333;margin:5px;}#formattingMsg .x-loading{width:12px;height:12px;border:1px solid #f00;border-radius:50%;box-shadow:0 0 10px 2px;color:#c00;border-right-color:transparent;border-top-color:transparent;animation:spin-right 1s linear infinite normal;animation-delay:0s;margin:0 5px 0 0;display:inline-block}#formattingMsg .x-loading:before{display:block;width:8px;height:8px;margin:1px;border:2px solid #f00;content:" ";border-radius:50%;border-left-color:transparent;border-bottom-color:transparent}@keyframes spin-right{from{transform:rotate(0deg);opacity:.2}50%{transform:rotate(180deg);opacity:1.0}to{transform:rotate(360deg);opacity:.2}}</style>',
         '<div class="mod-json mod-contentscript"><div class="rst-item">',
+        '<div class="jf-sort" style="display:none"><span class="x-stitle">JSON排序：</span><label for="sort_null">默认</label><input type="radio" name="jsonsort" id="sort_null" value="0" checked="checked"><label for="sort_asc">升序</label><input type="radio" name="jsonsort" id="sort_asc" value="1"><label for="sort_desc">降序</label><input type="radio" name="jsonsort" id="sort_desc" value="-1"></div>',
         '<div id="formattingMsg"><span class="x-loading"></span>格式化中...</div>',
         '<div id="jfCallbackName_start" class="callback-name"></div>',
         '<div id="jfContent"></div>',
@@ -75,9 +87,10 @@ module.exports = (() => {
      * @param {Object} text
      */
     let _uniDecode = function (text) {
-        try{
+        try {
             text = decodeURIComponent(text);
-        }catch(e){}
+        } catch (e) {
+        }
         text = text.replace(/(\\)?\\u/gi, "%u").replace('%u0025', '%25');
 
         text = unescape(text.toString().replace(/%2B/g, "+"));
@@ -133,12 +146,6 @@ module.exports = (() => {
         if (options && options['AUTO_TEXT_DECODE']) {
             source = _uniDecode(source);
         }
-
-        // JSONP形式下的callback name
-        let funcName = null;
-        let jsonObj = null;
-        let fnTry = null;
-        let fnCatch = null;
 
         // 下面校验给定字符串是否为一个合法的json
         try {
@@ -212,20 +219,54 @@ module.exports = (() => {
             _loadCss();
             $('body').html(_htmlFragment);
 
-            // 格式化
-            Tarp.require('../json-format/format-lib').format(source);
+            originalJsonStr = source;
 
-            // 如果是JSONP格式的，需要把方法名也显示出来
-            if (funcName != null) {
-                if (fnTry && fnCatch) {
-                    $('#jfCallbackName_start').html('<pre style="padding:0">' + fnTry + '</pre>' + funcName + '(');
-                    $('#jfCallbackName_end').html(')<br><pre style="padding:0">' + fnCatch + '</pre>');
-                } else {
-                    $('#jfCallbackName_start').html(funcName + '(');
-                    $('#jfCallbackName_end').html(')');
-                }
+            // 获取上次记录的排序方式
+            curSortType = parseInt(localStorage.getItem(JSON_SORT_TYPE_KEY) || 0);
+            _didFormat(curSortType);
+
+            // 初始化
+            $('[name=jsonsort][value=' + curSortType + ']').attr('checked', 1);
+            $('.jf-sort').slideDown(1000);
+
+            _bindSortEvent();
+        }
+    };
+
+    let _didFormat = function (sortType) {
+        sortType = sortType || 0;
+        let source = originalJsonStr;
+
+        if (sortType !== 0) {
+            let jsonObj = Tarp.require('../json-format/jsonabc').sortObj(JSON.parse(originalJsonStr), parseInt(sortType), true);
+            source = JSON.stringify(jsonObj);
+        }
+
+        // 格式化
+        Tarp.require('../json-format/format-lib').format(source);
+
+        // 如果是JSONP格式的，需要把方法名也显示出来
+        if (funcName != null) {
+            if (fnTry && fnCatch) {
+                $('#jfCallbackName_start').html('<pre style="padding:0">' + fnTry + '</pre>' + funcName + '(');
+                $('#jfCallbackName_end').html(')<br><pre style="padding:0">' + fnCatch + '</pre>');
+            } else {
+                $('#jfCallbackName_start').html(funcName + '(');
+                $('#jfCallbackName_end').html(')');
             }
         }
+
+        localStorage.setItem(JSON_SORT_TYPE_KEY, sortType);
+    };
+
+    let _bindSortEvent = function () {
+        $('[name=jsonsort]').click(function (e) {
+            let sortType = parseInt(this.value);
+            if (sortType !== curSortType) {
+                _didFormat(sortType);
+                curSortType = sortType;
+            }
+        });
     };
 
     return {
