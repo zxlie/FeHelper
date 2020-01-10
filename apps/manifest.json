@@ -1,6 +1,6 @@
 {
   "name": "WEB前端助手(FeHelper)-Dev",
-  "version": "2019.12.1919-old",
+  "version": "2019.12.1919",
   "manifest_version": 2,
   "default_locale": "zh_CN",
   "description": "Awesome，All In One的一个工具，包含多个独立小应用，比如：Json工具、代码美化、代码压缩、二维码、Postman、markdown、网页油猴、便签笔记、信息加密与解密、随机密码生成、Crontab等等！",
@@ -148,6 +148,6 @@
     }
   ],
   "content_security_policy": "style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-eval'; object-src 'self' ; media-src 'self' filesystem:",
-  "update_url": "https://www.baidufe.com/fehelper/updatecrx-to-do#https://clients2.google.com/service/update2/crx",
+  "update_url": "https://www.baidufe.com/fehelper/updatecrx-to-do",
   "homepage_url": "https://www.baidufe.com/fehelper"
 }

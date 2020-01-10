@@ -12,10 +12,10 @@ Web前端助手（FeHelper）- Chrome&Firefox Extension
 ## 零、紧急公告
 - [`为什么升级后的新版本只有JSON功能了？？？？？？？？？？？？？？？？？？`](https://www.baidufe.com/fehelper/feedback.html)
 - 要想用老版本的，可以暂时这样做：
-    - 直接下载 [FeHelper老版本的zip包](/output/fehelper.zip)
+    - 直接下载 [FeHelper老版本的zip包](/output/fehelper.zip) 并解压
     - 浏览器地址栏进入 `chrome://extensions`
     - 开启`开发者模式`
-    - 然后`加载已解压的扩展程序`
+    - 然后`加载已解压的扩展程序` ，找到之前的解压缩目录
     - Done！ 
 
 ## 一、官网地址
