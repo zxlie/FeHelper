@@ -9,6 +9,15 @@ Web前端助手（FeHelper）- Chrome&Firefox Extension
 [![Google Chrome](https://img.shields.io/chrome-web-store/users/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)    
 
 
+## 零、紧急公告
+- [`为什么升级后的新版本只有JSON功能了？？？？？？？？？？？？？？？？？？`](https://www.baidufe.com/fehelper/feedback.html)
+- 要想用老版本的，可以暂时这样做：
+    - 直接下载 [FeHelper老版本的zip包](/output/fehelper.zip)
+    - 浏览器地址栏进入 `chrome://extensions`
+    - 开启`开发者模式`
+    - 然后`加载已解压的扩展程序`
+    - Done！ 
+
 ## 一、官网地址
 https://www.baidufe.com/fehelper
 
