@@ -23,7 +23,8 @@
   },
   "scripts": {
     "watch": "gulp watch",
-    "build": "gulp"
+    "build": "gulp",
+    "crx": "gulp crx"
   },
   "repository": {
     "type": "git",

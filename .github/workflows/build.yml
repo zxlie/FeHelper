@@ -1,0 +1,32 @@
+name: buildCrx
+on:
+  watch:
+    types: [started]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: stable #只打包stable分支
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '11.x'
+      - name: build
+        env:
+          PRIVATE_KEY: ${{ secrets.buildPem }}
+        run: |
+          npm install
+          npm install crx3
+          cat <<< $PRIVATE_KEY > ../build.pem
+          npm run crx
+      - name: Set git identity
+        run : |
+          git config --global user.email "tofuliang@gmail.com"
+          git config --global user.name "tofuliang"
+          rm -fr node_modules output package-lock.json
+          git add chrome/fehelper.crx chrome/update.xml
+          git checkout *
+          git commit -m "update crx"
+          git push
