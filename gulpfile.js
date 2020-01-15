@@ -22,7 +22,7 @@ let watchPath = require('gulp-watch-path');
 let gcallback = require('gulp-callback');
 
 gulp.task('clean', () => {
-    return gulp.src(['output','chrome'], {read: false}).pipe(clean({force: true}));
+    return gulp.src('output', {read: false}).pipe(clean({force: true}));
 });
 
 gulp.task('copy', () => {
@@ -155,24 +155,6 @@ gulp.task('zip', () => {
 
 });
 
-// 打包成crx
-gulp.task('_crx',() => {
-    let pathOfMF = './output/apps/manifest.json';
-    let manifest = require(pathOfMF);
-    shell.exec('[ ! -d chrome ] && mkdir chrome');
-    shell.exec('cat output/fehelper.zip | npx crx3 -p ../build.pem -o chrome/fehelper.crx -x chrome/update.xml --appVersion '+manifest.version+' --crxURL https://raw.githubusercontent.com/'+manifest.author+'/FeHelper/master/fehelper.crx');
-
-    let size = fs.statSync('chrome/fehelper.crx').size;
-    size = pretty(size);
-
-    console.log('\n\nfehelper.crx 已打包完成！');
-    console.log('\n\n================================================================================');
-    console.log('    当前版本：', manifest.version, '\t文件大小:', size);
-    console.log('    提交到GitHub享受摆脱Chrome Webstore的自动更新吧');
-    console.log('================================================================================\n\n');
-
-});
-
 // 打包Firefox安装包
 gulp.task('firefox', () => {
     shell.exec('rm -rf output-firefox && cp -r output output-firefox && rm -rf output-firefox/fehelper.zip');
@@ -218,10 +200,6 @@ gulp.task('firefox', () => {
 // builder
 gulp.task('default', ['clean'], () => {
     runSequence(['copy', 'css', 'js', 'html', 'json'], 'zip');
-});
-
-gulp.task('crx', ['clean'], () => {
-    runSequence(['copy', 'css', 'js', 'html', 'json'],'zip','_crx');
 });
 
 gulp.task('sync', () => {
