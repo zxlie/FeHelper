@@ -10,7 +10,7 @@ Web前端助手（FeHelper）- Chrome&Firefox Extension
 
 
 ## 新版本审核通过了！！！
-![新版本](/apps/static/screenshort/fe-v202011512.jpg)
+![新版本](/apps/static/screenshot/fe-v202011512.jpg)
 
 ## 零、紧急公告
 - [`为什么升级后的新版本只有JSON功能了？？？？？？？？？？？？？？？？？？`](https://www.baidufe.com/fehelper/feedback.html)
@@ -23,6 +23,8 @@ Web前端助手（FeHelper）- Chrome&Firefox Extension
 
 ## 一、官网地址
 https://www.baidufe.com/fehelper
+
+15750754761
 
 
 ### 1、扩展示例
