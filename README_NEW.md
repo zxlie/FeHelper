@@ -1,5 +1,6 @@
 # FeHelper（开放平台版）
 
+![FeHelper](https://user-images.githubusercontent.com/865735/75407628-7399c580-594e-11ea-8ef2-00adf39d61a8.jpg)
 
 ## 一、序言
 鉴于Google Chrome官方强制要求的`插件单一用原则`，老版本（V2019.12）接到chrome webstore的整改通知；为保证用户能继续正常使用FeHelper，并且以后也尽可能少的对FeHelper进行提审，索性启动FeHelper的一次大升级，`支持所有工具热更新`。

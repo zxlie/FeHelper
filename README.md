@@ -2,71 +2,48 @@ Web前端助手（FeHelper）- Chrome&Firefox Extension
 =============================
 
 
-![](/apps/static/screenshot/fehelper.jpg)
+![FeHelper](https://user-images.githubusercontent.com/865735/75407628-7399c580-594e-11ea-8ef2-00adf39d61a8.jpg)
 
 [![Google Chrome](https://img.shields.io/chrome-web-store/v/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad) 
 [![Google Chrome](https://img.shields.io/chrome-web-store/stars/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad) 
 [![Google Chrome](https://img.shields.io/chrome-web-store/users/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)    
 
 
-## 新版本审核通过了！！！
+## 一、官网地址
+https://www.baidufe.com/fehelper/index/index.html
+
+### 1、扩展示例
+![Web前端助手-FeHelper](https://user-images.githubusercontent.com/865735/75407048-020d4780-594d-11ea-9dd6-48f6d5774c2f.png)
+
+### 2、关于新版 
 - 新版本的FeHelper，是以开放平台为思路的设计，详细了解FeHelper新版，可以参考链接：
     - [FeHelper-开放平台版介绍文档](/README_NEW.md)
     - [开放平台思路下的FeHelper-阿烈叔的博客](https://www.baidufe.com/item/5b1e07d6f5106b6907bc.html)
     
 ![FeHelper新版](https://user-images.githubusercontent.com/865735/75334978-b5315e80-58c3-11ea-9af0-e593149b0f7c.png)
 
-## 零、紧急公告
-- [`为什么升级后的新版本只有JSON功能了？？？？？？？？？？？？？？？？？？`](https://www.baidufe.com/fehelper/feedback.html)
-- 要想用老版本的，可以暂时这样做：
-    - 直接下载 [FeHelper老版本的zip包](/output/fehelper.zip) 并解压
-    - 浏览器地址栏进入 `chrome://extensions`
-    - 开启`开发者模式`
-    - 然后`加载已解压的扩展程序` ，找到之前的解压缩目录
-    - Done！ 
-
-## 一、官网地址
-https://www.baidufe.com/fehelper
-
-15750754761
-
-
-### 1、扩展示例
-![Web前端助手-FeHelper](/apps/static/screenshot/menu.png)
-
-### 2、完整版FeHelper功能配置
-![Web前端助手-FeHelper](/apps/static/screenshot/fe-full-func.png)
-
-### 3、FeHelper右键菜单配置
-![Web前端助手-FeHelper](/apps/static/screenshot/fe-menu-func.png)
 
 ## 二、扩展安装地址：
 
-### 1、官方安装地址
-https://www.baidufe.com/fehelper/install.html
-
-### 2、Chrome web store地址
+### 1、Chrome web store地址（推荐）
 https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh-cn
 
 - 官网安装，你可能需要额外的梯子
     - [谷歌访问助手（官方正式版）](http://www.ggfwzs.com/)
     - [谷歌访问助手（发烧友破解版）](https://github.com/haotian-wang/google-access-helper) 
 
-
-### 3、Firefox Add-ons
-- 本站下载：[点击进入下载页](/apps/static/screenshot/xpi)
-
-### 4、crx文件下载=>本地安装
+### 2、crx文件下载=>本地安装
 - 官网下载：https://www.baidufe.com/fehelper
 - 翻墙下载：https://chrome-extension-downloader.com/?extension=pkgccpejnmalmdinmhkkfafefagiiiad
 - 本站下载：[点击进入下载页](/apps/static/screenshot/crx)
 
-### 5、安装教程
-> 参考： https://www.baidufe.com/item/d1b710c290b38bda6b44.html
+### 3、Firefox Add-ons
+- 本站下载：[点击进入下载页](/apps/static/screenshot/xpi)
 
-![安装教程](/apps/static/screenshot/how-to-install.gif)
 
 ## 三、扩展功能：
+> FeHelper功能会逐渐增加，所有新的工具会自动出现在`FH应用市场`，查看介绍，可以直接去官网： https://www.baidufe.com/fehelper/index/index.html
+
 - JSON自动美化（页面自动检测并格式化）
 - JSON手动美化（粘贴文本、手动格式化）
 - JSON比对工具（支持左右两个JSON片段进行键值对比较）
@@ -83,27 +60,21 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 - 时间(戳)转换（Unix戳与本地时间的互转）
 - 图片Base64（任意图片转DataURI格式）
 - 随机密码生成（任意字符、任意长度、随机生成）
-- 编码规范检测（HTML/CSS/JS规范检测）
-- 页面性能检测（页面响应时间、Header监测）
-- 页面栅格标尺（页面栅格化、屏幕标尺）
 - 多维小工具集（进制转换、RGB/HEX颜色转换、Crontab、还款计算器等）
 - 网页油猴工具（网页特效、网页定制、脚本注入、自动刷新等）
-- Ajax调试功能（需在控制台中使用）
-- 网页编码设置（UTF-8、GBK、日文、韩文等）
 - 我的便签笔记（便签笔记，支持导出）
-- 人像背景移除（将人物照片中的背景移除：抠图工具）
+- 便捷思维导图（网页版的脑图工具）
+- ... 更多工具，请去官网查看：https://www.baidufe.com/fehelper/index/index.html
 
 ### 四、使用方法
 - iCON点击后的Popup窗口模式
-- 页面右键菜单模式 <br>
-![FeHelper右键菜单使用说明](/apps/static/screenshot/fehelper-context-menu.gif)
+- 页面右键菜单模式
 
 ### 五、用户反馈渠道
 - 在线反馈：https://www.baidufe.com/fehelper/feedback.html
 - Mail反馈：xianliezhao@foxmail.com
 - Wechat反馈：398824681 <br>
-![微信](/apps/static/screenshot/wx-private-qrcode.png)
+![阿烈叔的个人微信](https://user-images.githubusercontent.com/865735/75407547-3cc3af80-594e-11ea-9abf-6168b94547a1.png)
 
 ### 六、一些样例
-
 - [点击进入查看>>](/apps/static/screenshot/crx)
