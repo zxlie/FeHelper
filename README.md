@@ -32,13 +32,19 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
     - [谷歌访问助手（官方正式版）](http://www.ggfwzs.com/)
     - [谷歌访问助手（发烧友破解版）](https://github.com/haotian-wang/google-access-helper) 
 
-### 2、crx文件下载=>本地安装
-- 官网下载：https://www.baidufe.com/fehelper
-- 翻墙下载：https://chrome-extension-downloader.com/?extension=pkgccpejnmalmdinmhkkfafefagiiiad
-- 本站下载：[点击进入下载页](/apps/static/screenshot/crx)
+### 2、Microsoft Edge Addons
+https://microsoftedge.microsoft.com/addons/detail/feolnkbgcbjmamimpfcnklggdcbgakhe?hl=zh-CN
+
+- 如果你在使用Microsoft Edge浏览器的话，`可以直接安装`，不用翻墙
+
 
 ### 3、Firefox Add-ons
 - 本站下载：[点击进入下载页](/apps/static/screenshot/xpi)
+
+### 4、crx文件下载=>本地安装(Chrome)
+- 官网下载：https://www.baidufe.com/fehelper
+- 翻墙下载：https://chrome-extension-downloader.com/?extension=pkgccpejnmalmdinmhkkfafefagiiiad
+- 本站下载：[点击进入下载页](/apps/static/screenshot/crx)
 
 
 ## 三、扩展功能：
