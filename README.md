@@ -10,7 +10,11 @@ Web前端助手（FeHelper）- Chrome&Firefox Extension
 
 
 ## 新版本审核通过了！！！
-![新版本](/apps/static/screenshot/fe-v202011512.jpg)
+- 新版本的FeHelper，是以开放平台为思路的设计，详细了解FeHelper新版，可以参考链接：
+    - [FeHelper-开放平台版介绍文档](/README_NEW.md)
+    - [开放平台思路下的FeHelper-阿烈叔的博客](https://www.baidufe.com/item/5b1e07d6f5106b6907bc.html)
+    
+![FeHelper新版](https://user-images.githubusercontent.com/865735/75334978-b5315e80-58c3-11ea-9af0-e593149b0f7c.png)
 
 ## 零、紧急公告
 - [`为什么升级后的新版本只有JSON功能了？？？？？？？？？？？？？？？？？？`](https://www.baidufe.com/fehelper/feedback.html)
