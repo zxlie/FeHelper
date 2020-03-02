@@ -1,4 +1,4 @@
-Web前端助手（FeHelper）- Chrome&Firefox Extension
+Web前端助手（FeHelper）- Chrome&Firefox&MS-Edge 扩展
 =============================
 
 
