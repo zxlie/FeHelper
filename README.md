@@ -1,4 +1,4 @@
-Web前端助手（FeHelper）- Chrome&Firefox&MS-Edge 扩展
+FeHelper For Chrome&Firefox&MS-Edge
 =============================
 
 
@@ -39,7 +39,8 @@ https://microsoftedge.microsoft.com/addons/detail/feolnkbgcbjmamimpfcnklggdcbgak
 
 
 ### 3、Firefox Add-ons
-- 本站下载：[点击进入下载页](/apps/static/screenshot/xpi)
+- FeHelper官网一键安装： https://www.baidufe.com/fehelper/index/index.html
+- Github下载xpi安装：[点击进入下载页](/apps/static/screenshot/xpi)
 
 ### 4、crx文件下载=>本地安装(Chrome)
 - 官网下载：https://www.baidufe.com/fehelper
