@@ -467,6 +467,12 @@ chrome.runtime.sendMessage({
 
 ### 6.6 content-script.css
 - 如果配置了`contentScriptCss: true`，那说明你的FH工具还需要`向页面注入CSS代码`
+- FeHelper `v2020.03.1210`版本开始，内容css将有FH自动加载，content-script.js中调用下面方法即可注入
+```javascript
+// 以页面代码自动美化工具为例，注意这里的方法名：window.${toolName}ContentScriptCssInject()
+window.codebeautifyContentScriptCssInject();
+```
+- 以下为老版本FH的内容css加载方式（向后兼容）
 - content-script.css的加载机制，是在content-script.js中通过`6.5`中介绍的消息机制来完成的
 - 依然以`hello-world`为例，看代码示例：
 ```javascript
