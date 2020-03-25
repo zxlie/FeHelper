@@ -19,6 +19,7 @@ https://www.baidufe.com/fehelper/index/index.html
 - 新版本的FeHelper，是以开放平台为思路的设计，详细了解FeHelper新版，可以参考链接：
     - [FeHelper-开放平台版介绍文档](/README_NEW.md)
     - [开放平台思路下的FeHelper-阿烈叔的博客](https://www.baidufe.com/item/5b1e07d6f5106b6907bc.html)
+- 新版本FeHelper在一个新的`私有仓储`，待打磨得足够细腻了，再考虑开源    
     
 ![FeHelper新版](https://user-images.githubusercontent.com/865735/75334978-b5315e80-58c3-11ea-9af0-e593149b0f7c.png)
 
