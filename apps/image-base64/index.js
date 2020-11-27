@@ -200,10 +200,6 @@ new Vue({
             }
         },
 
-        format:function(){
-            return this.txtBase64Output
-        },
-
         trans: function () {
             this.curType = {image: 'base64', base64: 'image'}[this.curType];
             this.nextType = {image: 'base64', base64: 'image'}[this.nextType];

@@ -5,6 +5,3 @@ node_modules/
 package-lock.json
 output/apps/
 output-firefox/
-
-*.crx
-*.pem
