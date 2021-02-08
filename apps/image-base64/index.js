@@ -11,8 +11,27 @@ new Vue({
         toolName: {'image': '图片转Base64', 'base64': 'Base64转图片'},
         curType: 'image',
         nextType: 'base64',
-        txtBase64Input: ''
+        txtBase64Input: '',
+        txtBase64Output: '',
+        error:''
     },
+
+    watch: {
+        txtBase64Input:{
+            immediate: true,
+            handler(newVal, oldVal) {
+                this.error = ''   
+                this.txtBase64Output = ''
+                if(newVal.length === 0) return
+                if(newVal.indexOf("data:") === -1) {
+                    this.txtBase64Output = "data:image/jpeg;base64,"+newVal
+                } else {
+                    this.txtBase64Output = newVal
+                }
+            },
+        }
+    },
+
     mounted: function () {
 
         let MSG_TYPE = Tarp.require('../static/js/msg_type');
@@ -188,7 +207,7 @@ new Vue({
 
         loadError: function (e) {
             if(this.curType === 'base64' && this.txtBase64Input.trim().length) {
-                alert('无法识别的Base64编码，请确认是正确的图片Data URI？');
+                this.error ='无法识别的Base64编码，请确认是正确的图片Data URI？';
             }
         }
     }

@@ -116,3 +116,9 @@ form {display: none}
     color:#f00;
     border-bottom: 1px solid #f00;
 }
+
+.x-error {
+   margin: 0px 0px 10px 0px;
+   padding-bottom: 10px;
+   color:#f00;
+}
