@@ -77,6 +77,7 @@ https://microsoftedge.microsoft.com/addons/detail/feolnkbgcbjmamimpfcnklggdcbgak
 ### 四、使用方法
 - iCON点击后的Popup窗口模式
 - 页面右键菜单模式
+- 如果你喜欢使用 Alfred 的话，也可以尝试一下 [Alfred 的 Workflow 集成](https://github.com/Army-U/alfred-fe-helper)
 
 ### 五、用户反馈渠道
 - 在线反馈：https://www.baidufe.com/fehelper/feedback.html
