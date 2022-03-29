@@ -9,6 +9,7 @@ new Vue({
     el: '#pageContainer',
     data: {
         urlContent: '',
+        urlParams: [],
         methodContent: 'GET',
         resultContent: '',
         paramContent: '',
@@ -16,6 +17,32 @@ new Vue({
         jfCallbackName_start: '',
         jfCallbackName_end: '',
         errorMsgForJson: ''
+    },
+
+    watch: {
+        urlContent: function (val) {
+            let url = val;
+            let reg = /[?&]([^?&#]+)=([^?&#]+)/g;
+            let params = [];
+            let ret = reg.exec(url);
+            while (ret) {
+                params.push({
+                key: ret[1],
+                value: ret[2],
+                });
+                ret = reg.exec(url);
+            }
+            this.urlParams = params;
+        },
+        urlParams: {
+            handler(val) {
+              if (!val.length) return;
+              this.urlContent =
+                this.urlContent.substr(0, this.urlContent.indexOf("?") + 1) +
+                val.map((item) => `${item.key}=${item.value}`).join("&");
+            },
+            deep: true,
+        },
     },
 
     mounted: function () {
