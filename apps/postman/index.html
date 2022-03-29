@@ -40,7 +40,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="param in urlParams">
-                                <th>{{param.key}}</th>
+                                <th><input v-model="param.key" class="form-control"/></th>
                                 <th><input v-model="param.value" class="form-control"/></th>
                             </tr>
                         </tbody>
