@@ -22,7 +22,7 @@ new Vue({
     watch: {
         urlContent: function (val) {
             let url = val;
-            let reg = /[?&]([^?&#]+)=([^?&#]+)/g;
+            let reg = /[?&]([^?&#]+)=([^?&#]*)/g;
             let params = [];
             let ret = reg.exec(url);
             while (ret) {
@@ -32,11 +32,14 @@ new Vue({
                 });
                 ret = reg.exec(url);
             }
-            this.urlParams = params;
+            const originStr = this.urlParams2String(params);
+            const newStr = this.urlParams2String(this.urlParams);
+            if (originStr !== newStr) {
+                this.urlParams = params;
+            }
         },
         urlParams: {
             handler(val) {
-              if (!val.length) return;
               this.urlContent =
                 this.urlContent.substr(0, this.urlContent.indexOf("?") + 1) +
                 val.map((item) => `${item.key}=${item.value}`).join("&");
@@ -190,6 +193,10 @@ new Vue({
                 this.paramContent = 'username=postman&password=123456'
             }
 
+        },
+
+        urlParams2String: function (params) {
+            return params.map((param) => `${param.key}=${param.value}`).join("&")
         }
 
     }
