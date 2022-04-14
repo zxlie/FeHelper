@@ -9,6 +9,7 @@ new Vue({
     el: '#pageContainer',
     data: {
         urlContent: '',
+        urlParams: [],
         methodContent: 'GET',
         resultContent: '',
         paramContent: '',
@@ -16,6 +17,35 @@ new Vue({
         jfCallbackName_start: '',
         jfCallbackName_end: '',
         errorMsgForJson: ''
+    },
+
+    watch: {
+        urlContent: function (val) {
+            let url = val;
+            let reg = /[?&]([^?&#]+)=([^?&#]*)/g;
+            let params = [];
+            let ret = reg.exec(url);
+            while (ret) {
+                params.push({
+                key: ret[1],
+                value: ret[2],
+                });
+                ret = reg.exec(url);
+            }
+            const originStr = this.urlParams2String(params);
+            const newStr = this.urlParams2String(this.urlParams);
+            if (originStr !== newStr) {
+                this.urlParams = params;
+            }
+        },
+        urlParams: {
+            handler(val) {
+              this.urlContent =
+                this.urlContent.substr(0, this.urlContent.indexOf("?") + 1) +
+                val.map((item) => `${item.key}=${item.value}`).join("&");
+            },
+            deep: true,
+        },
     },
 
     mounted: function () {
@@ -163,6 +193,10 @@ new Vue({
                 this.paramContent = 'username=postman&password=123456'
             }
 
+        },
+
+        urlParams2String: function (params) {
+            return params.map((param) => `${param.key}=${param.value}`).join("&")
         }
 
     }
