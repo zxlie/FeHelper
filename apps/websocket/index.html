@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    <title>WebSocket测试</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../static/vendor/jquery/jquery-ui.min.css">
+    <link rel="stylesheet" href="index.css"/>
+    <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    <script src="../static/vendor/require/require.js"></script>
+</head>
+<body>
+
+<div class="wrapper" id="pageContainer">
+    <div class="panel panel-default" style="margin-bottom: 0px;">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank" class="x-a-high">
+                    <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：WebSocket测试</h3>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="row mod-inputs">
+            <div class="ui-mt-10">
+                <input type="text" id="url" ref="url" v-model="url" class="form-control"
+                       placeholder="请输入ws地址，例如ws(s)://localhost:8080/ws/single_multi/test/1">
+            </div>
+            <div class="ui-mt-10">
+                <input class="btn btn-sm btn-primary" type="button" :disabled="connBtn" value=" 连  接 "
+                       @click="initWebSocket()">
+                <input class="btn btn-sm btn-danger" type="button" :disabled="closeBtn" value=" 关  闭 "
+                       @click="websocketClose()">
+            </div>
+            <div class="ui-mt-10">
+                <textarea type="text" id="msg" v-model="msg" class="form-control" placeholder="请输入要发送的消息"></textarea>
+            </div>
+            <div class="ui-mt-10">
+                <input class="btn btn-sm btn-success" type="button" :disabled="closeBtn" value="发送消息" @click="websocketSend()">
+                <input class="btn btn-sm btn-warning" type="button" value="清空消息区" @click="cleanupMsg()">
+            </div>
+        </div>
+        <div class="row mod-inputs" style="margin-top: 10px;">
+            <div class="row" v-for="result in results">
+                {{result}}<br/>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+<script src="../static/vendor/jquery/jquery.extend.js"></script>
+<script type="text/javascript" src="../static/vendor/jquery/jquery-ui.min.js"></script>
+<script type="text/javascript" src="index.js"></script>
+</body>
+</html>
