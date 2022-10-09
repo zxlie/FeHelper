@@ -6,27 +6,30 @@ new Vue({
     data: {
         selectedType: 'uniEncode',
         sourceContent: '',
-        resultContent: ''
+        resultContent: '',
+        urlResult: null
     },
 
     mounted: function () {
-        let MSG_TYPE = Tarp.require('../static/js/msg_type');
 
         // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
-        chrome.runtime.onMessage.addListener((request, sender, callback) => {
-            if (request.type === MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event === MSG_TYPE.EN_DECODE) {
-                if (request.content) {
+        if (location.protocol === 'chrome-extension:') {
+            chrome.runtime.onMessage.addListener((request, sender, callback) => {
+                if (request.type === 'TAB_CREATED_OR_UPDATED' && request.content && request.event === location.pathname.split('/')[1]) {
                     this.sourceContent = request.content;
                     this.convert();
                 }
-            }
-        });
+                callback && callback();
+                return true;
+            });
+        }
 
         this.$refs.srcText.focus();
     },
     methods: {
         convert: function () {
             this.$nextTick(() => {
+                this.urlResult = null;
 
                 let tools = Tarp.require('./endecode-lib');
 
@@ -63,20 +66,49 @@ new Vue({
                 } else if (this.selectedType === 'hexDecode') {
 
                     this.resultContent = tools.hexDecode(this.sourceContent);
-                }else if (this.selectedType === 'gzipEncode') {
+                } else if (this.selectedType === 'gzipEncode') {
 
                     this.resultContent = tools.gzipEncode(this.sourceContent);
                 } else if (this.selectedType === 'gzipDecode') {
 
                     this.resultContent = tools.gzipDecode(this.sourceContent);
-                }  else if (this.selectedType === 'html2js') {
+                } else if (this.selectedType === 'html2js') {
 
                     this.resultContent = tools.html2js(this.sourceContent);
+                } else if (this.selectedType === 'sha1Encode') {
+
+                    this.resultContent = tools.sha1Encode(this.sourceContent);
+                } else if (this.selectedType === 'htmlEntityEncode') {
+
+                    this.resultContent = he.encode(this.sourceContent, {
+                        'useNamedReferences': true,
+                        'allowUnsafeSymbols': true
+                    });
+                } else if (this.selectedType === 'htmlEntityFullEncode') {
+
+                    this.resultContent = he.encode(this.sourceContent, {
+                        'encodeEverything': true,
+                        'useNamedReferences': true,
+                        'allowUnsafeSymbols': true
+                    });
+                } else if (this.selectedType === 'htmlEntityDecode') {
+
+                    this.resultContent = he.decode(this.sourceContent, {
+                        'isAttributeValue': false
+                    });
+                } else if (this.selectedType === 'urlParamsDecode') {
+                    let res = tools.urlParamsDecode(this.sourceContent);
+                    if (res.error) {
+                        this.resultContent = res.error;
+                    } else {
+                        this.urlResult = res;
+                    }
                 }
+                this.$forceUpdate();
             });
         },
 
-        clear: function() {
+        clear: function () {
             this.sourceContent = '';
             this.resultContent = '';
         },

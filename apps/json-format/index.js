@@ -1,32 +1,38 @@
 /**
  * FeHelper Json Format Tools
  */
+
+// 一些全局变量
 let editor = {};
 let LOCAL_KEY_OF_LAYOUT = 'local-layout-key';
 let JSON_LINT = 'jsonformat:json-lint-switch';
 let EDIT_ON_CLICK = 'jsonformat:edit-on-click';
-
-// json with bigint supported
-Tarp.require('../static/vendor/json-bigint/index');
+let AUTO_DECODE = 'jsonformat:auto-decode';
 
 new Vue({
     el: '#pageContainer',
     data: {
-        defaultResultTpl: '<div class="x-placeholder"><img src="./json-demo.jpg" alt="json-placeholder"></div>',
-        resultContent: '',
+        defaultResultTpl: '<div class="x-placeholder"><img src="../json-format/json-demo.jpg" alt="json-placeholder"></div>',
+        placeHolder: '',
         jsonFormattedSource: '',
         errorMsg: '',
         errorJsonCode: '',
         errorPos: '',
         jfCallbackName_start: '',
         jfCallbackName_end: '',
-        showTips: false,
         jsonLintSwitch: true,
+        autoDecode: false,
         fireChange: true,
         overrideJson: false
     },
     mounted: function () {
-        this.resultContent = this.defaultResultTpl;
+        // 自动开关灯控制
+        DarkModeMgr.turnLightAuto();
+
+        this.placeHolder = this.defaultResultTpl;
+
+        this.autoDecode = localStorage.getItem(AUTO_DECODE);
+        this.autoDecode = this.autoDecode === 'true';
 
         this.jsonLintSwitch = (localStorage.getItem(JSON_LINT) !== 'false');
         this.overrideJson = (localStorage.getItem(EDIT_ON_CLICK) === 'true');
@@ -55,23 +61,23 @@ new Vue({
         });
 
         // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
-        chrome.runtime.onMessage.addListener((request, sender, callback) => {
-            let MSG_TYPE = Tarp.require('../static/js/msg_type');
-            if (request.type === MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event === MSG_TYPE.JSON_FORMAT) {
-                if (request.content) {
+        if (location.protocol === 'chrome-extension:') {
+            chrome.runtime.onMessage.addListener((request, sender, callback) => {
+                if (request.type === 'TAB_CREATED_OR_UPDATED' && request.content && request.event === location.pathname.split('/')[1]) {
                     editor.setValue(request.content || this.defaultResultTpl);
                     this.format();
                 }
-            }
-        });
-
-
+                callback && callback();
+                return true;
+            });
+        }
     },
     methods: {
         format: function () {
-            this.showTips = false;
             this.errorMsg = '';
-            this.resultContent = this.defaultResultTpl;
+            this.placeHolder = this.defaultResultTpl;
+            this.jfCallbackName_start = '';
+            this.jfCallbackName_end = '';
 
             let source = editor.getValue().replace(/\n/gm, ' ');
             if (!source) {
@@ -103,8 +109,13 @@ new Vue({
                         // 再给你一次机会，是不是下面这种情况：  "{\"ret\":\"0\", \"msg\":\"ok\"}"
                         jsonObj = new Function("return '" + source + "'")();
                         if (typeof jsonObj === 'string') {
-                            // 最后给你一次机会，是个字符串，老夫给你再转一次
-                            jsonObj = new Function("return " + jsonObj)();
+                            try {
+                                // 确保bigint不会失真
+                                jsonObj = JSON.parse(jsonObj);
+                            } catch (ie) {
+                                // 最后给你一次机会，是个字符串，老夫给你再转一次
+                                jsonObj = new Function("return " + jsonObj)();
+                            }
                         }
                     } catch (exxx) {
                         this.errorMsg = exxx.message;
@@ -117,7 +128,7 @@ new Vue({
                 try {
                     let sortType = document.querySelectorAll('[name=jsonsort]:checked')[0].value;
                     if (sortType !== '0') {
-                        jsonObj = Tarp.require('../json-format/jsonabc').sortObj(jsonObj, parseInt(sortType), true);
+                        jsonObj = JsonABC.sortObj(jsonObj, parseInt(sortType), true);
                     }
                     source = JSON.stringify(jsonObj);
                 } catch (ex) {
@@ -126,8 +137,18 @@ new Vue({
                 }
 
                 if (!this.errorMsg.length) {
-                    // 格式化
-                    Tarp.require('./format-lib').format(source);
+
+                    if (this.autoDecode) {
+                        (async () => {
+                            let txt = await JsonEnDecode.urlDecodeByFetch(source);
+                            source = JsonEnDecode.uniDecode(txt);
+                            Formatter.format(source);
+                        })();
+                    } else {
+                        Formatter.format(source);
+                    }
+
+                    this.placeHolder = '';
                     this.jsonFormattedSource = source;
 
                     // 如果是JSONP格式的，需要把方法名也显示出来
@@ -138,6 +159,10 @@ new Vue({
                         this.jfCallbackName_start = '';
                         this.jfCallbackName_end = '';
                     }
+
+                    this.$nextTick(() => {
+                        this.updateWrapperHeight();
+                    })
                 }
             }
 
@@ -145,11 +170,11 @@ new Vue({
                 if (this.jsonLintSwitch) {
                     return this.lintOn();
                 } else {
-                    this.resultContent = '<span class="x-error">' + this.errorMsg + '</span>';
+                    this.placeHolder = '<span class="x-error">' + this.errorMsg + '</span>';
                     return false;
                 }
             }
-
+            
             return true;
         },
 
@@ -160,23 +185,50 @@ new Vue({
             }
         },
 
+        autoDecodeFn: function () {
+            this.$nextTick(() => {
+                localStorage.setItem(AUTO_DECODE, this.autoDecode);
+                this.format();
+            });
+        },
+
+        uniEncode: function () {
+            editor.setValue(JsonEnDecode.uniEncode(editor.getValue()));
+        },
+
+        uniDecode: function () {
+            editor.setValue(JsonEnDecode.uniDecode(editor.getValue()));
+        },
+
+        urlDecode: function () {
+            JsonEnDecode.urlDecodeByFetch(editor.getValue()).then(text => editor.setValue(text));
+        },
+
+        updateWrapperHeight: function () {
+            let curLayout = localStorage.getItem(LOCAL_KEY_OF_LAYOUT);
+            let elPc = document.querySelector('#pageContainer');
+            if (curLayout === 'up-down') {
+                elPc.style.height = 'auto';
+            } else {
+                elPc.style.height = Math.max(elPc.scrollHeight, document.body.scrollHeight) + 'px';
+            }
+        },
+
         changeLayout: function (type) {
+            let elPc = document.querySelector('#pageContainer');
             if (type === 'up-down') {
-                if (this.$refs.btnUpDown.classList.contains('selected')) {
-                    return;
-                }
-                this.$refs.panelBody.classList.add('layout-up-down');
+                elPc.classList.remove('layout-left-right');
+                elPc.classList.add('layout-up-down');
                 this.$refs.btnLeftRight.classList.remove('selected');
                 this.$refs.btnUpDown.classList.add('selected');
             } else {
-                if (this.$refs.btnLeftRight.classList.contains('selected')) {
-                    return;
-                }
-                this.$refs.panelBody.classList.remove('layout-up-down');
+                elPc.classList.remove('layout-up-down');
+                elPc.classList.add('layout-left-right');
                 this.$refs.btnLeftRight.classList.add('selected');
                 this.$refs.btnUpDown.classList.remove('selected');
             }
             localStorage.setItem(LOCAL_KEY_OF_LAYOUT, type);
+            this.updateWrapperHeight();
         },
 
         setCache: function () {
@@ -196,24 +248,14 @@ new Vue({
                 if (!this.jsonLintSwitch) {
                     return;
                 }
-                let lintResult = Tarp.require('./jsonlint')(editor.getValue());
+                let lintResult = JsonLint.lintDetect(editor.getValue());
                 if (!isNaN(lintResult.line)) {
-                    this.errorPos = '错误位置：' + (lintResult.line + 1) + '行，' + (lintResult.col + 1) + '列；缺少字符或字符不正确';
-                    this.errorJsonCode = lintResult.dom;
-                    this.showTips = true;
-                    this.$nextTick(() => {
-                        let el = document.querySelector('#errorCode .errorEm');
-                        el && el.scrollIntoView();
-                        let scrollEl = document.querySelector('#errorTips');
-                        scrollEl.scrollBy(0, el.offsetTop - scrollEl.scrollTop - 50);
-                    });
+                    this.placeHolder = '<div id="errorTips">' +
+                        '<div id="tipsBox">错误位置：' + (lintResult.line + 1) + '行，' + (lintResult.col + 1) + '列；缺少字符或字符不正确</div>' +
+                        '<div id="errorCode">' + lintResult.dom + '</div></div>';
                 }
             });
             return false;
-        },
-
-        closeTips: function () {
-            this.showTips = false;
         },
 
         disableEditorChange: function (jsonTxt) {
@@ -224,6 +266,10 @@ new Vue({
                     this.fireChange = true;
                 })
             })
+        },
+
+        openOptionsPage: function(){
+            chrome.runtime.openOptionsPage();
         },
 
         setDemo: function () {

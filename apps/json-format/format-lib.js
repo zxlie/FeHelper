@@ -1,7 +1,6 @@
 /**
  * FeHelper Json Format Lib
  */
-
 let JsonFormatEntrance = (function () {
 
     "use strict";
@@ -38,15 +37,9 @@ let JsonFormatEntrance = (function () {
             formattingMsg = $('<div id="formattingMsg"><span class="x-loading"></span>格式化中...</div>').appendTo('body');
         }
 
-        jfOptEl = $('#boxOpt');
-        if (!jfOptEl.length) {
-            jfOptEl = $('<div id="boxOpt"><a class="opt-download" target="_blank">下载</a>|<a class="opt-copy">复制</a>|<a class="opt-del">删除</a></div>').appendTo('body');
-        }
-
         try {
             jfContent.html('').show();
             jfPre.html('').hide();
-            jfOptEl && jfOptEl.hide();
             jfPathEl && jfPathEl.hide();
             formattingMsg.hide();
         } catch (e) {
@@ -70,7 +63,6 @@ let JsonFormatEntrance = (function () {
                 formattingMsg.hide();
                 jfContent.html(msg[1]);
 
-                _loadJs();
                 _buildOptionBar();
                 // 事件绑定
                 _addEvents();
@@ -118,14 +110,6 @@ let JsonFormatEntrance = (function () {
 
     };
 
-    let _loadJs = function () {
-        if (typeof Tarp === 'object') {
-            Tarp.require('../static/js/utils.js');
-        } else {
-            toast('无法加载Tarp.require.js');
-        }
-    };
-
     /**
      * 直接下载，能解决中文乱码
      * @param content
@@ -137,7 +121,7 @@ let JsonFormatEntrance = (function () {
         let dt = (new Date()).format('yyyyMMddHHmmss');
         let blob = new Blob([content], {type: 'application/octet-stream'});
 
-        let button = $('<button id="btnDownload">下载JSON</button>').appendTo('#optionBar');
+        let button = $('<button class="xjf-btn xjf-btn-right">下载JSON</button>').appendTo('#optionBar');
 
         if (typeof chrome === 'undefined' || !chrome.permissions) {
             button.click(function (e) {
@@ -264,6 +248,12 @@ let JsonFormatEntrance = (function () {
             jfPathEl && jfPathEl.hide();
         };
 
+
+        jfOptEl = $('#boxOpt');
+        if (!jfOptEl.length) {
+            jfOptEl = $('<div id="boxOpt"><a class="opt-download" target="_blank">下载</a>|<a class="opt-copy">复制</a>|<a class="opt-del">删除</a></div>').appendTo(jfContent);
+        }
+
         jfOptEl.find('a.opt-download').unbind('click').bind('click', fnDownload);
         jfOptEl.find('a.opt-copy').unbind('click').bind('click', fnCopy);
         jfOptEl.find('a.opt-del').unbind('click').bind('click', fnDel);
@@ -311,13 +301,15 @@ let JsonFormatEntrance = (function () {
     let _buildOptionBar = function () {
 
         let optionBar = $('#optionBar');
-        if (optionBar) {
-            optionBar.remove();
+        if (optionBar.length) {
+            optionBar.html('');
+        }else{
+            optionBar = $('<span id="optionBar" />').appendTo(jfContent.parent());
         }
-        optionBar = $('<div id="optionBar" />').appendTo(jfContent.parent());
 
-        let buttonFormatted = $('<button id="buttonFormatted">元数据</button>').appendTo(optionBar);
-        let buttonCollapseAll = $('<button id="buttonCollapseAll">折叠所有</button>').appendTo(optionBar);
+        $('<span class="x-split">|</span>').appendTo(optionBar);
+        let buttonFormatted = $('<button class="xjf-btn xjf-btn-left">元数据</button>').appendTo(optionBar);
+        let buttonCollapseAll = $('<button class="xjf-btn xjf-btn-mid">折叠所有</button>').appendTo(optionBar);
         let plainOn = false;
 
         buttonFormatted.bind('click', function (e) {
@@ -386,7 +378,8 @@ let JsonFormatEntrance = (function () {
                 color: '#ff0',
                 fontSize: '12px',
                 fontWeight: 'bold',
-                padding: '2px 10px 2px 2px'
+                padding: '2px 10px 2px 2px',
+                zIndex: 10
             }).appendTo('body');
         }
         jfPathEl.html('当前路径：' + path).show();
@@ -892,6 +885,84 @@ let JsonFormatDealer = (function () {
     };
 })();
 
-module.exports = {
+window.Formatter = {
     format: JsonFormatEntrance.format
+};
+
+/**
+ * 日期格式化
+ * @param {Object} pattern
+ */
+Date.prototype.format = function (pattern) {
+    let pad = function (source, length) {
+        let pre = "",
+            negative = (source < 0),
+            string = String(Math.abs(source));
+
+        if (string.length < length) {
+            pre = (new Array(length - string.length + 1)).join('0');
+        }
+
+        return (negative ? "-" : "") + pre + string;
+    };
+
+    if ('string' !== typeof pattern) {
+        return this.toString();
+    }
+
+    let replacer = function (patternPart, result) {
+        pattern = pattern.replace(patternPart, result);
+    };
+
+    let year = this.getFullYear(),
+        month = this.getMonth() + 1,
+        date2 = this.getDate(),
+        hours = this.getHours(),
+        minutes = this.getMinutes(),
+        seconds = this.getSeconds(),
+        milliSec = this.getMilliseconds();
+
+    replacer(/yyyy/g, pad(year, 4));
+    replacer(/yy/g, pad(parseInt(year.toString().slice(2), 10), 2));
+    replacer(/MM/g, pad(month, 2));
+    replacer(/M/g, month);
+    replacer(/dd/g, pad(date2, 2));
+    replacer(/d/g, date2);
+
+    replacer(/HH/g, pad(hours, 2));
+    replacer(/H/g, hours);
+    replacer(/hh/g, pad(hours % 12, 2));
+    replacer(/h/g, hours % 12);
+    replacer(/mm/g, pad(minutes, 2));
+    replacer(/m/g, minutes);
+    replacer(/ss/g, pad(seconds, 2));
+    replacer(/s/g, seconds);
+    replacer(/SSS/g, pad(milliSec, 3));
+    replacer(/S/g, milliSec);
+
+    return pattern;
+};
+
+/**
+ * 自动消失的Alert弹窗
+ * @param content
+ */
+window.toast = function (content) {
+    window.clearTimeout(window.feHelperAlertMsgTid);
+    let elAlertMsg = document.querySelector("#fehelper_alertmsg");
+    if (!elAlertMsg) {
+        let elWrapper = document.createElement('div');
+        elWrapper.innerHTML = '<div id="fehelper_alertmsg" style="position:fixed;top:5px;right:5px;z-index:1000000">' +
+            '<p style="background:#000;display:inline-block;color:#fff;text-align:center;' +
+            'padding:10px 10px;margin:0 auto;font-size:14px;border-radius:4px;">' + content + '</p></div>';
+        elAlertMsg = elWrapper.childNodes[0];
+        document.body.appendChild(elAlertMsg);
+    } else {
+        elAlertMsg.querySelector('p').innerHTML = content;
+        elAlertMsg.style.display = 'block';
+    }
+
+    window.feHelperAlertMsgTid = window.setTimeout(function () {
+        elAlertMsg.style.display = 'none';
+    }, 3000);
 };

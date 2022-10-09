@@ -2,21 +2,24 @@
  * FeHelper 简易版Postman
  */
 
-// json with bigint supported
-Tarp.require('../static/vendor/json-bigint/index');
-
+const JSON_SORT_TYPE_KEY = 'json_sort_type_key';
 new Vue({
     el: '#pageContainer',
     data: {
         urlContent: '',
-        urlParams: [],
         methodContent: 'GET',
         resultContent: '',
+        funcName: '',
         paramContent: '',
         responseHeaders: [],
         jfCallbackName_start: '',
         jfCallbackName_end: '',
-        errorMsgForJson: ''
+        errorMsgForJson: '',
+        originalJsonStr: '',
+        headerList: [new Date() * 1],
+        urlencodedDefault: 1,
+        urlParams: [],
+        paramMode:'kv' // kv、json
     },
 
     watch: {
@@ -27,8 +30,8 @@ new Vue({
             let ret = reg.exec(url);
             while (ret) {
                 params.push({
-                key: ret[1],
-                value: ret[2],
+                    key: ret[1],
+                    value: ret[2],
                 });
                 ret = reg.exec(url);
             }
@@ -78,7 +81,6 @@ new Vue({
                     case resp.target.DONE:
                         try {
                             result = JSON.stringify(JSON.parse(resp.target.responseText), null, 4);
-
                         } catch (e) {
                             result = resp.target.responseText;
                         }
@@ -90,11 +92,60 @@ new Vue({
                 this.resultContent = result || '无数据';
             });
             xhr.open(method, url);
-            if(method.toLowerCase() === 'post') {
-                xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
-                xhr.send(body);
+
+            let isPost = false;
+            if (method.toLowerCase() === 'post') {
+                isPost = true;
+                this.urlencodedDefault && xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            }
+
+            // 设置请求头：Header
+            this.headerList.forEach(id => {
+                let headerKey = $(`#header_key_${id}`).val();
+                let headerVal = $(`#header_value_${id}`).val();
+                if (headerKey && headerVal) {
+                    xhr.setRequestHeader(headerKey, headerVal);
+                }
+            });
+
+            // 如果body是json格式的，需要转换成k-v格式
+            try {
+                let obj = JSON.parse(body);
+                body = Object.keys(obj).map(k => {
+                    let v = JSON.stringify(obj[k]).replace(/"/g,'');
+                    return `${k}=${v}`;
+                }).join('&');
+            } catch (e) {
+            }
+
+            xhr.send(isPost && body);
+        },
+
+        addHeader() {
+            this.headerList.push(new Date() * 1);
+        },
+        deleteHeader(event) {
+            event.target.parentNode.remove();
+        },
+        transParamMode(){
+            if(this.paramMode === 'kv') {
+                this.paramMode = 'json';
+                let objParam = {};
+                this.paramContent.split('&').forEach(p => {
+                    let x = p.split('=');
+                    objParam[x[0]] = x[1];
+                });
+                this.paramContent = JSON.stringify(objParam,null,4);
             }else{
-                xhr.send();
+                this.paramMode = 'kv';
+                try {
+                    let obj = JSON.parse(this.paramContent);
+                    this.paramContent = Object.keys(obj).map(k => {
+                        let v = JSON.stringify(obj[k]).replace(/"/g,'');
+                        return `${k}=${v}`;
+                    }).join('&');
+                } catch (e) {
+                }
             }
         },
 
@@ -116,18 +167,18 @@ new Vue({
                 return false;
             }
 
-            // JSONP形式下的callback name
-            let funcName = null;
             // json对象
             let jsonObj = null;
 
             // 下面校验给定字符串是否为一个合法的json
             try {
+                this.funcName = '';
+
                 // 再看看是不是jsonp的格式
                 let reg = /^([\w\.]+)\(\s*([\s\S]*)\s*\)$/igm;
                 let matches = reg.exec(source);
                 if (matches != null) {
-                    funcName = matches[1];
+                    this.funcName = matches[1];
                     source = matches[2];
                 }
                 // 这里可能会throw exception
@@ -161,17 +212,25 @@ new Vue({
                 }
 
                 if (!this.errorMsgForJson.length) {
-                    // 格式化
-                    Tarp.require('../json-format/format-lib').format(source);
 
-                    // 如果是JSONP格式的，需要把方法名也显示出来
-                    if (funcName != null) {
-                        this.jfCallbackName_start = funcName + '(';
-                        this.jfCallbackName_end = ')';
-                    } else {
-                        this.jfCallbackName_start = '';
-                        this.jfCallbackName_end = '';
-                    }
+                    this.originalJsonStr = source;
+
+                    // 获取上次记录的排序方式
+                    let curSortType = parseInt(localStorage.getItem(JSON_SORT_TYPE_KEY) || 0);
+                    this.didFormat(curSortType);
+
+                    // 排序选项初始化
+                    $('[name=jsonsort][value=' + curSortType + ']').attr('checked', 1);
+
+                    let that = this;
+                    $('[name=jsonsort]').click(function (e) {
+                        let sortType = parseInt(this.value);
+                        if (sortType !== curSortType) {
+                            that.didFormat(sortType);
+                            curSortType = sortType;
+                        }
+                        localStorage.setItem(JSON_SORT_TYPE_KEY, sortType);
+                    });
                 }
             }
 
@@ -183,16 +242,37 @@ new Vue({
 
         },
 
+        didFormat: function (sortType) {
+            sortType = sortType || 0;
+            let source = this.originalJsonStr;
+
+            if (sortType !== 0) {
+                let jsonObj = JsonABC.sortObj(JSON.parse(this.originalJsonStr), parseInt(sortType), true);
+                source = JSON.stringify(jsonObj);
+            }
+
+            Formatter.format(source);
+            $('.x-toolbar').fadeIn(500);
+
+            // 如果是JSONP格式的，需要把方法名也显示出来
+            if (this.funcName) {
+                $('#jfCallbackName_start').html(this.funcName + '(');
+                $('#jfCallbackName_end').html(')');
+            } else {
+                this.jfCallbackName_start = '';
+                this.jfCallbackName_end = '';
+            }
+        },
+
         setDemo: function (type) {
             if (type === 1) {
-                this.urlContent = 'https://www.sojson.com/api/qqmusic/8446666/json';
+                this.urlContent = 'http://t.weather.sojson.com/api/weather/city/101030100';
                 this.methodContent = 'GET';
             } else {
                 this.urlContent = 'https://www.baidufe.com/test-post.php';
                 this.methodContent = 'POST';
                 this.paramContent = 'username=postman&password=123456'
             }
-
         },
 
         urlParams2String: function (params) {

@@ -21,7 +21,8 @@
                 var tleft = $(this).offset().left;    //控件的定位点宽
                 $("#colorpanel").css({
                     top:ttop+thei+5,
-                    left:tleft
+                    left:tleft,
+                    width:260
                 }).show();
                 var target = opts.target ? $(opts.target) : obj;
                 if(target.data("color") == null){
@@ -73,11 +74,10 @@
                     }
                 }
             }
-            colorTable='<table width=253 border="0" cellspacing="0" cellpadding="0" style="border:1px solid #000;">'
+            colorTable='<table width=232 border="0" cellspacing="0" cellpadding="0" style="border:1px solid #000;">'
             +'<tr height=30><td colspan=21 bgcolor=#cccccc>'
-            +'<table cellpadding="0" cellspacing="1" border="0" style="border-collapse: collapse">'
-            +'<tr><td width="3"><td><input type="text" id="DisColor" size="6" disabled style="border:solid 1px #000000;background-color:#ffff00"></td>'
-            +'<td width="3"><td><input type="text" id="HexColor" size="7" style="border:inset 1px;font-family:Arial;" value="#000000"><a href="javascript:void(0);" id="_cclose">关闭</a> | <a href="javascript:void(0);" id="_creset">清除</a></td></tr></table></td></table>'
+            +'<input type="text" id="DisColor" size="6" disabled style="border:solid 1px #000000;background-color:#ffff00">'
+            +'<input type="text" id="HexColor" size="7" style="border:inset 1px;font-family:Arial;padding:2px 16px" value="#000000"><a href="javascript:void(0);" id="_cclose">关闭</a> | <a href="javascript:void(0);" id="_creset">清除</a></td></table>'
             +'<table id="CT" border="1" cellspacing="0" cellpadding="0" style="border-collapse: collapse" bordercolor="000000"  style="cursor:pointer;">'
             +colorTable+'</table>';
             $("#colorpanel").html(colorTable);

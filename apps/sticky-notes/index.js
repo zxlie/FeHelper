@@ -112,11 +112,8 @@ let StickyNotes = (() => {
 
     // 初始化
     let init = () => {
-        $(function () {
-            html5sticky.buildFoldersAndInitNotes();
-
-            addListener();
-        });
+        html5sticky.buildFoldersAndInitNotes();
+        addListener();
     };
 
     return {
@@ -125,4 +122,3 @@ let StickyNotes = (() => {
 })();
 
 StickyNotes.init();
-

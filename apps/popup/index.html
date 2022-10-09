@@ -4,57 +4,16 @@
         <title>FeHelper弹出页面</title>
         <meta charset="utf-8">
 		<link rel="stylesheet" href="index.css" />
+		<script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
 		<script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
-        <script src="../static/vendor/require/require.js"></script>
     </head>
     <body class="fe-whole-page">
         <div id="pageContainer">
-            <div class="fe-function-title">FeHelper<span>(V{{manifest.version.replace(/\.0/g,'.')}})</span></div>
+            <div class="fe-function-title">FeHelper<span>({{manifest.version}})</span></div>
             <ul class="fe-function-list">
-                <li class="-x-endecode" @click="runHelper('EN_DECODE',1)" v-if="canMeShow.EN_DECODE">
-                    <b></b>字符串编解码</li>
-                <li class="-x-jsonformat" @click="runHelper('JSON_FORMAT',1)" v-if="canMeShow.JSON_FORMAT">
-                    <b></b>JSON串格式化</li>
-                <li class="-x-jsondiff" @click="runHelper('JSON_COMPARE',1)" v-if="canMeShow.JSON_COMPARE">
-                    <b></b>JSON比对工具</li>
-                <li class="-x-codebeautify" @click="runHelper('CODE_BEAUTIFY',1)" v-if="canMeShow.CODE_BEAUTIFY">
-                    <b></b>代码美化工具</li>
-                <li class="-x-codecompress" @click="runHelper('CODE_COMPRESS',1)" v-if="canMeShow.CODE_COMPRESS">
-                    <b></b>代码压缩工具</li>
-                <li class="-x-qrcode" @click="runHelper('QR_CODE',1)" v-if="canMeShow.QR_CODE">
-                    <b></b>二维码生成器</li>
-                <li class="-x-pagecapture" @click="runHelper('PAGE_CAPTURE',0)" v-if="canMeShow.PAGE_CAPTURE && !isFireFox">
-                    <b></b>网页滚动截屏</li>
-                <li class="-x-colorpicker" @click="runHelper('COLOR_PICKER',0)" v-if="canMeShow.COLOR_PICKER && !isFireFox">
-                    <b></b>页面取色工具</li>
-                <li class="-x-regexp" @click="runHelper('REGEXP_TOOL',1)" v-if="canMeShow.REGEXP_TOOL">
-                    <b></b>Js正则表达式</li>
-                <li class="-x-timestamp" @click="runHelper('TIME_STAMP',1)" v-if="canMeShow.TIME_STAMP">
-                    <b></b>时间(戳)转换</li>
-                <li class="-x-base64" @click="runHelper('IMAGE_BASE64',1)" v-if="canMeShow.IMAGE_BASE64">
-                    <b></b>图片转Base64</li>
-                <li class="-x-password" @click="runHelper('RANDOM_PASSWORD',1)" v-if="canMeShow.RANDOM_PASSWORD">
-                    <b></b>随机密码生成</li>
-                <li class="-x-markdown" @click="runHelper('HTML_TO_MARKDOWN',1)" v-if="canMeShow.HTML_TO_MARKDOWN">
-                    <b></b>Markdown转换</li>
-                <li class="-x-fcp" @click="runHelper('FCP_HELPER_DETECT',0)" v-if="canMeShow.FCP_HELPER_DETECT && !isFireFox">
-                    <b></b>编码规范检测</li>
-                <li class="-x-loadtime" @click="runHelper('SHOW_PAGE_LOAD_TIME',0)" v-if="canMeShow.SHOW_PAGE_LOAD_TIME && !isFireFox">
-                    <b></b>页面性能检测</li>
-                <li class="-x-post-man" @click="runHelper('POST_MAN',1)" v-if="canMeShow.POST_MAN">
-                    <b></b>简易Postman</li>
-                <li class="-x-grid-ruler" @click="runHelper('GRID_RULER',0)" v-if="canMeShow.GRID_RULER && !isFireFox">
-                    <b></b>页面栅格标尺</li>
-                <li class="-x-page-monkey" @click="runHelper('PAGE_MODIFIER',1)" v-if="canMeShow.PAGE_MODIFIER">
-                    <b></b>网页油猴工具</li>
-                <li class="-x-multi-toolkit" @click="runHelper('MULTI_TOOLKIT',1)" v-if="canMeShow.MULTI_TOOLKIT">
-                    <b></b>多维小工具集</li>
-                <li class="-x-ajax-debugger" title="在开发者工具-Console面板使用" @click="runHelper('AJAX_DEBUGGER',0)" v-if="canMeShow.AJAX_DEBUGGER && !isFireFox">
-                    <b></b>Ajax调试:<i>{{ ajaxDebugger }}</i></li>
-                <li class="-x-sticky-notes" @click="runHelper('STICKY_NOTES',1)" v-if="canMeShow.STICKY_NOTES">
-                    <b></b>我的便签笔记</li>
-                <li class="-x-remove-bg" @click="runHelper('REMOVE_BG',1)" v-if="canMeShow.REMOVE_BG && !isFireFox">
-                    <b></b>人像背景移除</li>
+                <li v-for="tool in Object.keys(fhTools)" :class="'-x-' + tool" @click="runHelper(tool,fhTools[tool].noPage)" v-if="fhTools[tool].installed">
+                    <b>{{fhTools[tool].menuConfig[0].icon}}</b>{{fhTools[tool].name}}
+                </li>
             </ul>
             <div class="fe-feedback">
 
@@ -76,6 +35,7 @@
                 </a>
             </div>
         </div>
-        <script type="text/javascript" src="index.js"></script>
+        <script src="../static/js/dark-mode.js"></script>
+        <script type="module" src="index.js"></script>
     </body>
 </html>

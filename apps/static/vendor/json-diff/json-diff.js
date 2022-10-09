@@ -190,6 +190,11 @@ let JsonDiff = (function () {
             let scrollInfo = rightInputView.codemirror.getScrollInfo();
             leftInputView.codemirror.scrollTo(scrollInfo.left, scrollInfo.top);
         });
+
+        return {
+            left: leftInputView.codemirror,
+            right: rightInputView.codemirror
+        };
     }
 
     return {

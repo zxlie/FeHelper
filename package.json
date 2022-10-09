@@ -1,10 +1,10 @@
 {
-  "name": "fehelper",
+  "name": "FeHelper",
   "version": "1.0.0",
-  "description": "chrome extension",
+  "description": "FeHelper-前端助手",
   "main": "index.js",
   "dependencies": {
-    "sign-addon": "^0.3.1"
+    "crypto": "^1.0.1"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
@@ -27,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zxlie/FeHelper.git"
+    "url": "git+https://github.com/zxlie/FeOnline.git"
   },
   "keywords": [
     "fehelper"

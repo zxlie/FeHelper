@@ -3,9 +3,9 @@
 <head>
     <title>代码美化工具</title>
     <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../static/img/favicon.ico">
     <link rel="stylesheet" href="index.css"/>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
-    <script src="../static/vendor/require/require.js"></script>
 </head>
 <body>
 <div class="wrapper" id="pageContainer">
@@ -50,7 +50,13 @@
         <div class="row" id="jfContent" ref="jfContentBox" v-html="resultContent"></div>
     </div>
 </div>
-<script src="../static/vendor/prism/prism.js"></script>
+<script type="text/javascript" src="beautify-html.js"></script>
+<script type="text/javascript" src="beautify-vk.js"></script>
+<script type="text/javascript" src="content-script.js"></script>
+<script type="text/javascript" src="../static/vendor/prism/prism.js"></script>
 <script type="text/javascript" src="index.js"></script>
+
+<script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+<script src="../static/js/navbar.js"></script>
 </body>
 </html>

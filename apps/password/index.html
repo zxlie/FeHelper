@@ -1,20 +1,24 @@
 <!DOCTYPE HTML>
 <html lang="zh-CN">
-    <head>
-        <title>随机密码生成器</title>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="index.css" />
-        <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
-        <script src="../static/vendor/require/require.js"></script>
-    </head>
-    <body>
+
+<head>
+    <title>随机密码生成器</title>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../static/img/favicon.ico">
+    <link rel="stylesheet" href="index.css" />
+    <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    <script src="../static/vendor/require/require.js"></script>
+</head>
+
+<body>
 
     <div class="wrapper" id="pageContainer">
         <div class="panel panel-default" style="margin-bottom: 0px;">
             <div class="panel-heading">
                 <h3 class="panel-title">
                     <a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank" class="x-a-high">
-                        <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：随机密码生成器</h3>
+                        <img src="../static/img/fe-16.png" alt="fehelper" /> FeHelper</a>：随机密码生成器
+                </h3>
             </div>
         </div>
         <div class="panel-body mod-password">
@@ -38,8 +42,7 @@
 
                 <div class="checkbox no-border">
                     <input id="btnCopy" class="btn btn-warning" type="button" value="复制" @click="copyResult()" v-show="resultContent.length > 0">
-
-                    <input id="btnCodeChange" class="btn btn-success ui-fl-r" type="button" value="生成随机密码" @click="convert()">
+                    <input id="btnCodeChange" class="btn btn-success ui-fl-l" type="button" value="生成随机密码" @click="convert()">
                 </div>
             </div>
 
@@ -49,5 +52,9 @@
         </div>
     </div>
     <script type="text/javascript" src="index.js"></script>
-    </body>
+
+    <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+    <script src="../static/js/navbar.js"></script>
+</body>
+
 </html>

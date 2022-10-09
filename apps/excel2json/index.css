@@ -1,0 +1,143 @@
+@import url("../static/css/bootstrap.min.css");
+
+#pageContainer > .panel-body {
+    margin: 0 auto;
+}
+
+body {
+    overflow: hidden;
+}
+
+#base {
+    padding: 15px;
+    position: relative;
+}
+
+/*header*/
+
+#header {
+    width: 300px;
+    overflow: auto;
+}
+
+#header a {
+    color: #99FFFF;
+}
+
+#description p {
+    margin-bottom: 18px;
+}
+
+#header h3 {
+    font-size: 16px;
+    margin: 15px 0 10px 0;
+    padding: 15px 0 0 0;
+    border-top: solid 1px #CCC;
+    text-transform: uppercase;
+}
+
+h1 {
+    color: #DEDEDE;
+    font-family: palatino, Georgia;
+    font-size: 40px;
+    line-height: 40px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    text-shadow: 1px 1px 3px #000;
+}
+
+p {
+    font-size: 15px;
+    line-height: 22px;
+}
+
+/*settings*/
+#settings {
+    font-size:12px;
+    line-height: 30px;
+}
+
+#settings h5 {
+    line-height: 24px;
+}
+
+#settings p {
+    line-height: 24px;
+}
+
+#settings .settingsGroup p {
+    padding-left: 20px;
+}
+
+/*converter*/
+
+#converter {
+    position: absolute;
+    top: 15px;
+    left: 330px;
+    border:1px solid #ccc;
+}
+
+p.dataHeaders {
+    height: 30px;
+    padding: 15px 15px 10px;
+}
+
+.textInputs {
+    border: none;
+    color: #664D63;
+    font-family: monospace;
+    font-size: 12px;
+    height: 300px;
+    line-height: 18px;
+    padding: 10px;
+    text-shadow: #DED4DD 0px 1px 0px;
+    outline: none;
+    resize: none;
+}
+
+.groupHeader {
+    width: 100%;
+    color: #000;
+    height: 45px;
+    background-color: #f1f1f1;
+}
+
+p.groupHeadline {
+    padding: 10px;
+}
+
+.groupHeader span.subhead {
+    opacity: 0.7;
+    font-size: 12px;
+}
+
+.groupHeader a {
+    color: #FF66FF;
+}
+
+#outputHeader {
+    border-top:1px solid #ccc;
+}
+
+#dataInput, #dataOutput {
+    width: 100% !important;
+}
+
+#dataSelector {
+    width: 200px;
+    line-height: 22px;
+    font-size: 12px;
+    position: relative;
+    top: -2px;
+    left: 10px;
+}
+
+#dataSelector option {
+
+}
+.form-control {
+    display: inline-block;
+    width:200px;
+    height:28px;
+}

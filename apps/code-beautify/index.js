@@ -11,17 +11,17 @@ new Vue({
     },
 
     mounted: function () {
-
         // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
-        chrome.runtime.onMessage.addListener((request, sender, callback) => {
-            let MSG_TYPE = Tarp.require('../static/js/msg_type');
-            if (request.type === MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event === MSG_TYPE.CODE_BEAUTIFY) {
-                if (request.content) {
+        if (location.protocol === 'chrome-extension:') {
+            chrome.runtime.onMessage.addListener((request, sender, callback) => {
+                if (request.type === 'TAB_CREATED_OR_UPDATED' && request.content && request.event === location.pathname.split('/')[1]) {
                     this.sourceContent = request.content;
                     this.format();
                 }
-            }
-        });
+                callback && callback();
+                return true;
+            });
+        }
 
         //输入框聚焦
         this.$refs.codeSource.focus();
@@ -29,8 +29,10 @@ new Vue({
 
     methods: {
         format: function () {
-            if(!this.sourceContent.trim()) {
+            if (!this.sourceContent.trim()) {
                 return alert('内容为空，不需要美化处理！');
+            }else{
+                this.toast('格式化进行中...');
             }
 
             let beauty = (result) => {
@@ -42,6 +44,7 @@ new Vue({
                 this.$nextTick(() => {
                     Prism.highlightAll();
                     this.showCopyBtn = true;
+                    this.toast('格式化完成！');
                 });
             };
 
@@ -66,27 +69,24 @@ new Vue({
                         "comma_first": false,
                         "e4x": false
                     };
-                    beauty(Tarp.require('../code-beautify/beautify.js').js_beautify(this.sourceContent, opts));
+                    beauty(js_beautify(this.sourceContent, opts));
                     break;
                 case 'CSS':
-                    Tarp.require('../code-beautify/beautify-css.js').css_beautify(this.sourceContent, {}, result => beauty(result));
+                    css_beautify(this.sourceContent, {}, result => beauty(result));
                     break;
                 case 'HTML':
-                    Tarp.require('../code-beautify/beautify-html.js');
-                    beauty(html_beautify(this.sourceContent));
+                    beauty(html_beautify(this.sourceContent,{indent_size:15}));
                     break;
                 case 'SQL':
-                    Tarp.require('../code-beautify/vkbeautify.js');
                     beauty(vkbeautify.sql(this.sourceContent, 4));
                     break;
                 default:
-                    Tarp.require('../code-beautify/vkbeautify.js');
                     beauty(vkbeautify.xml(this.sourceContent));
             }
 
         },
 
-        copy: function(){
+        copy: function () {
 
             let _copyToClipboard = function (text) {
                 let input = document.createElement('textarea');
@@ -103,6 +103,30 @@ new Vue({
 
             let txt = this.$refs.jfContentBox.textContent;
             _copyToClipboard(txt);
+        },
+
+        /**
+         * 自动消失的Alert弹窗
+         * @param content
+         */
+        toast (content) {
+            window.clearTimeout(window.feHelperAlertMsgTid);
+            let elAlertMsg = document.querySelector("#fehelper_alertmsg");
+            if (!elAlertMsg) {
+                let elWrapper = document.createElement('div');
+                elWrapper.innerHTML = '<div id="fehelper_alertmsg" style="position:fixed;bottom:5px;left:5px;z-index:1000000">' +
+                    '<p style="background:#000;display:inline-block;color:#fff;text-align:center;' +
+                    'padding:10px 10px;margin:0 auto;font-size:14px;border-radius:4px;">' + content + '</p></div>';
+                elAlertMsg = elWrapper.childNodes[0];
+                document.body.appendChild(elAlertMsg);
+            } else {
+                elAlertMsg.querySelector('p').innerHTML = content;
+                elAlertMsg.style.display = 'block';
+            }
+
+            window.feHelperAlertMsgTid = window.setTimeout(function () {
+                elAlertMsg.style.display = 'none';
+            }, 3000);
         }
     }
 });

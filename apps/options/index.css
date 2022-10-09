@@ -1,8 +1,17 @@
 @import "../static/css/bootstrap.min.css";
-@import "../popup/index.css";
 
 .wrapper {
-    width:940px;
+    width:auto;
+}
+
+#pageContainer .panel-body {
+    margin: 0 auto;
+    width: 980px;
+}
+.mod-header {
+    position: sticky;
+    top:0;
+    z-index: 100;
 }
 #pageContainer label {
     font-weight: normal;
@@ -13,34 +22,13 @@
     font-size: 18px;
 }
 
-fieldset {
-    padding: 10px;
-    margin: 10px;
-    border:1px solid #ddd;
-}
-fieldset legend {
-    font-size: 12px;
-    width: auto;
-    border:none;
-    padding:0 10px;
-    margin-bottom: 5px;
-}
-.fe-whole-page {
-    border: 1px solid #ddd;
-    box-shadow: 0 0 50px 1px;
-    width: 150px;
-}
-
-ul.fe-function-list li {
-    padding: 0;
-    height: 28px;
-    line-height: 28px;
-}
-
 h5,h4 {
     border-bottom : 1px solid #eee;
     padding-bottom: 5px;
-    width: 60%;
+}
+.t-hlt {
+    color:#f00;
+    font-style: italic;
 }
 
 #MAX_JSON_KEYS_NUMBER {
@@ -52,74 +40,7 @@ h5,h4 {
 .x-disabled {
     opacity: 0.2;
 }
-.x-disabled .box-mpreview ul.x-menus li:hover {
-    background-color: transparent;
-    color: inherit;
-}
-.b-firefox .x-disabled {
-    text-decoration: line-through;
-    text-decoration-color: red;
-    text-decoration-style: double;
-}
-.row-line {
-    line-height: 24px;
-}
-.box-preview {
-    position: relative;
-    left: 10px;
-    top: -40px;
-    border-left: 1px solid #f1f1f1;
-    padding-left: 24px;
-    width: 300px;
-}
-.ul-menu {
-    width: 550px;
-    list-style: none;
-    user-select: none;
-}
-.ul-menu li {
-    float: left;
-    width: 160px;
-}
-.ct-menu {
-    position: relative;
-}
-.ct-popup .ct-fun{
-    width: 550px;
-}
-.box-mpreview {
-    position: relative;
-    left: 560px;
-    top: -407px;
-    width: 450px;
-    margin-bottom: -547px;
-    border-left: 1px solid #f1f1f1;
-    user-select:none;
-}
-.box-mpreview h5 {
-    margin: 0 0 -10px 20px;
-}
-.box-mpreview ul.x-menus {
-    position: relative;
-    top: -145px;
-    left: 210px;
-    background: #f2f2f2;
-    border: 1px solid #bbb;
-    border-radius: 4px;
-    padding: 3px 0;
-    list-style: none;
-    width: 160px;
-}
-.box-mpreview ul.x-menus li {
-    padding: 2px 20px;
-    font-weight: 500;
-    font-size: 14px;
-}
-.box-mpreview ul.x-menus li:hover {
-    background-color: #276cf9;
-    color: #fff;
-    cursor: default;
-}
+
 #setShortcuts {
     font-size: 14px;
     text-decoration: underline;
@@ -134,12 +55,16 @@ h5,h4 {
     font-size: 12px;
     color: #aaa;
 }
+.x-tips b i {
+    text-decoration: underline;
+}
 .x-donate {
     font-size: 14px;
     color: #d00;
     margin-left: 10px;
     text-decoration: underline;
     text-decoration-style: double;
+    cursor: default;
 }
 .box-donate {
     position: absolute;
@@ -149,4 +74,114 @@ h5,h4 {
     border: 1px solid #ccc;
     border-radius: 6px;
     padding: 5px;
+}
+.mod-dynamic-tool {
+    padding-left: 0;
+}
+.mod-dynamic-tool li {
+    line-height: 28px;
+    list-style: none;
+    border-bottom: 1px solid #fff;
+}
+.mod-dynamic-tool li:hover {
+    border-bottom-color: #f2dede60;
+    background-color:#f2dede60;
+}
+.mod-dynamic-tool li .x-btn-box {
+    text-align: left;
+    display: inline-block;
+    min-width: 140px;
+}
+.mod-dynamic-tool li i {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    margin-right: 5px;
+    color:#48f;
+    font-style: normal;
+}
+.mod-dynamic-tool li b {
+    display: inline-block;
+    text-align-last: justify;
+    width: 102px;
+}
+.mod-dynamic-tool .btn {
+    position: relative;
+}
+.mod-dynamic-tool .btn i {
+    color: #f00;
+    font-size: 14px;
+    position: absolute;
+    top: -10px;
+    right: -10px;
+}
+.st-item {
+    margin-bottom: 10px;
+}
+.st-item .a-btn {
+    font-size:12px;
+    text-decoration: underline;
+}
+.btn-disabled,
+.btn-disabled:hover,
+.btn-disabled:active,
+.btn-disabled:focus{
+    color: #aaa;
+    background-color: #ddd;
+    border-color: #ddd;
+    cursor:not-allowed;
+}
+.x-sort-box {
+    margin-right: 10px;
+    user-select: none;
+}
+.x-sort-box i {
+    cursor: pointer;
+    font-weight: bold;
+}
+.x-sort-box i:hover {
+    color:#f00;
+}
+.x-sort-box i.x-hidden {
+    opacity: 0.2;
+    cursor: default;
+}
+.x-cur-version {
+    font-size: 12px;
+    margin-top: 4px;
+}
+.x-cur-version b,.x-cur-version i {
+    background: #5b5b5b;
+    padding: 3px 5px;
+    border-radius: 3px 0 0 3px;
+    color: #fff;
+    font-weight: lighter;
+    font-style: normal;
+    font-family: monospace;
+}
+.x-cur-version i {
+    border-radius: 0 3px 3px 0;
+    background: #0e7fbf;
+}
+[v-cloak] {
+    display: none;
+}
+.x-count-down {
+    color:#f00;
+    font-size: 12px;
+}
+.x-count-down b {
+    color:#0b0;
+}
+.panel-low-version {
+    text-align: center;
+    padding-top: 200px;
+    color: #bbb;
+}
+.panel-low-version a {
+    text-decoration: underline;
+}
+.panel-low-version b {
+    color:#888;
+    font-weight: normal;
 }

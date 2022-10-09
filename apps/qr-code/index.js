@@ -7,36 +7,65 @@ new Vue({
         textContent: '',
         qrSize: 200,
         qrColor: '#000000',
-        useIcon: 'no'
+        useIcon: 'no',
+        previewSrc: '',
+        resultContent: '',
+        qrEncodeMode: true,
+        showResult: false
     },
     mounted: function () {
 
-        // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
-        chrome.runtime.onMessage.addListener((request, sender, callback) => {
-            let MSG_TYPE = Tarp.require('../static/js/msg_type');
-            if (request.type === MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event === MSG_TYPE.QR_CODE) {
-                if (request.content) {
-                    this.textContent = request.content;
-                    this.convert();
-                }
-            }
-        });
+        let mode = new URL(location.href).searchParams.get('mode');
+        this.qrEncodeMode = mode !== 'decode';
 
-        this.$refs.codeSource.focus();
+        // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
+        if (location.protocol === 'chrome-extension:') {
+            chrome.runtime.onMessage.addListener((request, sender, callback) => {
+                if (request.type === 'TAB_CREATED_OR_UPDATED' && request.event === location.pathname.split('/')[1]) {
+
+                    let text = request.content || (request.fromTab ? request.fromTab.url : '');
+                    if (text) {
+                        if (!this.qrEncodeMode) {
+                            // 解码模式
+                            this._qrDecode(text);
+                        } else {
+                            this.textContent = text;
+                            this.convert();
+                        }
+                    }
+
+                    callback && callback();
+                    return true;
+                }
+            });
+        }
+
+        this.$refs.codeSource && this.$refs.codeSource.focus();
 
         // 拖拽注册
-        document.addEventListener('drop', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            let files = e.dataTransfer.files;
+        document.addEventListener('drop', (evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+            let files = evt.dataTransfer.files;
             if (files.length) {
-                this._drawIcon(files[0]);
+                if (this.qrEncodeMode) {
+                    this._drawIcon(files[0]);
+                } else {
+                    this._decodeLocal(files[0]);
+                }
             }
         }, false);
 
         document.addEventListener('dragover', (e) => {
             e.preventDefault();
             e.stopPropagation();
+        }, false);
+
+
+        //监听paste事件
+        document.addEventListener('paste', (event) => {
+            if (this.qrEncodeMode) return;
+            this.paste(event);
         }, false);
 
         // color picker绑定
@@ -51,6 +80,7 @@ new Vue({
 
     methods: {
         convert: function () {
+            this.showResult = true;
             this.$nextTick(() => {
                 if (this.textContent) {
                     $('#preview').html('').qrcode(this._createOptions());
@@ -62,7 +92,11 @@ new Vue({
 
         fileChanged: function (event) {
             if (event.target.files.length) {
-                this._drawIcon(event.target.files[0]);
+                if (this.qrEncodeMode) {
+                    this._drawIcon(event.target.files[0]);
+                } else {
+                    this._decodeLocal(event.target.files[0]);
+                }
                 event.target.value = '';
             }
         },
@@ -83,52 +117,25 @@ new Vue({
 
         _createOptions: function () {
             let defaultOptions = {
-                // render method: 'canvas', 'image' or 'div'
                 render: 'canvas',
-
-                // version range somewhere in 1 .. 40
                 minVersion: 1,
                 maxVersion: 40,
-
-                // error correction level: 'L', 'M', 'Q' or 'H'
                 ecLevel: 'L',
-
-                // offset in pixel if drawn onto existing canvas
                 left: 0,
                 top: 0,
-
-                // size in pixel
                 size: +this.qrSize || 200,
-
-                // code color or image element
                 fill: this.qrColor,
-
-                // background color or image element, null for transparent background
                 background: '#fff',
-
-                // corner radius relative to module width: 0.0 .. 0.5
                 radius: 0,
-
-                // quiet zone in modules
                 quiet: 0,
                 text: this.textContent,
-
-                // modes
-                // 0: normal
-                // 1: label strip
-                // 2: label box
-                // 3: image strip
-                // 4: image box
                 mode: 0,
-
                 mSize: 0.15,
                 mPosX: 0.5,
                 mPosY: 0.5,
-
                 label: 'FH',
                 fontname: 'sans',
                 fontcolor: '#f00',
-
                 image: false
             };
 
@@ -145,6 +152,97 @@ new Vue({
             }
 
             return defaultOptions;
+        },
+
+        trans: function () {
+            this.qrEncodeMode = !this.qrEncodeMode;
+        },
+        select: function () {
+            this.$refs.resultBox.select();
+        },
+
+        _decodeLocal: function (file) {
+            let reader = new FileReader();
+            reader.onload = (e) => {
+                this._qrDecode(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        },
+
+        paste: function (event) {
+            let items = event.clipboardData.items || {};
+
+            // 优先处理图片
+            for (let index in items) {
+                let item = items[index];
+                if (/image\//.test(item.type)) {
+                    let file = item.getAsFile();
+                    return this._decodeLocal(file);
+                }
+            }
+
+            // 然后处理url
+            try {
+                // 逐个遍历
+                (async () => {
+                    for (let index in items) {
+                        let item = items[index];
+                        if (/text\/plain/.test(item.type)) {
+                            let url = await new Promise(resolve => {
+                                item.getAsString(url => resolve(url))
+                            });
+                            let flag = await new Promise(resolve => {
+                                this._qrDecode(url, flag => resolve(flag));
+                            });
+                            if (flag) break;
+                        }
+                    }
+                })();
+            } catch (ex) {
+                // 只能处理一个了
+                for (let index in items) {
+                    let item = items[index];
+                    if (/text\/plain/.test(item.type)) {
+                        return item.getAsString(url => {
+                            this._qrDecode(url);
+                        });
+                    }
+                }
+            }
+        },
+
+        /**
+         * 二维码转码
+         * @param imgSrc
+         * @param callback
+         */
+        _qrDecode: function (imgSrc, callback) {
+
+            let self = this;
+            const codeReader = new ZXing.BrowserMultiFormatReader();
+
+            let image = new Image();
+            image.src = imgSrc;
+            image.setAttribute('crossOrigin', 'Anonymous');
+            image.onload = function () {
+                codeReader.decodeFromImage(this).then((result) => {
+                    self._showDecodeResult(imgSrc, result.text);
+                    callback && callback(result.text);
+                }).catch((err) => {
+                    self._showDecodeResult(imgSrc, err);
+                    callback && callback(err);
+                });
+            };
+            image.onerror = function (e) {
+                callback && callback(false);
+                alert('抱歉，当前图片无法被解码，请保存图片再拖拽进来试试！')
+            };
+        },
+
+        _showDecodeResult: function (src, txt) {
+            this.previewSrc = src;
+            this.$refs.panelBox.style.backgroundImage = 'none';
+            this.resultContent = txt;
         }
     }
 });

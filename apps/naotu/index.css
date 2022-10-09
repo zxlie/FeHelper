@@ -1,0 +1,93 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+h1.editor-title {
+    background: #393F4F;
+    color: white;
+    margin: 0;
+    height: 40px;
+    font-size: 14px;
+    line-height: 40px;
+    font-family: 'Hiragino Sans GB', 'Arial', 'Microsoft Yahei';
+    font-weight: normal;
+    padding: 0 20px;
+}
+div.minder-editor-container {
+    position: absolute;
+    top: 40px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+.x-a-high {
+    color:#ff0;
+}
+.x-a-high:hover {
+    color:#aa0;
+}
+.x-toolbox {
+    margin-left: 50px;
+    float: right;
+}
+.x-toolbox .x-line {
+    font-size: 12px;
+    margin:0 6px;
+    color: #bbb;
+}
+.x-toolbox a.x-tool {
+    font-size: 12px;
+    color: #eaa421;
+    text-decoration: none;
+}
+.x-toolbox a.x-tool:hover {
+    color:#ff0;
+}
+.my-naotu-list .x-toolbox {
+    padding-bottom: 5px;
+}
+.my-naotu-list .x-toolbox a.x-tool {
+    color: #00a2d4;
+}
+.my-naotu-list .x-toolbox a.x-tool:hover {
+    color:#00f;
+}
+.my-naotu-list {
+    z-index:1000;
+    position: fixed;
+    top:30px;
+    right: 2px;
+    border: 1px solid #ccc;
+    box-shadow: 1px 1px #eee;
+    min-width: 500px;
+    max-width:980px;
+    max-height: 600px;
+    background: #fff;
+    padding: 5px;
+}
+.my-naotu-list table {
+    font-size: 14px;
+}
+.x-tips {
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+    margin-left: 40px;
+}
+.x-tips span {
+    color: yellow;
+    margin-left: 5px;
+    text-decoration: underline;
+    border-bottom: 1px solid yellow;
+    padding-bottom: 2px;
+}
+.x-tips span:hover {
+    color:#f00;
+    cursor: pointer;
+    border-bottom-color: #f00;
+}
+th.th-op {
+    width:100px;
+}

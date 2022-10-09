@@ -38,13 +38,14 @@ ul.fe-function-list li {
     padding: 3px 5px 3px 5px;
     cursor: pointer;
     color: #555;
-    /*-webkit-transition: all .4s ease;*/
+    -webkit-transition: all .4s ease;
     text-align: justify;
     display: block;
     height: 20px;
     line-height: 20px;
     width: 116px;
     border-bottom: 1px dashed #e5e5e5;
+    overflow: hidden;
 }
 
 ul.fe-function-list li:last-child {
@@ -72,99 +73,14 @@ ul.fe-function-list li:after {
 ul.fe-function-list li > b {
     width: 14px;
     height: 14px;
-    background: url(../popup/ui-icons.png) no-repeat;
-    /*-webkit-transition: all .5s ease;*/
+    -webkit-transition: all .5s ease;
     display: inline-block;
     margin-right: 5px;
+    color:#48f;
 }
 
 ul.fe-function-list li:hover > b {
-    /*-webkit-transform: rotate(360deg);*/
-}
-
-ul.fe-function-list li.-x-fcp b {
-    background-position: 0 -143px;
-}
-
-ul.fe-function-list li.-x-regexp b {
-    background-position: -144px 1px;
-}
-
-ul.fe-function-list li.-x-endecode b {
-    background-position: -113px -80px;
-}
-
-ul.fe-function-list li.-x-loadtime b {
-    background-position: -81px -111px;
-}
-
-ul.fe-function-list li.-x-jsonformat b {
-    background-position: -224px -111px;
-}
-
-ul.fe-function-list li.-x-qrcode b {
-    background-position: -81px -209px;
-}
-
-ul.fe-function-list li.-x-codebeautify b {
-    background-position: -64px -144px;
-}
-
-ul.fe-function-list li.-x-tracker b {
-    background-position: -31px -64px;
-}
-
-ul.fe-function-list li.-x-timestamp b {
-    background-position: 0 -160px;
-}
-
-ul.fe-function-list li.-x-codecompress b {
-    background-position: -65px -80px;
-}
-
-ul.fe-function-list li.-x-base64 b {
-    background-position: -33px -208px;
-}
-
-ul.fe-function-list li.-x-colorpicker b {
-    background-position: -64px -112px;
-}
-
-ul.fe-function-list li.-x-ajax-debugger b {
-    background-position: -81px -127px;
-}
-
-ul.fe-function-list li.-x-markdown b {
-    background-position: -83px -222px;
-}
-
-ul.fe-function-list li.-x-pagecapture b {
-    background-position: -16px -111px;
-}
-
-ul.fe-function-list li.-x-password b {
-    background-position: -144px -95px;
-}
-ul.fe-function-list li.-x-jsondiff b {
-    background-position: -113px -111px;
-}
-ul.fe-function-list li.-x-sticky-notes b {
-    background-position: -65px -96px;
-}
-ul.fe-function-list li.-x-grid-ruler b {
-    background-position: -33px -127px;
-}
-ul.fe-function-list li.-x-remove-bg b {
-    background-position: -145px -127px;
-}
-ul.fe-function-list li.-x-multi-toolkit b {
-    background-position: -176px -111px;
-}
-ul.fe-function-list li.-x-page-monkey b {
-    background-position: -32px -95px;
-}
-ul.fe-function-list li.-x-post-man b {
-    background-position: -32px -112px;
+    -webkit-transform: rotate(360deg);
 }
 
 ul.fe-function-list li i {

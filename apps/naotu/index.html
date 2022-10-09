@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>FeHelper脑图工具</title>
+	<link rel="shortcut icon" href="../static/img/favicon.ico">
+
+	<!-- bower:css -->
+	<link rel="stylesheet" href="kityminder/bootstrap/bootstrap.css" />
+	<link rel="stylesheet" href="kityminder/codemirror/lib/codemirror.css" />
+	<link rel="stylesheet" href="kityminder/hotbox/hotbox.css" />
+	<link rel="stylesheet" href="kityminder/kityminder-core/kityminder.core.css" />
+	<link rel="stylesheet" href="kityminder/color-picker/color-picker.css" />
+	<!-- endbower -->
+
+	<link rel="stylesheet" href="kityminder/kityminder.editor.css">
+	<link rel="stylesheet" href="index.css">
+
+</head>
+<body ng-app="kityminderContainer" ng-controller="MainController">
+<div id="mainContainer">
+	<h1 class="editor-title"><a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank" class="x-a-high">
+		<img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：脑图工具
+
+        <span class="x-tips" @click="loadUnSaved" v-html="naotuTips" ref="tipsBar"></span>
+
+		<span class="x-toolbox">
+			<a href="#" @click="newNaotu" class="x-tool">新建</a><span class="x-line">|</span>
+			<a href="#" @click="saveNaotu" class="x-tool">保存</a><span class="x-line">|</span>
+            <a href="#" @click="importNaotu" class="x-tool">导入</a><span class="x-line">|</span>
+			<a href="#" @click="exportNaotu('png','current')" class="x-tool">导出图片</a><span class="x-line">|</span>
+			<a href="#" @click="exportNaotu('json','current')" class="x-tool">导出Json</a><span class="x-line">|</span>
+			<a href="#" @click="myNaotu" class="x-tool">我的脑图</a>
+		</span>
+	</h1>
+	<kityminder-editor on-init="initEditor(editor, minder)"></kityminder-editor>
+
+	<div class="my-naotu-list" v-show="showSavedNaotuList">
+
+        <span class="x-toolbox">
+			<a href="#" @click="exportNaotu('json','all')" class="x-tool">全部导出为JSON</a><span class="x-line">|</span>
+			<a href="#" @click="myNaotu" class="x-tool">关闭</a>
+		</span>
+
+		<table class="table table-bordered table-hover table-condensed">
+			<thead>
+				<tr>
+					<th>序号</th>
+					<th>标题</th>
+					<th>最近更新</th>
+					<th class="th-op">操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="(naotu,index) in mySavedNaotuList">
+					<td>{{index+1}}</td>
+					<td>{{naotu.title}}</td>
+					<td>{{ dateFormat(naotu.updated_at)}}</td>
+					<td>
+						<button class="btn btn-xs btn-success" @click="editNaotu(naotu.id)">编辑</button>
+						<button class="btn btn-xs btn-warning" @click="deleteNaotu(naotu.id)">删除</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+</body>
+
+<!-- bower:js -->
+<script src="kityminder/jquery/jquery.js"></script>
+<script src="kityminder/bootstrap/bootstrap.js"></script>
+<script src="kityminder/angular/angular.js"></script>
+<script src="kityminder/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="kityminder/codemirror/lib/codemirror.js"></script>
+<script src="kityminder/codemirror/mode/xml/xml.js"></script>
+<script src="kityminder/codemirror/mode/javascript/javascript.js"></script>
+<script src="kityminder/codemirror/mode/css/css.js"></script>
+<script src="kityminder/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+<script src="kityminder/codemirror/mode/markdown/markdown.js"></script>
+<script src="kityminder/codemirror/addon/mode/overlay.js"></script>
+<script src="kityminder/codemirror/mode/gfm/gfm.js"></script>
+<script src="kityminder/angular-ui-codemirror/ui-codemirror.js"></script>
+<script src="kityminder/marked/marked.js"></script>
+<script src="kityminder/kity/kity.js"></script>
+<script src="kityminder/hotbox/hotbox.js"></script>
+<script src="kityminder/json-diff/json-diff.js"></script>
+<script src="kityminder/kityminder-core/kityminder.core.js"></script>
+<script src="kityminder/color-picker/color-picker.js"></script>
+<!-- endbower -->
+
+<script src="kityminder/kityminder.editor.js"></script>
+<script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+<script src="index.js"></script>
+
+</html>

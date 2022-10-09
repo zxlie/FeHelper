@@ -1,96 +1,65 @@
 {
-  "name": "WEB前端助手(FeHelper)-Dev",
-  "version": "2019.12.1919",
-  "manifest_version": 2,
-  "default_locale": "zh_CN",
-  "description": "Awesome，All In One的一个工具，包含多个独立小应用，比如：Json工具、代码美化、代码压缩、二维码、Postman、markdown、网页油猴、便签笔记、信息加密与解密、随机密码生成、Crontab等等！",
+  "name": "FeHelper(前端助手)-Dev",
+  "short_name": "FeHelper",
+  "version": "2022.10.2022",
+  "manifest_version": 3,
+  "description": "JSON自动格式化、手动格式化，支持排序、解码、下载等，更多功能可在配置页按需安装！",
   "icons": {
     "16": "static/img/fe-16.png",
     "48": "static/img/fe-48.png",
     "128": "static/img/fe-128.png"
   },
-  "browser_action": {
+  "action": {
     "default_icon": "static/img/fe-16.png",
-    "default_title": "WEB前端助手",
-    "default_popup": "popup/index.html"
+    "default_title": "FeHelper(前端助手)"
   },
   "background": {
-    "persistent": true,
-    "scripts": [
-      "background/detect.js",
-      "static/vendor/require/require.js",
-      "page-encoding/index.js",
-      "background/index.js"
-    ]
+    "service_worker": "background/index.js",
+    "type": "module"
   },
   "options_ui": {
     "page": "options/index.html",
     "open_in_tab": true
   },
-  "devtools_page": "ajax-debugger/index.html",
   "permissions": [
     "tabs",
+    "scripting",
     "contextMenus",
-    "cookies",
-    "notifications",
     "activeTab",
     "storage",
-    "unlimitedStorage",
-    "<all_urls>"
+    "notifications",
+    "unlimitedStorage"
   ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*",
+    "file://*/*"
+    ],
   "optional_permissions": [
-    "downloads",
-    "webRequest",
-    "webRequestBlocking"
+    "downloads"
   ],
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
-        "default": "Alt+Shift+F"
+        "default": "Alt+Shift+J"
       }
     }
   },
   "web_accessible_resources": [
-    "static/img/fe-16.png",
-    "static/img/fe-48.png",
-    "static/img/fe-128.png",
-    "background/network.js",
-    "options/settings.js",
-    "static/js/msg_type.js",
-    "static/js/utils.js",
-    "code-beautify/beautify.js",
-    "code-beautify/beautify-css.js",
-    "code-beautify/automatic.js",
-    "code-beautify/automatic.css",
-    "json-format/without-ui.css",
-    "json-format/automatic.js",
-    "json-format/format-lib.js",
-    "json-format/jsonabc.js",
-    "qr-code/decode.js",
-    "wpo/inject.js",
-    "color-picker/index.js",
-    "page-capture/inject.js",
-    "static/vendor/jquery/jquery-3.3.1.min.js",
-    "code-standards/index.css",
-    "code-standards/index.js",
-    "code-standards/fcp-fl.js",
-    "code-standards/css/fcp-css-analytic.js",
-    "code-standards/css/fcp-css.js",
-    "code-standards/html/fcp-html-analytic.js",
-    "code-standards/html/fcp-html-doctype.js",
-    "code-standards/html/fcp-html.js",
-    "code-standards/js/fcp-js.js",
-    "code-standards/fcp-tabs.js",
-    "code-standards/fcp-main.js",
-    "code-standards/pbar-ani.gif",
-    "static/vendor/jquery/jquery-ui.min.css",
-    "static/vendor/jquery/jquery-ui.min.js",
-    "static/vendor/jquery/jquery.extend.js",
-    "static/vendor/json-bigint/index.js",
-    "static/vendor/prism/prism.js",
-    "static/vendor/prism/prism.css",
-    "ruler/index.js",
-    "ruler/index.css"
+      {
+          "resources":[
+            "static/img/fe-16.png",
+            "static/img/fe-48.png",
+            "static/img/loading.gif",
+            "json-format/format-lib.js",
+            "json-format/json-abc.js",
+            "json-format/json-bigint.js",
+            "json-format/json-decode.js",
+            "static/vendor/jquery/jquery-3.3.1.min.js",
+            "static/vendor/evalCore.min.js"
+        ],
+        "matches": ["<all_urls>"]
+      }
   ],
   "content_scripts": [
     {
@@ -99,55 +68,20 @@
         "https://*/*",
         "file://*/*"
       ],
+      "exclude_globs": [
+        "https://chrome.google.com/*"
+      ],
       "js": [
         "static/vendor/jquery/jquery-3.3.1.min.js",
-        "static/vendor/require/require.js",
-        "static/js/msg_type.js",
-        "content-script/index.js"
-      ],
-      "run_at": "document_end",
-      "all_frames": false
-    },
-    {
-      "matches": [
-        "http://*.baidufe.com/fehelper/*",
-        "http://*.baidufe.com/fehelper",
-        "http://*.fehelper.com/fehelper/*",
-        "http://*.fehelper.com/fehelper",
-        "https://*.baidufe.com/fehelper/*",
-        "https://*.baidufe.com/fehelper",
-        "https://*.fehelper.com/fehelper/*",
-        "https://*.fehelper.com/fehelper"
-      ],
-      "js": [
-        "content-script/fehelper-only.js"
+        "static/vendor/evalCore.min.js"
       ],
       "run_at": "document_start",
-      "all_frames": false
-    },
-    {
-      "matches": [
-        "https://www.remove.bg/"
-      ],
-      "js": [
-        "remove-bg/content.js"
-      ],
-      "run_at": "document_end",
       "all_frames": true
-    },
-    {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "page-monkey/content-script.js"
-      ],
-      "run_at": "document_end",
-      "all_frames": false
     }
   ],
-  "content_security_policy": "style-src 'self' 'unsafe-inline';script-src 'self' 'unsafe-eval'; object-src 'self' ; media-src 'self' filesystem:",
-  "update_url": "https://www.baidufe.com/fehelper/updatecrx-to-do",
-  "homepage_url": "https://www.baidufe.com/fehelper"
+  "content_security_policy": {
+      "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'self'"
+  },
+  "update_url": "https://clients2.google.com/service/update2/crx",
+  "homepage_url": "http://localhost/FeOnline/output/fehelper"
 }
