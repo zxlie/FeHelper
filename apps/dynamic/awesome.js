@@ -160,7 +160,7 @@ let Awesome = (() => {
      * @param fnProgress
      * @returns {Promise<any>}
      */
-    let install = (toolName, fnProgress) => {
+    let install2 = (toolName, fnProgress) => {
 
         log(toolName + '工具开始安装/更新...');
 
@@ -228,6 +228,10 @@ let Awesome = (() => {
         });
     };
 
+    let install = (toolName, fnProgress) => {
+
+    };
+
     let offLoad = (toolName) => {
         let items = [];
         items.push(TOOL_NAME_TPL.replace('#TOOL-NAME#', toolName));
@@ -260,9 +264,10 @@ let Awesome = (() => {
     let getInstalledTools = () => getAllTools().then(tools => {
         let istTolls = {};
         Object.keys(tools).filter(tool => {
-            if (tools[tool].installed) {
+            // if (tools[tool].installed) {
+            tools[tool].installed=true;
                 istTolls[tool] = tools[tool];
-            }
+            // }
         });
         return istTolls;
     });
@@ -457,7 +462,7 @@ let Awesome = (() => {
                 }]
             },
             'postman': {
-                name: '简易版Postman',
+                name: '简易Postman',
                 tips: '开发过程中的接口调试工具，支持GET/POST/HEAD请求方式，且支持JSON内容自动格式化',
                 menuConfig: [{
                     icon: '☯',

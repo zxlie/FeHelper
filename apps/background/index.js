@@ -99,14 +99,13 @@ let BgPageInstance = (function () {
      */
     chrome.DynamicToolRunner = async function (configs) {
 
-        let tool = configs.tool || MSG_TYPE.DYNAMIC_TOOL;
+        let tool = configs.tool || configs.page;
         let withContent = configs.withContent;
-        let query = configs.query;
         let activeTab = null;
 
         // 如果是noPage模式，则表名只完成content-script的工作，直接发送命令即可
         if (configs.noPage) {
-            tool = new URL(`http://f.h?${query}`).searchParams.get('tool').replace(/-/g, '');
+            tool = new URL(`http://f.h?${tool}`).searchParams.get('tool').replace(/-/g, '');
             chrome.tabs.query({active: true, currentWindow: true}, tabs => {
                 let found = tabs.some(tab => {
                     if (/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))) {
@@ -141,15 +140,6 @@ let BgPageInstance = (function () {
             };
         };
 
-        // 如果是打开json-format的页面，需要检测一下本地是否已经安装/更新过，如果有，则用服务器下载过来的这个新版本，而非插件集成版本
-        if (tool === MSG_TYPE.JSON_FORMAT) {
-            let installed = await Awesome.detectInstall(tool, false, true);
-            if (installed) {
-                tool = MSG_TYPE.DYNAMIC_TOOL;
-                query = 'tool=json-format';
-            }
-        }
-
         chrome.tabs.query({currentWindow: true}, function (tabs) {
 
             activeTab = tabs.filter(tab => tab.active)[0];
@@ -172,7 +162,7 @@ let BgPageInstance = (function () {
 
                 if (!isOpened) {
                     chrome.tabs.create({
-                        url: `/${tool}/index.html${(query ? "?" + query : '')}`,
+                        url: `/${tool}/index.html`,
                         active: true
                     }, _tabUpdatedCallback(tool, withContent));
                 } else {

@@ -64,20 +64,11 @@ new Vue({
     methods: {
 
         runHelper: function (toolName, noPage) {
-            debugger;
-            if (toolName === MSG_TYPE.JSON_FORMAT) {
-                chrome.runtime.sendMessage({
-                    type: MSG_TYPE.OPEN_PAGE,
-                    page: MSG_TYPE.JSON_FORMAT
-                });
-            } else {
-                chrome.runtime.sendMessage({
-                    type: MSG_TYPE.OPEN_DYNAMIC_TOOL,
-                    page: MSG_TYPE.DYNAMIC_TOOL,
-                    query: `tool=${toolName}`,
-                    noPage: !!noPage
-                });
-            }
+            chrome.runtime.sendMessage({
+                type: MSG_TYPE.OPEN_DYNAMIC_TOOL,
+                page: toolName,
+                noPage: !!noPage
+            });
 
         },
 

@@ -31,7 +31,7 @@ new Vue({
 
         this.initData().then(() => {
             this.shortCut();
-            this.remoteUpgrade();
+            // this.remoteUpgrade();
             this.remoteHotFix();
         });
     },
