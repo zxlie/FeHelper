@@ -8,8 +8,9 @@ let pleaseLetJsLoaded = 0;
 let __importScript = (filename) => {
     pleaseLetJsLoaded = 100;
     let url = filename;
+
     if (location.protocol === 'chrome-extension:' || chrome.runtime && chrome.runtime.getURL) {
-        url = chrome.runtime.getURL('json-format/' + filename);
+        url = chrome.runtime.getURL(filename);
     }
     fetch(url).then(resp => resp.text()).then(jsText => {
         if(window.evalCore && window.evalCore.getEvalInstance){
@@ -236,37 +237,6 @@ window.JsonAutoFormat = (() => {
                 }
             }
 
-            if (window.jsonformatContentScriptCssInject) {
-                window.jsonformatContentScriptCssInject();
-            } else {
-                // 注入css and html fragment
-                chrome.runtime.sendMessage({
-                    type: 'fh-dynamic-any-thing'
-                },(params) => {
-                    let injectFn = (cssText) => {
-                        chrome.tabs.insertCSS({
-                            code: cssText
-                        });
-                    };
-
-                    let cssText = Awesome.getContentScript('json-format', true);
-                    if (typeof cssText === 'string' && cssText.length) {
-                        injectFn(cssText);
-                    } else if (cssText instanceof Promise) {
-                        cssText.then(css => {
-                            if (css) {
-                                injectFn(css)
-                            } else {
-                                fetch('../json-format/content-script.css').then(resp => resp.text()).then(css => injectFn(css));
-                            }
-                        });
-                    } else if (!cssText) {
-                        fetch('../json-format/content-script.css').then(resp => resp.text()).then(css => injectFn(css));
-                    }
-                    return true;
-                });
-            }
-
             let preLength = $('body>pre').hide().length;
             $('body').prepend(_getHtmlFragment());
             if (!preLength) {
@@ -415,3 +385,7 @@ window.JsonAutoFormat = (() => {
         }
     };
 })();
+
+if(location.protocol !== 'chorme-extension:') {
+    window.JsonAutoFormat.format({JSON_PAGE_FORMAT: true});
+}

@@ -108,13 +108,11 @@
                     <span class="x-tips">（{{fhTools[tool].tips}}）</span>
 
                     <span class="ui-fl-r x-btn-box">
-                        <button class="btn btn-xs" :class="fhTools[tool].installed ? 'btn-success' : 'btn-primary'" @click="installOrUpgrade(tool,$event)">
-                            {{fhTools[tool].installed ? '更新' : '安装'}}<span class="x-progress"></span>
-                            <i v-if="fhTools[tool].installed && fhTools[tool].upgrade" title="有新版本发布了">●</i>
-                        </button>
-                        <button class="btn btn-xs" :class="fhTools[tool].menu ? 'btn-warning' : 'btn-info'" @click="menuMgr(tool,$event)" v-if="fhTools[tool].installed">{{fhTools[tool].menu ? '移出' : '加入'}}右键</button>
+                        <button class="btn btn-success btn-xs" @click="install(tool,$event)" v-if="!fhTools[tool].installed">安装<span class="x-progress"></span></button>
                         <button class="btn btn-danger btn-xs" @click="offLoad(tool,$event)" v-if="fhTools[tool].installed && !fhTools[tool].offloadForbid">卸载</button>
                         <button class="btn btn-disabled btn-xs" v-if="fhTools[tool].installed && fhTools[tool].offloadForbid" title="系统预装，不可被卸载">卸载</button>
+
+                        <button class="btn btn-xs" :class="fhTools[tool].menu ? 'btn-warning' : 'btn-info'" @click="menuMgr(tool,$event)" v-if="fhTools[tool].installed">{{fhTools[tool].menu ? '移出' : '加入'}}右键</button>
                     </span>
 
                     <span class="ui-fl-r x-sort-box" v-if="fhTools[tool].installed">
@@ -137,12 +135,9 @@
 
                     <span class="ui-fl-r x-btn-box">
                         <template v-if="tool === 'devtools'">
-                            <button class="btn btn-xs" :class="fhTools[tool].installed ? 'btn-success' : 'btn-primary'" @click="installOrUpgrade(tool,$event)">
-                                {{fhTools[tool].installed ? '更新' : '安装'}}<span class="x-progress"></span>
-                                <i v-if="fhTools[tool].installed && fhTools[tool].upgrade" title="有新版本发布了">●</i>
-                            </button>
-                            <button class="btn btn-xs" :class="fhTools[tool].menu ? 'btn-warning' : 'btn-info'" @click="menuMgr(tool,$event)" v-if="fhTools[tool].installed">{{fhTools[tool].menu ? '移出' : '加入'}}右键</button>
+                            <button class="btn btn-danger btn-xs" @click="install(tool,$event)" v-if="!fhTools[tool].installed">安装</button>
                             <button class="btn btn-danger btn-xs" @click="offLoad(tool,$event)" v-if="fhTools[tool].installed && !fhTools[tool].offloadForbid">卸载</button>
+                            <button class="btn btn-xs" :class="fhTools[tool].menu ? 'btn-warning' : 'btn-info'" @click="menuMgr(tool,$event)" v-if="fhTools[tool].installed">{{fhTools[tool].menu ? '移出' : '加入'}}右键</button>
                         </template>
 
                         <template v-if="tool !== 'devtools'">

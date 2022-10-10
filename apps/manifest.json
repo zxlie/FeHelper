@@ -11,7 +11,8 @@
   },
   "action": {
     "default_icon": "static/img/fe-16.png",
-    "default_title": "FeHelper(前端助手)"
+    "default_title": "FeHelper(前端助手)",
+    "default_popup": "popup/index.html"
   },
   "background": {
     "service_worker": "background/index.js",
@@ -73,7 +74,22 @@
       ],
       "js": [
         "static/vendor/jquery/jquery-3.3.1.min.js",
-        "static/vendor/evalCore.min.js"
+        "static/vendor/evalCore.min.js",
+
+        "json-format/content-script.js",
+        "screenshot/content-script.js",
+        "grid-ruler/content-script.js",
+        "code-beautify/content-script.js",
+        "hello-world/content-script.js",
+        "qr-code/content-script.js",
+        "page-timing/content-script.js",
+        "color-picker/content-script.js",
+        "page-monkey/content-script.js"
+      ],
+      "css": [
+        "json-format/content-script.css",
+        "grid-ruler/content-script.css",
+        "code-beautify/content-script.css"
       ],
       "run_at": "document_start",
       "all_frames": true

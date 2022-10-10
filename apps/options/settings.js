@@ -2,6 +2,9 @@
  * FeHelper Settings Tools
  * @author zhaoxianlie
  */
+
+import Awesome from '../background/awesome.js';
+
 export default (() => {
 
     // 所有配置项
@@ -51,17 +54,17 @@ export default (() => {
         _getAllOpts().forEach((opt) => {
             let found = items.some(it => {
                 if (typeof(it) === 'string' && it === opt) {
-                    chrome.storage.local.set(opt,'true');
+                    Awesome.StorageMgr.set(opt,'true');
                     return true;
                 }
                 else if (typeof(it) === 'object' && it.hasOwnProperty(opt)) {
-                    chrome.storage.local.set(opt,it[opt]);
+                    Awesome.StorageMgr.set(opt,it[opt]);
                     return true;
                 }
                 return false;
             });
             if (!found) {
-                chrome.storage.local.set(opt,'false');
+                Awesome.StorageMgr.set(opt,'false');
             }
         });
 

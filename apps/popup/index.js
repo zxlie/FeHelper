@@ -2,7 +2,7 @@
  * FeHelper Popup Menu
  */
 
-import Awesome from '../dynamic/awesome.js'
+import Awesome from '../background/awesome.js'
 import MSG_TYPE from '../static/js/common.js';
 
 new Vue({

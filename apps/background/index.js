@@ -3,10 +3,12 @@
  * @author zhaoxianlie
  */
 
+
 import MSG_TYPE from '../static/js/common.js';
 import Settings from '../options/settings.js';
 import Menu from './menu.js';
-import Awesome from '../dynamic/awesome.js';
+import Awesome from './awesome.js';
+
 
 let BgPageInstance = (function () {
 
@@ -73,9 +75,7 @@ let BgPageInstance = (function () {
 
                         chrome.scripting.executeScript({
                             target: {tabId, allFrames: codeConfig.allFrames},
-                            func: (code => {return function(){
-                                console.log('-------',code);// -----TODO
-                            }})(codeConfig.code)
+                            func: new Function(`evalCore.getEvalInstance(window)(\`${codeConfig.code}\`)`)
                         }, function () {
                             callback && callback.apply(this, arguments);
                         });
@@ -189,18 +189,6 @@ let BgPageInstance = (function () {
     };
 
     /**
-     * 插件图标点击后的默认动作
-     * @param request
-     * @param sender
-     * @param callback
-     */
-    let browserActionClickedHandler = function (request, sender, callback) {
-        chrome.DynamicToolRunner({
-            tool: MSG_TYPE.JSON_FORMAT
-        });
-    };
-
-    /**
      * 更新browser action的点击动作
      * @param action install / upgrade / offload
      * @param showTips 是否notify
@@ -209,25 +197,6 @@ let BgPageInstance = (function () {
      */
     let _updateBrowserAction = function (action, showTips, menuOnly) {
         if (!menuOnly) {
-            // 如果有安装过工具，则显示Popup模式
-            Awesome.getInstalledTools().then(tools => {
-                if (Object.keys(tools).length) {
-                    chrome.action.setPopup({
-                        popup: '/popup/index.html'
-                    });
-                } else {
-                    // 删除popup page
-                    chrome.action.setPopup({
-                        popup: ''
-                    });
-
-                    // 否则点击图标，直接打开页面
-                    if (!chrome.action.onClicked.hasListener(browserActionClickedHandler)) {
-                        chrome.action.onClicked.addListener(browserActionClickedHandler);
-                    }
-                }
-            });
-
             if (action === 'offload') {
                 _animateTips('-1');
             } else {
@@ -243,9 +212,6 @@ let BgPageInstance = (function () {
             switch (action) {
                 case 'install':
                     actionTxt = '工具已「安装」成功，并已添加到弹出下拉列表，点击FeHelper图标可正常使用！';
-                    break;
-                case 'upgrade':
-                    actionTxt = '工具已「更新」成功，点击FeHelper图标可正常使用！';
                     break;
                 case 'offload':
                     actionTxt = '工具已「卸载」成功，并已从弹出下拉列表中移除！';
@@ -283,35 +249,6 @@ let BgPageInstance = (function () {
                     style.textContent=unescape('${escape(cssText)}');document.head.appendChild(style);}`;
         };
 
-        // JSON格式化脚本注入
-        Settings.getOptions(opts => {
-            if (opts.JSON_PAGE_FORMAT && String(opts.JSON_PAGE_FORMAT) !== 'false') {
-
-                // 注入样式
-                Awesome.getContentScript('json-format', true).then(css => {
-                    if (css && css.length) {
-                        injectScriptIfTabExists(tabId, {code: _createCssInjecter('json-format', css)});
-                    } else {
-                        fetch('../json-format/content-script.css').then(resp => resp.text()).then(css => {
-                            injectScriptIfTabExists(tabId, {code: _createCssInjecter('json-format', css)});
-                        });
-                    }
-                });
-
-                // 注入脚本
-                Awesome.getContentScript('json-format').then(jsText => {
-                    let funcCaller = `window.JsonAutoFormat && window.JsonAutoFormat.format({JSON_PAGE_FORMAT: true});`;
-                    if (!!jsText) {
-                        injectScriptIfTabExists(tabId, {code: `${jsText};${funcCaller}`});
-                    } else {
-                        fetch('../json-format/content-script.js').then(resp => resp.text()).then(js => {
-                            injectScriptIfTabExists(tabId, {code: `${js};${funcCaller}`});
-                        });
-                    }
-                });
-            }
-        });
-
         // 其他工具注入
         Awesome.getInstalledTools().then(tools => {
             let list = Object.keys(tools).filter(tool => tool !== 'json-format' && tools[tool].contentScript);
@@ -346,8 +283,6 @@ let BgPageInstance = (function () {
      * 接收来自content_scripts发来的消息
      */
     let _addExtensionListener = function () {
-        // 初始化
-        _updateBrowserAction();
 
         chrome.runtime.onMessage.addListener(function (request, sender, callback) {
             // 如果发生了错误，就啥都别干了
@@ -379,7 +314,17 @@ let BgPageInstance = (function () {
             }
             // 任何事件，都可以通过这个钩子来完成
             else if (request.type === MSG_TYPE.DYNAMIC_ANY_THING) {
-                // request.func && request.func(request.params, callback);
+                request.func && request.func(request.params, callback);
+                switch(request.thing){
+                    case 'save-options':
+                        //管理右键菜单
+                        Menu.manage(Settings);
+                        notifyText({
+                            message: '配置修改已生效，请继续使用!',
+                            autoClose: 2000
+                        });
+                        break;
+                }
                 callback && callback(request.params);
             } else {
                 callback && callback();

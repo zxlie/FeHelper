@@ -1,5 +1,9 @@
 let __importScript = (filename) => {
-    fetch(filename).then(resp => resp.text()).then(jsText => eval(jsText));
+    fetch(filename).then(resp => resp.text()).then(jsText => {
+        if(window.evalCore && window.evalCore.getEvalInstance){
+            return window.evalCore.getEvalInstance(window)(jsText);
+        }
+    });
 };
 
 __importScript('beautify.js');

@@ -3,7 +3,7 @@
  */
 
 import Settings from './settings.js';
-import Awesome from '../dynamic/awesome.js'
+import Awesome from '../background/awesome.js'
 import MSG_TYPE from '../static/js/common.js';
 
 new Vue({
@@ -63,9 +63,6 @@ new Vue({
                 Object.keys(tools).forEach(tool => {
                     if (tools[tool].installed) {
                         isSortArrEmpty && (tool !== 'devtools') && this.sortArray.push(tool);
-                        !tools[tool]._devTool && Awesome.checkUpgrade(tool).then(upgrade => {
-                            this.fhTools[tool].upgrade = upgrade;
-                        });
                     }
                 });
                 this.sortTools();
@@ -206,14 +203,7 @@ new Vue({
                 // 保存成功提示，同时更新Menu
                 chrome.runtime.sendMessage({
                     type: MSG_TYPE.DYNAMIC_ANY_THING,
-                    func: ((params, callback) => {
-                        //管理右键菜单
-                        Menu.manage(Settings);
-                        notifyText({
-                            message: '配置修改已生效，请继续使用!',
-                            autoClose: 2000
-                        });
-                    }).toString()
+                    thing: 'save-options'
                 });
 
                 // 自动开关灯一次
@@ -253,7 +243,7 @@ new Vue({
             }
         },
 
-        installOrUpgrade: function (tool, event) {
+        install: function (tool, event) {
 
             let btn = event.target;
             if (btn.tagName.toLowerCase() === 'i') {
@@ -266,37 +256,32 @@ new Vue({
             btn.setAttribute('data-undergoing', 1);
             let elProgress = btn.querySelector('span.x-progress');
 
-            Awesome.install(tool, progress => {
-                elProgress.textContent = `(${progress})`;
-            }).then(() => {
-                if (this.fhTools[tool].upgrade) {
-                    this.fhTools[tool].upgrade = false;
-                }
-
-                chrome.runtime.sendMessage({
-                    type: MSG_TYPE.DYNAMIC_TOOL_INSTALL_OR_OFFLOAD,
-                    toolName: tool,
-                    action: this.fhTools[tool].installed ? 'upgrade' : 'install',
-                    showTips: true,
-                    backgroundScript: this.fhTools[tool].backgroundScript
-                });
-
-                this.$nextTick(() => {
-                    btn.setAttribute('data-undergoing', 0);
-                    elProgress.textContent = `(100%)`;
-                    setTimeout(() => {
+            // 显示安装进度
+            let pt = 1;
+            Awesome.install(tool).then(() => {
+                elProgress.textContent = `(${pt}%)`;
+                let ptInterval = setInterval(() => {
+                    elProgress.textContent = `(${pt}%)`;
+                    pt+= Math.floor(Math.random() * 20);
+                    if(pt>100) {
+                        clearInterval(ptInterval);
+                        elProgress.textContent = ``;
                         this.fhTools[tool].installed = true;
-                        elProgress.textContent = '';
                         if (!this.sortArray.includes(tool) && (tool !== 'devtools')) {
                             this.sortArray.push(tool);
                         }
                         // 按照安装状态进行排序
                         this.sortTools();
-                    }, 500)
-                });
-            }, rejectResp => {
-                btn.setAttribute('data-undergoing', 0);
-                alert('可能是网络状态不太好，请稍后再试...');
+                        btn.setAttribute('data-undergoing', 0);
+
+                        chrome.runtime.sendMessage({
+                            type: MSG_TYPE.DYNAMIC_TOOL_INSTALL_OR_OFFLOAD,
+                            toolName: tool,
+                            action: 'install',
+                            showTips: true
+                        });
+                    }
+                },100);
             });
         },
 
