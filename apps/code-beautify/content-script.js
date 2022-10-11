@@ -1,17 +1,23 @@
-let __importScript = (filename) => {
-    fetch(filename).then(resp => resp.text()).then(jsText => {
-        if(window.evalCore && window.evalCore.getEvalInstance){
-            return window.evalCore.getEvalInstance(window)(jsText);
-        }
-    });
-};
-
-__importScript('beautify.js');
-__importScript('beautify-css.js');
 
 let highlightWebWorker = () => {
+    let __importScript = (filename) => {
+        let url = filename;
 
-    __importScript('../static/vendor/highlight/highlight.js');
+        if (location.protocol === 'chrome-extension:' || typeof chrome !='undefined' && chrome.runtime && chrome.runtime.getURL) {
+            url = chrome.runtime.getURL('code-beautify/' + filename);
+        }
+        fetch(url).then(resp => resp.text()).then(jsText => {
+            if(window.evalCore && window.evalCore.getEvalInstance){
+                return window.evalCore.getEvalInstance(window)(jsText);
+            }
+            let el = document.createElement('script');
+            el.textContent = jsText;
+            document.head.appendChild(el);
+        });
+    };
+
+    let site = 'chrome-extension://mnaedlmagdcfmejjndjhffalddfofeim';
+    __importScript(site + '/static/vendor/highlight/highlight.js');
 
     self.onmessage = (event) => {
         const result = self.hljs.highlightAuto(event.data);
@@ -20,8 +26,28 @@ let highlightWebWorker = () => {
 };
 
 window.codebeautifyContentScript = (() => {
+    let __importScript = (filename) => {
+        let url = filename;
+
+        if (location.protocol === 'chrome-extension:' || chrome.runtime && chrome.runtime.getURL) {
+            url = chrome.runtime.getURL('code-beautify/' + filename);
+        }
+        fetch(url).then(resp => resp.text()).then(jsText => {
+            if(window.evalCore && window.evalCore.getEvalInstance){
+                return window.evalCore.getEvalInstance(window)(jsText);
+            }
+            let el = document.createElement('script');
+            el.textContent = jsText;
+            document.head.appendChild(el);
+        });
+    };
+
+    __importScript('beautify.js');
+    __importScript('beautify-css.js');
 
     let formattedCodes = '';
+
+    // **************************************************************
 
     /**
      * 代码美化
@@ -79,33 +105,6 @@ window.codebeautifyContentScript = (() => {
         }
         let source = document.getElementsByTagName('pre')[0].textContent;
 
-        if (window.codebeautifyContentScriptCssInject) {
-            window.codebeautifyContentScriptCssInject();
-        } else {
-            // 注入css and html fragment
-            chrome.runtime.sendMessage({
-                type: 'fh-dynamic-any-thing',
-                func: ((params, callback) => {
-
-                    let injectFn = (cssText) => {
-                        chrome.tabs.insertCSS({
-                            code: cssText,
-                            runAt: 'document_end'
-                        });
-                    };
-
-                    let cssText = Awesome.getContentScript('code-beautify', true);
-                    if (typeof cssText === 'string') {
-                        injectFn(cssText);
-                    } else if (cssText instanceof Promise) {
-                        cssText.then(css => injectFn(css));
-                    }
-                    callback && callback();
-                    return true;
-                }).toString()
-            });
-        }
-
         $(document.body).addClass('show-tipsbar');
 
         let tipsBar = $('<div id="fehelper_tips">' +
@@ -132,9 +131,7 @@ window.codebeautifyContentScript = (() => {
             if (confirm('一旦彻底关闭，不可恢复，请确认？')) {
                 chrome.runtime.sendMessage({
                     type: 'fh-dynamic-any-thing',
-                    func: ((params, callback) => {
-                        localStorage.setItem('JS_CSS_PAGE_BEAUTIFY', 0);
-                    }).toString()
+                    thing: 'close-beautify'
                 }, () => {
                     alert('已关闭，如果要恢复，请在FeHelper「设置页」重新安装「代码美化工具」！');
                 });
@@ -182,41 +179,24 @@ window.codebeautifyContentScript = (() => {
     };
 
     return function () {
+        let ext = location.pathname.substring(location.pathname.lastIndexOf(".") + 1).toLowerCase();
+        let fileType = ({'js': 'javascript', 'css': 'css'})[ext];
+        let contentType = document.contentType.toLowerCase();
+
+        if (!fileType) {
+            if (/\/javascript$/.test(contentType)) {
+                fileType = 'javascript';
+            } else if (/\/css$/.test(contentType)) {
+                fileType = 'css';
+            }
+        } else if (contentType === 'text/html') {
+            fileType = undefined;
+        }
+
         chrome.runtime.sendMessage({
             type: 'fh-dynamic-any-thing',
-            params: {
-                tabId: window.__FH_TAB_ID__ || null
-            },
-            func: ((params, callback) => {
-                chrome.tabs.executeScript(params.tabId, {
-                    code: '(' + (() => {
-                        let ext = location.pathname.substring(location.pathname.lastIndexOf(".") + 1).toLowerCase();
-                        let fileType = ({'js': 'javascript', 'css': 'css'})[ext];
-                        let contentType = document.contentType.toLowerCase();
-
-                        if (!fileType) {
-                            if (/\/javascript$/.test(contentType)) {
-                                fileType = 'javascript';
-                            } else if (/\/css$/.test(contentType)) {
-                                fileType = 'css';
-                            }
-                        } else if (contentType === 'text/html') {
-                            fileType = undefined;
-                        }
-                        return fileType;
-                    }).toString() + ')()'
-                }, function (fileType) {
-                    if (['javascript', 'css'].includes(fileType[0])) {
-                        if (localStorage.getItem('JS_CSS_PAGE_BEAUTIFY') !== '0') {
-                            chrome.tabs.executeScript(params.tabId, {
-                                code: `window._codebutifydetect_('${fileType[0]}')`
-                            });
-                        }
-                    }
-                });
-                callback && callback();
-                return true;
-            }).toString()
+            thing: 'code-beautify',
+            params: { fileType, tabId: window.__FH_TAB_ID__ || null }
         });
     };
 

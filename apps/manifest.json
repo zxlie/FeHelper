@@ -15,7 +15,7 @@
     "default_popup": "popup/index.html"
   },
   "background": {
-    "service_worker": "background/index.js",
+    "service_worker": "background/background.js",
     "type": "module"
   },
   "options_ui": {
@@ -57,7 +57,10 @@
             "json-format/json-bigint.js",
             "json-format/json-decode.js",
             "static/vendor/jquery/jquery-3.3.1.min.js",
-            "static/vendor/evalCore.min.js"
+            "static/vendor/evalCore.min.js",
+
+            "code-beautify/beautify.js",
+            "code-beautify/beautify-css.js"
         ],
         "matches": ["<all_urls>"]
       }
@@ -74,22 +77,7 @@
       ],
       "js": [
         "static/vendor/jquery/jquery-3.3.1.min.js",
-        "static/vendor/evalCore.min.js",
-
-        "json-format/content-script.js",
-        "screenshot/content-script.js",
-        "grid-ruler/content-script.js",
-        "code-beautify/content-script.js",
-        "hello-world/content-script.js",
-        "qr-code/content-script.js",
-        "page-timing/content-script.js",
-        "color-picker/content-script.js",
-        "page-monkey/content-script.js"
-      ],
-      "css": [
-        "json-format/content-script.css",
-        "grid-ruler/content-script.css",
-        "code-beautify/content-script.css"
+        "static/vendor/evalCore.min.js"
       ],
       "run_at": "document_start",
       "all_frames": true

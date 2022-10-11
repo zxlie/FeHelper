@@ -2,7 +2,7 @@ let toolMap = {
     'json-format': {
         name: 'JSON美化工具',
         tips: '页面自动检测并格式化、手动格式化、乱码解码、排序、BigInt、编辑、下载、皮肤定制等',
-        contentScript: true,
+        contentScriptJs: true,
         contentScriptCss: true,
         offloadForbid: true,
         menuConfig: [{
@@ -22,7 +22,7 @@ let toolMap = {
     'qr-code': {
         name: '二维码/解码',
         tips: '支持自定义颜色和icon的二维码生成器，并且支持多种模式的二维码解码，包括截图后粘贴解码',
-        contentScript: true,
+        contentScriptJs: true,
         menuConfig: [{
             icon: '▣',
             text: '二维码生成器',
@@ -62,6 +62,8 @@ let toolMap = {
     'code-beautify': {
         name: '代码美化工具',
         tips: '支持多语言的代码美化，包括 Javascript、CSS、HTML、XML、SQL，且会陆续支持更多格式',
+        contentScriptJs: true,
+        contentScriptCss: true,
         menuConfig: [{
             icon: '✡',
             text: '代码美化工具',
@@ -151,6 +153,7 @@ let toolMap = {
     'page-monkey': {
         name: '网页油猴工具',
         tips: '自行配置页面匹配规则、编写Hack脚本，实现网页Hack，如页面自动刷新、自动抢票等',
+        contentScriptJs: true,
         menuConfig: [{
             icon: '♀',
             text: 'FH开发者工具'
@@ -159,6 +162,7 @@ let toolMap = {
     'screenshot': {
         name: '网页截屏工具',
         tips: '可对任意网页进行截屏，支持可视区域截屏、全网页滚动截屏，最终结果可预览后再保存',
+        contentScriptJs: true,
         menuConfig: [{
             icon: '✂',
             text: 'FH开发者工具'
@@ -167,6 +171,7 @@ let toolMap = {
     'color-picker': {
         name: '页面取色工具',
         tips: '可直接在网页上针对任意元素进行色值采集，将光标移动到需要取色的位置，单击确定即可',
+        contentScriptJs: true,
         menuConfig: [{
             icon: '✑',
             text: 'FH开发者工具'
@@ -183,6 +188,8 @@ let toolMap = {
     'grid-ruler': {
         name: '网页栅格标尺',
         tips: 'Web开发用，横竖两把尺子，以10px为单位，用以检测&校准当前网页的栅格对齐率',
+        contentScriptJs: true,
+        contentScriptCss: true,
         menuConfig: [{
             icon: 'Ⅲ',
             text: 'FH开发者工具'
@@ -191,6 +198,7 @@ let toolMap = {
     'page-timing': {
         name: '网页性能检测',
         tips: '检测网页加载性能，包括握手、响应、渲染等各阶段耗时，同时提供Response Headers以便分析',
+        contentScriptJs: true,
         menuConfig: [{
             icon: 'Σ',
             text: 'FH开发者工具'

@@ -31,17 +31,10 @@ window.qrcodeContentScript = function () {
 
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
+                thing: 'qr-decode',
                 params: {
                     uri: dataUrl || imgUrl
-                },
-                func: ((params, csCallback) => {
-                    chrome.DynamicToolRunner({
-                        withContent: params.uri,
-                        query: `tool=qr-code&mode=decode`
-                    });
-                    csCallback && csCallback();
-                    return true;
-                }).toString()
+                }
             });
         });
     };

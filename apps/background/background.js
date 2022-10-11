@@ -65,26 +65,78 @@ let BgPageInstance = (function () {
     let injectScriptIfTabExists = function (tabId, codeConfig, callback) {
         chrome.tabs.query({currentWindow: true}, (tabs) => {
             tabs.some(tab => {
-                if (tab.id === tabId) {
-                    Settings.getOptions((opts) => {
+                if (tab.id !== tabId) return false;
+                Settings.getOptions((opts) => {
 
-                        codeConfig.code = 'try{' + codeConfig.code + '}catch(e){};';
-                        if (!codeConfig.hasOwnProperty('allFrames')) {
-                            codeConfig.allFrames = String(opts['CONTENT_SCRIPT_ALLOW_ALL_FRAMES']) === 'true';
+                    if (!codeConfig.hasOwnProperty('allFrames')) {
+                        codeConfig.allFrames = String(opts['CONTENT_SCRIPT_ALLOW_ALL_FRAMES']) === 'true';
+                    }
+
+                    codeConfig.code = 'try{' + codeConfig.code + ';}catch(e){};';
+                    // 有文件就注入文件
+                    if(codeConfig.files && codeConfig.files.length){
+                        // 注入样式
+                        if(codeConfig.files.join(',').indexOf('.css') > -1) {
+                            chrome.scripting.insertCSS({
+                                target: {tabId, allFrames: codeConfig.allFrames},
+                                files: codeConfig.files
+                            }, function () {
+                                callback && callback.apply(this, arguments);
+                            });
                         }
-
+                        // 注入js
+                        else {
+                            chrome.scripting.executeScript({
+                                target: {tabId, allFrames: codeConfig.allFrames},
+                                files: codeConfig.files
+                            }, function () {
+                                chrome.scripting.executeScript({
+                                    target: {tabId, allFrames: codeConfig.allFrames},
+                                    func: function(code){evalCore.getEvalInstance(window)(code)},
+                                    args: [codeConfig.code]
+                                }, function () {
+                                    callback && callback.apply(this, arguments);
+                                });
+                            });
+                        }
+                    }else{
+                        // 没有文件就只注入脚本
                         chrome.scripting.executeScript({
                             target: {tabId, allFrames: codeConfig.allFrames},
-                            func: new Function(`evalCore.getEvalInstance(window)(\`${codeConfig.code}\`)`)
+                            func: function(code){evalCore.getEvalInstance(window)(code)},
+                            args: [codeConfig.code]
                         }, function () {
                             callback && callback.apply(this, arguments);
                         });
-                    });
+                    }
 
-                    return true;
-                }
-                return false;
+                });
+
+                return true;
             });
+        });
+    };
+
+    // 往当前页面直接注入脚本，不再使用content-script的配置了
+    let _injectContentScripts = function (tabId) {
+
+        // 其他工具注入
+        Awesome.getInstalledTools().then(tools => {
+
+            // 注入样式
+            let cssFiles = Object.keys(tools).filter(tool => tools[tool].contentScriptCss)
+                            .map(tool => `${tool}/content-script.css`);
+            injectScriptIfTabExists(tabId, {files: cssFiles});
+
+            // 注入js
+            let jsTools = Object.keys(tools).filter(tool => tools[tool].contentScriptJs);
+            let jsCodes = [];
+            jsTools.forEach((t, i) => {
+                let func = `window['${t.replace(/-/g, '')}ContentScript']`;
+                jsCodes.push(`(()=>{let func=${func};func&&func();})()`);
+            });
+            let jsFiles = jsTools.map(tool => `${tool}/content-script.js`);
+            injectScriptIfTabExists(tabId, {files: jsFiles,code: jsCodes.join(';')});
         });
     };
 
@@ -102,6 +154,7 @@ let BgPageInstance = (function () {
         let tool = configs.tool || configs.page;
         let withContent = configs.withContent;
         let activeTab = null;
+        let query = configs.query;
 
         // 如果是noPage模式，则表名只完成content-script的工作，直接发送命令即可
         if (configs.noPage) {
@@ -162,7 +215,7 @@ let BgPageInstance = (function () {
 
                 if (!isOpened) {
                     chrome.tabs.create({
-                        url: `/${tool}/index.html`,
+                        url: `/${tool}/index.html` + (query ? "?" + query : ''),
                         active: true
                     }, _tabUpdatedCallback(tool, withContent));
                 } else {
@@ -239,46 +292,6 @@ let BgPageInstance = (function () {
         });
     };
 
-    // 往当前页面直接注入脚本，不再使用content-script的配置了
-    let _injectContentScripts = function (tabId) {
-
-        // 创建一个css内容的注入方法
-        // 在内容脚本中，这样调用方法即可，比如：window.${toolName}ContentScriptCssInject();
-        let _createCssInjecter = (tool, cssText) => {
-            return `window['${tool.replace(/-/g, '')}ContentScriptCssInject']=()=>{let style=document.createElement('style');
-                    style.textContent=unescape('${escape(cssText)}');document.head.appendChild(style);}`;
-        };
-
-        // 其他工具注入
-        Awesome.getInstalledTools().then(tools => {
-            let list = Object.keys(tools).filter(tool => tool !== 'json-format' && tools[tool].contentScript);
-
-            // 注入样式
-            let promiseStyles = list.map(tool => Awesome.getContentScript(tool, true));
-            Promise.all(promiseStyles).then(values => {
-                let cssCodes = [];
-                values.forEach((css, i) => {
-                    if (css && css.length) {
-                        cssCodes.push(_createCssInjecter(list[i], css));
-                    }
-                });
-                injectScriptIfTabExists(tabId, {code: cssCodes.join(';')});
-            });
-
-            // 注入脚本
-            let promiseScripts = list.map(tool => Awesome.getContentScript(tool));
-            Promise.all(promiseScripts).then(values => {
-                let jsCodes = [];
-                values.forEach((js, i) => {
-                    let func = `window['${list[i].replace(/-/g, '')}ContentScript']`;
-                    jsCodes.push(`(()=>{ ${js} ; let func=${func};func&&func();})()`);
-                });
-
-                injectScriptIfTabExists(tabId, {code: jsCodes.join(';')});
-            });
-        });
-    };
-
     /**
      * 接收来自content_scripts发来的消息
      */
@@ -314,7 +327,6 @@ let BgPageInstance = (function () {
             }
             // 任何事件，都可以通过这个钩子来完成
             else if (request.type === MSG_TYPE.DYNAMIC_ANY_THING) {
-                request.func && request.func(request.params, callback);
                 switch(request.thing){
                     case 'save-options':
                         //管理右键菜单
@@ -322,6 +334,26 @@ let BgPageInstance = (function () {
                         notifyText({
                             message: '配置修改已生效，请继续使用!',
                             autoClose: 2000
+                        });
+                        break;
+                    case 'code-beautify':
+                        if (['javascript', 'css'].includes(request.params.fileType)) {
+                            Awesome.StorageMgr.get('JS_CSS_PAGE_BEAUTIFY').then(val => {
+                                if(val !== '0') {
+                                    let code = `window._codebutifydetect_('${request.params.fileType}')`;
+                                    injectScriptIfTabExists(request.params.tabId, { code });
+                                }
+                            });
+                        }
+                        break;
+                    case 'close-beautify':
+                        Awesome.StorageMgr.set('JS_CSS_PAGE_BEAUTIFY',0);
+                        break;
+                    case 'qr-decode':
+                        chrome.DynamicToolRunner({
+                            withContent: request.params.uri,
+                            tool: MSG_TYPE.QR_CODE,
+                            query: `mode=decode`
                         });
                         break;
                 }
@@ -341,9 +373,7 @@ let BgPageInstance = (function () {
                 && /^(http(s)?|file):\/\//.test(tab.url)
                 && blacklist.every(reg => !reg.test(tab.url))) {
 
-                injectScriptIfTabExists(tabId, {
-                    code: `window.__FH_TAB_ID__=${tabId};`
-                });
+                injectScriptIfTabExists(tabId, { code: `window.__FH_TAB_ID__=${tabId};` });
 
                 _injectContentScripts(tabId);
             }

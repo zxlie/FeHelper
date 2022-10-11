@@ -2,34 +2,33 @@
  * Json Page Automatic Format Via FeHelper
  * @author zhaoxianlie
  */
-
-// 留100ms时间给静态文件加载，当然，这个代码只是留给未开发过程中用的
-let pleaseLetJsLoaded = 0;
-let __importScript = (filename) => {
-    pleaseLetJsLoaded = 100;
-    let url = filename;
-
-    if (location.protocol === 'chrome-extension:' || chrome.runtime && chrome.runtime.getURL) {
-        url = chrome.runtime.getURL(filename);
-    }
-    fetch(url).then(resp => resp.text()).then(jsText => {
-        if(window.evalCore && window.evalCore.getEvalInstance){
-            return window.evalCore.getEvalInstance(window)(jsText);
-        }
-        let el = document.createElement('script');
-        el.textContent = jsText;
-        document.head.appendChild(el);
-    });
-};
-
-__importScript('json-bigint.js');
-__importScript('format-lib.js');
-__importScript('json-abc.js');
-__importScript('json-decode.js');
-
 window.JsonAutoFormat = (() => {
 
-    "use strict";
+    // 留100ms时间给静态文件加载，当然，这个代码只是留给未开发过程中用的
+    let pleaseLetJsLoaded = 0;
+    let __importScript = (filename) => {
+        pleaseLetJsLoaded = 100;
+        let url = filename;
+
+        if (location.protocol === 'chrome-extension:' || chrome.runtime && chrome.runtime.getURL) {
+            url = chrome.runtime.getURL('json-format/' + filename);
+        }
+        fetch(url).then(resp => resp.text()).then(jsText => {
+            if(window.evalCore && window.evalCore.getEvalInstance){
+                return window.evalCore.getEvalInstance(window)(jsText);
+            }
+            let el = document.createElement('script');
+            el.textContent = jsText;
+            document.head.appendChild(el);
+        });
+    };
+
+    __importScript('json-bigint.js');
+    __importScript('format-lib.js');
+    __importScript('json-abc.js');
+    __importScript('json-decode.js');
+
+    // **************************************************************
 
     const JSON_SORT_TYPE_KEY = 'json_sort_type_key';
     const JSON_AUTO_DECODE = 'json_auto_decode';
