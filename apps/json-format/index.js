@@ -66,8 +66,8 @@ new Vue({
                 if (request.type === 'TAB_CREATED_OR_UPDATED' && request.content && request.event === location.pathname.split('/')[1]) {
                     editor.setValue(request.content || this.defaultResultTpl);
                     this.format();
+                    callback && callback();
                 }
-                callback && callback();
                 return true;
             });
         }
@@ -174,7 +174,7 @@ new Vue({
                     return false;
                 }
             }
-            
+
             return true;
         },
 

@@ -177,22 +177,6 @@ let BgPageInstance = (function () {
             return;
         }
 
-        // 创建或更新成功执行的动作
-        let _tabUpdatedCallback = function (toolName, content) {
-            return function (newTab) {
-                setTimeout(function () {
-                    chrome.tabs.query({active: true, currentWindow: true}, tabs => {
-                        tabs && tabs.length && chrome.tabs.sendMessage(newTab.id, {
-                            type: MSG_TYPE.TAB_CREATED_OR_UPDATED,
-                            content: content,
-                            event: toolName,
-                            fromTab: activeTab
-                        });
-                    });
-                }, 300);
-            };
-        };
-
         chrome.tabs.query({currentWindow: true}, function (tabs) {
 
             activeTab = tabs.filter(tab => tab.active)[0];
@@ -213,13 +197,18 @@ let BgPageInstance = (function () {
                     }
                 }
 
+                let messageData = {
+                    type: MSG_TYPE.TAB_CREATED_OR_UPDATED,
+                    content: withContent,
+                    event: tool
+                };
                 if (!isOpened) {
                     chrome.tabs.create({
                         url: `/${tool}/index.html` + (query ? "?" + query : ''),
                         active: true
-                    }, _tabUpdatedCallback(tool, withContent));
+                    }).then(tab => { FeJson[tab.id] = messageData; });
                 } else {
-                    chrome.tabs.update(tabId, {highlighted: true}, _tabUpdatedCallback(tool, withContent));
+                    chrome.tabs.update(tabId, {highlighted: true}).then(tab => { FeJson[tab.id] = messageData; });
                 }
 
             });
@@ -300,7 +289,7 @@ let BgPageInstance = (function () {
         chrome.runtime.onMessage.addListener(function (request, sender, callback) {
             // 如果发生了错误，就啥都别干了
             if (chrome.runtime.lastError) {
-                console.log(chrome.runtime.lastError);
+                console.log('chrome.runtime.lastError:',chrome.runtime.lastError);
                 return true;
             }
 
@@ -369,13 +358,17 @@ let BgPageInstance = (function () {
         // 每开一个窗口，都向内容脚本注入一个js，绑定tabId
         chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
-            if (String(changeInfo.status).toLowerCase() === "complete"
-                && /^(http(s)?|file):\/\//.test(tab.url)
-                && blacklist.every(reg => !reg.test(tab.url))) {
+            if (String(changeInfo.status).toLowerCase() === "complete") {
 
-                injectScriptIfTabExists(tabId, { code: `window.__FH_TAB_ID__=${tabId};` });
-
-                _injectContentScripts(tabId);
+                if(/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))){
+                    injectScriptIfTabExists(tabId, { code: `window.__FH_TAB_ID__=${tabId};` });
+                    _injectContentScripts(tabId);
+                }else if(/^chrome\-extension\:\/\//.test(tab.url)){
+                    if(FeJson[tab.id]) {
+                        chrome.runtime.sendMessage(FeJson[tab.id]);
+                        delete FeJson[tab.id];
+                    }
+                }
             }
         });
 
