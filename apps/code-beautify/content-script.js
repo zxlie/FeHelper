@@ -1,30 +1,4 @@
 
-let highlightWebWorker = () => {
-    let __importScript = (filename) => {
-        let url = filename;
-
-        if (location.protocol === 'chrome-extension:' || typeof chrome !='undefined' && chrome.runtime && chrome.runtime.getURL) {
-            url = chrome.runtime.getURL('code-beautify/' + filename);
-        }
-        fetch(url).then(resp => resp.text()).then(jsText => {
-            if(window.evalCore && window.evalCore.getEvalInstance){
-                return window.evalCore.getEvalInstance(window)(jsText);
-            }
-            let el = document.createElement('script');
-            el.textContent = jsText;
-            document.head.appendChild(el);
-        });
-    };
-
-    let site = 'chrome-extension://mnaedlmagdcfmejjndjhffalddfofeim';
-    __importScript(site + '/static/vendor/highlight/highlight.js');
-
-    self.onmessage = (event) => {
-        const result = self.hljs.highlightAuto(event.data);
-        postMessage(result.value);
-    };
-};
-
 window.codebeautifyContentScript = (() => {
     let __importScript = (filename) => {
         let url = filename;
@@ -44,6 +18,33 @@ window.codebeautifyContentScript = (() => {
 
     __importScript('beautify.js');
     __importScript('beautify-css.js');
+
+
+    let highlightWebWorker = () => {
+        let __importScript = (filename) => {
+            let url = filename;
+
+            if (location.protocol === 'chrome-extension:' || typeof chrome !='undefined' && chrome.runtime && chrome.runtime.getURL) {
+                url = chrome.runtime.getURL('code-beautify/' + filename);
+            }
+            fetch(url).then(resp => resp.text()).then(jsText => {
+                if(window.evalCore && window.evalCore.getEvalInstance){
+                    return window.evalCore.getEvalInstance(window)(jsText);
+                }
+                let el = document.createElement('script');
+                el.textContent = jsText;
+                document.head.appendChild(el);
+            });
+        };
+
+        let site = 'chrome-extension://mnaedlmagdcfmejjndjhffalddfofeim';
+        __importScript(site + '/static/vendor/highlight/highlight.js');
+
+        self.onmessage = (event) => {
+            const result = self.hljs.highlightAuto(event.data);
+            postMessage(result.value);
+        };
+    };
 
     let formattedCodes = '';
 

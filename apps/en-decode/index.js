@@ -1,6 +1,8 @@
 /**
  * FeHelper 信息编解码
  */
+import EncodeUtils from './endecode-lib.js';
+
 new Vue({
     el: '#pageContainer',
     data: {
@@ -14,13 +16,17 @@ new Vue({
 
         // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
         if (location.protocol === 'chrome-extension:') {
-            chrome.runtime.onMessage.addListener((request, sender, callback) => {
-                if (request.type === 'TAB_CREATED_OR_UPDATED' && request.content && request.event === location.pathname.split('/')[1]) {
-                    this.sourceContent = request.content;
+            chrome.tabs.query({currentWindow: true,active: true, }, (tabs) => {
+                let activeTab = tabs.filter(tab => tab.active)[0];
+                chrome.runtime.sendMessage({
+                    type: 'fh-dynamic-any-thing',
+                    thing: 'request-page-content',
+                    tabId: activeTab.id
+                }).then(resp => {
+                    if(!resp && !resp.content) return ;
+                    this.sourceContent = resp.content;
                     this.convert();
-                }
-                callback && callback();
-                return true;
+                });
             });
         }
 
@@ -31,14 +37,12 @@ new Vue({
             this.$nextTick(() => {
                 this.urlResult = null;
 
-                let tools = Tarp.require('./endecode-lib');
-
                 if (this.selectedType === 'uniEncode') {
 
-                    this.resultContent = tools.uniEncode(this.sourceContent);
+                    this.resultContent = EncodeUtils.uniEncode(this.sourceContent);
                 } else if (this.selectedType === 'uniDecode') {
 
-                    this.resultContent = tools.uniDecode(this.sourceContent.replace(/\\U/g, '\\u'));
+                    this.resultContent = EncodeUtils.uniDecode(this.sourceContent.replace(/\\U/g, '\\u'));
                 } else if (this.selectedType === 'utf8Encode') {
 
                     this.resultContent = encodeURIComponent(this.sourceContent);
@@ -47,37 +51,37 @@ new Vue({
                     this.resultContent = decodeURIComponent(this.sourceContent);
                 } else if (this.selectedType === 'utf16Encode') {
 
-                    this.resultContent = tools.utf8to16(encodeURIComponent(this.sourceContent));
+                    this.resultContent = EncodeUtils.utf8to16(encodeURIComponent(this.sourceContent));
                 } else if (this.selectedType === 'utf16Decode') {
 
-                    this.resultContent = decodeURIComponent(tools.utf16to8(this.sourceContent));
+                    this.resultContent = decodeURIComponent(EncodeUtils.utf16to8(this.sourceContent));
                 } else if (this.selectedType === 'base64Encode') {
 
-                    this.resultContent = tools.base64Encode(tools.utf8Encode(this.sourceContent));
+                    this.resultContent = EncodeUtils.base64Encode(EncodeUtils.utf8Encode(this.sourceContent));
                 } else if (this.selectedType === 'base64Decode') {
 
-                    this.resultContent = tools.utf8Decode(tools.base64Decode(this.sourceContent));
+                    this.resultContent = EncodeUtils.utf8Decode(EncodeUtils.base64Decode(this.sourceContent));
                 } else if (this.selectedType === 'md5Encode') {
 
-                    this.resultContent = tools.md5(this.sourceContent);
+                    this.resultContent = EncodeUtils.md5(this.sourceContent);
                 } else if (this.selectedType === 'hexEncode') {
 
-                    this.resultContent = tools.hexEncode(this.sourceContent);
+                    this.resultContent = EncodeUtils.hexEncode(this.sourceContent);
                 } else if (this.selectedType === 'hexDecode') {
 
-                    this.resultContent = tools.hexDecode(this.sourceContent);
+                    this.resultContent = EncodeUtils.hexDecode(this.sourceContent);
                 } else if (this.selectedType === 'gzipEncode') {
 
-                    this.resultContent = tools.gzipEncode(this.sourceContent);
+                    this.resultContent = EncodeUtils.gzipEncode(this.sourceContent);
                 } else if (this.selectedType === 'gzipDecode') {
 
-                    this.resultContent = tools.gzipDecode(this.sourceContent);
+                    this.resultContent = EncodeUtils.gzipDecode(this.sourceContent);
                 } else if (this.selectedType === 'html2js') {
 
-                    this.resultContent = tools.html2js(this.sourceContent);
+                    this.resultContent = EncodeUtils.html2js(this.sourceContent);
                 } else if (this.selectedType === 'sha1Encode') {
 
-                    this.resultContent = tools.sha1Encode(this.sourceContent);
+                    this.resultContent = EncodeUtils.sha1Encode(this.sourceContent);
                 } else if (this.selectedType === 'htmlEntityEncode') {
 
                     this.resultContent = he.encode(this.sourceContent, {
@@ -97,7 +101,7 @@ new Vue({
                         'isAttributeValue': false
                     });
                 } else if (this.selectedType === 'urlParamsDecode') {
-                    let res = tools.urlParamsDecode(this.sourceContent);
+                    let res = EncodeUtils.urlParamsDecode(this.sourceContent);
                     if (res.error) {
                         this.resultContent = res.error;
                     } else {

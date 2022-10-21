@@ -130,7 +130,7 @@ window.toast = function (content) {
  * 获取当前脚本的绝对路径
  * @returns {string}
  */
-module.exports.getCurrAbsPath = function () {
+window.getCurrAbsPath = function () {
     let rExtractUri = /((?:http|https|file|chrome-extension):\/\/.*?\/[^:]+)(?::\d+)?:\d+/;
     let stack;
     try {

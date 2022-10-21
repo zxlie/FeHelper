@@ -1,8 +1,6 @@
 /**
  * FeHelper Timestamp Tools
  */
-
-Tarp.require('../static/js/utils');
 new Vue({
     el: '#pageContainer',
     data: {

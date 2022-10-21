@@ -19,7 +19,7 @@
 
 /* global define */
 
-;(function ($) {
+let Md5Utils = (function ($) {
     'use strict'
 
     /*
@@ -268,13 +268,7 @@
         return rawHMACMD5(key, string)
     }
 
-    if (typeof define === 'function' && define.amd) {
-        define(function () {
-            return md5
-        })
-    } else if (typeof module === 'object' && module.exports) {
-        module.exports = md5
-    } else {
-        $.md5 = md5
-    }
+    return {md5};
 })(this)
+
+export default Md5Utils;

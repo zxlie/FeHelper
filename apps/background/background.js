@@ -197,18 +197,16 @@ let BgPageInstance = (function () {
                     }
                 }
 
-                let messageData = {
-                    type: MSG_TYPE.TAB_CREATED_OR_UPDATED,
-                    content: withContent,
-                    event: tool
-                };
                 if (!isOpened) {
                     chrome.tabs.create({
                         url: `/${tool}/index.html` + (query ? "?" + query : ''),
                         active: true
-                    }).then(tab => { FeJson[tab.id] = messageData; });
+                    }).then(tab => { FeJson[tab.id] = { content: withContent }; });
                 } else {
-                    chrome.tabs.update(tabId, {highlighted: true}).then(tab => { FeJson[tab.id] = messageData; });
+                    chrome.tabs.update(tabId, {highlighted: true}).then(tab => {
+                        FeJson[tab.id] = { content: withContent };
+                        chrome.tabs.reload(tabId);
+                    });
                 }
 
             });
@@ -345,6 +343,10 @@ let BgPageInstance = (function () {
                             query: `mode=decode`
                         });
                         break;
+                    case 'request-page-content':
+                        request.params = FeJson[request.tabId];
+                        delete FeJson[request.tabId];
+                        break;
                 }
                 callback && callback(request.params);
             } else {
@@ -363,11 +365,6 @@ let BgPageInstance = (function () {
                 if(/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))){
                     injectScriptIfTabExists(tabId, { code: `window.__FH_TAB_ID__=${tabId};` });
                     _injectContentScripts(tabId);
-                }else if(/^chrome\-extension\:\/\//.test(tab.url)){
-                    if(FeJson[tab.id]) {
-                        chrome.runtime.sendMessage(FeJson[tab.id]);
-                        delete FeJson[tab.id];
-                    }
                 }
             }
         });

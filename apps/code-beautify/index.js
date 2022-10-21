@@ -13,13 +13,17 @@ new Vue({
     mounted: function () {
         // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
         if (location.protocol === 'chrome-extension:') {
-            chrome.runtime.onMessage.addListener((request, sender, callback) => {
-                if (request.type === 'TAB_CREATED_OR_UPDATED' && request.content && request.event === location.pathname.split('/')[1]) {
-                    this.sourceContent = request.content;
+            chrome.tabs.query({currentWindow: true,active: true, }, (tabs) => {
+                let activeTab = tabs.filter(tab => tab.active)[0];
+                chrome.runtime.sendMessage({
+                    type: 'fh-dynamic-any-thing',
+                    thing: 'request-page-content',
+                    tabId: activeTab.id
+                }).then(resp => {
+                    if(!resp && !resp.content) return ;
+                    this.sourceContent = resp.content;
                     this.format();
-                }
-                callback && callback();
-                return true;
+                });
             });
         }
 

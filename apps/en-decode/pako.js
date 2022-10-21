@@ -1,4 +1,4 @@
-module.exports = (function () {
+export default (function () {
     var define, module, exports;
     return (function () {
         function r(e, n, t) {

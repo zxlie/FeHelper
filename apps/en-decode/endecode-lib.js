@@ -6,7 +6,11 @@
  * 4、enDecodeTools.utf8Encode(text); 将文字进行utf-8编码并输出
  * 5、enDecodeTools.utf8Decode(text); 将经过utf-8编码的文字进行utf-8解码并输出
  */
-module.exports = (() => {
+
+ import Pako from './pako.js';
+ import Md5Utils from './md5.js';
+
+let EncodeUtils = (() => {
     //base64编码字符集
     let _base64EncodeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     //base64解码字符集
@@ -235,8 +239,7 @@ module.exports = (() => {
      * @param str
      */
     let md5 = (str) => {
-        let md5 = Tarp.require('./md5');
-        return md5(str);
+        return Md5Utils.md5(str);
     };
 
     /**
@@ -245,9 +248,8 @@ module.exports = (() => {
      * @returns {*}
      */
     let gzipEncode = str => {
-        let pako = Tarp.require('./pako');
         try {
-            return window.btoa(pako.gzip(escape(str), {to: "string"}));
+            return window.btoa(Pako.gzip(escape(str), {to: "string"}));
         } catch (e) {
             return 'Error: 当前字符串不能被Gzip加密';
         }
@@ -259,11 +261,9 @@ module.exports = (() => {
      * @returns {string}
      */
     let gzipDecode = str => {
-        let pako = Tarp.require('./pako');
-
         try {
             let charData = window.atob(str).split('').map(x => x.charCodeAt(0));
-            let data = pako.inflate(new Uint8Array(charData));
+            let data = Pako.inflate(new Uint8Array(charData));
             let result = String.fromCharCode.apply(null, new Uint16Array(data));
             try {
                 return unescape(result);
@@ -301,7 +301,7 @@ module.exports = (() => {
                     back.push((128 | (63 & code)))
                 }
             }
-            for (i = 0; i < back.length; i++) {
+            for (let i = 0; i < back.length; i++) {
                 back[i] &= 0xff;
             }
             if (isGetBytes) {
@@ -488,3 +488,4 @@ module.exports = (() => {
     };
 })();
 
+export default EncodeUtils;

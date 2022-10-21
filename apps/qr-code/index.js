@@ -20,10 +20,15 @@ new Vue({
 
         // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
         if (location.protocol === 'chrome-extension:') {
-            chrome.runtime.onMessage.addListener((request, sender, callback) => {
-                if (request.type === 'TAB_CREATED_OR_UPDATED' && request.event === location.pathname.split('/')[1]) {
-
-                    let text = request.content || (request.fromTab ? request.fromTab.url : '');
+            chrome.tabs.query({currentWindow: true,active: true, }, (tabs) => {
+                let activeTab = tabs.filter(tab => tab.active)[0];
+                chrome.runtime.sendMessage({
+                    type: 'fh-dynamic-any-thing',
+                    thing: 'request-page-content',
+                    tabId: activeTab.id
+                }).then(resp => {
+                    if(!resp) return ;
+                    let text = resp.content || (resp.tab ? (resp.tab.fromTab ? resp.tab.fromTab.url : '') : '');
                     if (text) {
                         if (!this.qrEncodeMode) {
                             // 解码模式
@@ -33,10 +38,7 @@ new Vue({
                             this.convert();
                         }
                     }
-
-                    callback && callback();
-                    return true;
-                }
+                });
             });
         }
 

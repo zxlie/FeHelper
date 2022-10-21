@@ -36,19 +36,23 @@ new Vue({
 
         // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
         if (location.protocol === 'chrome-extension:') {
-            chrome.runtime.onMessage.addListener((request, sender, callback) => {
-                if (request.type === 'TAB_CREATED_OR_UPDATED' && request.content && request.event === location.pathname.split('/')[1]) {
+            chrome.tabs.query({currentWindow: true,active: true, }, (tabs) => {
+                let activeTab = tabs.filter(tab => tab.active)[0];
+                chrome.runtime.sendMessage({
+                    type: 'fh-dynamic-any-thing',
+                    thing: 'request-page-content',
+                    tabId: activeTab.id
+                }).then(resp => {
+                    if(!resp && !resp.content) return ;
                     if (this.curType !== 'image') {
                         this.trans();
                     }
-                    this.convertOnline(request.content, flag => {
+                    this.convertOnline(resp.content, flag => {
                         if (!flag) {
-                            alert('抱歉，' + request.content + ' 对应的图片未转码成功！');
+                            alert('抱歉，' + resp.content + ' 对应的图片未转码成功！');
                         }
                     });
-                    callback && callback();
-                    return true;
-                }
+                });
             });
         }
 

@@ -68,7 +68,7 @@ export default (function () {
                     toolMap[tool].menuConfig[0].onClick = function (info, tab) {
                         chrome.scripting.executeScript({
                             target: {tabId:tab.id,allFrames:false},
-                            args: [info.linkUrl || info.srcUrl || info.selectionText || info.pageUrl],
+                            args: [info.linkUrl || info.srcUrl || info.selectionText || info.pageUrl || tab.url],
                             func: (text) => text
                         }, resp => chrome.DynamicToolRunner({
                             tool, withContent: resp[0].result
@@ -123,14 +123,12 @@ export default (function () {
                 parentId: FeJson.contextMenuId
             });
 
-            chrome.contextMenus.onClicked.addListener(((tName,mId,mFunc) => (info, tab) => {
+            chrome.contextMenus.onClicked.addListener(((tool,mId,mFunc) => (info, tab) => {
                 if(info.menuItemId === mId) {
                     if(mFunc) {
                         mFunc(info,tab);
                     }else{
-                        chrome.DynamicToolRunner({
-                            query: `tool=${tName}`
-                        });
+                        chrome.DynamicToolRunner({ tool });
                     }
                 }
             })(toolName,_menu_id,menu.onClick));
@@ -202,7 +200,6 @@ export default (function () {
      */
     let _createOrRemoveContextMenu = function (_settings) {
         _settings.getOptions((opts) => {
-            console.log(String(opts['OPT_ITEM_CONTEXTMENUS']))
             if (String(opts['OPT_ITEM_CONTEXTMENUS']) !== 'false') {
                 _createContextMenu();
             } else {
