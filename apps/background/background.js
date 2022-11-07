@@ -8,6 +8,8 @@ import MSG_TYPE from '../static/js/common.js';
 import Settings from '../options/settings.js';
 import Menu from './menu.js';
 import Awesome from './awesome.js';
+import InjectTools from './inject-tools.js';
+import Monkey from './monkey.js';
 
 
 let BgPageInstance = (function () {
@@ -56,66 +58,7 @@ let BgPageInstance = (function () {
 
     };
 
-    /**
-     * 如果tabId指定的tab还存在，就正常注入脚本
-     * @param tabId 需要注入脚本的tabId
-     * @param codeConfig 需要注入的代码
-     * @param callback 注入代码后的callback
-     */
-    let injectScriptIfTabExists = function (tabId, codeConfig, callback) {
-        chrome.tabs.query({currentWindow: true}, (tabs) => {
-            tabs.some(tab => {
-                if (tab.id !== tabId) return false;
-                Settings.getOptions((opts) => {
 
-                    if (!codeConfig.hasOwnProperty('allFrames')) {
-                        codeConfig.allFrames = String(opts['CONTENT_SCRIPT_ALLOW_ALL_FRAMES']) === 'true';
-                    }
-
-                    codeConfig.code = 'try{' + codeConfig.code + ';}catch(e){};';
-                    // 有文件就注入文件
-                    if(codeConfig.files && codeConfig.files.length){
-                        // 注入样式
-                        if(codeConfig.files.join(',').indexOf('.css') > -1) {
-                            chrome.scripting.insertCSS({
-                                target: {tabId, allFrames: codeConfig.allFrames},
-                                files: codeConfig.files
-                            }, function () {
-                                callback && callback.apply(this, arguments);
-                            });
-                        }
-                        // 注入js
-                        else {
-                            chrome.scripting.executeScript({
-                                target: {tabId, allFrames: codeConfig.allFrames},
-                                files: codeConfig.files
-                            }, function () {
-                                chrome.scripting.executeScript({
-                                    target: {tabId, allFrames: codeConfig.allFrames},
-                                    func: function(code){evalCore.getEvalInstance(window)(code)},
-                                    args: [codeConfig.code]
-                                }, function () {
-                                    callback && callback.apply(this, arguments);
-                                });
-                            });
-                        }
-                    }else{
-                        // 没有文件就只注入脚本
-                        chrome.scripting.executeScript({
-                            target: {tabId, allFrames: codeConfig.allFrames},
-                            func: function(code){evalCore.getEvalInstance(window)(code)},
-                            args: [codeConfig.code]
-                        }, function () {
-                            callback && callback.apply(this, arguments);
-                        });
-                    }
-
-                });
-
-                return true;
-            });
-        });
-    };
 
     // 往当前页面直接注入脚本，不再使用content-script的配置了
     let _injectContentScripts = function (tabId) {
@@ -126,7 +69,7 @@ let BgPageInstance = (function () {
             // 注入样式
             let cssFiles = Object.keys(tools).filter(tool => tools[tool].contentScriptCss)
                             .map(tool => `${tool}/content-script.css`);
-            injectScriptIfTabExists(tabId, {files: cssFiles});
+            InjectTools.inject(tabId, {files: cssFiles});
 
             // 注入js
             let jsTools = Object.keys(tools).filter(tool => tools[tool].contentScriptJs);
@@ -136,7 +79,7 @@ let BgPageInstance = (function () {
                 jsCodes.push(`(()=>{let func=${func};func&&func();})()`);
             });
             let jsFiles = jsTools.map(tool => `${tool}/content-script.js`);
-            injectScriptIfTabExists(tabId, {files: jsFiles,code: jsCodes.join(';')});
+            InjectTools.inject(tabId, {files: jsFiles,code: jsCodes.join(';')});
         });
     };
 
@@ -163,7 +106,7 @@ let BgPageInstance = (function () {
                 let found = tabs.some(tab => {
                     if (/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))) {
                         let codes = `window['${toolFunc}NoPage'] && window['${toolFunc}NoPage'](${JSON.stringify(tab)});`;
-                        injectScriptIfTabExists(tab.id, {code: codes});
+                        InjectTools.inject(tab.id, {code: codes});
                         return true;
                     }
                     return false;
@@ -361,11 +304,11 @@ let BgPageInstance = (function () {
     let _addScreenShotByPages = function(params){
         chrome.tabs.captureVisibleTab(null, {format: 'png', quality: 100}, uri => {
             let code = `window.addScreenShot(${JSON.stringify(params)},'${uri}');`
-            injectScriptIfTabExists(params.tabInfo.id, { code });
+            InjectTools.inject(params.tabInfo.id, { code });
         });
 
         let code = `window.addScreenShot(${JSON.stringify(params)},'${uri}');`
-        injectScriptIfTabExists(params.tabInfo.id, { code: `window.captureCallback();` });
+        InjectTools.inject(params.tabInfo.id, { code: `window.captureCallback();` });
     };
 
     let _colorPickerCapture = function(params) {
@@ -375,7 +318,7 @@ let BgPageInstance = (function () {
                     setPickerImage: true,
                     pickerImage: dataUrl
                 })})`;
-                injectScriptIfTabExists(tabs[0].id, { code });
+                InjectTools.inject(tabs[0].id, { code });
             });
         });
     };
@@ -385,7 +328,7 @@ let BgPageInstance = (function () {
             Awesome.StorageMgr.get('JS_CSS_PAGE_BEAUTIFY').then(val => {
                 if(val !== '0') {
                     let code = `window._codebutifydetect_('${params.fileType}')`;
-                    injectScriptIfTabExists(params.tabId, { code });
+                    InjectTools.inject(params.tabId, { code });
                 }
             });
         }
@@ -467,6 +410,9 @@ let BgPageInstance = (function () {
                     case 'add-screen-shot-by-pages':
                         _addScreenShotByPages(request.params);
                         break;
+                    case 'request-monkey-start':
+                        Monkey.start(request.params);
+                        break;
                 }
                 callback && callback(request.params);
             } else {
@@ -483,7 +429,7 @@ let BgPageInstance = (function () {
             if (String(changeInfo.status).toLowerCase() === "complete") {
 
                 if(/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))){
-                    injectScriptIfTabExists(tabId, { code: `window.__FH_TAB_ID__=${tabId};` });
+                    InjectTools.inject(tabId, { code: `window.__FH_TAB_ID__=${tabId};` });
                     _injectContentScripts(tabId);
                 }
             }

@@ -43,7 +43,7 @@ new Vue({
                     thing: 'request-page-content',
                     tabId: activeTab.id
                 }).then(resp => {
-                    if(!resp && !resp.content) return ;
+                    if(!resp || !resp.content) return ;
                     if (this.curType !== 'image') {
                         this.trans();
                     }

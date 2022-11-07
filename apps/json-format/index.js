@@ -70,7 +70,7 @@ new Vue({
                     tabId: activeTab.id
                 }).then(resp => {
                     if(!resp && !resp.content) return ;
-                    editor.setValue(resp.content || this.defaultResultTpl);
+                    editor.setValue(resp.content || '');
                     this.format();
                 });
             });

@@ -20,7 +20,7 @@ new Vue({
                     thing: 'request-page-content',
                     tabId: activeTab.id
                 }).then(resp => {
-                    if(!resp && !resp.content) return ;
+                    if(!resp || !resp.content) return ;
                     this.sourceContent = resp.content;
                     this.format();
                 });

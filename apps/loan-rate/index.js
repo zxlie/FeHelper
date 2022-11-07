@@ -22,6 +22,7 @@ new Vue({
         },
 
         revRate: 0,
+        revMoney: 10000,
         revAllAmount: 11347.20,
         revAllInterest: 0
     },
@@ -312,6 +313,7 @@ new Vue({
                 return result;
             };
 
+            this.money = this.revMoney;
             this.revAllInterest = Math.round((this.revAllAmount - this.money) * 100) / 100;
             this.revRate = guessRate(this.money, this.months, this.revAllAmount, parseInt(this.paybackMode));
         }
