@@ -102,6 +102,14 @@ let toolMap = {
             text: '简易Postman'
         }]
     },
+    'websocket': {
+        name: 'Websocket工具',
+        tips: '支持对Websocket接口的抓包测试，包括ws服务的连接测试、消息发送测试、结果分析等',
+        menuConfig: [{
+            icon: 'ⓦ',
+            text: 'Websocket工具'
+        }]
+    },
     'regexp': {
         name: 'JS正则表达式',
         tips: '正则校验工具，默认提供一些工作中常用的正则表达式，支持内容实时匹配并高亮显示结果',

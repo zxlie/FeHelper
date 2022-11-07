@@ -4,7 +4,7 @@
 new Vue({
     el: '#pageContainer',
     data: {
-        url: 'ws://localhost:6765/ws/single/test/1',
+        url: 'ws://121.40.165.18:8800',
         msg: '',
         connBtn: false,
         closeBtn: true,
