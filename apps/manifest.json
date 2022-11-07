@@ -60,7 +60,9 @@
             "static/vendor/evalCore.min.js",
 
             "code-beautify/beautify.js",
-            "code-beautify/beautify-css.js"
+            "code-beautify/beautify-css.js",
+
+            "page-timing/timing.js"
         ],
         "matches": ["<all_urls>"]
       }

@@ -163,6 +163,7 @@ let toolMap = {
         name: '网页截屏工具',
         tips: '可对任意网页进行截屏，支持可视区域截屏、全网页滚动截屏，最终结果可预览后再保存',
         contentScriptJs: true,
+        // noPage: true,
         menuConfig: [{
             icon: '✂',
             text: 'FH开发者工具'
@@ -172,6 +173,7 @@ let toolMap = {
         name: '页面取色工具',
         tips: '可直接在网页上针对任意元素进行色值采集，将光标移动到需要取色的位置，单击确定即可',
         contentScriptJs: true,
+        noPage: true,
         menuConfig: [{
             icon: '✑',
             text: 'FH开发者工具'
@@ -190,6 +192,7 @@ let toolMap = {
         tips: 'Web开发用，横竖两把尺子，以10px为单位，用以检测&校准当前网页的栅格对齐率',
         contentScriptJs: true,
         contentScriptCss: true,
+        noPage: true,
         menuConfig: [{
             icon: 'Ⅲ',
             text: 'FH开发者工具'
@@ -199,6 +202,7 @@ let toolMap = {
         name: '网页性能检测',
         tips: '检测网页加载性能，包括握手、响应、渲染等各阶段耗时，同时提供Response Headers以便分析',
         contentScriptJs: true,
+        noPage: true,
         menuConfig: [{
             icon: 'Σ',
             text: 'FH开发者工具'

@@ -97,6 +97,19 @@ new Vue({
                     if (found) {
                         chrome.tabs.update(tabId, {highlighted: true, active: true}, tab => {
 
+                            // 没有文件就只注入脚本
+                            // chrome.scripting.executeScript({
+                            //     target: {tab.id, allFrames: false},
+                            //     func: function(code){evalCore.getEvalInstance(window)(code)},
+                            //     args: [codeConfig.code]
+                            // }, function () {
+                            //     try {
+                            //         callback && callback.apply(this, arguments);
+                            //     } catch (e) {
+                            //         callback && callback(null);
+                            //     }
+                            // });
+
                             chrome.tabs.executeScript(tab.id, {
                                 code: '(' + (function (tabInfo, captureInfo) {
                                     chrome.runtime.sendMessage({

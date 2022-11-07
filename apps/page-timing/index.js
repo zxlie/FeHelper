@@ -26,13 +26,18 @@ new Vue({
     mounted: function () {
         // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
         if (location.protocol === 'chrome-extension:') {
-            chrome.runtime.onMessage.addListener((request, sender, callback) => {
-                if (request.type === 'TAB_CREATED_OR_UPDATED' && request.content && request.event === location.pathname.split('/')[1]) {
-                    sessionStorage.setItem('wpo-data', JSON.stringify(request.content));
-                    this.showTiming(request.content);
-                }
-                callback && callback();
-                return true;
+            chrome.tabs.query({currentWindow: true,active: true, }, (tabs) => {
+                let activeTab = tabs.filter(tab => tab.active)[0];
+                chrome.runtime.sendMessage({
+                    type: 'fh-dynamic-any-thing',
+                    thing: 'request-page-content',
+                    tabId: activeTab.id
+                }).then(resp => {
+                    console.log(resp)
+                    if(!resp && !resp.content) return ;
+                    sessionStorage.setItem('wpo-data', JSON.stringify(resp.content));
+                    this.showTiming(resp.content);
+                });
             });
         }
 

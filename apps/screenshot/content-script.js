@@ -191,86 +191,8 @@ window.screenshotContentScript = function (params) {
 
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
-                params: capturedData,
-                func: ((params,csCallback) => {
-
-                    // 将Blob数据存储到本地临时文件
-                    function saveBlob(blob, filename, index, callback, errback) {
-                        filename = ((filename, index) => {
-                            if (!index) {
-                                return filename;
-                            }
-                            let sp = filename.split('.');
-                            let ext = sp.pop();
-                            return sp.join('.') + '-' + (index + 1) + '.' + ext;
-                        })(filename, index);
-                        let urlName = `filesystem:chrome-extension://${chrome.i18n.getMessage('@@extension_id')}/temporary/${filename}`;
-
-                        let size = blob.size + (1024 / 2);
-
-                        let reqFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
-                        reqFileSystem(window.TEMPORARY, size, function (fs) {
-                            fs.root.getFile(filename, {create: true}, function (fileEntry) {
-                                fileEntry.createWriter(function (fileWriter) {
-                                    fileWriter.onwriteend = () => callback(urlName);
-                                    fileWriter.write(blob);
-                                }, errback);
-                            }, errback);
-                        }, errback);
-                    }
-
-                    function reallyDone(imgUrl) {
-                        params.fileSystemUrl = imgUrl;
-                        let sendDataUri = tab => {
-                            chrome.tabs.sendMessage(tab.id, {
-                                type: 'page-screenshot-done',
-                                data: params
-                            });
-                        };
-                        if (!params.resultTab) {
-                            chrome.tabs.create({
-                                url: 'dynamic/index.html?tool=screenshot',
-                                active: true
-                            }, (tab) => {
-                                setTimeout((tab => {
-                                    return () => sendDataUri(tab);
-                                })(tab), 500);
-                            });
-                        } else {
-                            chrome.tabs.update(params.resultTab, {highlighted: true, active: true}, sendDataUri);
-                        }
-                    }
-
-                    // 获取Blobs数据
-                    function getBlobs(dataUris) {
-                        return dataUris.map(function (uri) {
-                            let byteString = atob(uri.split(',')[1]);
-                            let mimeString = uri.split(',')[0].split(':')[1].split(';')[0];
-                            let ab = new ArrayBuffer(byteString.length);
-                            let ia = new Uint8Array(ab);
-                            for (let i = 0; i < byteString.length; i++) {
-                                ia[i] = byteString.charCodeAt(i);
-                            }
-                            return new Blob([ab], {type: mimeString});
-                        });
-                    }
-
-                    function wellDone(dus) {
-                        let blobs = getBlobs(dus);
-                        let i = 0;
-                        let len = blobs.length;
-
-                        // 保存 & 打开
-                        (function doNext() {
-                            saveBlob(blobs[i], params.filename, i, function (imgUrl) {
-                                ++i >= len ? reallyDone(imgUrl) : doNext();
-                            }, reallyDone);
-                        })();
-                    }
-
-                    wellDone(params.dataUris);
-                    csCallback && csCallback();
-                }).toString()
+                thing: 'screen-capture',
+                params: capturedData
             });
         },
 
@@ -427,18 +349,8 @@ window.screenshotContentScript = function (params) {
 
                 chrome.runtime.sendMessage({
                     type: 'fh-dynamic-any-thing',
-                    params: data,
-                    func: ((params, csCallback) => {
-                        chrome.tabs.captureVisibleTab(null, {format: 'png', quality: 100}, uri => {
-                            chrome.tabs.executeScript(params.tabInfo.id, {
-                                code: `window.addScreenShot(${JSON.stringify(params)},'${uri}');`
-                            });
-                        });
-                        chrome.tabs.executeScript(params.tabInfo.id, {
-                            code: `window.captureCallback();`
-                        });
-                        return true;
-                    }).toString()
+                    thing: 'add-screen-shot-by-pages',
+                    params: data
                 });
             }, 150);
         })();

@@ -69,7 +69,7 @@ new Vue({
                 page: toolName,
                 noPage: !!noPage
             });
-
+            !!noPage && setTimeout(window.close,200);
         },
 
         openOptionsPage: () => {

@@ -404,29 +404,10 @@ window.colorpickerContentScript = function () {
                 try {
                     chrome.runtime.sendMessage({
                         type: 'fh-dynamic-any-thing',
+                        thing:'color-picker-capture',
                         params: {
                             url: location.href
-                        },
-                        func: ((params, callback) => {
-                            try {
-                                chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-                                    chrome.tabs.captureVisibleTab(null, {format: 'png'}, function (dataUrl) {
-                                        chrome.tabs.executeScript(tabs[0].id, {
-                                            code: `(` + ((data) => {
-                                                window.colorpickerNoPage(data);
-                                            }).toString() + `)(${JSON.stringify({
-                                                setPickerImage: true,
-                                                pickerImage: dataUrl
-                                            })})`
-                                        });
-                                    });
-                                });
-                            } catch (e) {
-                            }
-                            callback && callback(null);
-                            return true;
-                        }).toString()
-                    }, function () {
+                        }
                     });
                 } catch (e) {
                     console.log('有错误发生，可提交此反馈到官网！', e);

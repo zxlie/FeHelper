@@ -5,12 +5,25 @@
 window.pagetimingContentScript = function () {
 
     let __importScript = (filename) => {
-        fetch(filename).then(resp => resp.text()).then(jsText => eval(jsText));
+        pleaseLetJsLoaded = 100;
+        let url = filename;
+
+        if (location.protocol === 'chrome-extension:' || chrome.runtime && chrome.runtime.getURL) {
+            url = chrome.runtime.getURL('page-timing/' + filename);
+        }
+        fetch(url).then(resp => resp.text()).then(jsText => {
+            if(window.evalCore && window.evalCore.getEvalInstance){
+                return window.evalCore.getEvalInstance(window)(jsText);
+            }
+            let el = document.createElement('script');
+            el.textContent = jsText;
+            document.head.appendChild(el);
+        });
     };
 
     __importScript('timing.js');
 
-    let DetectMgr = (() => {
+    window.pagetimingNoPage = function() {
 
         let wpoInfo = {
             pageInfo: {
@@ -23,18 +36,8 @@ window.pagetimingContentScript = function () {
         let sendWpoInfo = function () {
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
-                params: {
-                    tabId: window.__FH_TAB_ID__ || null,
-                    wpoInfo: wpoInfo
-                },
-                func: ((params, callback) => {
-                    chrome.DynamicToolRunner({
-                        query: 'tool=page-timing',
-                        withContent: params.wpoInfo
-                    });
-                    callback && callback();
-                    return true;
-                }).toString()
+                thing: 'set-page-timing-data',
+                wpoInfo: wpoInfo
             });
         };
 
@@ -64,13 +67,7 @@ window.pagetimingContentScript = function () {
             }
         };
 
-        return {
-            detect: detect
-        };
-    })();
-
-
-    window.pagetimingNoPage = function () {
-        DetectMgr.detect();
+        detect();
     };
+
 };

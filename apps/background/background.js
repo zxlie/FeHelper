@@ -158,11 +158,11 @@ let BgPageInstance = (function () {
 
         // 如果是noPage模式，则表名只完成content-script的工作，直接发送命令即可
         if (configs.noPage) {
-            tool = new URL(`http://f.h?${tool}`).searchParams.get('tool').replace(/-/g, '');
+            let toolFunc = tool.replace(/-/g, '');
             chrome.tabs.query({active: true, currentWindow: true}, tabs => {
                 let found = tabs.some(tab => {
                     if (/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))) {
-                        let codes = `window['${tool}NoPage'] && window['${tool}NoPage'](${JSON.stringify(tab)});`;
+                        let codes = `window['${toolFunc}NoPage'] && window['${toolFunc}NoPage'](${JSON.stringify(tab)});`;
                         injectScriptIfTabExists(tab.id, {code: codes});
                         return true;
                     }
@@ -279,6 +279,118 @@ let BgPageInstance = (function () {
         });
     };
 
+    let _screenCapture = function(params){
+
+        // 将Blob数据存储到本地临时文件
+        function saveBlob(blob, filename, index, callback, errback) {
+            filename = ((filename, index) => {
+                if (!index) {
+                    return filename;
+                }
+                let sp = filename.split('.');
+                let ext = sp.pop();
+                return sp.join('.') + '-' + (index + 1) + '.' + ext;
+            })(filename, index);
+            let urlName = `filesystem:chrome-extension://${chrome.i18n.getMessage('@@extension_id')}/temporary/${filename}`;
+
+            let size = blob.size + (1024 / 2);
+
+            let reqFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+            reqFileSystem(window.TEMPORARY, size, function (fs) {
+                fs.root.getFile(filename, {create: true}, function (fileEntry) {
+                    fileEntry.createWriter(function (fileWriter) {
+                        fileWriter.onwriteend = () => callback(urlName);
+                        fileWriter.write(blob);
+                    }, errback);
+                }, errback);
+            }, errback);
+        }
+
+        function reallyDone(imgUrl) {
+            params.fileSystemUrl = imgUrl;
+            let sendDataUri = tab => {
+                chrome.tabs.sendMessage(tab.id, {
+                    type: 'page-screenshot-done',
+                    data: params
+                });
+            };
+            if (!params.resultTab) {
+                chrome.tabs.create({
+                    url: 'dynamic/index.html?tool=screenshot',
+                    active: true
+                }, (tab) => {
+                    setTimeout((tab => {
+                        return () => sendDataUri(tab);
+                    })(tab), 500);
+                });
+            } else {
+                chrome.tabs.update(params.resultTab, {highlighted: true, active: true}, sendDataUri);
+            }
+        }
+
+        // 获取Blobs数据
+        function getBlobs(dataUris) {
+            return dataUris.map(function (uri) {
+                let byteString = atob(uri.split(',')[1]);
+                let mimeString = uri.split(',')[0].split(':')[1].split(';')[0];
+                let ab = new ArrayBuffer(byteString.length);
+                let ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                return new Blob([ab], {type: mimeString});
+            });
+        }
+
+        function wellDone(dus) {
+            let blobs = getBlobs(dus);
+            let i = 0;
+            let len = blobs.length;
+
+            // 保存 & 打开
+            (function doNext() {
+                saveBlob(blobs[i], params.filename, i, function (imgUrl) {
+                    ++i >= len ? reallyDone(imgUrl) : doNext();
+                }, reallyDone);
+            })();
+        }
+
+        wellDone(params.dataUris);
+    };
+
+    let _addScreenShotByPages = function(params){
+        chrome.tabs.captureVisibleTab(null, {format: 'png', quality: 100}, uri => {
+            let code = `window.addScreenShot(${JSON.stringify(params)},'${uri}');`
+            injectScriptIfTabExists(params.tabInfo.id, { code });
+        });
+
+        let code = `window.addScreenShot(${JSON.stringify(params)},'${uri}');`
+        injectScriptIfTabExists(params.tabInfo.id, { code: `window.captureCallback();` });
+    };
+
+    let _colorPickerCapture = function(params) {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            chrome.tabs.captureVisibleTab(null, {format: 'png'}, function (dataUrl) {
+                let code = `window.colorpickerNoPage(${JSON.stringify({
+                    setPickerImage: true,
+                    pickerImage: dataUrl
+                })})`;
+                injectScriptIfTabExists(tabs[0].id, { code });
+            });
+        });
+    };
+
+    let _codeBeautify = function(params){
+        if (['javascript', 'css'].includes(params.fileType)) {
+            Awesome.StorageMgr.get('JS_CSS_PAGE_BEAUTIFY').then(val => {
+                if(val !== '0') {
+                    let code = `window._codebutifydetect_('${params.fileType}')`;
+                    injectScriptIfTabExists(params.tabId, { code });
+                }
+            });
+        }
+    };
+
     /**
      * 接收来自content_scripts发来的消息
      */
@@ -324,14 +436,7 @@ let BgPageInstance = (function () {
                         });
                         break;
                     case 'code-beautify':
-                        if (['javascript', 'css'].includes(request.params.fileType)) {
-                            Awesome.StorageMgr.get('JS_CSS_PAGE_BEAUTIFY').then(val => {
-                                if(val !== '0') {
-                                    let code = `window._codebutifydetect_('${request.params.fileType}')`;
-                                    injectScriptIfTabExists(request.params.tabId, { code });
-                                }
-                            });
-                        }
+                        _codeBeautify(request.params);
                         break;
                     case 'close-beautify':
                         Awesome.StorageMgr.set('JS_CSS_PAGE_BEAUTIFY',0);
@@ -346,6 +451,21 @@ let BgPageInstance = (function () {
                     case 'request-page-content':
                         request.params = FeJson[request.tabId];
                         delete FeJson[request.tabId];
+                        break;
+                    case 'set-page-timing-data':
+                        chrome.DynamicToolRunner({
+                            tool: 'page-timing',
+                            withContent: request.wpoInfo
+                        });
+                        break;
+                    case 'color-picker-capture':
+                        _colorPickerCapture(request.params);
+                        break;
+                    case 'screen-capture':
+                        _screenCapture(request.params);
+                        break;
+                    case 'add-screen-shot-by-pages':
+                        _addScreenShotByPages(request.params);
                         break;
                 }
                 callback && callback(request.params);
