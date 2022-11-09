@@ -21,28 +21,13 @@ window.codebeautifyContentScript = (() => {
 
 
     let highlightWebWorker = () => {
-        let __importScript = (filename) => {
-            let url = filename;
-
-            if (location.protocol === 'chrome-extension:' || typeof chrome !='undefined' && chrome.runtime && chrome.runtime.getURL) {
-                url = chrome.runtime.getURL('code-beautify/' + filename);
-            }
-            fetch(url).then(resp => resp.text()).then(jsText => {
-                if(window.evalCore && window.evalCore.getEvalInstance){
-                    return window.evalCore.getEvalInstance(window)(jsText);
-                }
-                let el = document.createElement('script');
-                el.textContent = jsText;
-                document.head.appendChild(el);
-            });
-        };
-
-        let site = 'chrome-extension://mnaedlmagdcfmejjndjhffalddfofeim';
-        __importScript(site + '/static/vendor/highlight/highlight.js');
+        // TODO ...
+        // __importScript('../static/vendor/highlight/highlight.js');
 
         self.onmessage = (event) => {
-            const result = self.hljs.highlightAuto(event.data);
-            postMessage(result.value);
+            // const result = self.hljs.highlightAuto(event.data);
+            // postMessage(result.value);
+            postMessage(event.data);
         };
     };
 

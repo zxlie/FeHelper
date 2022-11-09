@@ -22,13 +22,13 @@
     text-shadow: 1px 1px rgba(255, 255, 255, 0.3)
 }
 
-.xjf-btn-mid,.xjf-btn-right {
+.xjf-btn-mid, .xjf-btn-right {
     margin-left: 0;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 }
 
-.xjf-btn-mid,.xjf-btn-left {
+.xjf-btn-mid, .xjf-btn-left {
     margin-right: 0;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
@@ -73,50 +73,43 @@ pre {
     padding: 36px 5px 5px 5px
 }
 
-.kvov {
-    display: block;
-    padding-left: 20px;
-    margin-left: -20px;
-    position: relative;
-    padding-top: 2px;
-}
-
 #jfContent {
     margin-bottom: 25px;
 }
 
-#jfContent .kvov .s a {
-    color: #00b;
+/*================json format style start===================*/
+.item {
+    display: block;
+    padding-left: 20px;
+    margin-left: -20px;
+    position: relative;
+    padding-top:1px;
+    padding-bottom: 1px;
+}
+
+.item .kv-list {
+    display: block;
+    padding-left: 24px;
+    border-left: 1px dashed #bbb;
+    margin-left: 2px
+}
+.item .string {
+    word-wrap: break-word
+}
+
+.item .string a {
     text-decoration: underline;
 }
 
-#jfContent .kvov .s a:hover {
+.item .string a:hover {
     color: #b00;
 }
 
-.collapsed {
-    white-space: nowrap
+.item .brace {
+    font-weight: bold;
 }
 
-.collapsed > .blockInner {
-    display: none
-}
-
-.collapsed > .ell:after {
-    content: "\2026";
-    font-weight: bold
-}
-
-.collapsed > .ell {
-    margin: 0 4px;
-    color: #888
-}
-
-.collapsed .kvov {
-    display: inline
-}
-
-.e {
+.item .expand {
     width: 20px;
     height: 18px;
     display: block;
@@ -129,70 +122,63 @@ pre {
     cursor: pointer;
 }
 
-.e:after {
+.item .expand:after {
     content: "\25bc";
 }
 
-.collapsed > .e {
-    -webkit-transform: rotate(-90deg);
-    top: -1px
-}
-
-.e:hover {
+.item .expand:hover {
     opacity: 0.35
 }
 
-.e:active {
+.item .expand:active {
     opacity: 0.5
 }
 
-.collapsed .kvov .e {
+.item.collapsed {
+    white-space: nowrap
+}
+
+.item.collapsed > .kv-list {
     display: none
 }
 
-.blockInner {
-    display: block;
-    padding-left: 24px;
-    border-left: 1px dotted #bbb;
-    margin-left: 2px
+.item.collapsed .item .expand {
+    display: none
 }
+
+.item.collapsed > .ellipsis:after {
+    content: "\2026";
+    font-weight: bold
+}
+
+.item.collapsed > .ellipsis {
+    margin: 0 4px;
+    color: #888
+}
+
+.item.collapsed .item {
+    display: inline
+}
+
+.item.collapsed > .expand {
+    -webkit-transform: rotate(-90deg);
+    top: -1px
+}
+.remove-quote .quote {
+    display: none;
+}
+/*================json format style end===================*/
+
 
 #formattedJson, #jsonpOpener, #jsonpCloser {
     color: #333;
-    font: 13px/18px monospace
+    font: 14px/18px monospace;
 }
 
 #formattedJson {
     color: #444
 }
 
-.b {
-    font-weight: bold
-}
-
-.s {
-    color: #0B7500;
-    word-wrap: break-word
-}
-
-#jfContent a:link, #jfContent a:visited {
-    text-decoration: none;
-    color: inherit
-}
-
-#jfContent a:hover, #jfContent a:active {
-    text-decoration: underline;
-    color: #050
-}
-
-.bl, .nl, .n {
-    font-weight: bold;
-    color: #1A01CC
-}
-
-.k {
-    color: black
-}
 
 #formattingMsg {
     position: absolute;
@@ -315,6 +301,9 @@ body {
 .x-toolbar .x-sort input {
     margin-right: 10px;
 }
+.x-toolbar span {
+    white-space: normal !important;
+}
 
 .x-toolbar .x-sort input#sort_desc {
     margin-right: 0;
@@ -351,16 +340,22 @@ body {
     font-size: 14px;
     font-weight: bold;
 }
+
 .x-toolbar.t-collapse {
-    position: absolute;
+    position: fixed;
     left: 100%;
     margin-left: -24px;
     width: 10000px;
+    top: -10px;
 }
+
 .x-toolbar.t-collapse .fe-feedback {
     float: left;
     margin-left: -10px;
     margin-right: 20px;
+}
+.x-toolbar.t-collapse .fe-feedback .x-settings{
+    display: none;
 }
 
 .mod-json .format-item button {
@@ -371,6 +366,16 @@ body {
 
 .mod-contentscript {
     width: auto;
+}
+
+#optionBar {
+    display: inline-block !important;
+    position: static !important;
+}
+
+body>#optionBar ,
+body>#jfContent {
+    display: none !important;
 }
 
 #formatTips {
@@ -391,46 +396,64 @@ body {
     color: #a00;
 }
 
-#jfContent .x-hover {
-    outline: 1px solid #cdc;
-    background: #fff;
-}
-
-#jfContent .x-outline {
-    outline: 1px solid #8ac;
-    box-shadow: rgba(100, 100, 100, 0.4) -3px 3px 5px;
-    font-weight: bold;
-    background-color: #fffff8;
-}
-
 #errorMsg {
     margin-top: 10px;
     float: left;
     color: #f00;
 }
 
-#boxOpt {
-    position: absolute;
-    z-index: 1024;
+#statusBar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #f5f5f5;
+    border-top:1px solid #f4f4f4;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 10px 2px 2px;
+    z-index: 10
+}
+.hide-status-bar #statusBar {
+    width:0;
+    height:0;
+    opacity: 0;
+}
+#jsonPath {
+    cursor: default;
 }
 
-#boxOpt a {
+.boxOpt {
+    position: absolute;
+    right: 0;
+    top:-1px;
+    background: -webkit-linear-gradient(#fafafa,#f4f4f4 40%,#e5e5e5);
+    color: #888;
+    border:1px solid #ddd;
+    user-select: none;
+    font-weight: normal;
+    z-index: 1000;
+}
+
+.boxOpt a {
     cursor: pointer;
     margin: 0 5px;
     font-size: 12px;
-    color: #00f;
+    color: #666;
+    text-decoration: none;
+}
+.boxOpt a:hover {
+    color:#000;
+    text-decoration: none;
 }
 
-#boxOpt a:hover {
-    color: #f00;
-}
 .fe-feedback {
     font-size: 12px;
     padding-top: 3px;
     color: #888;
     float: right;
     cursor: pointer;
-    font-weight:bold;
+    font-weight: bold;
 }
 
 .fe-feedback a {
@@ -469,11 +492,385 @@ svg:not(:root) {
 }
 
 .fe-feedback .x-settings {
-    float: right;
     cursor: pointer;
-    margin-left: 5px;
+    margin-right: 10px;
 }
 
 .fe-feedback .x-settings:hover {
     color: #c00;
+}
+#fehelper_alertmsg {
+    font-family: "monospace", "微软雅黑";
+}
+
+#aLinkDownload {
+    position: absolute;
+    top:-10000px;
+    left:-10000px;
+}
+
+/*设置面板*/
+.mod-setting-panel {
+    position: absolute;
+    top: 32px;
+    right: 0;
+    z-index:10000;
+    width:300px;
+    background:#f1f1f1;
+    padding:0 20px 20px;
+    border:1px solid #ddd;
+    border-radius: 4px;
+    font-size:12px;
+    color:#454545;
+    box-shadow: 2px 2px #f9f9f9;
+}
+.mod-setting-panel h4 {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+    margin:20px 0 10px;
+}
+.mod-setting-panel input[name="maxlength"] {
+    width:50px;
+    background: #fff;
+    border: 1px solid #eee;
+}
+.mod-setting-panel ul {
+    margin:0;
+    padding:0 10px;
+}
+.mod-setting-panel li {
+    padding:2px 0;
+    list-style: none;
+}
+.mod-setting-panel li:hover {
+    color:#600;
+}
+.mod-setting-panel ol {
+    padding:0 0 0 10px;
+}
+.mod-setting-panel .btns {
+    margin-top:20px;
+}
+.mod-setting-panel input[name="reset"] {
+    margin-left:20px;
+}
+.mod-setting-panel form {
+    margin:0;
+    padding:0;
+}
+.t-collapse .mod-setting-panel {
+    position: fixed;
+    right: 8px;
+}
+
+/*================ 皮肤：theme-default ===================*/
+body.theme-default {
+    background-color: #fff;
+}
+.theme-default .item .key {
+    color: #000;
+}
+
+.theme-default .item .kv-list {
+    border-left: 1px dashed #bbb;
+}
+.theme-default .item .string {
+    color: #0B7500;
+}
+
+.theme-default .item .string a {
+    color: #00b;
+    text-decoration: underline;
+}
+
+.theme-default .item .string a:hover {
+    color: #b00;
+}
+
+.theme-default .item .bool,
+.theme-default .item .null,
+.theme-default .item .number {
+    font-weight: bold;
+    color: #ff6b00
+}
+.theme-default .item .number {
+    color:#1A01CC;
+}
+
+.theme-default .item .item-object:hover > span,
+.theme-default .item .item-array:hover > span,
+.theme-default .item .item-block:hover > span{
+    font-weight: bold;
+    color: #f00;
+}
+
+.theme-default .item .item-line:hover,
+.theme-default .item-line.x-selected{
+    background: #f9f9f9;
+}
+
+.theme-default .item .item-line:hover span ,
+.theme-default .item.x-selected>span {
+    font-weight: bolder;
+    background: #ff5;
+}
+
+
+/*================ 皮肤：theme-simple ===================*/
+.theme-simple .rootItem {
+    white-space: pre !important;
+    color: #000;
+}
+
+
+/*================ 皮肤：theme-light ===================*/
+.theme-light .item .key {
+    color: #4d4d4c;
+}
+
+.theme-light .item .kv-list {
+    border-left: 1px dashed #f1f1f1;
+}
+.theme-light .item .string {
+    color: #718c00;
+}
+
+.theme-light .item .string a {
+    color: #00b;
+    text-decoration: underline;
+}
+
+.theme-light .item .string a:hover {
+    color: #b00;
+}
+.theme-light .item .brace {
+    font-weight: normal;
+}
+.theme-light .item .bool,
+.theme-light .item .null,
+.theme-light .item .number {
+    font-weight: bold;
+    color: #f5871f
+}
+.theme-light .item .number {
+    color:#ff7c00;
+}
+
+.theme-light .item .item-object:hover > span,
+.theme-light .item .item-array:hover > span,
+.theme-light .item .item-block:hover > span{
+
+}
+
+.theme-light .item .item-line:hover,
+.theme-light .item-line.x-selected {
+    background: #f7f3f3;
+}
+
+.theme-light .item .item-line:hover span ,
+.theme-light .item.x-selected>span {
+    font-weight: bolder;
+    background: #f7f3f3;
+}
+.theme-light .item .quote {
+    color:#ccc;
+}
+
+
+/*================ 皮肤：theme-dark ===================*/
+.theme-dark {
+    background:#000;
+}
+.theme-dark .x-toolbar {
+    background: -webkit-linear-gradient(#222,#222,#111);
+    border: 1px solid #333;
+    border-bottom-color: #363636;
+    color:#ddd;
+}
+.theme-dark .x-toolbar .x-a-title {
+    color:#48b;
+}
+.theme-dark .xjf-btn {
+    background:-webkit-linear-gradient(#222,#222,#111);
+    border:1px solid #444;
+    color:#ddd;
+}
+.theme-dark .xjf-btn:hover {
+    background:-webkit-linear-gradient(#333,#333,#222);
+}
+.theme-dark #statusBar {
+    background: #333;
+    color: #ddd;
+    border-top: 1px solid #555;
+}
+.theme-dark .boxOpt {
+    background: -webkit-linear-gradient(#222,#222,#111);
+    border: 1px solid #333;
+}
+.theme-dark .boxOpt a:hover {
+    color:#eee;
+}
+.theme-dark .mod-setting-panel {
+    background: #222;
+    color: #fff;
+    border-color: #444;
+    box-shadow: 1px 1px #111;
+}
+.theme-dark .mod-setting-panel li:hover {
+    color:#ff0;
+}
+.theme-dark .mod-setting-panel input[name="maxlength"] {
+    background: #000;
+    border: 1px solid #555;
+    color: #fff;
+}
+
+.theme-dark .item .key {
+    color: #fff;
+}
+
+.theme-dark .item .kv-list {
+    border-left: 1px dashed #222;
+}
+.theme-dark .item .string {
+    color: #0f0;
+}
+
+.theme-dark .item .string a {
+    color: #369ad6;
+    text-decoration: underline;
+}
+
+.theme-dark .item .string a:hover {
+    color: #b00;
+}
+.theme-dark .item .brace,
+.theme-dark .item .colon,
+.theme-dark .item .comma{
+    color:#eaeaea;
+}
+
+.theme-dark .item .bool,
+.theme-dark .item .null,
+.theme-dark .item .number {
+    font-weight: bold;
+    color: #f00
+}
+.theme-dark .item .item-object:hover > span,
+.theme-dark .item .item-array:hover > span,
+.theme-dark .item .item-block:hover > span{
+    font-weight: bold;
+    color: orange;
+}
+
+.theme-dark .item .item-line:hover,
+.theme-dark .item-line.x-selected {
+    background: #111;
+}
+
+.theme-dark .item .item-line:hover span ,
+.theme-dark .item.x-selected>span {
+    font-weight: bolder;
+    background: #444;
+}
+.theme-dark .item .quote {
+    color:#eaeaea;
+}
+.theme-dark .item .expand {
+    color:#fff;
+}
+
+
+/*================ 皮肤：theme-vscode ===================*/
+.theme-vscode .item .key {
+    color: #f00;
+}
+.theme-vscode .item .quote {
+    color:#eaa;
+}
+.theme-vscode .item .kv-list {
+    border-left: 1px dashed #f1f1f1;
+}
+.theme-vscode .item .string {
+    color: #a31515;
+}
+.theme-vscode .item .string a {
+    color: #00b;
+    text-decoration: underline;
+}
+.theme-vscode .item .string a:hover {
+    color: #b00;
+}
+.theme-vscode .item .brace {
+    font-weight: normal;
+}
+.theme-vscode .item .bool,
+.theme-vscode .item .null,
+.theme-vscode .item .number {
+    font-weight: bold;
+    color: #a31515
+}
+.theme-vscode .item .number {
+    color: blue;
+}
+.theme-vscode .item .item-line:hover,
+.theme-vscode .item-line.x-selected {
+    background: #f7f3f3;
+}
+.theme-vscode .item .item-line:hover span ,
+.theme-vscode .item.x-selected>span {
+    font-weight: bolder;
+    background: #f7f3f3;
+}
+
+
+/*================ 皮肤：theme-github ===================*/
+.theme-github {
+    background: #f8f8f8;
+}
+.theme-github .item .key {
+    color: #333;
+}
+.theme-github .item .quote {
+    color:#aaa;
+}
+.theme-github .item .kv-list {
+    border-left: 1px dashed #e8e8e8;
+}
+.theme-github .item .string {
+    color: #d14;
+}
+.theme-github .item .string a {
+    color: #00b;
+    text-decoration: underline;
+}
+.theme-github .item .string a:hover {
+    color: #b00;
+}
+.theme-github .item .brace {
+    font-weight: normal;
+}
+.theme-github .item .bool,
+.theme-github .item .null,
+.theme-github .item .number {
+    font-weight: bold;
+    color: #008080
+}
+.theme-github .item .number {
+    color: blue;
+}
+.theme-github .item .item-line:hover,
+.theme-github .item-line.x-selected {
+    background: #f7f3f3;
+}
+.theme-github .item .item-line:hover span ,
+.theme-github .item.x-selected>span {
+    font-weight: bolder;
+    background: #f7f3f3;
+}
+
+
+/*================ 皮肤：theme-vegetarian ===================*/
+.theme-vegetarian .item-line.x-selected {
+    background: #f9f9f9;
 }

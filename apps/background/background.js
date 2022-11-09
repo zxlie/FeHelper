@@ -378,6 +378,31 @@ let BgPageInstance = (function () {
                             autoClose: 2000
                         });
                         break;
+                    case 'request-jsonformat-options':
+                        Awesome.StorageMgr.get(request.params).then(result => {
+                            Object.keys(result).forEach(key => {
+                                if (['MAX_JSON_KEYS_NUMBER', 'JSON_FORMAT_THEME'].includes(key)) {
+                                    result[key] = parseInt(result[key]);
+                                } else {
+                                    result[key] = (result[key] !== 'false');
+                                }
+                            });
+                            callback && callback(result);
+                        });
+                        return true; // 这个返回true是非常重要的！！！要不然callback会拿不到结果
+                    case 'save-jsonformat-options':
+                        Awesome.StorageMgr.set(request.params).then(() => {
+                            callback && callback();
+                        });
+                        return true;
+                    case 'toggle-jsonformat-options':
+                        Awesome.StorageMgr.get('JSON_TOOL_BAR_ALWAYS_SHOW').then(result => {
+                            let show = result !== 'false';
+                            Awesome.StorageMgr.set('JSON_TOOL_BAR_ALWAYS_SHOW',!show).then(() => {
+                                callback && callback(!show);
+                            });
+                        });
+                        return true; // 这个返回true是非常重要的！！！要不然callback会拿不到结果
                     case 'code-beautify':
                         _codeBeautify(request.params);
                         break;

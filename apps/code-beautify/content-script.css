@@ -2,6 +2,7 @@
 
 body {
     font-size: 14px;
+    background: #fff;
 }
 #fehelper_tips {
     position: fixed;
@@ -47,6 +48,7 @@ body {
     border-radius: 3px;
     background-image: linear-gradient(to bottom, #FFFBEA, #FBEDB1);
     vertical-align: middle;
+    color:#000;
 }
 
 #fehelper_tips button:hover {
@@ -130,6 +132,9 @@ body.processing > :not(#fehelper_tips) {
     opacity: .5;
     pointer-events: none;
     cursor: wait;
+}
+pre {
+    padding-top: 0;
 }
 pre>code[class*="language"] {
     overflow: initial;
