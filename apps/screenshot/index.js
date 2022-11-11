@@ -7,141 +7,50 @@ new Vue({
         tabList: [],
         capturedImage: '',
         imageHTML: '',
-        defaultFilename: Date.now() + '.png'
+        defaultFilename: Date.now() + '.png',
+        totalWidth: 100,
+        totalHeight: 100
     },
     mounted: function () {
-
-        this.updateTabList();
-        this.bindEvent();
-
+        // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
+        if (location.protocol === 'chrome-extension:') {
+            chrome.tabs.query({currentWindow: true,active: true, }, (tabs) => {
+                let activeTab = tabs.filter(tab => tab.active)[0];
+                chrome.runtime.sendMessage({
+                    type: 'fh-dynamic-any-thing',
+                    thing: 'request-page-content',
+                    tabId: activeTab.id
+                }).then(resp => {
+                    if(!resp || !resp.content) return ;
+                    this.showResult(resp.content);
+                });
+            });
+        }
     },
     methods: {
 
-        bindEvent: function () {
-            chrome.tabs.onCreated.addListener(tab => {
-                if (/^http(s)?:\/\//.test(tab.url)) {
-                    this.tabList.push({
-                        id: tab.id,
-                        title: tab.title,
-                        url: tab.url
-                    });
-                }
-            });
-            chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-                this.tabList.some((t, index) => {
-                    if (t.id === tabId) {
-                        t.title = tab.title;
-                        t.url = tab.url;
-                        return true;
-                    }
-                    return false;
-                });
-            });
-            chrome.tabs.onRemoved.addListener(tabId => {
-                this.tabList.some((tab, index) => {
-                    if (tab.id === tabId) {
-                        this.tabList.splice(index, 1);
-                        return true;
-                    }
-                    return false;
-                });
-            });
+        showResult: function(data){
+            if (data && data.screenshots) {
+                this.totalWidth = data.totalWidth;
+                this.totalHeight = data.totalHeight;
+                let canvas = document.querySelector('#imageEditor>canvas');
+                let ctx  = canvas.getContext('2d');
 
-            chrome.runtime.onMessage.addListener((request, sender, callback) => {
-                if (request.type === 'page-screenshot-done') {
-                    let capturedData = request.data;
-                    if (capturedData && capturedData.fileSystemUrl) {
-                        this.capturedImage = capturedData.fileSystemUrl;
-                        this.imageHTML = `<img class="img-result" src="${this.capturedImage}" />`;
-                        this.defaultFilename = capturedData.filename;
-
-                        this.$nextTick(() => {
-                            this.$refs.resultBox.scrollIntoView();
-                        });
-
-                        chrome.tabs.get(capturedData.pageInfo.id, tab => {
-                            this.tabList.some(t => {
-                                if (t.id === tab.id) {
-                                    t.title = tab.title;
-                                    return true;
-                                }
-                                return false;
-                            });
-                        });
-                    }
-                }
-                callback && callback();
-                return true;
-            });
-        },
-
-        updateTabList: function () {
-            chrome.tabs.query({windowId: chrome.windows.WINDOW_ID_CURRENT}, tabs => {
-                this.tabList = tabs.filter(tab => {
-                    return /^http(s)?:\/\//.test(tab.url)
-                }).map(tab => {
-                    return {
-                        id: tab.id,
-                        title: tab.title,
-                        url: tab.url
+                data.screenshots.forEach((ss) => {
+                    let img = new Image();
+                    img.dx = ss.left;
+                    img.dy = ss.top;
+                    img.onload = function(event){
+                        ctx.drawImage(this,this.dx,this.dy,this.width,this.height);
                     };
+                    img.src = ss.dataUri;
                 });
-            });
-        },
+                this.defaultFilename = data.filename;
 
-        goCapture: function (tabId, captureType) {
-            chrome.tabs.getCurrent(curTab => {
-                chrome.tabs.query({windowId: chrome.windows.WINDOW_ID_CURRENT}, (tabs) => {
-                    let found = tabs.some(tab => tab.id === tabId);
-
-                    if (found) {
-                        chrome.tabs.update(tabId, {highlighted: true, active: true}, tab => {
-
-                            // 没有文件就只注入脚本
-                            // chrome.scripting.executeScript({
-                            //     target: {tab.id, allFrames: false},
-                            //     func: function(code){evalCore.getEvalInstance(window)(code)},
-                            //     args: [codeConfig.code]
-                            // }, function () {
-                            //     try {
-                            //         callback && callback.apply(this, arguments);
-                            //     } catch (e) {
-                            //         callback && callback(null);
-                            //     }
-                            // });
-
-                            chrome.tabs.executeScript(tab.id, {
-                                code: '(' + (function (tabInfo, captureInfo) {
-                                    chrome.runtime.sendMessage({
-                                        type: 'fh-dynamic-any-thing',
-                                        params: {
-                                            tabInfo: tabInfo,
-                                            captureInfo: captureInfo
-                                        },
-                                        func: ((params, callback) => {
-                                            try {
-                                                callback && callback(params);
-                                            } catch (e) {
-                                                callback && callback(null);
-                                            }
-                                            return true;
-                                        }).toString()
-                                    }, (params) => {
-                                        let func = window['screenshotContentScript'];
-                                        func && func(params)();
-                                    });
-                                }).toString() + ')(' + JSON.stringify(tab) + ',' + JSON.stringify({
-                                    resultTab: curTab.id,
-                                    captureType: captureType
-                                }) + ')',
-                                allFrames: false
-                            });
-                        });
-                    } else {
-                        alert('页面已关闭');
-                    }
+                this.$nextTick(() => {
+                    this.$refs.resultBox.scrollIntoView();
                 });
-            });
+            }
         },
 
         save: function () {

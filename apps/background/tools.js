@@ -171,7 +171,7 @@ let toolMap = {
         name: '网页截屏工具',
         tips: '可对任意网页进行截屏，支持可视区域截屏、全网页滚动截屏，最终结果可预览后再保存',
         contentScriptJs: true,
-        // noPage: true,
+        noPage: true,
         menuConfig: [{
             icon: '✂',
             text: 'FH开发者工具'

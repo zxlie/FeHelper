@@ -2,13 +2,14 @@
  * FeHelper Full Page Capture
  * @type {{scroll}}
  */
-window.screenshotContentScript = function (params) {
+window.screenshotContentScript = function () {
 
     let screenshots = [];
     let capturedData = {};
     let MAX_PRIMARY_DIMENSION = 50000 * 2,
         MAX_SECONDARY_DIMENSION = 20000 * 2,
         MAX_AREA = MAX_PRIMARY_DIMENSION * MAX_SECONDARY_DIMENSION;
+    let pageOriginalTitle = document.title;
 
     /**
      * URL合法性校验
@@ -61,10 +62,8 @@ window.screenshotContentScript = function (params) {
         for (row = 0; row < numRows; row++) {
             for (col = 0; col < numCols; col++) {
                 canvas = document.createElement('canvas');
-                canvas.width = (col === numCols - 1 ? totalWidth % maxWidth || maxWidth :
-                    maxWidth);
-                canvas.height = (row === numRows - 1 ? totalHeight % maxHeight || maxHeight :
-                    maxHeight);
+                canvas.width = (col === numCols - 1 ? totalWidth % maxWidth || maxWidth : maxWidth);
+                canvas.height = (row === numRows - 1 ? totalHeight % maxHeight || maxHeight : maxHeight);
 
                 left = col * maxWidth;
                 top = row * maxHeight;
@@ -110,7 +109,7 @@ window.screenshotContentScript = function (params) {
     }
 
 
-    window.addScreenShot = function (data, uri) {
+    let addScreenShot = function (data, uri) {
         let image = new Image();
 
         image.onload = function () {
@@ -148,7 +147,7 @@ window.screenshotContentScript = function (params) {
             });
 
             if (data.complete === 1) {
-                captureConfig.success();
+                captureConfig.success(data);
             }
         };
         image.src = uri;
@@ -160,8 +159,8 @@ window.screenshotContentScript = function (params) {
      * @param contentURL
      * @returns {string}
      */
-    function buildFilenameFromUrl(contentURL) {
-        let name = contentURL.split('?')[0].split('#')[0];
+    function buildFilenameFromUrl() {
+        let name = location.href.split('?')[0].split('#')[0];
         if (name) {
             name = name
                 .replace(/^https?:\/\//, '')
@@ -176,23 +175,23 @@ window.screenshotContentScript = function (params) {
         return 'fehelper' + name + '-' + Date.now() + '.png';
     }
 
+
     // 配置项
     let captureConfig = {
         // 获取原始数据，用这个
-        success: function () {
-
-            // 生成临时文件名
-            capturedData = {
-                pageInfo: params.tabInfo,
-                resultTab: params.captureInfo.resultTab,
-                filename: buildFilenameFromUrl(params.tabInfo.url),
-                dataUris: screenshots.map(ss => ss.canvas.toDataURL())
-            };
-
+        success: function (data) {
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
-                thing: 'screen-capture',
-                params: capturedData
+                thing: 'page-screenshot-done',
+                params: {
+                    filename: buildFilenameFromUrl(),
+                    screenshots: screenshots.map(ss => {
+                        ss.dataUri=ss.canvas.toDataURL()
+                        return ss;
+                    }),
+                    totalWidth: data.totalWidth,
+                    totalHeight: data.totalHeight
+                }
             });
         },
 
@@ -206,7 +205,7 @@ window.screenshotContentScript = function (params) {
 
             if (percent === '100%') {
                 setTimeout(() => {
-                    document.title = params.tabInfo.title;
+                    document.title = pageOriginalTitle;
                 }, 800);
             }
 
@@ -221,9 +220,9 @@ window.screenshotContentScript = function (params) {
         }));
     }
 
-    function goCapture() {
+    function goCapture(params) {
 
-        if (!isValidUrl(params.tabInfo.url)) {
+        if (!isValidUrl(location.href)) {
             return captureConfig.fail('invalid url');
         }
 
@@ -274,7 +273,7 @@ window.screenshotContentScript = function (params) {
         document.documentElement.style.overflow = 'hidden';
 
         // 截图：可视区域
-        if (params.captureInfo.captureType === 'visible') {
+        if (params.captureType === 'visible') {
             arrangements = [window.scrollX, window.scrollY];
             fullWidth = window.innerWidth;
             fullHeight = window.innerHeight;
@@ -327,8 +326,7 @@ window.screenshotContentScript = function (params) {
                 totalWidth: fullWidth,
                 totalHeight: fullHeight,
                 devicePixelRatio: window.devicePixelRatio,
-                tabInfo: params.tabInfo,
-                captureInfo: params.captureInfo
+                tabId: window.__FH_TAB_ID__
             };
 
             // Need to wait for things to settle
@@ -338,23 +336,37 @@ window.screenshotContentScript = function (params) {
 
                 captureConfig.progress(data.complete);
 
-                window.captureCallback = function () {
+                chrome.runtime.sendMessage({
+                    type: 'fh-dynamic-any-thing',
+                    thing: 'add-screen-shot-by-pages',
+                    params: data
+                }).then(resp => {
+                    addScreenShot(resp.params,resp.uri);
                     window.clearTimeout(cleanUpTimeout);
                     if (data.complete !== 1) {
                         processArrangements();
                     } else {
                         cleanUp();
                     }
-                };
-
-                chrome.runtime.sendMessage({
-                    type: 'fh-dynamic-any-thing',
-                    thing: 'add-screen-shot-by-pages',
-                    params: data
                 });
             }, 150);
         })();
     }
 
-    return goCapture;
+    window.screenshotNoPage = function(){
+        let elWrapper = document.createElement('div');
+        elWrapper.innerHTML = '<div id="fehelper_screenshot" style="position:fixed;left:0;top:0;right:0;z-index:1000000;padding:15px;background:#000;text-align:center;">' +
+            '<button id="btnVisible" style="margin: 0 10px;padding: 10px;border-radius: 5px;border: 1px solid #fff;cursor:pointer;">可视区域截图</button>' +
+            '<button id="btnWhole" style="margin: 0 10px;padding: 10px;border-radius: 5px;border: 1px solid #fff;cursor:pointer;">全网页截图</button></div>';
+        elAlertMsg = elWrapper.childNodes[0];
+        document.body.appendChild(elAlertMsg);
+        document.querySelector('#btnVisible').onclick = e => {
+            elAlertMsg.remove();
+            goCapture({captureType:'visible'});
+        };
+        document.querySelector('#btnWhole').onclick = e => {
+            elAlertMsg.remove();
+            goCapture({captureType:'whole'});
+        };
+    };
 };

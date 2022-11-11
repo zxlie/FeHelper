@@ -215,6 +215,7 @@ let BgPageInstance = (function () {
         }
     };
 
+
     // 捕获当前页面可视区域
     let _captureVisibleTab = function (callback) {
         chrome.tabs.captureVisibleTab(null, {format: 'png', quality: 100}, uri => {
@@ -222,93 +223,17 @@ let BgPageInstance = (function () {
         });
     };
 
-    let _screenCapture = function(params){
-
-        // 将Blob数据存储到本地临时文件
-        function saveBlob(blob, filename, index, callback, errback) {
-            filename = ((filename, index) => {
-                if (!index) {
-                    return filename;
-                }
-                let sp = filename.split('.');
-                let ext = sp.pop();
-                return sp.join('.') + '-' + (index + 1) + '.' + ext;
-            })(filename, index);
-            let urlName = `filesystem:chrome-extension://${chrome.i18n.getMessage('@@extension_id')}/temporary/${filename}`;
-
-            let size = blob.size + (1024 / 2);
-
-            let reqFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
-            reqFileSystem(window.TEMPORARY, size, function (fs) {
-                fs.root.getFile(filename, {create: true}, function (fileEntry) {
-                    fileEntry.createWriter(function (fileWriter) {
-                        fileWriter.onwriteend = () => callback(urlName);
-                        fileWriter.write(blob);
-                    }, errback);
-                }, errback);
-            }, errback);
-        }
-
-        function reallyDone(imgUrl) {
-            params.fileSystemUrl = imgUrl;
-            let sendDataUri = tab => {
-                chrome.tabs.sendMessage(tab.id, {
-                    type: 'page-screenshot-done',
-                    data: params
-                });
-            };
-            if (!params.resultTab) {
-                chrome.tabs.create({
-                    url: 'dynamic/index.html?tool=screenshot',
-                    active: true
-                }, (tab) => {
-                    setTimeout((tab => {
-                        return () => sendDataUri(tab);
-                    })(tab), 500);
-                });
-            } else {
-                chrome.tabs.update(params.resultTab, {highlighted: true, active: true}, sendDataUri);
-            }
-        }
-
-        // 获取Blobs数据
-        function getBlobs(dataUris) {
-            return dataUris.map(function (uri) {
-                let byteString = atob(uri.split(',')[1]);
-                let mimeString = uri.split(',')[0].split(':')[1].split(';')[0];
-                let ab = new ArrayBuffer(byteString.length);
-                let ia = new Uint8Array(ab);
-                for (let i = 0; i < byteString.length; i++) {
-                    ia[i] = byteString.charCodeAt(i);
-                }
-                return new Blob([ab], {type: mimeString});
-            });
-        }
-
-        function wellDone(dus) {
-            let blobs = getBlobs(dus);
-            let i = 0;
-            let len = blobs.length;
-
-            // 保存 & 打开
-            (function doNext() {
-                saveBlob(blobs[i], params.filename, i, function (imgUrl) {
-                    ++i >= len ? reallyDone(imgUrl) : doNext();
-                }, reallyDone);
-            })();
-        }
-
-        wellDone(params.dataUris);
+    let _addScreenShotByPages = function(params,callback){
+        chrome.tabs.captureVisibleTab(null, {format: 'png', quality: 100}, uri => {
+            callback({ params,uri });
+        });
     };
 
-    let _addScreenShotByPages = function(params){
-        chrome.tabs.captureVisibleTab(null, {format: 'png', quality: 100}, uri => {
-            let code = `window.addScreenShot(${JSON.stringify(params)},'${uri}');`
-            InjectTools.inject(params.tabInfo.id, { code });
+    let _showScreenShotResult = function(data){
+        chrome.DynamicToolRunner({
+            tool: 'screenshot',
+            withContent: data
         });
-
-        let code = `window.addScreenShot(${JSON.stringify(params)},'${uri}');`
-        InjectTools.inject(params.tabInfo.id, { code: `window.captureCallback();` });
     };
 
     let _colorPickerCapture = function(params) {
@@ -429,11 +354,11 @@ let BgPageInstance = (function () {
                     case 'color-picker-capture':
                         _colorPickerCapture(request.params);
                         break;
-                    case 'screen-capture':
-                        _screenCapture(request.params);
-                        break;
                     case 'add-screen-shot-by-pages':
-                        _addScreenShotByPages(request.params);
+                        _addScreenShotByPages(request.params,callback);
+                        return true;
+                    case 'page-screenshot-done':
+                        _showScreenShotResult(request.params);
                         break;
                     case 'request-monkey-start':
                         Monkey.start(request.params);
