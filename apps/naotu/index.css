@@ -22,7 +22,7 @@ div.minder-editor-container {
     left: 0;
     right: 0;
 }
-.x-a-high {
+a.x-a-high, a.x-a-high:visited {
     color:#ff0;
 }
 .x-a-high:hover {
@@ -55,17 +55,27 @@ div.minder-editor-container {
     color:#00f;
 }
 .my-naotu-list {
-    z-index:1000;
-    position: fixed;
-    top:30px;
-    right: 2px;
-    border: 1px solid #ccc;
-    box-shadow: 1px 1px #eee;
-    min-width: 500px;
-    max-width:980px;
-    max-height: 600px;
-    background: #fff;
-    padding: 5px;
+    margin: 20px;
+}
+.my-naotu-list .mm-tips{
+    font-size:16px;
+    line-height: 30px;
+    margin: 20px 0 50px;
+    padding: 15px 60px;
+    border: 1px solid #48b;
+    background: #00b;
+    color: #fff;
+    border-radius: 60px;
+}
+.x-y {
+    font-size: 16px;
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+}
+.my-naotu-list .mm-tips a{
+    color:red;
 }
 .my-naotu-list table {
     font-size: 14px;

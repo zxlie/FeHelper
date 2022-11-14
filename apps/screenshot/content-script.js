@@ -341,10 +341,12 @@ window.screenshotContentScript = function () {
                     thing: 'add-screen-shot-by-pages',
                     params: data
                 }).then(resp => {
-                    addScreenShot(resp.params,resp.uri);
+                    if(resp.uri) {
+                        addScreenShot(resp.params,resp.uri);
+                    }
                     window.clearTimeout(cleanUpTimeout);
                     if (data.complete !== 1) {
-                        processArrangements();
+                        setTimeout(processArrangements,200);
                     } else {
                         cleanUp();
                     }

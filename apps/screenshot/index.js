@@ -60,7 +60,7 @@ new Vue({
             }, (granted) => {
                 if (granted) {
                     chrome.downloads.download({
-                        url: this.capturedImage,
+                        url: document.querySelector('#imageEditor>canvas').toDataURL(),
                         saveAs: true,
                         conflictAction: 'overwrite',
                         filename: this.defaultFilename
