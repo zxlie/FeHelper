@@ -187,7 +187,7 @@ let BgPageInstance = (function () {
             }
         } else {
             // 重绘菜单
-            Menu.manage(Settings);
+            Menu.rebuild();
         }
 
         if (showTips) {
@@ -297,7 +297,7 @@ let BgPageInstance = (function () {
                 switch(request.thing){
                     case 'save-options':
                         //管理右键菜单
-                        Menu.manage(Settings);
+                        Menu.rebuild();
                         notifyText({
                             message: '配置修改已生效，请继续使用!',
                             autoClose: 2000
@@ -436,7 +436,7 @@ let BgPageInstance = (function () {
     let _init = function () {
         _checkUpdate();
         _addExtensionListener();
-        Menu.manage(Settings);
+        Menu.rebuild();
         // 定期清理冗余的垃圾
         setTimeout(() => {
             Awesome.gcLocalFiles();

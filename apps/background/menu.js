@@ -7,6 +7,7 @@
 import CrxDownloader from './crx-download.js';
 import Awesome from './awesome.js';
 import toolMap from './tools.js';
+import Settings from '../options/settings.js';
 
 export default (function () {
 
@@ -115,9 +116,12 @@ export default (function () {
      */
     let _createItem = (toolName, menuList) => {
         menuList && menuList.forEach && menuList.forEach(menu => {
-            let _menu_id = 'fhm_c' + escape(menu.text).replace(/\W/g,'');
+
+            // 确保每次创建出来的是一个新的主菜单，防止onClick事件冲突
+            let menuItemId = 'fhm_c' + escape(menu.text).replace(/\W/g,'')+(new Date()*1);
+
             chrome.contextMenus.create({
-                id: _menu_id,
+                id: menuItemId,
                 title: menu.icon + '  ' + menu.text,
                 contexts: menu.contexts || ['all'],
                 parentId: FeJson.contextMenuId
@@ -131,9 +135,10 @@ export default (function () {
                         chrome.DynamicToolRunner({ tool });
                     }
                 }
-            })(toolName,_menu_id,menu.onClick));
+            })(toolName,menuItemId,menu.onClick));
         });
     };
+
 
     /**
      * 绘制一条分割线
@@ -150,58 +155,59 @@ export default (function () {
     /**
      * 创建扩展专属的右键菜单
      */
-    let _createContextMenu = function () {
-        _removeContextMenu();
-        chrome.contextMenus.create({
-            id: FeJson.contextMenuId,
-            title: "FeHelper",
-            contexts: ['page', 'selection', 'editable', 'link', 'image'],
-            documentUrlPatterns: ['http://*/*', 'https://*/*', 'file://*/*']
-        });
+    let _initMenus = function () {
+        _removeContextMenu(() => {
+            chrome.contextMenus.create({
+                id: FeJson.contextMenuId,
+                title: "FeHelper",
+                contexts: ['page', 'selection', 'editable', 'link', 'image'],
+                documentUrlPatterns: ['http://*/*', 'https://*/*', 'file://*/*']
+            });
 
-        // 绘制用户安装的菜单，放在前面
-        Awesome.getInstalledTools().then(tools => {
-            let allMenus = Object.keys(tools).filter(tool => tools[tool].installed && tools[tool].menu);
-            let onlineTools = allMenus.filter(tool => tool !== 'devtools' && !tools[tool].hasOwnProperty('_devTool'));
-            let devTools = allMenus.filter(tool => tool === 'devtools' || tools[tool].hasOwnProperty('_devTool'));
+            // 绘制用户安装的菜单，放在前面
+            Awesome.getInstalledTools().then(tools => {
+                let allMenus = Object.keys(tools).filter(tool => tools[tool].installed && tools[tool].menu);
+                let onlineTools = allMenus.filter(tool => tool !== 'devtools' && !tools[tool].hasOwnProperty('_devTool'));
+                let devTools = allMenus.filter(tool => tool === 'devtools' || tools[tool].hasOwnProperty('_devTool'));
 
-            // 绘制FH提供的工具菜单
-            onlineTools.forEach(tool => _createItem(tool, tools[tool].menuConfig));
-            // 如果有本地工具的菜单需要绘制，则需要加一条分割线
-            devTools.length && _createSeparator();
-            // 绘制本地工具的菜单
-            devTools.forEach(tool => _createItem(tool, tools[tool].menuConfig));
-        });
+                // 绘制FH提供的工具菜单
+                onlineTools.forEach(tool => _createItem(tool, tools[tool].menuConfig));
+                // 如果有本地工具的菜单需要绘制，则需要加一条分割线
+                devTools.length && _createSeparator();
+                // 绘制本地工具的菜单
+                devTools.forEach(tool => _createItem(tool, tools[tool].menuConfig));
+            });
 
-        // 绘制两个系统提供的菜单，放到最后
-        let sysMenu = ['download-crx', 'fehelper-setting'];
-        let arrPromises = sysMenu.map(menu => Awesome.menuMgr(menu, 'get'));
-        Promise.all(arrPromises).then(values => {
-            let needDraw = String(values[0]) === '1' || String(values[1]) !== '0';
+            // 绘制两个系统提供的菜单，放到最后
+            let sysMenu = ['download-crx', 'fehelper-setting'];
+            let arrPromises = sysMenu.map(menu => Awesome.menuMgr(menu, 'get'));
+            Promise.all(arrPromises).then(values => {
+                let needDraw = String(values[0]) === '1' || String(values[1]) !== '0';
 
-            // 绘制一条分割线
-            _createSeparator();
+                // 绘制一条分割线
+                _createSeparator();
 
-            // 绘制菜单
-            String(values[0]) === '1' && _createItem(sysMenu[0], [defaultMenuOptions[sysMenu[0]]]);
-            String(values[1]) !== '0' && _createItem(sysMenu[1], [defaultMenuOptions[sysMenu[1]]]);
+                // 绘制菜单
+                String(values[0]) === '1' && _createItem(sysMenu[0], [defaultMenuOptions[sysMenu[0]]]);
+                String(values[1]) !== '0' && _createItem(sysMenu[1], [defaultMenuOptions[sysMenu[1]]]);
+            });
         });
     };
 
     /**
      * 移除扩展专属的右键菜单
      */
-    let _removeContextMenu = function () {
-        chrome.contextMenus.removeAll();
+    let _removeContextMenu = function (callback) {
+        chrome.contextMenus.removeAll(callback);
     };
 
     /**
      * 创建或移除扩展专属的右键菜单
      */
-    let _createOrRemoveContextMenu = function (_settings) {
-        _settings.getOptions((opts) => {
+    let _createOrRemoveContextMenu = function () {
+        Settings.getOptions((opts) => {
             if (String(opts['OPT_ITEM_CONTEXTMENUS']) !== 'false') {
-                _createContextMenu();
+                _initMenus();
             } else {
                 _removeContextMenu();
             }
@@ -209,6 +215,6 @@ export default (function () {
     };
 
     return {
-        manage: _createOrRemoveContextMenu
+        rebuild: _createOrRemoveContextMenu
     };
 })();

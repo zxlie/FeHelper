@@ -67,27 +67,18 @@ let Awesome = (() => {
      * 检测工具是否已被成功安装
      * @param toolName 工具名称
      * @param detectMenu 是否进一步检测Menu的设置情况
-     * @param detectContent 是否检测内容实际存在
      * @returns {Promise}
      */
-    let detectInstall = (toolName, detectMenu, detectContent) => {
+    let detectInstall = (toolName, detectMenu) => {
 
         let menuKey = TOOL_MENU_TPL.replace('#TOOL-NAME#', toolName);
         let toolKey = TOOL_NAME_TPL.replace('#TOOL-NAME#', toolName);
-
-        if (toolName === 'json-format' && !detectContent) {
-            if (detectMenu) {
-                return StorageMgr.get(menuKey).then(value => String(value) !== '0');
-            } else {
-                return Promise.resolve(true);
-            }
-        }
 
         return Promise.all([StorageMgr.get(toolKey), StorageMgr.get(menuKey)]).then(values => {
             if (detectMenu) {
                 return values[0] && String(values[1]) === '1';
             }
-            return detectContent ? values[0] : !!values[0];
+            return !!values[0];
         });
     };
 
@@ -135,7 +126,7 @@ let Awesome = (() => {
         }
     }));
 
-    let getAllTools = (declareOnly) => {
+    let getAllTools = () => {
 
         // 获取本地开发的插件，也拼接进来
         // TODO ..
@@ -151,40 +142,36 @@ let Awesome = (() => {
         // } catch (e) {
         // }
 
-        if (declareOnly) {
-            return toolMap;
-        } else {
-            let tools = Object.keys(toolMap);
-            let promises = [];
-            tools.forEach(tool => {
-                promises = promises.concat([detectInstall(tool), detectInstall(tool, true)])
+        let tools = Object.keys(toolMap);
+        let promises = [];
+        tools.forEach(tool => {
+            promises = promises.concat([detectInstall(tool), detectInstall(tool, true)])
+        });
+        return Promise.all(promises).then(values => {
+            values.forEach((v, i) => {
+                let tool = tools[Math.floor(i / 2)];
+                let key = i % 2 === 0 ? 'installed' : 'menu';
+                toolMap[tool][key] = v;
+                // 本地工具，还需要看是否处于开启状态
+                if (toolMap[tool].hasOwnProperty('_devTool')) {
+                    toolMap[tool][key] = toolMap[tool][key] && toolMap[tool]._enable;
+                }
             });
-            return Promise.all(promises).then(values => {
-                values.forEach((v, i) => {
-                    let tool = tools[Math.floor(i / 2)];
-                    let key = i % 2 === 0 ? 'installed' : 'menu';
-                    toolMap[tool][key] = v;
-                    // 本地工具，还需要看是否处于开启状态
-                    if (toolMap[tool].hasOwnProperty('_devTool')) {
-                        toolMap[tool][key] = toolMap[tool][key] && toolMap[tool]._enable;
+            let sortArr = SortToolMgr.get();
+            if (sortArr && sortArr.length) {
+                let map = {};
+                sortArr.forEach(tool => {
+                    map[tool] = toolMap[tool];
+                });
+                Object.keys(toolMap).forEach(tool => {
+                    if (!map[tool]) {
+                        map[tool] = toolMap[tool];
                     }
                 });
-                let sortArr = SortToolMgr.get();
-                if (sortArr && sortArr.length) {
-                    let map = {};
-                    sortArr.forEach(tool => {
-                        map[tool] = toolMap[tool];
-                    });
-                    Object.keys(toolMap).forEach(tool => {
-                        if (!map[tool]) {
-                            map[tool] = toolMap[tool];
-                        }
-                    });
-                    return map;
-                }
-                return toolMap;
-            });
-        }
+                return map;
+            }
+            return toolMap;
+        });
     };
 
     /**

@@ -164,7 +164,7 @@ let toolMap = {
         contentScriptJs: true,
         menuConfig: [{
             icon: '♀',
-            text: 'FH开发者工具'
+            text: '网页油猴工具'
         }]
     },
     'screenshot': {
@@ -174,7 +174,7 @@ let toolMap = {
         noPage: true,
         menuConfig: [{
             icon: '✂',
-            text: 'FH开发者工具'
+            text: '网页截屏工具'
         }]
     },
     'color-picker': {
@@ -184,7 +184,7 @@ let toolMap = {
         noPage: true,
         menuConfig: [{
             icon: '✑',
-            text: 'FH开发者工具'
+            text: '页面取色工具'
         }]
     },
     'naotu': {
@@ -192,7 +192,7 @@ let toolMap = {
         tips: '轻量便捷，随想随用，支持自动保存、本地数据存储、批量数据导入导出、图片格式下载等',
         menuConfig: [{
             icon: 'Ψ',
-            text: 'FH开发者工具'
+            text: '便捷思维导图'
         }]
     },
     'grid-ruler': {
@@ -203,7 +203,7 @@ let toolMap = {
         noPage: true,
         menuConfig: [{
             icon: 'Ⅲ',
-            text: 'FH开发者工具'
+            text: '网页栅格标尺'
         }]
     },
     'page-timing': {
@@ -213,7 +213,7 @@ let toolMap = {
         noPage: true,
         menuConfig: [{
             icon: 'Σ',
-            text: 'FH开发者工具'
+            text: '网页性能检测'
         }]
     },
     'excel2json': {
@@ -221,7 +221,7 @@ let toolMap = {
         tips: '将Excel或CVS中的数据，直接转换成为结构化数据，如JSON、XML、MySQL、PHP等（By @hpng）',
         menuConfig: [{
             icon: 'Ⓗ',
-            text: 'FH开发者工具'
+            text: 'Excel转JSON'
         }]
     },
 };
