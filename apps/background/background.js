@@ -296,8 +296,6 @@ let BgPageInstance = (function () {
             else if (request.type === MSG_TYPE.DYNAMIC_ANY_THING) {
                 switch(request.thing){
                     case 'save-options':
-                        //管理右键菜单
-                        Menu.rebuild();
                         notifyText({
                             message: '配置修改已生效，请继续使用!',
                             autoClose: 2000

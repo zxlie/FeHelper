@@ -7,6 +7,44 @@ import MSG_TYPE from '../static/js/common.js';
 
 export default (function () {
 
+    let FeJson = {notifyTimeoutId:-1};
+    /**
+     * 文本格式，可以设置一个图标和标题
+     * @param {Object} options
+     * @config {string} type notification的类型，可选值：html、text
+     * @config {string} icon 图标
+     * @config {string} title 标题
+     * @config {string} message 内容
+     */
+    let notifyText = function (options) {
+        let notifyId = 'FeJson-notify-id';
+        if(typeof options === 'string') {
+            options = {message: options};
+        }
+        clearTimeout(FeJson.notifyTimeoutId);
+        if (options.closeImmediately) {
+            return chrome.notifications.clear(notifyId);
+        }
+
+        if (!options.icon) {
+            options.icon = "static/img/fe-48.png";
+        }
+        if (!options.title) {
+            options.title = "温馨提示";
+        }
+        chrome.notifications.create(notifyId, {
+            type: 'basic',
+            title: options.title,
+            iconUrl: chrome.runtime.getURL(options.icon),
+            message: options.message
+        });
+
+        FeJson.notifyTimeoutId = setTimeout(() => {
+            chrome.notifications.clear(notifyId);
+        }, parseInt(options.autoClose || 3000, 10));
+
+    };
+
     /**
      * 检测Google chrome服务能不能访问，在2s内检测心跳
      * @param success
@@ -51,13 +89,13 @@ export default (function () {
                     saveAs: true
                 }, function (downloadId) {
                     if (chrome.runtime.lastError) {
-                        alert('抱歉，下载失败！错误信息：' + chrome.runtime.lastError.message);
+                        notifyText('抱歉，下载失败！错误信息：' + chrome.runtime.lastError.message);
                     }
                 });
             }
         }, () => {
             // google不能正常访问
-            callback ? callback() : alert('抱歉，下载失败！');
+            callback ? callback() : notifyText('抱歉，下载失败！');
         });
 
     };
@@ -88,20 +126,18 @@ export default (function () {
         if (isWebStoreDetailPage) {
             // 如果是某个chrome extension的详情页面了，直接下载当前crx文件
             downloadCrxFileFromWebStoreDetailPage(() => {
-                alert('下载失败，可能是当前网络无法访问Google站点！');
+                notifyText('下载失败，可能是当前网络无法访问Google站点！');
             });
         } else {
             // 否则，下载FeHelper并分享出去
-            if (confirm('下载最新版【FeHelper.JSON】并分享给其他小伙伴儿，走你~~~')) {
-                let crxId = MSG_TYPE.STABLE_EXTENSION_ID;
-                let crxName = chrome.runtime.getManifest().name + '-latestVersion.crx';
+            let crxId = MSG_TYPE.STABLE_EXTENSION_ID;
+            let crxName = chrome.runtime.getManifest().name + '-latestVersion.crx';
 
-                downloadCrxFileByCrxId(crxId, crxName, () => {
-                    chrome.tabs.create({
-                        url: MSG_TYPE.DOWNLOAD_FROM_GITHUB
-                    });
+            downloadCrxFileByCrxId(crxId, crxName, () => {
+                chrome.tabs.create({
+                    url: MSG_TYPE.DOWNLOAD_FROM_GITHUB
                 });
-            }
+            });
         }
     };
 

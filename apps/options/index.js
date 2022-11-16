@@ -31,7 +31,6 @@ new Vue({
 
         this.initData().then(() => {
             this.shortCut();
-            // this.remoteUpgrade();
             this.remoteHotFix();
         });
     },
@@ -82,6 +81,7 @@ new Vue({
         },
 
         sortTools: function (repaintMenu) {
+
             let tools = {};
             let installed = {};
             Object.keys(this.fhTools).forEach(tool => {
@@ -125,57 +125,10 @@ new Vue({
             this.sortTools(true);
         },
 
-        remoteUpgrade: function () {
-            // 从服务器同步最新添加的一些工具，实现远程更新，无需提审FeHelper
-            let remoteUpgradeUrl = `${this.manifest.homepage_url}/static/js/awesome.js?v=${new Date * 1}`;
-            fetch(remoteUpgradeUrl).then(resp => resp.text()).then(jsText => {
-                try {
-                    if (!jsText) return false;
-                    window.evalCore.getEvalInstance(window)(jsText);
-
-                    // 下面是新增的工具，允许部分key重置
-                    Object.keys(RemoteAwesome.newTools).forEach(tool => {
-                        if (!this.fhTools[tool]) {
-                            this.fhTools[tool] = RemoteAwesome.newTools[tool];
-                        } else {
-                            this.fhTools[tool].name = RemoteAwesome.newTools[tool].name || this.fhTools[tool].name;
-                            this.fhTools[tool].tips = RemoteAwesome.newTools[tool].tips || this.fhTools[tool].tips;
-                            this.fhTools[tool].menuConfig = RemoteAwesome.newTools[tool].menuConfig || this.fhTools[tool].menuConfig;
-                            if (RemoteAwesome.newTools[tool].contentScript !== undefined && this.fhTools[tool].contentScript !== RemoteAwesome.newTools[tool].contentScript) {
-                                this.fhTools[tool].contentScript = RemoteAwesome.newTools[tool].contentScript;
-                                this.fhTools[tool].upgrade = true;
-                            }
-                            if (RemoteAwesome.newTools[tool].contentScriptCss !== undefined && this.fhTools[tool].contentScriptCss !== RemoteAwesome.newTools[tool].contentScriptCss) {
-                                this.fhTools[tool].contentScriptCss = RemoteAwesome.newTools[tool].contentScriptCss;
-                                this.fhTools[tool].upgrade = true;
-                            }
-                            if (RemoteAwesome.newTools[tool].offloadForbid !== undefined && this.fhTools[tool].offloadForbid !== RemoteAwesome.newTools[tool].offloadForbid) {
-                                this.fhTools[tool].offloadForbid = RemoteAwesome.newTools[tool].offloadForbid;
-                                this.fhTools[tool].upgrade = true;
-                            }
-                        }
-                    });
-
-                    // 下面是需要下架掉的旧工具
-                    RemoteAwesome.removedTools.forEach(tool => {
-                        delete this.fhTools[tool];
-                    });
-
-                    // 页面强制刷新渲染
-                    this.$forceUpdate();
-
-                    // 结果存储到本地
-                    Awesome.CodeCacheMgr.set(jsText);
-                } catch (err) {
-                    console.log(err)
-                }
-            }).catch(error => console.log('远程更新失败：', error));
-        },
-
         remoteHotFix: function () {
             let hotfix = () => {
                 // 从服务器同步最新添加的一些工具，实现远程更新，无需提审FeHelper
-                let remoteHotfixUrl = `${this.manifest.homepage_url}/static/js/hotfix.js?v=${new Date().toLocaleDateString()}`;
+                let remoteHotfixUrl = `${this.manifest.homepage_url}/static/js/hotfix.js?time=${new Date().toLocaleDateString()}`;
                 fetch(remoteHotfixUrl).then(resp => resp.text()).then(jsText => {
                     try {
                         if (!jsText) return false;
@@ -198,18 +151,6 @@ new Vue({
         },
 
         save: function () {
-
-            Settings.setOptions(this.selectedOpts, () => {
-                // 保存成功提示，同时更新Menu
-                chrome.runtime.sendMessage({
-                    type: MSG_TYPE.DYNAMIC_ANY_THING,
-                    thing: 'save-options'
-                });
-
-                // 自动开关灯一次
-                DarkModeMgr.turnLightAuto();
-            });
-
             // 还要保存两个特殊的菜单配置项
             let settingAction = this.menuFeHelperSeting ? 'install' : 'offload';
             let crxAction = this.menuDownloadCrx ? 'install' : 'offload';
@@ -220,6 +161,17 @@ new Vue({
                         action: `menu-${crxAction}`,
                         showTips: false,
                         menuOnly: true
+                    }).then(() => {
+                        Settings.setOptions(this.selectedOpts, () => {
+                            // 保存成功提示，同时更新Menu
+                            chrome.runtime.sendMessage({
+                                type: MSG_TYPE.DYNAMIC_ANY_THING,
+                                thing: 'save-options'
+                            });
+
+                            // 自动开关灯一次
+                            DarkModeMgr.turnLightAuto();
+                        });
                     });
                 });
             });

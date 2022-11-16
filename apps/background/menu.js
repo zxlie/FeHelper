@@ -43,7 +43,7 @@ export default (function () {
                     toolMap[tool].menuConfig[0].onClick = function (info, tab) {
                         chrome.scripting.executeScript({
                             target: {tabId:tab.id,allFrames:false},
-                            args: [info.selectionText],
+                            args: [info.selectionText || ''],
                             func: (text) => text
                         }, resp => chrome.DynamicToolRunner({
                             tool, withContent: resp[0].result
@@ -56,7 +56,7 @@ export default (function () {
                     toolMap[tool].menuConfig[0].onClick = function (info, tab) {
                         chrome.scripting.executeScript({
                             target: {tabId:tab.id,allFrames:false},
-                            args: [info.linkUrl || info.srcUrl || info.selectionText || info.pageUrl],
+                            args: [info.linkUrl || info.srcUrl || info.selectionText || info.pageUrl || ''],
                             func: (text) => text
                         }, resp => chrome.DynamicToolRunner({
                             tool, withContent: resp[0].result
@@ -69,7 +69,7 @@ export default (function () {
                     toolMap[tool].menuConfig[0].onClick = function (info, tab) {
                         chrome.scripting.executeScript({
                             target: {tabId:tab.id,allFrames:false},
-                            args: [info.linkUrl || info.srcUrl || info.selectionText || info.pageUrl || tab.url],
+                            args: [info.linkUrl || info.srcUrl || info.selectionText || info.pageUrl || tab.url || ''],
                             func: (text) => text
                         }, resp => chrome.DynamicToolRunner({
                             tool, withContent: resp[0].result
@@ -78,7 +78,7 @@ export default (function () {
                     toolMap[tool].menuConfig[1].onClick = function (info, tab) {
                         chrome.scripting.executeScript({
                             target: {tabId:tab.id,allFrames:false},
-                            args: [info.srcUrl],
+                            args: [info.srcUrl || ''],
                             func: (text) => {
                                 try {
                                     if (typeof window.qrcodeContentScript === 'function') {
@@ -118,7 +118,7 @@ export default (function () {
         menuList && menuList.forEach && menuList.forEach(menu => {
 
             // 确保每次创建出来的是一个新的主菜单，防止onClick事件冲突
-            let menuItemId = 'fhm_c' + escape(menu.text).replace(/\W/g,'')+(new Date()*1);
+            let menuItemId = 'fhm_c' + escape(menu.text).replace(/\W/g,'') + new Date*1;
 
             chrome.contextMenus.create({
                 id: menuItemId,
@@ -157,8 +157,8 @@ export default (function () {
      */
     let _initMenus = function () {
         _removeContextMenu(() => {
-            chrome.contextMenus.create({
-                id: FeJson.contextMenuId,
+            let id = chrome.contextMenus.create({
+                id: FeJson.contextMenuId ,
                 title: "FeHelper",
                 contexts: ['page', 'selection', 'editable', 'link', 'image'],
                 documentUrlPatterns: ['http://*/*', 'https://*/*', 'file://*/*']

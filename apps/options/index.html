@@ -109,8 +109,7 @@
 
                     <span class="ui-fl-r x-btn-box">
                         <button class="btn btn-success btn-xs" @click="install(tool,$event)" v-if="!fhTools[tool].installed">安装<span class="x-progress"></span></button>
-                        <button class="btn btn-danger btn-xs" @click="offLoad(tool,$event)" v-if="fhTools[tool].installed && !fhTools[tool].offloadForbid">卸载</button>
-                        <button class="btn btn-disabled btn-xs" v-if="fhTools[tool].installed && fhTools[tool].offloadForbid" title="系统预装，不可被卸载">卸载</button>
+                        <button class="btn btn-danger btn-xs" @click="offLoad(tool,$event)" v-if="fhTools[tool].installed">卸载</button>
 
                         <button class="btn btn-xs" :class="fhTools[tool].menu ? 'btn-warning' : 'btn-info'" @click="menuMgr(tool,$event)" v-if="fhTools[tool].installed">{{fhTools[tool].menu ? '移出' : '加入'}}右键</button>
                     </span>
