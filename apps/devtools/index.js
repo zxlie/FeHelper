@@ -1,3 +1,5 @@
+import Awesome from '../background/awesome.js';
+
 const DEV_TOOLS_MY_TOOLS = 'DEV-TOOLS:MY-TOOLS';
 const TOOL_NAME_TPL = 'DYNAMIC_TOOL:#TOOL-NAME#';
 const TOOL_CONTENT_SCRIPT_TPL = 'DYNAMIC_TOOL:CS:#TOOL-NAME#';
@@ -15,7 +17,7 @@ new Vue({
         givenIconList: [],
         model: {},
         demo: {
-            name: 'hello-world',
+            name: 'fh-dev-demo',
             files: ['fh-config.js', 'index.html', 'index.js', 'index.css', 'content-script.js']
         }
     },
@@ -36,7 +38,6 @@ new Vue({
                 let toolObj = this.myTools[toolName] || {};
                 this.model = {
                     tool: toolName,
-                    icon: toolObj.menuConfig[0].icon,
                     name: toolObj.name
                 };
 
@@ -159,11 +160,7 @@ new Vue({
                         key = fileName.startsWith(`../${toolName}/`) ? fileName : `../${toolName}/${fileName}`;
                 }
 
-                if (window.chrome && chrome.storage && chrome.storage.local) {
-                    chrome.storage.local.remove(key);
-                } else {
-                    localStorage.removeItem(key)
-                }
+                Awesome.StorageMgr.remove(key);
             }
         },
 
@@ -314,7 +311,7 @@ new Vue({
             let arrPromise = files.map(file => fetch(`${site}/${demoName}/${file}`).then(resp => resp.text()));
             Promise.all(arrPromise).then(contents => {
                 // fh-config.js
-                let json = new Function(`return ${contents[0]}`)();
+                let json = JSON.parse(contents[0]);
                 this.addToolConfigs(json);
 
                 // index.html
@@ -409,7 +406,7 @@ new Vue({
                             let fileName = entry.filename.split('/').pop();
                             try {
                                 if (fileName === `fh-config.js`) {
-                                    let json = new Function(`return ${fileContent}`)();
+                                    let json = JSON.parse(fileContent);
                                     this.addToolConfigs(json);
                                 } else if (fileName === 'index.html') {
                                     let result = this.htmlTplEncode(toolName, fileContent);
@@ -446,54 +443,51 @@ new Vue({
         },
 
         getToolConfigs() {
-            this.myTools = JSON.parse(localStorage.getItem(DEV_TOOLS_MY_TOOLS) || '{}', (key, val) => {
-                return String(val).indexOf('function') > -1 ? new Function(`return ${val}`)() : val;
+            return Awesome.StorageMgr.get(DEV_TOOLS_MY_TOOLS).then(data => {
+                this.myTools = JSON.parse(data || localStorage.getItem(DEV_TOOLS_MY_TOOLS) || '{}');
+                Object.keys(this.myTools).forEach(t => {
+                    if(this.myTools[t].menuConfig) {
+                        this.myTools.icon = this.myTools[t].menuConfig[0].icon;
+                        delete this.myTools[t].menuConfig;
+                    }
+                    if(!this.myTools[t].icon) {
+                        this.myTools[t].icon = '◆';
+                    }
+                });
+                this.setToolConfigs();
             });
         },
 
         setToolConfigs() {
-            localStorage.setItem(DEV_TOOLS_MY_TOOLS, JSON.stringify(this.myTools, (key, val) => {
-                return (typeof val === 'function') ? val.toString() : val;
-            }));
+            Awesome.StorageMgr.set(DEV_TOOLS_MY_TOOLS,JSON.stringify(this.myTools));
         },
 
         addToolConfigs(configs) {
-            this.getToolConfigs();
-            Object.keys(configs).forEach(key => {
-                let config = configs[key];
-                this.myTools[key] = {
-                    _devTool: true,
-                    _enable: this.myTools[key] && this.myTools[key]._enable,
-                    name: config.name,
-                    tips: config.tips,
-                    noPage: !!config.noPage,
-                    contentScript: !!config.contentScript,
-                    contentScriptCss: !!config.contentScriptCss,
-                    menuConfig: ([].concat(config.menuConfig || [])).map(menu => {
-                        return {
-                            icon: menu.icon,
-                            text: menu.text,
-                            onClick: menu.onClick
-                        }
-                    }),
-                    updateUrl: config.updateUrl || null
-                }
+            this.getToolConfigs().then(() => {
+                Object.keys(configs).forEach(key => {
+                    let config = configs[key];
+                    this.myTools[key] = {
+                        _devTool: true,
+                        _enable: this.myTools[key] && this.myTools[key]._enable,
+                        name: config.name,
+                        tips: config.tips,
+                        icon: config.icon,
+                        noPage: !!config.noPage,
+                        contentScriptJs: !!config.contentScriptJs || !!config.contentScript,
+                        contentScriptCss: !!config.contentScriptCss,
+                        updateUrl: config.updateUrl || null
+                    }
+                });
+                this.setToolConfigs();
             });
-            this.setToolConfigs();
         },
 
         delToolConfigs(tools) {
             // 先删除文件
             [].concat(tools).forEach(tool => {
                 this.getToolFilesFromLocal(tool).then(files => {
-                    files.forEach(file => {
-                        file = file.startsWith(`../${tool}`) ? file : `../${tool}/${file}`;
-                        if (chrome.storage && chrome.storage.local) {
-                            chrome.storage.local.remove(file);
-                        } else {
-                            localStorage.removeItem(file);
-                        }
-                    });
+                    Awesome.StorageMgr.remove(files.map(file =>
+                        file.startsWith(`../${tool}`) ? file : `../${tool}/${file}` ));
                 });
 
                 // 删模板等
@@ -502,12 +496,7 @@ new Vue({
                     TOOL_CONTENT_SCRIPT_TPL.replace('#TOOL-NAME#', tool),
                     TOOL_CONTENT_SCRIPT_CSS_TPL.replace('#TOOL-NAME#', tool)
                 ];
-
-                if (chrome.storage && chrome.storage.local) {
-                    chrome.storage.local.remove(removeItems);
-                } else {
-                    removeItems.forEach(item => localStorage.removeItem(item));
-                }
+                Awesome.StorageMgr.remove(removeItems);
             });
 
             // 再删配置
@@ -533,20 +522,12 @@ new Vue({
                 let toolObj = this.myTools[toolName];
                 toolObj.contentScript && files.push('content-script.js');
                 toolObj.contentScriptCss && files.push('content-script.css');
-                if (window.chrome && chrome.storage && chrome.storage.local) {
-                    chrome.storage.local.get(null, allDatas => {
-                        let fs = Object.keys(allDatas).filter(key => String(key).startsWith(`../${toolName}/`));
-                        files = files.concat(fs);
-                        resolve(files.map(f => f.replace(`../${toolName}/`, '')));
-                    });
-                } else {
-                    let fs = [];
-                    for (let key in localStorage) {
-                        String(key).startsWith(`../${toolName}/`) && fs.push(key);
-                    }
+
+                chrome.storage.local.get(null, allDatas => {
+                    let fs = Object.keys(allDatas).filter(key => String(key).startsWith(`../${toolName}/`));
                     files = files.concat(fs);
                     resolve(files.map(f => f.replace(`../${toolName}/`, '')));
-                }
+                });
             });
         },
 
@@ -554,7 +535,7 @@ new Vue({
 
             if (fileName === 'fh-config.js') {
                 try {
-                    let json = new Function(`return ${content}`)();
+                    let json = JSON.parse(content);
                     this.addToolConfigs(json);
                     this.$forceUpdate();
                     return json[toolName];
@@ -582,13 +563,7 @@ new Vue({
                     key = fileName.startsWith(`../${toolName}/`) ? fileName : `../${toolName}/${fileName}`;
             }
 
-            if (chrome.storage && chrome.storage.local) {
-                let obj = {};
-                obj[key] = content;
-                chrome.storage.local.set(obj);
-            } else {
-                localStorage.setItem(key, content);
-            }
+            Awesome.StorageMgr.set(key,content);
         },
 
         getContentFromLocal(toolName, fileName) {
@@ -599,15 +574,9 @@ new Vue({
                     let config = {};
                     config[toolName] = this.myTools[toolName];
                     ['_devTool', '_enable'].forEach(k => delete config[toolName][k]);
+                    delete config[toolName].menuConfig;
 
-                    let jsonText = JSON.stringify(config, (key, val) => {
-                        if (key === 'onClick' && typeof val === 'function') {
-                            return '#menuClickFunc#';
-                        }
-                        return val;
-                    }, 4).replace(/#menuClickFunc#/g, () => {
-                        return '/*__func_start__*/' + config[toolName].menuConfig[counter++].onClick.toString() + '/*__func_end__*/';
-                    }).replace(/"\/\*__func_start__\*\/function/g, 'function').replace(/\}\/\*__func_end__\*\/"/g, '}');
+                    let jsonText = JSON.stringify(config,null,4);
 
                     resolve(jsonText);
                 } else {
@@ -643,11 +612,10 @@ new Vue({
 
                         return content
                     };
-                    if (chrome.storage && chrome.storage.local) {
-                        chrome.storage.local.get(key, respObj => resolve(_update(respObj[key])));
-                    } else {
-                        resolve(_update(localStorage.getItem(key)));
-                    }
+
+                    Awesome.StorageMgr.get(key).then(data => {
+                        resolve(_update(data));
+                    });
                 }
             });
         },

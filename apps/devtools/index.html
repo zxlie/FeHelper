@@ -30,7 +30,7 @@
                 <hr>
                 <ul class="box-tools">
                     <li v-for="tool in Object.keys(myTools)">
-                        <i class="x-icon">{{myTools[tool].menuConfig[0].icon}}</i>
+                        <i class="x-icon">{{myTools[tool].icon}}</i>
                         <div class="x-infos">
                             <b>{{myTools[tool].name}}</b>
                             <div class="x-tips">{{myTools[tool].tips}}</div>
@@ -158,6 +158,6 @@
         <script src="../static/vendor/codemirror/formatting.js"></script>
 
         <script src="./file-tpl.js"></script>
-        <script src="./index.js"></script>
+        <script type="module" src="./index.js"></script>
     </body>
 </html>

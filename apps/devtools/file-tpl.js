@@ -4,22 +4,11 @@ window.FileTpl = {
     "#toolName#" : {
         "name": "#toolFullName#",
         "tips": "我是 #toolName# 的描述信息！你可以在这里修改！",
+        "icon": "#toolIcon#",
         "contentScript": #contentScript#,
-        "noPage": #noPage#, 
-        "updateUrl":"#updateUrl#",
-        "menuConfig": [
-            {
-                "icon": "#toolIcon#",
-                "text": "我是 #toolName#",
-                "onClick": function (info, tab) {
-                    alert("你好，我是#toolName#!");
-                    chrome.DynamicToolRunner({
-                        query: "tool=#toolName#"
-                    });
-                }
-            }
-        ]        
-    }                    
+        "noPage": #noPage#,
+        "updateUrl":"#updateUrl#"
+    }
 }`,
 
     // 主入口文件

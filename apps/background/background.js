@@ -72,7 +72,7 @@ let BgPageInstance = (function () {
             InjectTools.inject(tabId, {files: cssFiles});
 
             // 注入js
-            let jsTools = Object.keys(tools).filter(tool => tools[tool].contentScriptJs);
+            let jsTools = Object.keys(tools).filter(tool => tools[tool].contentScriptJs || tools[tool].contentScript);
             let jsCodes = [];
             jsTools.forEach((t, i) => {
                 let func = `window['${t.replace(/-/g, '')}ContentScript']`;

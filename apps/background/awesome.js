@@ -126,21 +126,21 @@ let Awesome = (() => {
         }
     }));
 
-    let getAllTools = () => {
+    let getAllTools = async () => {
 
         // 获取本地开发的插件，也拼接进来
         // TODO ..
-        // try {
-        //     const DEV_TOOLS_MY_TOOLS = 'DEV-TOOLS:MY-TOOLS';
-        //     let _tools = await StorageMgr.getSync(DEV_TOOLS_MY_TOOLS);
-        //     let localDevTools = JSON.parse(_tools || '{}', (key, val) => {
-        //         return String(val).indexOf('function') > -1 ? new Function(`return ${val}`)() : val;
-        //     });
-        //     Object.keys(localDevTools).forEach(tool => {
-        //         toolMap[tool] = localDevTools[tool];
-        //     });
-        // } catch (e) {
-        // }
+        try {
+            const DEV_TOOLS_MY_TOOLS = 'DEV-TOOLS:MY-TOOLS';
+            let _tools = await StorageMgr.getSync(DEV_TOOLS_MY_TOOLS);
+            let localDevTools = JSON.parse(_tools || '{}', (key, val) => {
+                return val //String(val).indexOf('function') > -1 ? new Function(`return ${val}`)() : val;
+            });
+            Object.keys(localDevTools).forEach(tool => {
+                toolMap[tool] = localDevTools[tool];
+            });
+        } catch (e) {
+        }
 
         let tools = Object.keys(toolMap);
         let promises = [];

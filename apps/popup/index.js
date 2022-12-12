@@ -63,13 +63,18 @@ new Vue({
 
     methods: {
 
-        runHelper: function (toolName, noPage) {
-            chrome.runtime.sendMessage({
+        runHelper: function (toolName) {
+            let request = {
                 type: MSG_TYPE.OPEN_DYNAMIC_TOOL,
                 page: toolName,
-                noPage: !!noPage
-            });
-            !!noPage && setTimeout(window.close,200);
+                noPage: !!this.fhTools[toolName].noPage
+            };
+            if(this.fhTools[toolName]._devTool) {
+                request.page = 'dynamic';
+                request.query = `tool=${toolName}`;
+            }
+            chrome.runtime.sendMessage(request);
+            !!this.fhTools[toolName].noPage && setTimeout(window.close,200);
         },
 
         openOptionsPage: () => {

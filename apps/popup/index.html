@@ -11,8 +11,8 @@
         <div id="pageContainer">
             <div class="fe-function-title">FeHelper<span>({{manifest.version}})</span></div>
             <ul class="fe-function-list">
-                <li v-for="tool in Object.keys(fhTools)" :class="'-x-' + tool" @click="runHelper(tool,fhTools[tool].noPage)" v-if="fhTools[tool].installed">
-                    <b>{{fhTools[tool].menuConfig[0].icon}}</b>{{fhTools[tool].name}}
+                <li v-for="tool in Object.keys(fhTools)" :class="'-x-' + tool" @click="runHelper(tool)" v-if="fhTools[tool].installed">
+                    <b>{{ fhTools[tool].icon || fhTools[tool].menuConfig[0].icon}}</b>{{fhTools[tool].name}}
                 </li>
             </ul>
             <div class="fe-feedback">

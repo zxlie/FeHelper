@@ -68,7 +68,7 @@ let DynamicTool = (() => {
         // 从Query中寻找需要动态渲染的工具名称
         let toolName = new URL(location.href).searchParams.get('tool');
         if (toolName) {
-            import('./awesome.js').then(dynamicModule => {
+            import('../background/awesome.js').then(dynamicModule => {
                 render(toolName, dynamicModule.default);
             });
         } else {
