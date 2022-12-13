@@ -17,7 +17,7 @@ export default (() => {
                         codeConfig.allFrames = String(opts['CONTENT_SCRIPT_ALLOW_ALL_FRAMES']) === 'true';
                     }
 
-                    codeConfig.code = 'try{' + codeConfig.code + ';}catch(e){};';
+                    codeConfig.js = 'try{' + codeConfig.js + ';}catch(e){};';
                     // 有文件就注入文件
                     if(codeConfig.files && codeConfig.files.length){
                         // 注入样式
@@ -38,18 +38,26 @@ export default (() => {
                                 chrome.scripting.executeScript({
                                     target: {tabId, allFrames: codeConfig.allFrames},
                                     func: function(code){evalCore.getEvalInstance(window)(code)},
-                                    args: [codeConfig.code]
+                                    args: [codeConfig.js]
                                 }, function () {
                                     callback && callback.apply(this, arguments);
                                 });
                             });
                         }
+                    }else if(codeConfig.css){
+                        // 注入css样式
+                        chrome.scripting.executeScript({
+                            target: {tabId, allFrames: codeConfig.allFrames},
+                            css:codeConfig.css
+                        }, function () {
+                            callback && callback.apply(this, arguments);
+                        });
                     }else{
-                        // 没有文件就只注入脚本
+                        // 注入js脚本
                         chrome.scripting.executeScript({
                             target: {tabId, allFrames: codeConfig.allFrames},
                             func: function(code){evalCore.getEvalInstance(window)(code)},
-                            args: [codeConfig.code]
+                            args: [codeConfig.js]
                         }, function () {
                             callback && callback.apply(this, arguments);
                         });

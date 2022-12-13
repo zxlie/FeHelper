@@ -4,6 +4,7 @@ let toolMap = {
         tips: '页面自动检测并格式化、手动格式化、乱码解码、排序、BigInt、编辑、下载、皮肤定制等',
         contentScriptJs: true,
         contentScriptCss: true,
+        offloadForbid: true,
         menuConfig: [{
             icon: '⒥',
             text: 'JSON格式化',

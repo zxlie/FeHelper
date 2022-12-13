@@ -63,23 +63,43 @@ let BgPageInstance = (function () {
     // 往当前页面直接注入脚本，不再使用content-script的配置了
     let _injectContentScripts = function (tabId) {
 
-        // 其他工具注入
+        // FH工具脚本注入
         Awesome.getInstalledTools().then(tools => {
 
             // 注入样式
-            let cssFiles = Object.keys(tools).filter(tool => tools[tool].contentScriptCss)
+            let cssFiles = Object.keys(tools)
+                            .filter(tool => !tools[tool]._devTool && tools[tool].contentScriptCss)
                             .map(tool => `${tool}/content-script.css`);
             InjectTools.inject(tabId, {files: cssFiles});
 
             // 注入js
-            let jsTools = Object.keys(tools).filter(tool => tools[tool].contentScriptJs || tools[tool].contentScript);
+            let jsTools = Object.keys(tools)
+                        .filter(tool => !tools[tool]._devTool
+                                && (tools[tool].contentScriptJs || tools[tool].contentScript));
             let jsCodes = [];
             jsTools.forEach((t, i) => {
                 let func = `window['${t.replace(/-/g, '')}ContentScript']`;
                 jsCodes.push(`(()=>{let func=${func};func&&func();})()`);
             });
             let jsFiles = jsTools.map(tool => `${tool}/content-script.js`);
-            InjectTools.inject(tabId, {files: jsFiles,code: jsCodes.join(';')});
+            InjectTools.inject(tabId, {files: jsFiles,js: jsCodes.join(';')});
+        });
+
+        // 其他开发者自定义工具脚本注入======For FH DevTools
+        Awesome.getInstalledTools().then(tools => {
+            let list = Object.keys(tools).filter(tool => tools[tool]._devTool);
+
+            // 注入css样式
+            list.filter(tool => tools[tool].contentScriptCss)
+                    .map(tool => Awesome.getContentScript(tool, true).then(css => {
+                        InjectTools.inject(tabId, { css });
+                    }));
+
+            // 注入js脚本
+            list.filter(tool => (tools[tool].contentScriptJs || tools[tool].contentScript))
+                    .map(tool => Awesome.getContentScript(tool).then(js => {
+                        InjectTools.inject(tabId, { js });
+                    }));
         });
     };
 
@@ -106,7 +126,7 @@ let BgPageInstance = (function () {
                 let found = tabs.some(tab => {
                     if (/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))) {
                         let codes = `window['${toolFunc}NoPage'] && window['${toolFunc}NoPage'](${JSON.stringify(tab)});`;
-                        InjectTools.inject(tab.id, {code: codes});
+                        InjectTools.inject(tab.id, {js: codes});
                         return true;
                     }
                     return false;
@@ -239,11 +259,11 @@ let BgPageInstance = (function () {
     let _colorPickerCapture = function(params) {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             chrome.tabs.captureVisibleTab(null, {format: 'png'}, function (dataUrl) {
-                let code = `window.colorpickerNoPage(${JSON.stringify({
+                let js = `window.colorpickerNoPage(${JSON.stringify({
                     setPickerImage: true,
                     pickerImage: dataUrl
                 })})`;
-                InjectTools.inject(tabs[0].id, { code });
+                InjectTools.inject(tabs[0].id, { js });
             });
         });
     };
@@ -252,8 +272,8 @@ let BgPageInstance = (function () {
         if (['javascript', 'css'].includes(params.fileType)) {
             Awesome.StorageMgr.get('JS_CSS_PAGE_BEAUTIFY').then(val => {
                 if(val !== '0') {
-                    let code = `window._codebutifydetect_('${params.fileType}')`;
-                    InjectTools.inject(params.tabId, { code });
+                    let js = `window._codebutifydetect_('${params.fileType}')`;
+                    InjectTools.inject(params.tabId, { js });
                 }
             });
         }
@@ -377,7 +397,7 @@ let BgPageInstance = (function () {
             if (String(changeInfo.status).toLowerCase() === "complete") {
 
                 if(/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))){
-                    InjectTools.inject(tabId, { code: `window.__FH_TAB_ID__=${tabId};` });
+                    InjectTools.inject(tabId, { js: `window.__FH_TAB_ID__=${tabId};` });
                     _injectContentScripts(tabId);
                 }
             }

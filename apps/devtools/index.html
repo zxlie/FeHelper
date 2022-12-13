@@ -23,7 +23,7 @@
                 <button class="btn btn-primary" @click="addNewTool">开始我的第一个FH工具</button>
                 <button class="btn btn-default ui-ml-10" @click="loadTool(false)">载入本地工具包（*.zip）</button>
                 <button class="btn btn-default ui-ml-10" @click="addNewTool('url')">从远程服务载入工具</button>
-                <button class="btn btn-default ui-ml-10" @click="downloadTool()">下载Hello-world示例</button>
+                <button class="btn btn-default ui-ml-10" @click="downloadDemo()">下载Hello-world示例</button>
                 <button class="btn btn-default ui-ml-10" @click="givenIcons()">获取现成的图标</button>
                 <button class="btn btn-default ui-ml-10" @click="fhDeveloperDoc">FH工具开发文档</button>
 
@@ -41,7 +41,7 @@
                             <button class="btn btn-xs btn-success ui-ml-10" @click="upgrade(tool,true)" v-if="myTools[tool].updateUrl">URL更新</button>
                             <button class="btn btn-xs btn-primary ui-ml-10" @click="downloadTool(tool)">下载zip包</button>
                             <button class="btn btn-xs btn-primary ui-ml-10" @click="toggleEditor(true,tool)">编辑</button>
-                            <button class="btn btn-xs btn-danger ui-ml-10" :disabled="tool==='hello-world'" @click="delToolConfigs(tool)">删除</button>
+                            <button class="btn btn-xs btn-danger ui-ml-10" :disabled="tool===demo.name" @click="delToolConfigs(tool)">删除</button>
                             <button class="btn btn-xs ui-fl-r" :class="myTools[tool]._enable ? 'btn-success' : 'btn-warning'" @click="toggleToolEnableStatus(tool)">{{myTools[tool]._enable ? '启用中' : '已停用'}}</button>
                         </div>
                     </li>

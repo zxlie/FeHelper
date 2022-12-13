@@ -128,7 +128,7 @@ new Vue({
         remoteHotFix: function () {
             let hotfix = () => {
                 // 从服务器同步最新添加的一些工具，实现远程更新，无需提审FeHelper
-                let remoteHotfixUrl = `${this.manifest.homepage_url}/static/js/hotfix.js?time=${new Date().toLocaleDateString()}`;
+                let remoteHotfixUrl = `${this.manifest.homepage_url}/static/js/hotfix.js?cur_ver=${new Date().toLocaleDateString()}`;
                 fetch(remoteHotfixUrl).then(resp => resp.text()).then(jsText => {
                     try {
                         if (!jsText) return false;

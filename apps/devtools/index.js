@@ -17,16 +17,19 @@ new Vue({
         givenIconList: [],
         model: {},
         demo: {
-            name: 'fh-dev-demo',
+            name: 'hello-world',
             files: ['fh-config.js', 'index.html', 'index.js', 'index.css', 'content-script.js']
         }
     },
     mounted: function () {
         // 本地没安装过demo，就强制再更新一遍
-        this.getContentFromLocal('hello-world', 'index.html').then(content => {
-            !content && this.loadDemo();
+        this.getContentFromLocal(this.demo.name, 'index.html').then(content => {
+            if(content) {
+                this.getToolConfigs();
+            }else{
+                this.loadDemo().then(() => this.getToolConfigs());
+            }
         });
-        this.getToolConfigs();
     },
 
     methods: {
@@ -55,7 +58,7 @@ new Vue({
                         editor.on('change', (editor, changes) => {
                             let result = this.saveContentToLocal(this.model.tool, this.model.editingFile, editor.getValue());
                             if (this.model.editingFile === 'fh-config.js' && result) {
-                                result.contentScript && !this.model.files.includes('content-script.js') && this.model.files.push('content-script.js');
+                                result.contentScriptJs && !this.model.files.includes('content-script.js') && this.model.files.push('content-script.js');
                                 result.contentScriptCss && !this.model.files.includes('content-script.css') && this.model.files.push('content-script.css');
                                 this.$forceUpdate();
                             }
@@ -272,7 +275,7 @@ new Vue({
                                     this.saveContentToLocal(toolName, fs[0], txt);
 
                                     // 保存content-script / background-script
-                                    if (toolObj.contentScript && fs[0].indexOf(toolName + '/content-script.js') !== -1) {
+                                    if (toolObj.contentScriptJs && fs[0].indexOf(toolName + '/content-script.js') !== -1) {
                                         this.saveContentToLocal(toolName, 'content-script.js', txt);
 
                                         // 存储content-script.css文件内容
@@ -304,12 +307,12 @@ new Vue({
         loadDemo() {
             let demoName = this.demo.name;
             let files = this.demo.files;
-            let site = '../';
-            if (window.chrome && chrome.runtime && chrome.runtime.getManifest) {
-                site = chrome.runtime.getManifest().homepage_url;
+            let site = '.';
+            if (window.chrome && chrome.runtime && chrome.runtime.getURL) {
+                site = chrome.runtime.getURL('devtools');
             }
             let arrPromise = files.map(file => fetch(`${site}/${demoName}/${file}`).then(resp => resp.text()));
-            Promise.all(arrPromise).then(contents => {
+            return Promise.all(arrPromise).then(contents => {
                 // fh-config.js
                 let json = JSON.parse(contents[0]);
                 this.addToolConfigs(json);
@@ -351,8 +354,19 @@ new Vue({
             });
         },
 
+        downloadDemo() {
+            // 本地没安装过demo，就强制再更新一遍
+            this.getContentFromLocal(this.demo.name, 'index.html').then(content => {
+                if(content) {
+                    this.downloadTool(this.demo.name);
+                }else{
+                    this.loadDemo().then(() => this.downloadTool(this.demo.name));
+                }
+            });
+        },
+
         upgrade(tool, urlMode) {
-            if (tool === 'hello-world') {
+            if (tool === this.demo.name) {
                 this.loadDemo();
             } else if (urlMode) {
                 // 远程下载并安装工具
@@ -450,6 +464,10 @@ new Vue({
                         this.myTools.icon = this.myTools[t].menuConfig[0].icon;
                         delete this.myTools[t].menuConfig;
                     }
+                    if(this.myTools[t].contentScript) {
+                        this.myTools[t].contentScriptJs = this.myTools[t].contentScript;
+                        delete this.myTools[t].contentScript;
+                    }
                     if(!this.myTools[t].icon) {
                         this.myTools[t].icon = '◆';
                     }
@@ -520,7 +538,7 @@ new Vue({
             return new Promise(resolve => {
                 let files = ['fh-config.js', 'index.html'];
                 let toolObj = this.myTools[toolName];
-                toolObj.contentScript && files.push('content-script.js');
+                toolObj.contentScriptJs && files.push('content-script.js');
                 toolObj.contentScriptCss && files.push('content-script.css');
 
                 chrome.storage.local.get(null, allDatas => {

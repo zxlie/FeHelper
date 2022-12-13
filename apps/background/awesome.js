@@ -129,13 +129,10 @@ let Awesome = (() => {
     let getAllTools = async () => {
 
         // 获取本地开发的插件，也拼接进来
-        // TODO ..
         try {
             const DEV_TOOLS_MY_TOOLS = 'DEV-TOOLS:MY-TOOLS';
             let _tools = await StorageMgr.getSync(DEV_TOOLS_MY_TOOLS);
-            let localDevTools = JSON.parse(_tools || '{}', (key, val) => {
-                return val //String(val).indexOf('function') > -1 ? new Function(`return ${val}`)() : val;
-            });
+            let localDevTools = JSON.parse(_tools || '{}');
             Object.keys(localDevTools).forEach(tool => {
                 toolMap[tool] = localDevTools[tool];
             });
@@ -170,6 +167,9 @@ let Awesome = (() => {
                 });
                 return map;
             }
+            Object.keys(toolMap).forEach(tool => {
+                toolMap[tool].installed = toolMap[tool].offloadForbid;
+            });
             return toolMap;
         });
     };

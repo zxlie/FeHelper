@@ -89,5 +89,5 @@
       "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'self'"
   },
   "update_url": "https://clients2.google.com/service/update2/crx",
-  "homepage_url": "http://localhost/FeOnline/output/fehelper"
+  "homepage_url": "https://www.baidufe.com/fehelper"
 }

@@ -66,7 +66,7 @@ export default (() => {
                                 injectFunc();
                             }
                         }).toString() + `)(${JSON.stringify(result)})`;
-                        InjectTools.inject(params.tabId, {code: scripts, allFrames: false});
+                        InjectTools.inject(params.tabId, {js: scripts, allFrames: false});
                     }
                 });
             };
