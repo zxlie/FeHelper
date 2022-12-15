@@ -97,21 +97,22 @@
             <button class="btn btn-danger"  @click="cancel()">放弃</button>
         </div>
 
+        <!-- ==============FH插件市场板块============== -->
         <div class="row ui-mt-10">
             <hr>
             <h4># FH应用市场 <span class="x-tips">（严格遵循Google官方要求的插件<span class="t-hlt">「单一用途原则」</span>，所以就按需安装吧！当然，你也可以<a href="#" @click="openFeOnline()">&nbsp;去官网使用在线免安装版&gt;&gt;</a>）</span></h4>
 
             <ul class="mod-dynamic-tool">
-                <li v-for="(tool,index) in Object.keys(fhTools)" v-if="!fhTools[tool]._devTool && tool !== 'devtools'">
+                <!-- 先展示已安装的 -->
+                <li v-for="(tool,index) in Object.keys(fhTools)" v-if="!fhTools[tool]._devTool && tool !== 'devtools' && fhTools[tool].installed">
                     <i>{{fhTools[tool].menuConfig && fhTools[tool].menuConfig[0] && fhTools[tool].menuConfig[0].icon || '@'}}</i>
                     <b>{{fhTools[tool].name}}</b>
                     <span class="x-tips">（{{fhTools[tool].tips}}）</span>
 
                     <span class="ui-fl-r x-btn-box">
-                        <button class="btn btn-success btn-xs" @click="install(tool,$event)" v-if="!fhTools[tool].installed">安装<span class="x-progress"></span></button>
-                        <button class="btn btn-danger btn-xs" @click="offLoad(tool,$event)" v-if="fhTools[tool].installed && !fhTools[tool].offloadForbid">卸载</button>
-                        <button class="btn btn-disabled btn-xs" v-if="fhTools[tool].installed && fhTools[tool].offloadForbid" title="系统预装，不可被卸载">卸载</button>
-                        <button class="btn btn-xs" :class="fhTools[tool].menu ? 'btn-warning' : 'btn-info'" @click="menuMgr(tool,$event)" v-if="fhTools[tool].installed">{{fhTools[tool].menu ? '移出' : '加入'}}右键</button>
+                        <button class="btn btn-danger btn-xs" @click="offLoad(tool,$event)" v-if="!fhTools[tool].offloadForbid">卸载</button>
+                        <button class="btn btn-disabled btn-xs" v-if="fhTools[tool].offloadForbid" title="系统预装，不可被卸载">卸载</button>
+                        <button class="btn btn-xs" :class="fhTools[tool].menu ? 'btn-warning' : 'btn-info'" @click="menuMgr(tool,$event)">{{fhTools[tool].menu ? '移出' : '加入'}}右键</button>
                     </span>
 
                     <span class="ui-fl-r x-sort-box" v-if="fhTools[tool].installed">
@@ -119,9 +120,21 @@
                         <i title="下移" :class="index === sortArray.length-1 ? 'x-hidden' : ''" @click="sortDown(index)">⇩</i>
                     </span>
                 </li>
+
+                <!-- 再展示未安装的 -->
+                <li v-for="(tool,index) in Object.keys(fhTools)" v-if="!fhTools[tool]._devTool && tool !== 'devtools' && !fhTools[tool].installed">
+                    <i>{{fhTools[tool].menuConfig && fhTools[tool].menuConfig[0] && fhTools[tool].menuConfig[0].icon || '@'}}</i>
+                    <b>{{fhTools[tool].name}}</b>
+                    <span class="x-tips">（{{fhTools[tool].tips}}）</span>
+
+                    <span class="ui-fl-r x-btn-box">
+                        <button class="btn btn-success btn-xs" @click="install(tool,$event)">安装<span class="x-progress"></span></button>
+                    </span>
+                </li>
             </ul>
         </div>
 
+        <!-- ==============开发者板块============== -->
         <div class="row ui-mt-10">
             <hr>
             <h4># FH开发者板块  <span class="x-tips">（FeHelper开放平台化，你可以在安装<span class="t-hlt">「{{fhTools.devtools && fhTools.devtools.name}}」</span>后，开发属于你自己的FH工具！）</span></h4>
@@ -134,7 +147,7 @@
 
                     <span class="ui-fl-r x-btn-box">
                         <template v-if="tool === 'devtools'">
-                            <button class="btn btn-danger btn-xs" @click="install(tool,$event)" v-if="!fhTools[tool].installed">安装<span class="x-progress"></span></button>
+                            <button class="btn btn-success btn-xs" @click="install(tool,$event)" v-if="!fhTools[tool].installed">安装<span class="x-progress"></span></button>
                             <button class="btn btn-danger btn-xs" @click="offLoad(tool,$event)" v-if="fhTools[tool].installed">卸载</button>
                             <button class="btn btn-xs" :class="fhTools[tool].menu ? 'btn-warning' : 'btn-info'" @click="menuMgr(tool,$event)" v-if="fhTools[tool].installed">{{fhTools[tool].menu ? '移出' : '加入'}}右键</button>
                         </template>

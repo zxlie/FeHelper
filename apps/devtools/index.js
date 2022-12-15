@@ -22,18 +22,17 @@ new Vue({
         }
     },
     mounted: function () {
-        // 本地没安装过demo，就强制再更新一遍
-        this.getContentFromLocal(this.demo.name, 'index.html').then(content => {
-            if(content) {
-                this.getToolConfigs();
-            }else{
-                this.loadDemo().then(() => this.getToolConfigs());
-            }
-        });
+
+        this.getToolConfigs();
     },
 
     methods: {
 
+        startByDemo() {
+            this.loadDemo().then(() => {
+                setTimeout(() => this.getToolConfigs(),300);
+            });
+        },
         toggleEditor(show, toolName) {
             this.showEditorFlag = show;
             if (show && toolName) {
@@ -232,11 +231,11 @@ new Vue({
                 // 远程下载并安装工具
                 this.loadRemoteTool(toolId, updateUrl, this.toast).then(progress => {
                     this.toast(progress);
-                    this.toggleEditor(true, toolId);
+                    setTimeout(() => this.toggleEditor(true, toolId),300);
                     this.toast('工具创建成功！现在可以进行实时编辑了！');
                 });
             } else {
-                this.toggleEditor(true, toolId);
+                setTimeout(() => this.toggleEditor(true, toolId),300);
                 this.toast('工具创建成功！现在可以进行实时编辑了！');
             }
 
@@ -326,7 +325,7 @@ new Vue({
                     this.saveContentToLocal(demoName, files[i], contents[i]);
                 }
 
-                this.toast('工具更新成功！');
+                this.toast('你的Hello World已安装成功！');
             });
         },
 
@@ -351,17 +350,6 @@ new Vue({
                             elA.click();
                         });
                 });
-            });
-        },
-
-        downloadDemo() {
-            // 本地没安装过demo，就强制再更新一遍
-            this.getContentFromLocal(this.demo.name, 'index.html').then(content => {
-                if(content) {
-                    this.downloadTool(this.demo.name);
-                }else{
-                    this.loadDemo().then(() => this.downloadTool(this.demo.name));
-                }
             });
         },
 
@@ -472,7 +460,6 @@ new Vue({
                         this.myTools[t].icon = '◆';
                     }
                 });
-                this.setToolConfigs();
             });
         },
 
@@ -581,7 +568,7 @@ new Vue({
                     key = fileName.startsWith(`../${toolName}/`) ? fileName : `../${toolName}/${fileName}`;
             }
 
-            Awesome.StorageMgr.set(key,content);
+            return Awesome.StorageMgr.set(key,content);
         },
 
         getContentFromLocal(toolName, fileName) {

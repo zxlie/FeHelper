@@ -192,6 +192,18 @@ let BgPageInstance = (function () {
     };
 
     /**
+     * 插件图标点击后的默认动作
+     * @param request
+     * @param sender
+     * @param callback
+     */
+    let browserActionClickedHandler = function (request, sender, callback) {
+        chrome.DynamicToolRunner({
+            tool: MSG_TYPE.JSON_FORMAT
+        });
+    };
+
+    /**
      * 更新browser action的点击动作
      * @param action install / upgrade / offload
      * @param showTips 是否notify
@@ -200,6 +212,21 @@ let BgPageInstance = (function () {
      */
     let _updateBrowserAction = function (action, showTips, menuOnly) {
         if (!menuOnly) {
+            // 如果有安装过工具，则显示Popup模式
+            Awesome.getInstalledTools().then(tools => {
+                if (Object.keys(tools).length > 1) {
+                    chrome.action.setPopup({ popup: '/popup/index.html' });
+                } else {
+                    // 删除popup page
+                    chrome.action.setPopup({ popup: '' });
+
+                    // 否则点击图标，直接打开页面
+                    if (!chrome.action.onClicked.hasListener(browserActionClickedHandler)) {
+                        chrome.action.onClicked.addListener(browserActionClickedHandler);
+                    }
+                }
+            });
+
             if (action === 'offload') {
                 _animateTips('-1');
             } else {
@@ -283,6 +310,8 @@ let BgPageInstance = (function () {
      * 接收来自content_scripts发来的消息
      */
     let _addExtensionListener = function () {
+
+        _updateBrowserAction();
 
         chrome.runtime.onMessage.addListener(function (request, sender, callback) {
             // 如果发生了错误，就啥都别干了

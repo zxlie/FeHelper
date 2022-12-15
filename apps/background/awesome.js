@@ -144,7 +144,7 @@ let Awesome = (() => {
         tools.forEach(tool => {
             promises = promises.concat([detectInstall(tool), detectInstall(tool, true)])
         });
-        return Promise.all(promises).then(values => {
+        let pAll = Promise.all(promises).then(values => {
             values.forEach((v, i) => {
                 let tool = tools[Math.floor(i / 2)];
                 let key = i % 2 === 0 ? 'installed' : 'menu';
@@ -154,23 +154,31 @@ let Awesome = (() => {
                     toolMap[tool][key] = toolMap[tool][key] && toolMap[tool]._enable;
                 }
             });
-            let sortArr = SortToolMgr.get();
-            if (sortArr && sortArr.length) {
+            Object.keys(toolMap).forEach(tool => {
+                toolMap[tool].installed = toolMap[tool].installed || toolMap[tool].offloadForbid;
+            });
+            return toolMap;
+        });
+        let pSort = SortToolMgr.get();
+
+        return Promise.all([pAll,pSort]).then(vs => {
+            let allTools = vs[0];
+            let sortTools = vs[1];
+
+            if (sortTools && sortTools.length) {
                 let map = {};
-                sortArr.forEach(tool => {
-                    map[tool] = toolMap[tool];
+                sortTools.forEach(tool => {
+                    map[tool] = allTools[tool];
                 });
-                Object.keys(toolMap).forEach(tool => {
+                Object.keys(allTools).forEach(tool => {
                     if (!map[tool]) {
-                        map[tool] = toolMap[tool];
+                        map[tool] = allTools[tool];
                     }
                 });
                 return map;
+            }else{
+                return allTools;
             }
-            Object.keys(toolMap).forEach(tool => {
-                toolMap[tool].installed = toolMap[tool].offloadForbid;
-            });
-            return toolMap;
         });
     };
 

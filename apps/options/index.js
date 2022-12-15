@@ -239,6 +239,10 @@ new Vue({
 
         offLoad: function (tool, event) {
 
+            if(!confirm('防止误操作；请再次确认是否要卸载这个工具？')) {
+                return;
+            }
+
             if (event.target.getAttribute('data-undergoing') === '1') {
                 return false;
             }
