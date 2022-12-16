@@ -77,7 +77,7 @@ gulp.task('css', () => {
             };
 
             contents = merge(file.path, contents);
-            file.contents = new Buffer(contents);
+            file.contents = new Buffer.from(contents);
             this.push(file);
             return cb();
         })
@@ -93,41 +93,6 @@ gulp.task('zip', () => {
     let pathOfMF = './output/apps/manifest.json';
     let manifest = require(pathOfMF);
 
-    // background、content-script中的文件，可以作为例外
-    let excludes = manifest.background.scripts.concat(manifest.content_scripts.map(cs => {
-        return cs.js.join(',');
-    }).join(',').split(','));
-
-    // ============冗余文件清理================================================
-    shell.cd('output/apps');
-    let fileList = shell.find('./').filter(file => {
-        let included = 'yes';
-        if (file.match(/\.css$/) && !/index\.css$/.test(file)) {
-            included = shell.grep('-l', file, './**/*.{css,html,js}').stdout;
-        } else if (file.match(/\.js$/) && !/index\.js$/.test(file)) {
-            included = shell.grep('-l', file.replace(/\.js$/, ''), './**/*.{html,js}').stdout;
-        }
-
-        // 如果没有搜索到，再尝试下在js、css文件的当前目录下搜寻
-        if (!included.trim().length && /\.(js|css)$/.test(file)) {
-            let arr = file.split(/\//);
-            let filename = arr.splice(-1);
-            let dirname = arr.join('/');
-
-            included = shell.grep('-l', filename, (dirname || '.') + '/*.{html,js,css}').stdout;
-        }
-
-        return !included.trim().length;
-    });
-    fileList = fileList.filter(f => excludes.indexOf(f) === -1);
-    fileList.forEach(f => {
-        shell.rm('-rf', f);
-        console.log(new Date().toLocaleString(), '> 清理掉冗余文件：', f);
-    });
-    shell.cd('../../');
-
-    // web_accessible_resources 中也不需要加载这些冗余的文件了
-    manifest.web_accessible_resources = manifest.web_accessible_resources.filter(f => fileList.indexOf(f) === -1);
     manifest.name = manifest.name.replace('-Dev', '');
     fs.writeFileSync(pathOfMF, JSON.stringify(manifest));
 

@@ -252,7 +252,7 @@ new Vue({
                     let files = result.jsCss;
 
                     // 获取所有网络文件的总个数，以便于计算进度
-                    let total = eval(Object.values(files).map(a => a.length).join('+')) + 1;
+                    let total = evalCore.getEvalInstance(window)(Object.values(files).map(a => a.length).join('+')) + 1;
                     let loaded = 1;
                     fnProgress && fnProgress(Math.floor(100 * loaded / total) + '%');
 
@@ -313,7 +313,7 @@ new Vue({
             let arrPromise = files.map(file => fetch(`${site}/${demoName}/${file}`).then(resp => resp.text()));
             return Promise.all(arrPromise).then(contents => {
                 // fh-config.js
-                let json = JSON.parse(contents[0]);
+                let json = evalCore.getEvalInstance(window)(contents[0]);
                 this.addToolConfigs(json);
 
                 // index.html

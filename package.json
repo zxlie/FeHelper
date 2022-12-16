@@ -8,14 +8,12 @@
   },
   "devDependencies": {
     "gulp": "^3.9.1",
-    "gulp-callback": "0.0.3",
     "gulp-clean": "^0.4.0",
     "gulp-copy": "^1.1.0",
     "gulp-htmlmin": "^4.0.0",
     "gulp-jsonminify": "^1.1.0",
     "gulp-uglify-es": "^1.0.1",
     "gulp-uglifycss": "^1.0.9",
-    "gulp-watch-path": "^0.1.0",
     "gulp-zip": "^4.1.0",
     "pretty-bytes": "^4.0.2",
     "run-sequence": "^2.2.1",
@@ -23,7 +21,11 @@
   },
   "scripts": {
     "watch": "gulp watch",
-    "build": "gulp"
+    "build": "gulp",
+    "preinstall": "npx npm-force-resolutions"
+  },
+  "resolutions": {
+    "graceful-fs": "^4.2.4"
   },
   "repository": {
     "type": "git",
