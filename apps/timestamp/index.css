@@ -17,6 +17,11 @@
     color:#666;
     font-weight:500
 }
+#txtNowS,#txtNowMs {
+    width:140px;
+    color:#666;
+    font-weight: 500;
+}
 #txtSrcYear,#txtSrcMonth,#txtSrcDay,#txtSrcHour,#txtSrcMinute,#txtSrcSecond{
     width:40px;
 }
@@ -29,14 +34,14 @@
     width: 80px;
 }
 .x-wd {
-    margin-top: 30px;
+    margin-top: 0px;
     border-bottom: 1px solid #eee;
     padding-bottom: 5px;
     font-size: 16px;
     color: #428bca;
 }
 .x-cnt {
-    padding:0 15px;
+    padding:0 15px 30px;
 }
 thead th {
     text-align: center;
@@ -52,4 +57,19 @@ thead th {
 .x-gmt-setting select {
     width:auto;
     display: inline;
+}
+#fehelper_alertmsg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000000;
+    background: #000;
+    display: inline-block;
+    color: #fff;
+    text-align: center;
+    padding: 10px 10px;
+    margin: 0 auto;
+    font-size: 14px;
+    border-bottom: 1px solid #aaa;
 }

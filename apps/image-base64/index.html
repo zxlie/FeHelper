@@ -3,9 +3,10 @@
     <head>
         <title>图片Base64工具（DataURI数据）</title>
         <meta charset="UTF-8">
+        <link rel="shortcut icon" href="../static/img/favicon.ico">
         <link rel="stylesheet" href="index.css" />
+        <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
         <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
-        <script src="../static/vendor/require/require.js"></script>
     </head>
     <body>
         <div class="wrapper" id="pageContainer">
@@ -66,19 +67,19 @@
                             </td>
                             <td>
                                 <div class="x-panel">
-                                    <img id="base64Image" style="width:100%;height:100%;" alt="" :src="txtBase64Output" v-show="!!txtBase64Input.length" @error="loadError">
+                                    <img id="base64Image" alt="" :src="txtBase64Output" v-show="!!txtBase64Input.length" @error="loadError">
                                 </div>
                             </td>
                         </tr>
                     </table>
                 </div>
             </div>
-        
 
-        <div v-show="!!error.length" class="x-error">{{ error }}</div>
+            <div v-show="!!error.length" v-cloak class="x-error" v-html="error"></div>
         </div>
 
-
         <script type="text/javascript" src="index.js"></script>
+
+        <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
     </body>
 </html>

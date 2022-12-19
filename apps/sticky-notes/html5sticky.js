@@ -34,7 +34,7 @@ html5sticky.addNote = function () {
     let bgcolor = html5sticky.getColor();
     let folderId = html5sticky.getCurrentFolder()[1];
 
-    let stickynote = $('<div class="note_common ' + bgcolor + '" />').appendTo($('#m_' + folderId));
+    let stickynote = $('<div class="note_common ' + bgcolor + '" />').appendTo($('#main'));
     // add tape to stickynote
     html5sticky.addPin(stickynote);
 
@@ -47,10 +47,6 @@ html5sticky.addNote = function () {
     $('.note_common').css({width: stickywidth + 'px', height: stickyheight + 'px'});
 
     $('.note_common p').css({height: (stickyheight - 60) + 'px', width: (stickywidth + 9) + 'px'});
-
-    if (!$("#removenotes").is(':visible')) {
-        $('#removenotes').slideDown('slow');
-    }
 
     // scroll to newly added sticky note
     $('html, body').animate({
@@ -73,8 +69,7 @@ html5sticky.addNote = function () {
 
     html5sticky.enlargeNote(stickynote);
 
-    let elCounter = $('#f_' + folderId).find('i');
-    elCounter.text('(' + (parseInt(elCounter.text().replace(/\W/, '')) + 1) + ')');
+    html5sticky.updateNotesCountForFolder();
 };
 
 // save note
@@ -86,12 +81,39 @@ html5sticky.saveNote = function (el) {
     ptext = ptext.replace(/\r?\n/g, '<br />');
 
     localStorage.setItem(identifier + '|text', htext + '|' + ptext);
+    let theNoteEl = $('[id^=idf_' + identifier + ']').closest('.note_common');
+    theNoteEl.find('h2').text(htext);
+    theNoteEl.find('p').html(ptext);
 
-    $('[id^=idf_' + identifier + ']').closest('.note_common').find('h2').text(htext);
-    $('[id^=idf_' + identifier + ']').closest('.note_common').find('p').html(ptext);
+    let oldFolder = localStorage.getItem(identifier + '|folderid') || 0;
+    let newFolder = $(el).closest('.bignote').find('.fedit')[0].value;
+    localStorage.setItem(identifier + '|folderid', newFolder);
 
+    html5sticky.closeNote(el);
     html5sticky.showMessage('#9BED87', 'black', '笔记保存成功！');
 
+    // 发生了文件夹变更
+    if (String(oldFolder) !== String(newFolder)) {
+        theNoteEl.fadeOut('slow', function () {
+            theNoteEl.remove();
+
+            if (!$(".note_common").length > 0) {
+                $('#removenotes').slideUp('slow');
+            }
+        });
+
+        html5sticky.updateNotesCountForFolder();
+    }
+};
+
+html5sticky.updateNotesCountForFolder = function () {
+    // 刷新folder计数
+    let allKeys = (localStorage.getItem(STICKYNOTES_ALLKEYS) || '').split(',');
+    let folders = html5sticky.loadFolders();
+    Object.keys(folders).forEach(f => {
+        let counter = allKeys.filter(key => /\|folderid/.test(key) && (String(folders[f]) === (localStorage.getItem(key) || '0'))).length;
+        $('#f_' + folders[f]).find('i').text('(' + counter + ')');
+    });
 };
 
 // get note identifier
@@ -117,32 +139,31 @@ html5sticky.getIdentifier = function (el) {
 };
 
 
+html5sticky.deleteNoteById = function (identifier) {
+    localStorage.removeItem(identifier);
+    localStorage.removeItem(identifier + '|text');
+    localStorage.removeItem(identifier + '|bgcolor');
+    localStorage.removeItem(identifier + '|dated');
+    localStorage.removeItem(identifier + '|folderid');
+
+    let allKeys = (localStorage.getItem(STICKYNOTES_ALLKEYS) || '').split(',');
+    ['text', 'bgcolor', 'dated', 'folderid'].forEach(function (item) {
+        let id = identifier + '|' + item;
+        allKeys.indexOf(id) > -1 && allKeys.splice(allKeys.indexOf(id), 1);
+    });
+    localStorage.setItem(STICKYNOTES_ALLKEYS, allKeys.join(','));
+};
+
+
 // delete note
 html5sticky.deleteNote = function (el) {
     if (confirm('确定要删除这个便签笔记吗，一旦删除则不可恢复，请三思?')) {
 
-
         let identifier = html5sticky.getIdentifier($(el));
-        localStorage.removeItem(identifier);
-        localStorage.removeItem(identifier + '|text');
-        localStorage.removeItem(identifier + '|bgcolor');
-        localStorage.removeItem(identifier + '|dated');
-        localStorage.removeItem(identifier + '|folderid');
-
-        let allKeys = (localStorage.getItem(STICKYNOTES_ALLKEYS) || '').split(',');
-        ['text', 'bgcolor', 'dated', 'folderid'].forEach(function (item) {
-            let id = identifier + '|' + item;
-            allKeys.indexOf(id) > -1 && allKeys.splice(allKeys.indexOf(id), 1);
-        });
-        localStorage.setItem(STICKYNOTES_ALLKEYS, allKeys.join(','));
+        html5sticky.deleteNoteById(identifier);
 
         $(el).closest('.note_common').fadeOut('slow', function () {
             $(el).closest('.note_common').remove();
-
-            if (!$(".note_common").length > 0) {
-                $('#removenotes').slideUp('slow');
-            }
-
         });
     }
 };
@@ -196,40 +217,39 @@ html5sticky.editNote = function ($clone, el) {
 
     $('.hedit').addClass('inset').val(html5sticky.stripTags(htext, allowed_tags)).width(250);
 
+    // folder-list
+    let folders = html5sticky.loadFolders();
+    let folderid = localStorage.getItem($clone.find('span[id^="idf_"]').attr('id').replace('idf_', '') + '|folderid') || '0';
+
+    $('.hedit').after('<select class="fedit form-control">' + Object.keys(folders).map(f => {
+        return `<option value="${folders[f]}" ${folders[f] == folderid ? 'selected' : ''}>${f}</option>`
+    }).join('') + '</select>');
 
     // put in Close button
-    $('<a href="#" class="close_stickynote"><img src="./img/delete.png" alt="" title="关闭笔记"></a>')
+    $(`<a href="#" class="close_stickynote x-btn-min">关闭</a>`)
         .css({
             position: 'absolute',
-            top: 7,
-            right: 5
+            top: 5,
+            right: 5,
+            color: '#000'
         })
         .appendTo($clone);
 
     // put in Save button
-    $('<a href="#" class="save_stickynote"><img src="./img/save.png" alt="" title="保存笔记"></a>')
+    $(`<a href="#" class="save_stickynote x-btn-min">保存</a>`)
         .css({
             position: 'absolute',
             top: 5,
-            right: 50
+            right: 40,
+            color: '#000'
         })
         .appendTo($clone);
 };
 
-// load all notes
-html5sticky.loadNotes = function (folderId) {
-    let mainEl = $('#m_' + folderId);
-    if (!mainEl[0]) {
-        mainEl = $('<div/>').attr('id', 'm_' + folderId).addClass('clearfix').appendTo('#main');
-        mainEl.removeClass('hide').siblings('div').addClass('hide');
-    } else {
-        mainEl.removeClass('hide').siblings('div').addClass('hide');
-        return false;
-    }
-
+html5sticky.getNotesByFolderId = function (folderId) {
     // load notes
     let allKeys = (localStorage.getItem(STICKYNOTES_ALLKEYS) || '').split(',');
-    let counter = 0;
+    let result = [];
     allKeys.forEach(key => {
 
         if (!/\|text/.test(key)) {
@@ -237,14 +257,24 @@ html5sticky.loadNotes = function (folderId) {
         }
 
         let id = key.replace('|text', '');
-        let stickynote, bgcolor, htext, ptext, temp_array, folderid;
 
         // 按照folder id寻找对应目录下的便签
-        folderid = localStorage.getItem(id + '|folderid') || '0';
+        let folderid = localStorage.getItem(id + '|folderid') || '0';
         if (String(folderId) !== folderid) {
             return false;
         }
+        result.push(id);
+    });
+    return result;
+};
 
+// load all notes
+html5sticky.loadNotes = function (folderId) {
+    let mainEl = $('#main').html('');
+
+    let notes = html5sticky.getNotesByFolderId(folderId);
+    notes.forEach(id => {
+        let stickynote, bgcolor, htext, ptext, temp_array;
         // get color and rotation level
         bgcolor = localStorage.getItem(id + '|bgcolor');
 
@@ -267,11 +297,9 @@ html5sticky.loadNotes = function (folderId) {
         // set width and height of the sticky note
         $('.note_common').css({width: stickywidth + 'px', height: stickyheight + 'px'});
         $('.note_common p').css({height: (stickyheight - 60) + 'px', width: (stickywidth - 24) + 'px'});
-
-        counter++;
     });
 
-    $('#f_' + folderId).find('i').text('(' + counter + ')');
+    $('#f_' + folderId).find('i').text('(' + notes.length + ')');
 };
 
 // collapse notes
@@ -360,8 +388,8 @@ html5sticky.getAnimation = function (hideAnimation) {
 
 // add pin to note
 html5sticky.addPin = function (el) {
-    let close = $('<div class="btn-close"><a href="#" class="delete_stickynote"><img src="./img/delete.png" width="24" alt="" title="删除笔记"></a></div>');
-    let tag = $('<div align="center"><img src="./img/pin.png" alt="" title="关闭"></div>');
+    let close = $(`<div class="btn-close"><a href="#" class="delete_stickynote x-btn-min">删除</a></div>`);
+    let tag = $(`<div align="center"><img pin-png src="${html5sticky.images['pin.png']}" alt=""></div>`);
 
     $(close).css({
         position: 'absolute',
@@ -395,9 +423,7 @@ html5sticky.enlargeNote = function (el) {
     $clone = $(el).clone().removeClass('note_common').addClass('bignote').appendTo($('#overlay'));
 
     // remove the pin
-    $clone.find($('img[src*="pin.png"]').closest('div')).hide();
-    // change delete button title
-    $clone.find($('img[src*="delete.png"]').closest('div')).hide();
+    $clone.find($('img[pin-png]').closest('div')).hide();
 
     $($clone).css({
         position: 'absolute',
@@ -421,7 +447,7 @@ html5sticky.enlargeNote = function (el) {
 
     let identifier = html5sticky.getIdentifier($(el));
     let dateTime = localStorage.getItem(identifier + '|dated');
-    let timeImg = '<img class="left" align="absmiddle" src="./img/time.png">';
+    let timeImg = `<img class="left" align="absmiddle" time-png src="${html5sticky.images['time.png']}">`;
 
     dateStr = dateTime.split('|')[0];
     dateAgo = prettyDate(dateTime.split('|')[1]);
@@ -456,67 +482,59 @@ html5sticky.stripTags = function (input, allowed) {
 // 全部notes导出到本地
 html5sticky.export = function () {
 
-    chrome.permissions.request({
-        permissions: ['downloads']
-    }, (granted) => {
-        if (granted) {
+    let allKeys = (localStorage.getItem(STICKYNOTES_ALLKEYS) || '').split(',');
+    let zipper = null;
+    if (allKeys.length) {
+        zipper = new JSZip();
+    }
+    let zpFolder = {};
+    allKeys.forEach(key => {
 
-            let allKeys = (localStorage.getItem(STICKYNOTES_ALLKEYS) || '').split(',');
-            let zipper = null;
-            if (allKeys.length) {
-                zipper = new JSZip();
-            }
-            let zpFolder = {};
-            allKeys.forEach(key => {
-
-                if (!/\|text/.test(key)) {
-                    return false;
-                }
-
-                let id = key.replace('|text', '');
-                let dated, htext, ptext, temp_array, folderid;
-
-                dated = localStorage.getItem(id + '|dated');
-                folderid = localStorage.getItem(id + '|folderid') || '0';
-                if (!zpFolder[folderid]) {
-                    let forderName = html5sticky.findFolderNameById(folderid);
-                    zpFolder[folderid] = zipper.folder(forderName);
-                }
-
-                // get text info
-                temp_array = localStorage.getItem(id + '|text').split('|');
-                htext = temp_array[0];
-                ptext = temp_array[1];
-
-                zpFolder[folderid].file(htext + '.txt', [
-                    '# title：' + htext,
-                    '# date：' + dated,
-                    '# content：\n' + ptext
-                ].join('\n\n'));
-            });
-
-            if (zipper) {
-                zipper.generateAsync({type: "blob"})
-                    .then(function (content) {
-                        chrome.downloads.download({
-                            url: URL.createObjectURL(new Blob([content], {type: 'application/octet-stream'})),
-                            saveAs: true,
-                            conflictAction: 'overwrite',
-                            filename: '我的便签笔记-' + (new Date * 1) + '.zip'
-                        });
-                    });
-            }
-        } else {
-            alert('必须接受授权，才能正常下载！');
+        if (!/\|text/.test(key)) {
+            return false;
         }
+
+        let id = key.replace('|text', '');
+        let dated, htext, ptext, temp_array, folderid;
+
+        dated = localStorage.getItem(id + '|dated');
+        folderid = localStorage.getItem(id + '|folderid') || '0';
+        if (!zpFolder[folderid]) {
+            let forderName = html5sticky.findFolderNameById(folderid);
+            zpFolder[folderid] = zipper.folder(forderName);
+        }
+
+        // get text info
+        temp_array = localStorage.getItem(id + '|text').split('|');
+        htext = temp_array[0];
+        ptext = temp_array[1];
+
+        zpFolder[folderid].file(htext + '.txt', [
+            '# title：' + htext,
+            '# date：' + dated,
+            '# content：\n' + ptext
+        ].join('\n\n'));
     });
+
+    if (zipper) {
+        zipper.generateAsync({type: "blob"})
+            .then(function (content) {
+                let elA = document.createElement('a');
+                elA.style.cssText = 'position:absolute;top:-1000px;left:-10000px;';
+                elA.setAttribute('download', '我的便签笔记-' + (new Date * 1) + '.zip');
+                elA.href = URL.createObjectURL(new Blob([content], {type: 'application/octet-stream'}));
+                document.body.appendChild(elA);
+                elA.click();
+            });
+    }
 };
 
 // 导入笔记
 html5sticky.importNotes = function () {
 
     let Model = (function () {
-        zip.workerScriptsPath = "/static/vendor/jszip/";
+        zip.useWebWorkers = false;
+
         let URL = window.webkitURL || window.mozURL || window.URL;
 
         return {
@@ -598,8 +616,13 @@ html5sticky.buildFoldersAndInitNotes = function () {
     });
 
     let current = html5sticky.getCurrentFolder();
-    $('li#f_' + current[1]).addClass('x-selected');
-    html5sticky.loadNotes(current[1]);
+    let folderId = current[1];
+    if (!$('li#f_' + folderId).length) {
+        folderId = folders[Object.keys(folders)[0]];
+    }
+    $('li#f_' + folderId).addClass('x-selected');
+    html5sticky.loadNotes(folderId);
+
 };
 
 html5sticky.loadFolders = function () {
@@ -615,24 +638,63 @@ html5sticky.deleteAllFolders = function () {
     localStorage.setItem(STICKYNOTES_SELECTED_FOLDER, '[]')
 };
 
-html5sticky.saveFolder = function (folder, time) {
+/**
+ * 保存、更新、删除 三合一的方法
+ * @param folder 不为空时才进行保存
+ * @param fId 文件夹ID
+ * @param oldFolder 不为空时，表示要删除
+ */
+html5sticky.saveFolder = function (folder, fId, oldFolder) {
     let folders = html5sticky.loadFolders();
-    folders[folder] = time;
+    if (folder) {
+        folders[folder] = fId;
+    }
+    if (oldFolder) {
+        delete folders[oldFolder];
+    }
     localStorage.setItem(STICKYNOTES_FOLDERS, JSON.stringify(folders));
 };
 
-html5sticky.createFolder = function (folder, time) {
+html5sticky.createFolder = function (folder, fId) {
     folder = folder || window.prompt('新建文件夹');
     if (folder) {
-        if (!time) {
+        if (!fId) {
             let folders = html5sticky.loadFolders();
             if (folders[folder]) {
                 return alert('你已经创建过这个文件夹！');
             }
         }
-        time = time || new Date().getTime();
-        html5sticky.saveFolder(folder, time);
-        return $('<li><span></span><i>(0)</i></li>').find('span').text(folder).end().attr('id', 'f_' + time).appendTo('#folders');
+        fId = fId || new Date().getTime();
+        html5sticky.saveFolder(folder, fId);
+        let elFd = $('<li><span></span><i>(0)</i><a class="btn-delete">删除</a><a class="btn-rename">重命名</a></li>').find('span').text(folder).end().attr('id', 'f_' + fId).appendTo('#folders');
+        elFd.find('a.btn-rename').click(e => {
+            e.stopPropagation();
+            let fname = window.prompt('新的文件夹名称');
+            if (fname && fname !== folder) {
+                html5sticky.saveFolder(fname, fId, folder);
+                elFd.find('span').text(fname);
+            }
+        });
+        elFd.find('a.btn-delete').click(e => {
+            e.stopPropagation();
+            let count = parseInt(elFd.find('i').text().replace(/\W/g, ''));
+            if (count && !window.confirm('当前文件夹下包含【' + count + '】个便签，建议先将笔记挪到其他文件夹再进行删除！如果你想暴力删除，那你可以继续了！！！')) {
+                return false;
+            }
+
+            // 删文件夹
+            html5sticky.saveFolder(null, fId, folder);
+            elFd.remove();
+
+            // 删笔记
+            let notes = html5sticky.getNotesByFolderId(fId);
+            notes.forEach(noteId => html5sticky.deleteNoteById(noteId));
+            $('#main').html('');
+
+            html5sticky.showMessage('#9BED87', 'black', '文件夹已删除成功！笔记本将重新加载！');
+            setTimeout(() => {location.reload(true);},2000);
+        });
+        return elFd;
     } else if (folder !== null) {
         return alert('文件夹名不能为空！');
     }
@@ -662,4 +724,9 @@ html5sticky.findFolderByName = function (name) {
         folders['默认文件夹'] = '0';
     }
     return folders[name];
+};
+
+html5sticky.images = {
+    'pin.png': 'data:image/png;base64,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',
+    'time.png': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACpklEQVQ4EXVTXUiTYRR+1dV90GUXIXRTGGVEF0EtC2GCZdlkQTf+pPtseNNVeiOERFgSBlJQYbpkVqT5sx/ndLNM5zb37dvn9jk156ZjIZYlROK7PfFON7esA4fzvN95znPOy/leQvZaFiGEObP/4Z30bsh6o1TmjMrlsuQnZ3X1vn9hxmHctCapbtv8o8XHSF5RXuLAYjpmuUxLTiqXaRRlrW3XblibS1TWRyWqsWelKj2LzSWqj2nYyjgaxfVWQnanJbKTl89JVRWI1VXiu7oc61w5YnVViZiOWY5xGJfVpIaR5SsKtJU1MGo0mwaulhpqb9MBde2WXq2meo6jA2puG6s5auC4TW1FDWT5xQUpAULIBZvdgfnlZSrOL2Bm4QukYBCBUBizSyEEmIfC8C8uYin6ldrsTrCaDAGPR8D6tzUaWVnB2uoqRK8Io9GMz+MTCTcYTODdbgwPmanL6WIClzIEpnkPotEoDYVCCIeXEQjMwelywyvOQPCK8PklOHkfhsYcsUkHD3LoyJkMAVH0oefDAJ20O6B724Mphwt6oxmj1jFYRm0Yn7DDoK2PO/rq0fWiObb/YtPxdAG5mxfgEbzUL0lwuqYhSbOYcjgRiURgHh6Jv3zaBqvuDuLBGhpfuAVtS6mPkFOpn60wMDcPk9myyfMC7dcbKRPr7RukGxs/Y686OuGzW+LvdV3QPb4Kl/7+1rRFC5JzVpGcIrfzdfcvaTYAN+9J3JkXvPAIIniPF+3tHXHPuAk++wgd7HkXFyZsv22mfhByICGQvaOSSwgp3FkP2zFbEzufOF10s8zY240lcRKLwies+KfwoOmeRAhJvZ2kSHKiPTHv/JXyJy0Pgx3P23403G2wEEIO/0VqzFYqlTn/cqAx2YC9woNphdl/AEtNsQjc350zAAAAAElFTkSuQmCC'
 };

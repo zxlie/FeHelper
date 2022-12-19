@@ -20,7 +20,7 @@ new Vue({
         txtBase64Input:{
             immediate: true,
             handler(newVal, oldVal) {
-                this.error = ''   
+                this.error = ''
                 this.txtBase64Output = ''
                 if(newVal.length === 0) return
                 if(newVal.indexOf("data:") === -1) {
@@ -34,25 +34,27 @@ new Vue({
 
     mounted: function () {
 
-        let MSG_TYPE = Tarp.require('../static/js/msg_type');
-
         // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
-        chrome.runtime.onMessage.addListener((request, sender, callback) => {
-            if (request.type === MSG_TYPE.TAB_CREATED_OR_UPDATED && request.event === MSG_TYPE.IMAGE_BASE64) {
-                if (request.content) {
-                    if(this.curType !== 'image') {
+        if (location.protocol === 'chrome-extension:') {
+            chrome.tabs.query({currentWindow: true,active: true, }, (tabs) => {
+                let activeTab = tabs.filter(tab => tab.active)[0];
+                chrome.runtime.sendMessage({
+                    type: 'fh-dynamic-any-thing',
+                    thing: 'request-page-content',
+                    tabId: activeTab.id
+                }).then(resp => {
+                    if(!resp || !resp.content) return ;
+                    if (this.curType !== 'image') {
                         this.trans();
                     }
-                    this.convertOnline(request.content, flag => {
+                    this.convertOnline(resp.content, flag => {
                         if (!flag) {
-                            chrome.extension.getBackgroundPage().BgPageInstance.notify({
-                                message: '抱歉，' + request.content + ' 对应的图片未转码成功！'
-                            });
+                            alert('抱歉，' + resp.content + ' 对应的图片未转码成功！');
                         }
                     });
-                }
-            }
-        });
+                });
+            });
+        }
 
         //监听paste事件
         document.addEventListener('paste', (event) => {
@@ -206,8 +208,8 @@ new Vue({
         },
 
         loadError: function (e) {
-            if(this.curType === 'base64' && this.txtBase64Input.trim().length) {
-                this.error ='无法识别的Base64编码，请确认是正确的图片Data URI？';
+            if (this.curType === 'base64' && this.txtBase64Input.trim().length) {
+                this.error = ('无法识别的Base64编码，请确认是正确的图片Data URI？');
             }
         }
     }

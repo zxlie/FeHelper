@@ -2,7 +2,7 @@
  * Uglifyjs3 Js压缩
  * @type {{compress}}
  */
-module.exports = (() => {
+var UglifyJs3 = (() => {
 
     function get_options() {
         return {
@@ -25,8 +25,8 @@ module.exports = (() => {
                 dead_code: true,
                 drop_console: false,
                 drop_debugger: true,
-                ecma: 5,
-                evaluate: true,
+                ecma: 6,
+                evaluate: false,
                 expression: false,
                 global_defs: {},
                 hoist_funs: false,

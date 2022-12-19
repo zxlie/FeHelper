@@ -64,7 +64,7 @@
             callback && callback(evt.data);
         };
         worker.postMessage({
-            source_text: source_text,
+            source_text: (source_text || '').trim(),
             options: options
         });
     }
@@ -266,5 +266,5 @@
         };
     }
 
-    module.exports.css_beautify = window.css_beautify = css_beautify;
+    window.css_beautify = css_beautify;
 }());

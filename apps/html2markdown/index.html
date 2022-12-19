@@ -1,11 +1,12 @@
 <!DOCTYPE HTML>
 <html lang="zh-CN">
 <head>
-    <title>HTML转Markdown工具</title>
+    <title>Markdown编辑器（支持HTML转Markdown）</title>
     <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../static/img/favicon.ico">
     <link rel="stylesheet" href="index.css" />
+    <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
-    <script src="../static/vendor/require/require.js"></script>
 </head>
 <body>
 
@@ -15,61 +16,60 @@
             <h3 class="panel-title">
                 <a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank" class="x-a-high">
                     <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：{{toolName[codeType]}}
-                <span class="x-xdemo" ref="demoLink1" @click="setDemo">示例：{{codeType}}片段</span>
+                <span class="x-xdemo" ref="demoLink1" @click="setDemo">{{codeType}}是什么？</span>
                 <span class="x-xdemo" ref="importLink" @click="importContent">导入{{codeType}}文件</span>
 
-                <span class="x-switch ui-fl-r" ref="btnSwitch" @click="trans">切换为{{toolName[nextCodeType]}}&gt;&gt;</span>
+                <span class="x-switch ui-fl-r" ref="btnSwitch" @click="trans">{{toolName[nextCodeType]}}&gt;&gt;</span>
             </h3>
         </div>
     </div>
-    <div class="panel-body mod-endecode">
+    <div class="panel-body mod-markdown" ref="modMarkdownBox">
 
-        <div class="row">
-            <textarea class="form-control mod-textarea ui-mb-10" id="srcText" ref="srcText" v-model="sourceContent" @input="convert"
-                      placeholder="粘贴或输入需要进行转换的内容"></textarea>
-        </div>
+        <div class="mod-toolbar">
+            <div class="editor-toolbar">
+                <a class="icon-bold" @click="insert('b')" title="加粗"></a>
+                <a class="icon-italic" @click="insert('i')" title="斜体"></a>
+                <i class="separator">|</i>
+                <a class="icon-quote" @click="insert('quote')" title="备注"></a>
+                <a class="icon-code" @click="insert('code')" title="代码"></a>
+                <i class="separator">|</i>
+                <a class="icon-unordered-list" @click="insert('unordered-list')" title="无序列表"></a>
+                <a class="icon-ordered-list" @click="insert('ordered-list')" title="有序列表"></a>
+                <i class="separator">|</i>
+                <a class="icon-link" @click="insert('link')" title="链接"></a>
+                <a class="icon-image" @click="insert('image')" title="图片"></a>
+                <i class="separator">|</i>
+                <a class="icon-preview" @click="togglePreview" title="实时预览切换"></a>
+                <a class="icon-save" @click="saveMarkdown('md')" title="下载Markdown内容"></a>
+                <a class="icon-pdf" @click="saveMarkdown('html')" title="下载HTML内容"></a>
 
-        <div id="rst" class="row ui-mt-10" v-show="resultContent.length > 0">
-            <a href="#" class="x-xdemo" style="margin-left: 0" @click="preview" v-html="previewText"></a>
-            <a href="#" class="x-xdemo" @click="exportContent" title="在打印设置中，务必选择「PDF」">导出为PDF</a>
-            <hr>
-            <textarea class="mod-textarea" id="rstCode" ref="rstCode" v-model="resultContent" @click="getResult" v-show="!showPreview"></textarea>
-            <div class="x-preview" v-show="showPreview" v-html="previewHTML"></div>
+                <div class="x-mask"></div>
+            </div>
         </div>
+        <div class="mod-editor">
+            <textarea id="editor" ref="elEditor"></textarea>
+        </div>
+        <div class="markdown-body" ref="boxPreview"></div>
     </div>
 
-    <div class="html-demo hide" ref="htmlDemo">
-        <h2 class="fe-function-title">FE助手</h2>
-        <ul class="fe-function-list">
-            <li class="-x-endecode" >
-                <span>字符串编解码</span></li>
-            <li class="-x-jsonformat">
-                <span><code>Json</code>串格式化</span></li>
-            <li class="-x-codebeautify">
-                <span>代码美化工具</span></li>
-            <li class="-x-codecompress">
-                <span>代码压缩工具</span></li>
-            <li class="-x-qrcode">
-                <span>二维码生成器</span></li>
-            <li class="-x-colorpicker">
-                <span>页面取色工具</span></li>
-            <li class="-x-regexp">
-                <span>Js正则表达式</span></li>
-            <li class="-x-timestamp">
-                <span>时间(戳)转换</span></li>
-            <li class="-x-base64">
-                <span>图片Base64</span></li>
-            <li class="-x-fcp">
-                <span>编码规范检测</span></li>
-            <li class="-x-loadtime">
-                <span>页面性能检测</span></li>
-            <li class="-x-markdown">
-                <span>Html转<code>Markdown</code></span></li>
-            <li class="-x-ajax-debugger">
-                <span>Ajax调试:<strong>关</strong></span></li>
-        </ul>
-    </div>
 </div>
+
+<script type="text/javascript" src="../static/vendor/codemirror/codemirror.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/overlay.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/markdown.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/gfm.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/xml.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/javascript.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/css.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/htmlmixed.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/clike.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/meta.js"></script>
+<script type="text/javascript" src="../static/vendor/h2m/h2m.js"></script>
+<script type="text/javascript" src="../static/vendor/highlight/highlight.js"></script>
+<script type="text/javascript" src="libs/marked.js"></script>
+<script type="text/javascript" src="libs/rawdeflate.js"></script>
+<script type="text/javascript" src="libs/rawinflate.js"></script>
+<script type="text/javascript" src="demo-tpl.js"></script>
 <script type="text/javascript" src="index.js"></script>
 </body>
 </html>

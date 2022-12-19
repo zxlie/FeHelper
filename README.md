@@ -4,8 +4,8 @@ FeHelper For Chrome&Firefox&MS-Edge
 
 ![FeHelper](https://user-images.githubusercontent.com/865735/75407628-7399c580-594e-11ea-8ef2-00adf39d61a8.jpg)
 
-[![Google Chrome](https://img.shields.io/chrome-web-store/v/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad) 
-[![Google Chrome](https://img.shields.io/chrome-web-store/stars/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad) 
+[![Google Chrome](https://img.shields.io/chrome-web-store/v/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
+[![Google Chrome](https://img.shields.io/chrome-web-store/stars/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
 [![Google Chrome](https://img.shields.io/chrome-web-store/users/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)    
 
 
@@ -15,12 +15,12 @@ https://www.baidufe.com/fehelper/index/index.html
 ### 1、扩展示例
 ![Web前端助手-FeHelper](https://user-images.githubusercontent.com/865735/75407048-020d4780-594d-11ea-9dd6-48f6d5774c2f.png)
 
-### 2、关于新版 
+### 2、关于新版
 - 新版本的FeHelper，是以开放平台为思路的设计，详细了解FeHelper新版，可以参考链接：
     - [FeHelper-开放平台版介绍文档](/README_NEW.md)
     - [开放平台思路下的FeHelper-阿烈叔的博客](https://www.baidufe.com/item/5b1e07d6f5106b6907bc.html)
 - 新版本FeHelper在一个新的`私有仓储`，待打磨得足够细腻了，再考虑开源    
-    
+
 ![FeHelper新版](https://user-images.githubusercontent.com/865735/75334978-b5315e80-58c3-11ea-9af0-e593149b0f7c.png)
 
 
@@ -31,7 +31,7 @@ https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh
 
 - 官网安装，你可能需要额外的梯子
     - [谷歌访问助手（官方正式版）](http://www.ggfwzs.com/)
-    - [谷歌访问助手（发烧友破解版）](https://github.com/haotian-wang/google-access-helper) 
+    - [谷歌访问助手（发烧友破解版）](https://github.com/haotian-wang/google-access-helper)
 
 ### 2、Microsoft Edge Addons
 https://microsoftedge.microsoft.com/addons/detail/feolnkbgcbjmamimpfcnklggdcbgakhe?hl=zh-CN
@@ -71,7 +71,8 @@ https://microsoftedge.microsoft.com/addons/detail/feolnkbgcbjmamimpfcnklggdcbgak
 - 多维小工具集（进制转换、RGB/HEX颜色转换、Crontab、还款计算器等）
 - 网页油猴工具（网页特效、网页定制、脚本注入、自动刷新等）
 - 我的便签笔记（便签笔记，支持导出）
-- 便捷思维导图（网页版的脑图工具）
+- Excel2Json（Excel转Json工具）
+- Websocket（ws://的抓包调试工具）
 - ... 更多工具，请去官网查看：https://www.baidufe.com/fehelper/index/index.html
 
 ### 四、使用方法

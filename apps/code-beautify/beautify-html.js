@@ -610,7 +610,7 @@
     }
 
     // If we're running a web page and don't have either of the above, add our one global
-    module.exports.html_beautify = window.html_beautify = function(html_source, options) {
+    window.html_beautify = function(html_source, options) {
         return style_html(html_source, options, window.js_beautify, window.css_beautify);
     };
 }());

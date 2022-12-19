@@ -183,34 +183,32 @@ var RegExpTools = (function () {
     };
 
     var _init = function () {
-        $(function () {
-            regElm = $('#regText');
-            srcElm = $('#srcCode');
-            srcBackgroundElm = $('#srcBackground');
-            srcWrapperElm = $('#srcWrapper');
-            rstElm = $('#rstCode').html(_emptyTable('暂无输入'));
-            rstCount = $('#rstCount');
-            regListElm = $('#regList');
+        regElm = $('#regText');
+        srcElm = $('#srcCode');
+        srcBackgroundElm = $('#srcBackground');
+        srcWrapperElm = $('#srcWrapper');
+        rstElm = $('#rstCode').html(_emptyTable('暂无输入'));
+        rstCount = $('#rstCount');
+        regListElm = $('#regList');
 
-            // 输入框自适应高度
-            regElm.textareaAutoHeight({minHeight:34});
-            srcElm.textareaAutoHeight({minHeight:50});
-            srcBackgroundElm.textareaAutoHeight({minHeight:50});
+        // 输入框自适应高度
+        regElm.textareaAutoHeight({minHeight:34});
+        srcElm.textareaAutoHeight({minHeight:50});
+        srcBackgroundElm.textareaAutoHeight({minHeight:50});
 
-            // 监听两个输入框的按键、paste、change事件
-            $('#regText,#srcCode').keyup(_dealRegMatch).change(_dealRegMatch)
-                .bind('paste', _dealRegMatch);
+        // 监听两个输入框的按键、paste、change事件
+        $('#regText,#srcCode').keyup(_dealRegMatch).change(_dealRegMatch)
+            .bind('paste', _dealRegMatch);
 
-            regListElm.change(function (e) {
-                var reg = $(this).val();
-                var regTipElm = $('#regTip');
-                regElm.val(reg);
-                if (!reg) {
-                    regTipElm.hide();
-                } else {
-                    regTipElm.show();
-                }
-            });
+        regListElm.change(function (e) {
+            var reg = $(this).val();
+            var regTipElm = $('#regTip');
+            regElm.val(reg);
+            if (!reg) {
+                regTipElm.hide();
+            } else {
+                regTipElm.show();
+            }
         });
     };
 

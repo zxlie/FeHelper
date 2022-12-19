@@ -1,8 +1,5 @@
 @import url("../static/css/bootstrap.min.css");
 
-.wrapper {
-    width: 600px;
-}
 #rstCode {
     min-height: 80px;
     width:530px;
@@ -28,4 +25,7 @@
 }
 #btnCodeChange {
     outline: none;
+}
+#btnCopy {
+    margin-left:20px;
 }

@@ -6,7 +6,11 @@
  * 4、enDecodeTools.utf8Encode(text); 将文字进行utf-8编码并输出
  * 5、enDecodeTools.utf8Decode(text); 将经过utf-8编码的文字进行utf-8解码并输出
  */
-module.exports = (() => {
+
+ import Pako from './pako.js';
+ import Md5Utils from './md5.js';
+
+let EncodeUtils = (() => {
     //base64编码字符集
     let _base64EncodeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     //base64解码字符集
@@ -235,8 +239,7 @@ module.exports = (() => {
      * @param str
      */
     let md5 = (str) => {
-        let md5 = Tarp.require('./md5');
-        return md5(str);
+        return Md5Utils.md5(str);
     };
 
     /**
@@ -245,9 +248,8 @@ module.exports = (() => {
      * @returns {*}
      */
     let gzipEncode = str => {
-        let pako = Tarp.require('./pako');
         try {
-            return window.btoa(pako.gzip(escape(str), {to: "string"}));
+            return window.btoa(Pako.gzip(escape(str), {to: "string"}));
         } catch (e) {
             return 'Error: 当前字符串不能被Gzip加密';
         }
@@ -259,11 +261,9 @@ module.exports = (() => {
      * @returns {string}
      */
     let gzipDecode = str => {
-        let pako = Tarp.require('./pako');
-
         try {
             let charData = window.atob(str).split('').map(x => x.charCodeAt(0));
-            let data = pako.inflate(new Uint8Array(charData));
+            let data = Pako.inflate(new Uint8Array(charData));
             let result = String.fromCharCode.apply(null, new Uint16Array(data));
             try {
                 return unescape(result);
@@ -301,7 +301,7 @@ module.exports = (() => {
                     back.push((128 | (63 & code)))
                 }
             }
-            for (i = 0; i < back.length; i++) {
+            for (let i = 0; i < back.length; i++) {
                 back[i] &= 0xff;
             }
             if (isGetBytes) {
@@ -390,6 +390,84 @@ module.exports = (() => {
         return outArr.join("");
     };
 
+
+    /**
+     * URL 参数解析
+     * @param url
+     * @returns {{url: *, params: Array}}
+     * @private
+     */
+    let _urlParamsDecode = function (url) {
+        let res = {};
+        try {
+            let params = [];
+            let urlObj = new URL(url);
+            for (let item of urlObj.searchParams) {
+                params.push(item);
+            }
+            res = {
+                url: urlObj.href,
+                params: params,
+                protocol: urlObj.protocol,
+                pathname: urlObj.pathname,
+                hostname: urlObj.hostname
+            }
+        } catch (e) {
+            res.error = '这不是一个合法的URL！无法完成解析！'
+        }
+        return res;
+    };
+
+    // sha1加密
+    let _sha1Encode = function (str) {
+        function encodeUTF8(s) {
+            let i, r = [], c, x;
+            for (i = 0; i < s.length; i++)
+                if ((c = s.charCodeAt(i)) < 0x80) r.push(c);
+                else if (c < 0x800) r.push(0xC0 + (c >> 6 & 0x1F), 0x80 + (c & 0x3F));
+                else {
+                    if ((x = c ^ 0xD800) >> 10 == 0)
+                        c = (x << 10) + (s.charCodeAt(++i) ^ 0xDC00) + 0x10000,
+                            r.push(0xF0 + (c >> 18 & 0x7), 0x80 + (c >> 12 & 0x3F));
+                    else r.push(0xE0 + (c >> 12 & 0xF));
+                    r.push(0x80 + (c >> 6 & 0x3F), 0x80 + (c & 0x3F));
+                }
+            return r;
+        }
+
+        var data = new Uint8Array(encodeUTF8(str))
+        var i, j, t;
+        var l = ((data.length + 8) >>> 6 << 4) + 16, s = new Uint8Array(l << 2);
+        s.set(new Uint8Array(data.buffer)), s = new Uint32Array(s.buffer);
+        for (t = new DataView(s.buffer), i = 0; i < l; i++)s[i] = t.getUint32(i << 2);
+        s[data.length >> 2] |= 0x80 << (24 - (data.length & 3) * 8);
+        s[l - 1] = data.length << 3;
+        var w = [], f = [
+                function () { return m[1] & m[2] | ~m[1] & m[3]; },
+                function () { return m[1] ^ m[2] ^ m[3]; },
+                function () { return m[1] & m[2] | m[1] & m[3] | m[2] & m[3]; },
+                function () { return m[1] ^ m[2] ^ m[3]; }
+            ], rol = function (n, c) { return n << c | n >>> (32 - c); },
+            k = [1518500249, 1859775393, -1894007588, -899497514],
+            m = [1732584193, -271733879, null, null, -1009589776];
+        m[2] = ~m[0], m[3] = ~m[1];
+        for (i = 0; i < s.length; i += 16) {
+            var o = m.slice(0);
+            for (j = 0; j < 80; j++)
+                w[j] = j < 16 ? s[i + j] : rol(w[j - 3] ^ w[j - 8] ^ w[j - 14] ^ w[j - 16], 1),
+                    t = rol(m[0], 5) + f[j / 20 | 0]() + m[4] + w[j] + k[j / 20 | 0] | 0,
+                    m[1] = rol(m[1], 30), m.pop(), m.unshift(t);
+            for (j = 0; j < 5; j++)m[j] = m[j] + o[j] | 0;
+        };
+        t = new DataView(new Uint32Array(m).buffer);
+        for (var i = 0; i < 5; i++)m[i] = t.getUint32(i << 2);
+
+        var hex = Array.prototype.map.call(new Uint8Array(new Uint32Array(m).buffer), function (e) {
+            return (e < 16 ? "0" : "") + e.toString(16);
+        }).join("");
+        return hex;
+    };
+
     return {
         uniEncode: _uniEncode,
         uniDecode: _uniDecode,
@@ -404,7 +482,10 @@ module.exports = (() => {
         gzipDecode: gzipDecode,
         hexEncode: hexTools.hexEncode,
         hexDecode: hexTools.hexDecode,
-        html2js: _html2js
+        html2js: _html2js,
+        urlParamsDecode: _urlParamsDecode,
+        sha1Encode: _sha1Encode
     };
 })();
 
+export default EncodeUtils;

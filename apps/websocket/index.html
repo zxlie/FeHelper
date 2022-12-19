@@ -1,12 +1,12 @@
 <!DOCTYPE HTML>
 <html lang="zh-CN">
 <head>
-    <title>WebSocket测试</title>
+    <title>WebSocket工具</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="../static/vendor/jquery/jquery-ui.min.css">
     <link rel="stylesheet" href="index.css"/>
+    <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
-    <script src="../static/vendor/require/require.js"></script>
 </head>
 <body>
 
@@ -22,7 +22,7 @@
         <div class="row mod-inputs">
             <div class="ui-mt-10">
                 <input type="text" id="url" ref="url" v-model="url" class="form-control"
-                       placeholder="请输入ws地址，例如ws(s)://localhost:8080/ws/single_multi/test/1">
+                       placeholder="请输入ws地址，例如 ws://121.40.165.18:8800">
             </div>
             <div class="ui-mt-10">
                 <input class="btn btn-sm btn-primary" type="button" :disabled="connBtn" value=" 连  接 "
@@ -40,7 +40,7 @@
         </div>
         <div class="row mod-inputs" style="margin-top: 10px;">
             <div class="row" v-for="result in results">
-                {{result}}<br/>
+                <div class="x-res-item" v-html="result"></div>
             </div>
         </div>
     </div>

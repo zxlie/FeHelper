@@ -28,19 +28,6 @@ window.baidu = {
                 }
             }
         }
-    },
-
-    i18n: {
-        getMessage: function (msgId, arr) {
-            if (arr) {
-                for (var i = 0, len = arr.length; i < len; i++) {
-                    arr[i] = '' + arr[i];
-                }
-                return chrome.i18n.getMessage(msgId, arr);
-            } else {
-                return chrome.i18n.getMessage(msgId);
-            }
-        }
     }
 };
 
@@ -143,7 +130,7 @@ window.toast = function (content) {
  * 获取当前脚本的绝对路径
  * @returns {string}
  */
-module.exports.getCurrAbsPath = function () {
+window.getCurrAbsPath = function () {
     let rExtractUri = /((?:http|https|file|chrome-extension):\/\/.*?\/[^:]+)(?::\d+)?:\d+/;
     let stack;
     try {

@@ -43,6 +43,7 @@ new Vue({
             this.$refs.rstCode.select();
         },
 
+
         copyResult: function () {
             // 选中要复制的内容
             this.getResult();

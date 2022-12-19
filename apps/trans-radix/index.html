@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    <title>进制转换工具</title>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../static/img/favicon.ico">
+    <link rel="stylesheet" href="index.css" />
+    <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+    <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+</head>
+<body>
+
+<div class="wrapper" id="pageContainer">
+    <div class="panel panel-default" style="margin-bottom: 0px;">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank" class="x-a-high">
+                    <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：进制转换工具</h3>
+        </div>
+    </div>
+    <div class="panel-body">
+
+        <div class="row x-tips ui-mt-10">
+            // 这里的进制转换的原理比较简单，其实就一行代码 <br/>
+            let radixConvert = (num, fromRadix, toRadix) => parseInt(num, fromRadix).toString(toRadix);
+        </div>
+
+        <div class="row mod-radios">
+            <template v-for="item in fromArray">
+                <input type="radio" name="from" :id="getId('from',item)" :value="item"
+                       :checked="item===fromSelected" @click="radixRadioClicked(1,item)">
+                <label :for="getId('from',item)">{{item}}进制</label>
+            </template>
+
+            <select class="form-control x-select" v-model="fromSelected" @change="radixConvert">
+                <option v-for="n in 36" v-if="n>1" :value="n" >{{n}}进制</option>
+            </select>
+        </div>
+
+        <div class="row ui-mt-10 mod-value">
+            <label for="srcValue">原始数字：</label>
+            <input type="text" id="srcValue" class="form-control x-input" maxlength="32" v-model="srcValue"
+                   @input="radixConvert" placeholder="number here...">
+        </div>
+
+        <div class="ui-mt-20">
+            <span class="radix-tips">// 转换结果就在下面了</span>
+        </div>
+
+        <div class="row mod-radios ui-mt-20">
+            <template v-for="item in toArray">
+                <input type="radio" name="to" :id="getId('to',item)" :value="item"
+                       :checked="item==toSelected" @click="radixRadioClicked(2,item)">
+                <label :for="getId('to',item)">{{item}}进制</label>
+            </template>
+
+            <select class="form-control x-select" v-model="toSelected" @change="radixConvert">
+                <option v-for="n in 36" v-if="n>1" :value="n">{{n}}进制</option>
+            </select>
+        </div>
+
+        <div class="row ui-mt-10 mod-value">
+            <label for="rstValue">结果数字：</label>
+            <input type="text" id="rstValue" class="form-control x-input" v-model="rstValue" readonly>
+        </div>
+    </div>
+</div>
+<script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="index.js"></script>
+</body>
+</html>

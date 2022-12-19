@@ -1,0 +1,30 @@
+@import url("../static/css/bootstrap.min.css");
+
+.col-input {
+    display: inline-block;
+    width: 220px;
+}
+label {
+    margin-right: 0;
+}
+.demo-color {
+    display: inline-block;
+    width: 60px;
+    height: 24px;
+    border: 1px solid #000;
+    margin-left: 5px;
+}
+.x-xlabel {
+    margin-left: 80px;
+}
+.row.x-tips {
+    font-size: 14px;
+    color: #aaa;
+    font-style: italic;
+}
+.panel-body h4 {
+    font-size: 16px;
+    border-bottom: 1px solid #dfdfdf;
+    padding-bottom: 5px;
+    margin: 30px 0 20px;
+}

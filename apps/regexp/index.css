@@ -4,8 +4,6 @@ html {
     font-size:14px
 }
 body {
-    background-color: #eee;
-    font-family:Arial, "simsun";
     color:#666
 }
 .pannel-select{
@@ -35,7 +33,7 @@ body {
 }
 .reg_textarea{
     padding: 0;
-    width: 954px;
+    width: 100%;
     resize: none;
     font: 100%"courier new", monospace;
 }
@@ -46,7 +44,6 @@ body {
     padding: 0;
 }
 .mod-regexp {
-    width: 980px;
     margin: 0 auto;
     padding: 0;
     background: #FFF;
@@ -69,7 +66,7 @@ body {
     margin:0;
     position:absolute;
     z-index:1;
-    width:954px;
+    width:100%;
     word-break: break-all;
     line-height:14px;
 }

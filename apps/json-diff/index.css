@@ -1,10 +1,6 @@
 @import url("../static/vendor/codemirror/codemirror.css");
 @import url("../static/css/bootstrap.min.css");
 
-body {
-    background-color: #fff;
-}
-
 .wp-json {
     width:auto;
 }
@@ -12,8 +8,11 @@ body {
     position: absolute;
     top: 60px;
     bottom: 0;
-    right:20px;
-    left:20px;
+    right:0;
+    left:0;
+}
+body[browser-extension] .wp-json .mod-json {
+    top: 60px;
 }
 .wp-json .mod-json .panel-txt {
     position: absolute;
@@ -23,9 +22,6 @@ body {
 }
 .wp-json .panel-body {
     padding:15px 0;
-}
-.wp-json .CodeMirror {
-    height: auto;
 }
 .wp-json .CodeMirror-scroll {
     min-height: 550px;
@@ -44,10 +40,14 @@ body {
     font-size: 10px;
 }
 .x-error {
-    float: right;
-    color: #0c0;
-    font-size: 14px;
+    color: #1f0606;
+    font-size: 12px;
+    margin-left: 30px;
 }
-.x-error.x-hlt {
+.x-error .x-hlt {
+    color:#f00;
+    font-weight: bold;
+}
+.x-error .x-hlt1 {
     color:#f00;
 }

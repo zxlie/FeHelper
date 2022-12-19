@@ -17,6 +17,6 @@ html,body {
     border-radius: 6px;
     border: 1px solid #eee;
 }
-
-
-
+.x-res-item {
+    margin: 5px 0;
+}

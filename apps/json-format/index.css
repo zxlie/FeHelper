@@ -1,63 +1,37 @@
 @import url("../static/vendor/codemirror/codemirror.css");
 @import url("../static/css/bootstrap.min.css");
-@import url("./without-ui.css");
+@import url("content-script.css");
 
 body {
     background-color: #fff;
 }
-.wrapper {padding-right:0}
+html,body {
+    padding: 0;
+    margin: 0;
+    height:100%;
+}
+
 .wp-json {
     width:auto;
 }
-.wp-json .mod-json {
-    position: absolute;
-    top: 60px;
-    bottom: 0;
-    right:0;
-    left:20px;
-}
-.wp-json .mod-json .panel-txt {
-    position: absolute;
-    width: 500px;
-    top: 15px;
-    bottom: 0;
-}
 
-.wp-json .mod-json .rst-item {
-    margin-left: 500px;
-    position: relative;
-    padding-top: 0;
-    padding-bottom:20px;
-}
-
-#optionBar {
-    position: fixed;
-    top: 30px;
-    right: 30px;
+.wp-json .panel-body {
+    padding: 0;
 }
 #jfContent_pre {
     display: none;
     padding: 10px;
 }
-#jsonSource,.CodeMirror {
-    height: calc(100% - 70px);
-    /*font-size: 10px;*/
-}
+
 #errorMsg {
     color: #f00;
     margin-left: 10px;
     float: right;
 }
-#jfContent {
-    margin-right: 10px;
-}
-.x-placeholder {
-    padding-top: 50px;
-    text-align: center;
-}
 .x-placeholder img{
     width: 400px;
-    opacity: 0.15;
+    opacity: 0.3;
+    margin: 5px 0 0 -8px;
 }
 .x-xdemo,a.x-xdemo {
     margin-left: 30px;
@@ -70,34 +44,12 @@ body {
     text-decoration: underline;
 }
 
-
 #errorTips {
-    position: fixed;
-    left: 20px;
-    bottom: 4px;
-    z-index: 23;
-    width: 500px;
     border-radius: 4px;
     box-shadow: 6px 5px 7px rgba(229, 163, 163, 0.4);
     background-color: #ffecf1;
     border: 1px solid #dbb2b2;
-    overflow: auto;
-    max-height: 98%;
-    min-height: 100px;
-    display: none;
-}
-#errorBtn {
-    padding:5px 0 0 5px;
-    font-size:16px;
-    cursor:pointer;
-    color:#e96969;
-    left: 490px;
-    background: #ffecf1;
-    position: fixed;
-    z-index: 100;
-}
-#errorBtn:hover {
-    opacity:0.6;
+    margin-top:10px;
 }
 #errorCode .errorEm {
     background-color:#ff921b;
@@ -109,7 +61,6 @@ body {
 #errorCode {
     padding:0 10px 10px;
     word-break: break-all;
-    margin-top: 30px;
 }
 #errorCode ol {
     padding:0 0 0 3em;
@@ -121,9 +72,7 @@ body {
 #tipsBox {
     color:#b4465c;
     padding: 6px 0 4px 2em;
-    position: fixed;
     background-color: #ffecf1;
-    width: 500px;
 }
 #errorCode ol li {
     padding:4px 7px 0;
@@ -134,60 +83,83 @@ body {
 #errorCode ol li div {
     color:#000;
 }
-input[type=checkbox] {
-    margin-left: 20px;
-}
 
 .x-error {
     color:red;
 }
 
 /*layout-up-down：上下布局模式*/
-.wp-json .mod-json.layout-up-down {
-    padding: 0;
-    position: static;
-}
-.wp-json .mod-json.layout-up-down .panel-txt {
+.wp-json.layout-up-down .mod-json .panel-txt {
     position: static;
     width: 100%;
-    height: 300px;
-    margin: 2px 0;
+    height: 250px;
+    margin: 0;
 }
-.wp-json .mod-json.layout-up-down .rst-item {
-    margin-left: 0;
-    margin-right: 0;
+.wp-json.layout-up-down  .CodeMirror {
+    height: 250px;
 }
-.wp-json .mod-json.layout-up-down #optionBar {
-    position: absolute;
-    top: -40px;
-    right:0;
+.wp-json.layout-up-down .mod-json .rst-item {
+    margin: 0;
 }
-.wp-json .mod-json.layout-up-down .x-placeholder {
+.wp-json.layout-up-down .mod-json .x-placeholder {
     padding-top: 0;
     text-align: left;
 }
-.x-sort {
-    display: block;
-    margin-left: 150px;
+
+/* layout-left-right: 左右布局 */
+.wp-json.layout-left-right .mod-json .panel-txt {
+    width: 500px;
+    height: calc(100% - 10px);
+    float: left;
 }
-.x-sort .x-split {
-    display: none;
+.wp-json.layout-left-right .mod-json .rst-item {
+    margin: 0 20px 0 30px;
+    padding-bottom:20px;
+    float: left;
+    width: calc(100% - 520px);
 }
-.layout-up-down .x-sort {
-    display: inline;
-    margin: 0;
+.wp-json.layout-left-right .mod-json .x-placeholder {
+    padding-top: 50px;
+    text-align: center;
 }
-.layout-up-down .x-sort .x-split {
-    margin: 0 20px;
-    color: #ccc;
-    display: inline;
+.wp-json.layout-left-right .panel-body {
+    height:calc(100% - 95px);
+    padding-left: 15px;
 }
-.x-sort .x-stitle {
+.wp-json.layout-left-right  #jsonSource,
+.wp-json.layout-left-right  .CodeMirror {
+    height: calc(100% - 10px);
+}
+.wp-json.layout-left-right #formattedJson {
+    padding-top: 2px;
+}
+.wp-json.layout-left-right #errorTips {
+    margin-top: 0;
+}
+
+.x-toolbar {
+    padding-top:5px;
+    padding-bottom: 5px;
+}
+.x-toolbar.x-inpage {
+    margin:10px 20px;
+}
+.panel-title>a.x-other-tools {
+    margin:10px 0 0;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: underline;
+    -webkit-user-select: none;
+    user-select: none;
     color: #f00;
-    font-weight: bold;
+    border-bottom: 1px solid #f00;
+    float: right;
 }
-.x-sort input {
-    margin-right: 10px;
+.panel-title>a.x-other-tools:hover {
+    color:#00f;
+}
+.panel-heading {
+    padding:5px 15px;
 }
 
 #layoutBar {margin-left:30px}

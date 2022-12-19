@@ -10646,5 +10646,3 @@
         }).call(this, require('_process'), typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
     }, {"./support/isBuffer": 60, "_process": 43, "inherits": 41}]
 }, {}, [1]);
-
-module.exports = window.h2m;

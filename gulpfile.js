@@ -18,15 +18,13 @@ let path = require('path');
 let pretty = require('pretty-bytes');
 let shell = require('shelljs');
 let runSequence = require('run-sequence');
-let watchPath = require('gulp-watch-path');
-let gcallback = require('gulp-callback');
 
 gulp.task('clean', () => {
     return gulp.src('output', {read: false}).pipe(clean({force: true}));
 });
 
 gulp.task('copy', () => {
-    return gulp.src(['apps/**/*.{gif,png,jpg,jpeg,cur}', '!apps/static/screenshot/**/*']).pipe(copy('output'));
+    return gulp.src(['apps/**/*.{gif,png,jpg,jpeg,cur,ico}', '!apps/static/screenshot/**/*']).pipe(copy('output'));
 });
 
 gulp.task('json', () => {
@@ -43,27 +41,18 @@ gulp.task('js', () => {
         return through.obj(function (file, enc, cb) {
             let contents = file.contents.toString('utf-8');
 
-            let tpl = 'let #VARNAME# = (function(module){ #CODES# ; return module.exports; })({exports:{}});\r\n';
-
             let merge = (fp, fc) => {
-                let js = {};
 
-                let rfc = fc.replace(/Tarp\.require\(\s*(['"])(.*)\1\s*\)/gm, function (frag, $1, mod, $2, code) {
+                // 合并 __importScript
+                return fc.replace(/__importScript\(\s*(['"])([^'"]*)\1\s*\)/gm, function (frag, $1, mod) {
                     let mp = path.resolve(fp, '../' + mod + (/\.js$/.test(mod) ? '' : '.js'));
                     let mc = fs.readFileSync(mp).toString('utf-8');
-
-                    frag = frag.replace(/[^\w]/g, '').replace('Tarprequire', 'TR');
-                    js[frag] = merge(mp, mc);
-                    return frag;
+                    return merge(mp, mc + ';');
                 });
-
-                return Object.keys(js).map(k => {
-                    return tpl.replace('#VARNAME#', k).replace('#CODES#', () => js[k]);
-                }).join('; ') + rfc;
             };
 
             contents = merge(file.path, contents);
-            file.contents = new Buffer(contents);
+            file.contents = new Buffer.from(contents);
             this.push(file);
             return cb();
         })
@@ -88,7 +77,7 @@ gulp.task('css', () => {
             };
 
             contents = merge(file.path, contents);
-            file.contents = new Buffer(contents);
+            file.contents = new Buffer.from(contents);
             this.push(file);
             return cb();
         })
@@ -104,41 +93,6 @@ gulp.task('zip', () => {
     let pathOfMF = './output/apps/manifest.json';
     let manifest = require(pathOfMF);
 
-    // background、content-script中的文件，可以作为例外
-    let excludes = manifest.background.scripts.concat(manifest.content_scripts.map(cs => {
-        return cs.js.join(',');
-    }).join(',').split(','));
-
-    // ============冗余文件清理================================================
-    shell.cd('output/apps');
-    let fileList = shell.find('./').filter(file => {
-        let included = 'yes';
-        if (file.match(/\.css$/) && !/index\.css$/.test(file)) {
-            included = shell.grep('-l', file, './**/*.{css,html,js}').stdout;
-        } else if (file.match(/\.js$/) && !/index\.js$/.test(file)) {
-            included = shell.grep('-l', file.replace(/\.js$/, ''), './**/*.{html,js}').stdout;
-        }
-
-        // 如果没有搜索到，再尝试下在js、css文件的当前目录下搜寻
-        if (!included.trim().length && /\.(js|css)$/.test(file)) {
-            let arr = file.split(/\//);
-            let filename = arr.splice(-1);
-            let dirname = arr.join('/');
-
-            included = shell.grep('-l', filename, (dirname || '.') + '/*.{html,js,css}').stdout;
-        }
-
-        return !included.trim().length;
-    });
-    fileList = fileList.filter(f => excludes.indexOf(f) === -1);
-    fileList.forEach(f => {
-        shell.rm('-rf', f);
-        console.log(new Date().toLocaleString(), '> 清理掉冗余文件：', f);
-    });
-    shell.cd('../../');
-
-    // web_accessible_resources 中也不需要加载这些冗余的文件了
-    manifest.web_accessible_resources = manifest.web_accessible_resources.filter(f => fileList.indexOf(f) === -1);
     manifest.name = manifest.name.replace('-Dev', '');
     fs.writeFileSync(pathOfMF, JSON.stringify(manifest));
 
@@ -204,14 +158,4 @@ gulp.task('default', ['clean'], () => {
 
 gulp.task('sync', () => {
     gulp.src('apps/**/*').pipe(gulp.dest('output/apps'));
-});
-
-// 开发过程中用，watch while file changed
-gulp.task('watch', () => {
-    gulp.watch('apps/**/*.*', (event) => {
-        let wp = watchPath(event, './', './output');
-        gulp.src(wp.srcPath).pipe(copy('output')).pipe(gcallback(() => {
-            console.log(new Date().toLocaleString(), '> 文件发生变化，已编译：', wp.srcPath);
-        }));
-    });
 });

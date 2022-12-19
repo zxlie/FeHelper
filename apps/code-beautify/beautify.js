@@ -3466,5 +3466,5 @@ let JsBeautifier = (function() {
 
 }());
 
-module.exports.js_beautify = window.js_beautify = JsBeautifier;
+window.js_beautify = JsBeautifier;
 
