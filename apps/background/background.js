@@ -384,7 +384,7 @@ let BgPageInstance = (function () {
                     case 'qr-decode':
                         chrome.DynamicToolRunner({
                             withContent: request.params.uri,
-                            tool: MSG_TYPE.QR_CODE,
+                            tool: 'qr-code',
                             query: `mode=decode`
                         });
                         break;

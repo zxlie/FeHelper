@@ -84,7 +84,7 @@ export default (function () {
                                     if (typeof window.qrcodeContentScript === 'function') {
                                         let qrcode = window.qrcodeContentScript();
                                         if (typeof qrcode.decode === 'function') {
-                                            qrcode.decode(pInfo.srcUrl);
+                                            qrcode.decode(text);
                                             return 1;
                                         }
                                     }

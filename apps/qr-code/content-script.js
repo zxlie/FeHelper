@@ -1,6 +1,7 @@
 window.qrcodeContentScript = function () {
 
     let decode = function (imgUrl) {
+
         function loadImage(src) {
             return new Promise(resolve => {
                 let image = new Image();
