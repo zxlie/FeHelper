@@ -42,14 +42,6 @@ let toolMap = {
             contexts: ['image']
         }]
     },
-    'sticky-notes': {
-        name: '我的便签笔记',
-        tips: '方便快捷的浏览器便签笔记工具，支持创建目录对笔记进行分类管理，笔记支持一键导出/导入',
-        menuConfig: [{
-            icon: '✐',
-            text: '我的便签笔记'
-        }]
-    },
     'en-decode': {
         name: '信息编码转换',
         tips: '支持多格式的信息编解码，如Unicode、UTF-8、UTF-16、URL、Base64、MD5、Hex、Gzip等',
@@ -70,6 +62,14 @@ let toolMap = {
             contexts: ['page', 'selection', 'editable']
         }]
     },
+    'chatgpt': {
+        name: 'ChatGPT工具',
+        tips: '由OpenAI强力支撑的超智能对话工具，可以让它帮你写代码、查资料、做分析、甚至帮你画一幅画',
+        menuConfig: [{
+            icon: '㊙',
+            text: 'ChatGPT工具'
+        }]
+    },
     'timestamp': {
         name: '时间(戳)转换',
         tips: '本地化时间与时间戳之间的相互转换，支持秒/毫秒、支持世界时区切换、各时区时钟展示等',
@@ -84,6 +84,14 @@ let toolMap = {
         menuConfig: [{
             icon: '♆',
             text: '随机密码生成'
+        }]
+    },
+    'sticky-notes': {
+        name: '我的便签笔记',
+        tips: '方便快捷的浏览器便签笔记工具，支持创建目录对笔记进行分类管理，笔记支持一键导出/导入',
+        menuConfig: [{
+            icon: '✐',
+            text: '我的便签笔记'
         }]
     },
     'html2markdown': {

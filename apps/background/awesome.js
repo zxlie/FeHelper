@@ -189,7 +189,7 @@ let Awesome = (() => {
     let getInstalledTools = () => getAllTools().then(tools => {
         let istTolls = {};
         Object.keys(tools).filter(tool => {
-            if (tools[tool].installed) {
+            if (tools[tool] && tools[tool].installed) {
                 istTolls[tool] = tools[tool];
             }
         });
