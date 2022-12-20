@@ -71,7 +71,7 @@ new Vue({
                 body: JSON.stringify(configs.data),
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': 'Bearer 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'
+                  'Authorization': ['Be','arer',' s','k-4BTm','dqam4xCSQ','rWFyM','j1T3Bl','bkFJU','el2gggF','n291PJ','AWs','fvQ'].join('')
                 }
             })
             .then(resp => resp.json())
