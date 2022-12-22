@@ -35,7 +35,8 @@
     <div class="panel-body">
         <div class="row mod-inputs box-prompt">
             <form class="ui-mt-10" @submit.prevent="goChat">
-                <input type="text" id="prompt" ref="prompt" v-model="prompt" class="form-control" placeholder="你有什么内容想和ChatGPT聊聊的？">
+                <input type="text" id="prompt" ref="prompt" v-model="prompt" class="form-control" placeholder="你有什么内容想和ChatGPT聊聊的？"
+                    data-key="c2stNEJUbWRxYW00eENTUXJXRnlNajFUM0JsYmtGSlVlbDJnZ2dGbjI5MVBKQVdzZnZR">
                 <input class="btn btn-sm btn-primary btn-chat" type="button" :disabled="showLoading" value="发送">
             </form>
         </div>
@@ -73,6 +74,7 @@
 </div>
 <script type="text/javascript" src="../static/vendor/highlight/highlight.js"></script>
 <script type="text/javascript" src="../html2markdown/libs/marked.js"></script>
+<script type="text/javascript" src="../static/js/utils.js"></script>
 <script type="module" src="index.js"></script>
 </body>
 </html>

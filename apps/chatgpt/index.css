@@ -110,6 +110,9 @@ b.x-time {
 .x-xcontent {
     margin-top: 6px;
 }
+.x-xcontent p {
+    margin:0 0 2px 0;
+}
 .x-toolbox {
     font-size: 12px;
     text-align: right;
@@ -151,4 +154,19 @@ h3.panel-title {
 .box-img-size .x-sure button {
     position: relative;
     right: -30px;
+}
+.resp-error {
+    color:red;
+}
+.x-xcontent table {
+    width: auto;
+}
+.x-xcontent table th {
+    border: 1px solid #ccc;
+    text-align: center;
+    padding: 10px;
+    background: #eee;
+}
+.x-xcontent table td {
+    border: 1px solid #ccc;
 }

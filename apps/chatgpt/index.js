@@ -4,6 +4,7 @@
  */
 
 import Awesome from '../background/awesome.js';
+import EncodeUtils from '../en-decode/endecode-lib.js';
 
 new Vue({
     el: '#pageContainer',
@@ -26,7 +27,8 @@ new Vue({
             respContent: '你好，我是FeHelper智能助理，由OpenAI提供技术支持；你可以在下面的输入框向我提问，我会尽可能回答你~~~'
         },
         results:[],
-        showLoading: false
+        showLoading: false,
+        authKey: ''
     },
     mounted: function () {
         this.$refs.prompt.focus();
@@ -53,11 +55,13 @@ new Vue({
         Awesome.StorageMgr.get('CHATGPT_IMAGE_SIZE').then(size => {
             this.imgSize = size || '512x512';
         });
+
+        this.authKey = this.decodeAuthKey(this.$refs.prompt.getAttribute('data-key'));
     },
     methods: {
         chatWithOpenAI(configs){
             if(this.showLoading) return;
-            let sendTime = (new Date()).toLocaleDateString() + ' ' + (new Date()).toLocaleTimeString();
+            let sendTime = (new Date()).format('yyyy/MM/dd HH:mm:ss');
             // 先加入队列，先展示，获取成功后会移除
             this.results.push({sendTime,message:configs.data.prompt});
             this.toggleLoading();
@@ -71,14 +75,39 @@ new Vue({
                 body: JSON.stringify(configs.data),
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': ['Be','arer',' s','k-4BTm','dqam4xCSQ','rWFyM','j1T3Bl','bkFJU','el2gggF','n291PJ','AWs','fvQ'].join('')
+                  'Authorization': ['Bearer',this.authKey].join(' ')
                 }
             })
-            .then(resp => resp.json())
+            .then(resp => {
+                if(resp.ok){
+                    return resp.json();
+                } else {
+                    let json = {
+                        created: new Date()/1000
+                    };
+                    // 鉴权失败
+                    if(resp.status == 401) {
+                        json.errorMessage = '出错啦！ChatGPT鉴权失败！';
+                    } else {
+                        json.errorMessage = '发生未知错误，请稍后再试！';
+                    }
+                    // 伪造一个结果：实际上就是报错
+                    configs.buildResponse = json => {
+                        return new Promise(resolve => {
+                            let error = `<span class="resp-error">${json.errorMessage}</span>`;
+                            let helpLink = 'https://github.com/zxlie/FeHelper/issues/194';
+                            let tips = `<a class="resp-tips" target="_blank" href="${helpLink}">你也可以到这里，获取更多帮助！</a>`;
+                            return resolve(error + tips);
+                        });
+                    };
+                    return json;
+                }
+            })
             .then(json => {
+                if(!json) return ;
                 let id = json.id || `gptimg-${new Date*1}`;
                 let dateTime = new Date(json.created * 1000);
-                let respTime = dateTime.toLocaleDateString() + ' ' + dateTime.toLocaleTimeString();
+                let respTime = dateTime.format('yyyy/MM/dd HH:mm:ss');
 
                 return configs.buildResponse(json).then(respContent => {
                     this.results.pop(); // 把最后一个节点移除掉，重新添加一个干净的
@@ -105,7 +134,7 @@ new Vue({
                 data: {model:'text-davinci-003',temperature:0,max_tokens:2048,prompt:message},
                 buildResponse: json => {
                     return new Promise(resolve => {
-                        return resolve(marked(json.choices[0].text));
+                        return resolve(marked(json.choices[0].text.replace(/^\？\n\n/,'')));
                     });
                 }
             });
@@ -179,6 +208,12 @@ new Vue({
                 };
                 image.src = onlineSrc;
             });
+        },
+        decodeAuthKey(dataKey){
+            return EncodeUtils.utf8Decode(EncodeUtils.base64Decode(dataKey));
+        },
+        loadApiKey(){
+
         }
     }
 
