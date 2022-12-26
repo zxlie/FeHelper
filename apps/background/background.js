@@ -229,7 +229,7 @@ let BgPageInstance = (function () {
 
             if (action === 'offload') {
                 _animateTips('-1');
-            } else {
+            } else if(!!action) {
                 _animateTips('+1');
             }
         } else {

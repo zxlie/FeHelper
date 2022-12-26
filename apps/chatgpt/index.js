@@ -11,7 +11,8 @@ new Vue({
     data: {
         prompt: '',
         imgSize: '512x512',
-        showImageSize:false,
+        chatModel: 'text-davinci-003',
+        showSettingPanel:false,
         demos: [
             'FeHelper是什么？怎么安装？',
             '用Js写一个冒泡排序的Demo',
@@ -32,6 +33,8 @@ new Vue({
     },
     mounted: function () {
         this.$refs.prompt.focus();
+        this.authKey = this.decodeAuthKey(this.$refs.prompt.getAttribute('data-key'));
+
         Awesome.StorageMgr.get('CHATGPT_CONVERSATION').then(results => {
             if(results && results.length) {
                 this.results = results;
@@ -52,11 +55,13 @@ new Vue({
                 this.results.push(this.initMessage);
             }
         });
+        Awesome.StorageMgr.get('CHATGPT_CHAT_MODEL').then(model => {
+            this.chatModel = model || 'text-davinci-003';
+        });
         Awesome.StorageMgr.get('CHATGPT_IMAGE_SIZE').then(size => {
             this.imgSize = size || '512x512';
         });
 
-        this.authKey = this.decodeAuthKey(this.$refs.prompt.getAttribute('data-key'));
     },
     methods: {
         chatWithOpenAI(configs){
@@ -169,19 +174,23 @@ new Vue({
         },
         demoTry(){
             this.$refs.boxResult.scrollTop = 0;
+            toast('页面上的这些Demo，你可以随便点击一个来尝试！');
         },
         msgClean(){
             if(confirm('防止误操作，你确定要清空所有消息吗？不可恢复哦！')) {
                 this.results = [];
                 this.saveConversation();
+                toast('所有消息已情况！');
             }
         },
-        showImgSizePanel(){
-            this.showImageSize = !this.showImageSize;
+        toggleSettingPanel(){
+            this.showSettingPanel = !this.showSettingPanel;
         },
-        sureImgSize(){
-            this.showImageSize = false;
+        saveSettings(){
+            this.showSettingPanel = false;
             Awesome.StorageMgr.set('CHATGPT_IMAGE_SIZE',this.imgSize);
+            Awesome.StorageMgr.set('CHATGPT_CHAT_MODEL',this.chatModel);
+            toast('设置成功，已立即生效！');
         },
         imageBase64(onlineSrc) {
             let that = this;

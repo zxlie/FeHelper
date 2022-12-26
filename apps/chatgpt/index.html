@@ -13,21 +13,36 @@
     <div class="panel panel-default" style="margin-bottom: 0px;">
         <div class="panel-heading">
             <h3 class="panel-title">
-                <a href="http://www.baidufe.com/fehelper/feedback.html" target="_blank" class="x-a-high">
+                <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
                     <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper：</a>ChatGPT工具
 
                 <span class="x-toolbox">
                     <span href="#" id="demoTry" class="x-tooltip blue-tooltip" @click="demoTry()">体验Demo</span><span class="x-line">|</span>
                     <span href="#" id="msgClean" class="x-tooltip blue-tooltip x-newnote" @click="msgClean()">清空消息</span><span class="x-line">|</span>
-                    <span href="#" id="imgSize" class="x-tooltip blue-tooltip x-newnote" @click="showImgSizePanel()">图片默认尺寸</span>
+                    <span href="#" id="setting" class="x-tooltip blue-tooltip x-newnote" @click="toggleSettingPanel()">机器人设置</span>
                 </span>
 
-                <div class="box-img-size" v-clock v-if="showImageSize">
-                    <div>请选择默认的图片尺寸：</div>
-                    <div><input type="radio" name="rdoImgSize" value="256x256" v-model="imgSize" id="rdoImgSize_256"><label for="rdoImgSize_256">256*256</label>
-                    <input type="radio" name="rdoImgSize" value="512x512" v-model="imgSize" id="rdoImgSize_512"><label for="rdoImgSize_512">512*512</label>
-                    <input type="radio" name="rdoImgSize" value="1024x1024" v-model="imgSize" id="rdoImgSize_1024"><label for="rdoImgSize_1024">1024*1024</label></div>
-                    <div class="x-sure"><input class="btn btn-sm btn-success" type="button" value="确定" @click="sureImgSize()"></div>
+                <div class="box-setting" v-clock v-if="showSettingPanel">
+                    <fieldset>
+                        <legend>智能模型</legend>
+                        <div>
+                            <input type="radio" name="rdoChatModel" value="text-davinci-002" v-model="chatModel" id="cm_t2"><label for="cm_t2">text-davinci-002</label>
+                            <input type="radio" name="rdoChatModel" value="text-davinci-003" v-model="chatModel" id="cm_t3"><label for="cm_t3">text-davinci-003</label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>图片尺寸</legend>
+                        <div>
+                            <input type="radio" name="rdoImgSize" value="256x256" v-model="imgSize" id="rdoImgSize_256"><label for="rdoImgSize_256">256*256</label>
+                            <input type="radio" name="rdoImgSize" value="512x512" v-model="imgSize" id="rdoImgSize_512"><label for="rdoImgSize_512">512*512</label>
+                            <input type="radio" name="rdoImgSize" value="1024x1024" v-model="imgSize" id="rdoImgSize_1024"><label for="rdoImgSize_1024">1024*1024</label>
+                        </div>
+                    </fieldset>
+                    <div class="x-sure">
+                        <input class="btn btn-sm btn-primary ui-mr-10" type="button" value="取消" @click="toggleSettingPanel()">
+                        <input class="btn btn-sm btn-success" type="button" value="确定" @click="saveSettings()">
+                    </div>
                 </div>
             </h3>
         </div>
