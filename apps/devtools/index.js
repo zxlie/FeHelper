@@ -18,7 +18,7 @@ new Vue({
         model: {},
         demo: {
             name: 'hello-world',
-            files: ['fh-config.js', 'index.html', 'index.js', 'index.css', 'content-script.js']
+            files: ['fh-config.js', 'index.html', 'index.js', 'index.css', 'content-script.js','content-script.css']
         }
     },
     mounted: function () {

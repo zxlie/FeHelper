@@ -5,7 +5,7 @@ config = {
         "icon": "웃",
         "noPage": true,
         "contentScriptJs": true,
-        "contentScriptCss": false,
+        "contentScriptCss": true,
         "minVersion": "2020.02.0718"
     }
 }

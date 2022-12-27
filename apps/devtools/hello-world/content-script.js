@@ -1,8 +1,19 @@
+
+let cssInjected = false;
 /**
  * 注意这里的方法名称，其实是：window[`${toolName.replace(/[-_]/g,'')}ContentScript`];
  * @author 阿烈叔
  */
 window.helloworldContentScript = function () {
+    // 动态注入css
+    if(!cssInjected) {
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing:'inject-content-css',
+            tool: 'hello-world'
+        });
+    }
+    
     console.log('你好，我是来自FeHelper的工具Demo：hello world！');
 };
 

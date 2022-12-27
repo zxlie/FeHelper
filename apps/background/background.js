@@ -58,6 +58,10 @@ let BgPageInstance = (function () {
 
     };
 
+    // 像页面注入css脚本
+    let _injectContentCss = function(tabId,toolName){
+        InjectTools.inject(tabId, {files: [`${toolName}/content-script.css`]});
+    };
 
 
     // 往当前页面直接注入脚本，不再使用content-script的配置了
@@ -65,12 +69,6 @@ let BgPageInstance = (function () {
 
         // FH工具脚本注入
         Awesome.getInstalledTools().then(tools => {
-
-            // 注入样式
-            let cssFiles = Object.keys(tools)
-                            .filter(tool => !tools[tool]._devTool && tools[tool].contentScriptCss)
-                            .map(tool => `${tool}/content-script.css`);
-            InjectTools.inject(tabId, {files: cssFiles});
 
             // 注入js
             let jsTools = Object.keys(tools)
@@ -88,12 +86,6 @@ let BgPageInstance = (function () {
         // 其他开发者自定义工具脚本注入======For FH DevTools
         Awesome.getInstalledTools().then(tools => {
             let list = Object.keys(tools).filter(tool => tools[tool]._devTool);
-
-            // 注入css样式
-            list.filter(tool => tools[tool].contentScriptCss)
-                    .map(tool => Awesome.getContentScript(tool, true).then(css => {
-                        InjectTools.inject(tabId, { css });
-                    }));
 
             // 注入js脚本
             list.filter(tool => (tools[tool].contentScriptJs || tools[tool].contentScript))
@@ -409,6 +401,9 @@ let BgPageInstance = (function () {
                         break;
                     case 'request-monkey-start':
                         Monkey.start(request.params);
+                        break;
+                    case 'inject-content-css':
+                        _injectContentCss(sender.tab.id,request.tool);
                         break;
                 }
                 callback && callback(request.params);

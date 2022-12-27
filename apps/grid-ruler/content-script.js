@@ -148,35 +148,18 @@ window.gridrulerContentScript = function () {
         });
     };
 
+    let cssInjected = false;
     /**
      * 执行栅格系统检测
      */
     window.gridrulerNoPage = function (tabInfo) {
 
-        // 加载CSS
-        if (window.gridrulerContentScriptCssInject) {
-            window.gridrulerContentScriptCssInject();
-        } else {
-            // 注入css and html fragment
+        // 提前注入css
+        if(!cssInjected) {
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
-                func: ((params, callback) => {
-
-                    let injectFn = (cssText) => {
-                        chrome.tabs.insertCSS({
-                            code: cssText
-                        });
-                    };
-
-                    let cssText = Awesome.getContentScript('grid-ruler', true);
-                    if (typeof cssText === 'string') {
-                        injectFn(cssText);
-                    } else if (cssText instanceof Promise) {
-                        cssText.then(css => injectFn(css));
-                    }
-                    callback && callback();
-                    return true;
-                }).toString()
+                thing:'inject-content-css',
+                tool: 'grid-ruler'
             });
         }
 

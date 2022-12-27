@@ -32,7 +32,7 @@ window.codebeautifyContentScript = (() => {
     };
 
     let formattedCodes = '';
-
+    let cssInjected = false;
     // **************************************************************
 
     /**
@@ -46,6 +46,7 @@ window.codebeautifyContentScript = (() => {
             formattedCodes = txtResult;
             code.textContent = txtResult;
             code.classList.add('language-' + fileType.toLowerCase());
+            document.querySelector('html').classList.add('jf-cb');
 
             // 用webwork的方式来进行格式化，效率更高
             let worker = new Worker(URL.createObjectURL(new Blob(["(" + highlightWebWorker.toString() + ")()"], {type: 'text/javascript'})));
@@ -90,6 +91,15 @@ window.codebeautifyContentScript = (() => {
             return;
         }
         let source = document.getElementsByTagName('pre')[0].textContent;
+
+        // 提前注入css
+        if(!cssInjected) {
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing:'inject-content-css',
+                tool: 'code-beautify'
+            });
+        }
 
         $(document.body).addClass('show-tipsbar');
 

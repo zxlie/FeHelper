@@ -1,6 +1,6 @@
 @import url("../static/vendor/highlight/github.css");
 
-body {
+html.fh-cb body {
     font-size: 14px;
     background: #fff;
 }
@@ -18,7 +18,6 @@ body {
     background-position: 10px 50%, 0 0;
     background-repeat: no-repeat, repeat-x;
     font: 15px/32px 'Helvetica', 'Segoe UI', Arial, 'Microsoft Yahei', Simsun, sans-serif;
-    transform: translate3d(0, -37px, 0);
     -webkit-user-select: none;
     user-select: none;
 }
@@ -108,51 +107,55 @@ body {
     margin-left: 10px;
 }
 
-body.show-tipsbar > *,
-body.show-beautified > *{
+html.fh-cb body.show-tipsbar > *,
+html.fh-cb body.show-beautified > *{
     transition: .2s linear;
 }
 
-body.show-tipsbar pre,
-body.show-beautified pre {
+html.fh-cb body.show-tipsbar pre,
+html.fh-cb body.show-beautified pre {
     transform: translate3d(0, 37px, 0);
 }
 
-body #fehelper_tips {
+html.fh-cb body #fehelper_tips {
     transform: none;
 }
-body.show-tipsbar .copy{
+html.fh-cb body.show-tipsbar .copy{
     display: none;
 }
-body.show-beautified .copy {
+html.fh-cb body.show-beautified .copy {
     display: inline-block;
 }
 
-body.processing > :not(#fehelper_tips) {
+html.fh-cb body.processing > :not(#fehelper_tips) {
     opacity: .5;
     pointer-events: none;
     cursor: wait;
 }
-pre {
+html.fh-cb pre {
     padding-top: 0;
 }
-pre>code[class*="language"] {
+html.fh-cb pre>code[class*="language"] {
     overflow: initial;
 }
 
-pre ol {
+html.fh-cb pre ol {
     background: #f9f9f9;
     color:#ccc;
 }
-pre ol li {
+html.fh-cb pre ol li {
     margin: 0 0 0 2px;
     padding: 1px 0 1px 5px;
     background: #fff;
     border-left: 1px solid #ddd;
 }
-pre ol li>span {
+html.fh-cb pre ol li>span {
     color: #444;
 }
-pre ol li:hover {
+html.fh-cb pre ol li:hover {
     background:#f5f5f5;
+}
+.show-tipsbar pre,
+html.jf-cb pre {
+    padding: 30px 2px 0;
 }

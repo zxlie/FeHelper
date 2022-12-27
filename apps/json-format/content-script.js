@@ -64,6 +64,8 @@ window.JsonAutoFormat = (() => {
         '6': 'theme-vegetarian'
     };
 
+    let cssInjected = false;
+
     // JSONP形式下的callback name
     let funcName = null;
     let jsonObj = null;
@@ -561,6 +563,16 @@ window.JsonAutoFormat = (() => {
 
         // 是json格式，可以进行JSON自动格式化
         if (jsonObj != null && typeof jsonObj === "object") {
+
+            // 提前注入css
+            if(!cssInjected) {
+                chrome.runtime.sendMessage({
+                    type: 'fh-dynamic-any-thing',
+                    thing:'inject-content-css',
+                    tool: 'json-format'
+                });
+            }
+
             try {
                 // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
                 source = JSON.stringify(jsonObj);
@@ -578,6 +590,7 @@ window.JsonAutoFormat = (() => {
                 }
             }
 
+            $('html').addClass('fh-jf');
             $('body').prepend(_getHtmlFragment());
             let preLength = $('body>pre').remove().length;
             if (!preLength) {

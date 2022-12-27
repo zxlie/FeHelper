@@ -69,8 +69,8 @@
     padding-top: 6px
 }
 
-pre {
-    padding: 36px 5px 5px 5px
+html.fh-jf  pre {
+    /* padding: 36px 5px 5px 5px */
 }
 
 #jfContent {
@@ -78,7 +78,7 @@ pre {
 }
 
 /*================json format style start===================*/
-.item {
+html.fh-jf .item {
     display: block;
     padding-left: 20px;
     margin-left: -20px;
@@ -87,29 +87,29 @@ pre {
     padding-bottom: 1px;
 }
 
-.item .kv-list {
+html.fh-jf .item .kv-list {
     display: block;
     padding-left: 24px;
     border-left: 1px dashed #bbb;
     margin-left: 2px
 }
-.item .string {
+html.fh-jf .item .string {
     word-wrap: break-word
 }
 
-.item .string a {
+html.fh-jf .item .string a {
     text-decoration: underline;
 }
 
-.item .string a:hover {
+html.fh-jf .item .string a:hover {
     color: #b00;
 }
 
-.item .brace {
+html.fh-jf .item .brace {
     font-weight: bold;
 }
 
-.item .expand {
+html.fh-jf .item .expand {
     width: 20px;
     height: 18px;
     display: block;
@@ -122,49 +122,49 @@ pre {
     cursor: pointer;
 }
 
-.item .expand:after {
+html.fh-jf .item .expand:after {
     content: "\25bc";
 }
 
-.item .expand:hover {
+html.fh-jf .item .expand:hover {
     opacity: 0.35
 }
 
-.item .expand:active {
+html.fh-jf .item .expand:active {
     opacity: 0.5
 }
 
-.item.collapsed {
+html.fh-jf .item.collapsed {
     white-space: nowrap
 }
 
-.item.collapsed > .kv-list {
+html.fh-jf .item.collapsed > .kv-list {
     display: none
 }
 
-.item.collapsed .item .expand {
+html.fh-jf .item.collapsed .item .expand {
     display: none
 }
 
-.item.collapsed > .ellipsis:after {
+html.fh-jf .item.collapsed > .ellipsis:after {
     content: "\2026";
     font-weight: bold
 }
 
-.item.collapsed > .ellipsis {
+html.fh-jf .item.collapsed > .ellipsis {
     margin: 0 4px;
     color: #888
 }
 
-.item.collapsed .item {
+html.fh-jf .item.collapsed .item {
     display: inline
 }
 
-.item.collapsed > .expand {
+html.fh-jf .item.collapsed > .expand {
     -webkit-transform: rotate(-90deg);
     top: -1px
 }
-.remove-quote .quote {
+html.fh-jf .remove-quote .quote {
     display: none;
 }
 /*================json format style end===================*/
@@ -251,7 +251,7 @@ pre {
     -webkit-animation: spin 1s 0 infinite
 }
 
-* {
+html.fh-jf  * {
     -webkit-font-smoothing: antialiased
 }
 
@@ -265,23 +265,23 @@ pre {
     word-break: break-all;
 }
 
-html {
+html.fh-jf  {
     font-size: 14px;
     color: #333;
     direction: ltr;
 }
 
-html body {
+html.fh-jf  body {
     direction: inherit;
     margin: 0;
 }
 
-body {
+html..fh-jf body {
     padding: 0 8px;
 }
 
 /* 工具栏 */
-.x-toolbar {
+html.fh-jf .x-toolbar {
     background-color: #f5f5f5;
     background: -webkit-linear-gradient(#fafafa, #f4f4f4 40%, #e5e5e5);
     margin: 10px 0;
@@ -298,50 +298,50 @@ body {
     user-select: none;
 }
 
-.x-toolbar .x-sort input {
+html.fh-jf .x-toolbar .x-sort input {
     margin-right: 10px;
 }
-.x-toolbar span {
+html.fh-jf .x-toolbar span {
     white-space: normal !important;
 }
 
-.x-toolbar .x-sort input#sort_desc {
+html.fh-jf  .x-toolbar .x-sort input#sort_desc {
     margin-right: 0;
 }
 
-.x-toolbar .x-sort {
+html.fh-jf  .x-toolbar .x-sort {
     display: inline;
     margin: 0;
 }
 
-.x-toolbar .x-split {
+html.fh-jf  .x-toolbar .x-split {
     margin: 0 15px;
     color: #ccc;
     display: inline;
 }
 
-.x-toolbar label {
+html.fh-jf  .x-toolbar label {
     font-weight: normal;
     margin-bottom: 0;
 }
 
-.x-toolbar img {
+html.fh-jf  .x-toolbar img {
     vertical-align: middle;
 }
 
-.x-toolbar .x-a-title {
+html.fh-jf  .x-toolbar .x-a-title {
     font-size: 14px;
     color: blue;
     text-decoration: none;
     font-weight: bold;
 }
 
-.x-toolbar .x-b-title {
+html.fh-jf  .x-toolbar .x-b-title {
     font-size: 14px;
     font-weight: bold;
 }
 
-.x-toolbar.t-collapse {
+html.fh-jf  .x-toolbar.t-collapse {
     position: fixed;
     left: 100%;
     margin-left: -24px;
@@ -349,22 +349,22 @@ body {
     top: -10px;
 }
 
-.x-toolbar.t-collapse .fe-feedback {
+html.fh-jf .x-toolbar.t-collapse .fe-feedback {
     float: left;
     margin-left: -10px;
     margin-right: 20px;
 }
-.x-toolbar.t-collapse .fe-feedback .x-settings{
+html.fh-jf .x-toolbar.t-collapse .fe-feedback .x-settings{
     display: none;
 }
 
-.mod-json .format-item button {
+html.fh-jf .mod-json .format-item button {
     width: 80px;
     height: 30px;
     float: right;
 }
 
-.mod-contentscript {
+html.fh-jf .mod-contentscript {
     width: auto;
 }
 
@@ -373,8 +373,8 @@ body {
     position: static !important;
 }
 
-body>#optionBar ,
-body>#jfContent {
+html.fh-jf body>#optionBar ,
+html.fh-jf body>#jfContent {
     display: none !important;
 }
 
@@ -391,7 +391,7 @@ body>#jfContent {
     height: 120px;
 }
 
-.mod-json .callback-name {
+html.fh-jf .mod-json .callback-name {
     font-weight: bolder;
     color: #a00;
 }
@@ -414,7 +414,7 @@ body>#jfContent {
     padding: 2px 10px 2px 2px;
     z-index: 10
 }
-.hide-status-bar #statusBar {
+html.fh-jf .hide-status-bar #statusBar {
     width:0;
     height:0;
     opacity: 0;
@@ -423,7 +423,7 @@ body>#jfContent {
     cursor: default;
 }
 
-.boxOpt {
+html.fh-jf .boxOpt {
     position: absolute;
     right: 0;
     top:-1px;
@@ -435,19 +435,19 @@ body>#jfContent {
     z-index: 1000;
 }
 
-.boxOpt a {
+html.fh-jf .boxOpt a {
     cursor: pointer;
     margin: 0 5px;
     font-size: 12px;
     color: #666;
     text-decoration: none;
 }
-.boxOpt a:hover {
+html.fh-jf .boxOpt a:hover {
     color:#000;
     text-decoration: none;
 }
 
-.fe-feedback {
+html.fh-jf .fe-feedback {
     font-size: 12px;
     padding-top: 3px;
     color: #888;
@@ -467,7 +467,7 @@ body>#jfContent {
     color: #c00;
 }
 
-svg:not(:root) {
+html.fh-jf svg:not(:root) {
     overflow: hidden;
 }
 
@@ -564,7 +564,7 @@ svg:not(:root) {
 }
 
 /*================ 皮肤：theme-default ===================*/
-body.theme-default {
+html.fh-jf body.theme-default {
     background-color: #fff;
 }
 .theme-default .item .key {
