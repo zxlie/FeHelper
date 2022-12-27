@@ -7,8 +7,7 @@
  * 5、enDecodeTools.utf8Decode(text); 将经过utf-8编码的文字进行utf-8解码并输出
  */
 
- import Pako from './pako.js';
- import Md5Utils from './md5.js';
+import Md5Utils from './md5.js';
 
 let EncodeUtils = (() => {
     //base64编码字符集
@@ -243,39 +242,6 @@ let EncodeUtils = (() => {
     };
 
     /**
-     * gzip加密
-     * @param str
-     * @returns {*}
-     */
-    let gzipEncode = str => {
-        try {
-            return window.btoa(Pako.gzip(escape(str), {to: "string"}));
-        } catch (e) {
-            return 'Error: 当前字符串不能被Gzip加密';
-        }
-    };
-
-    /**
-     * gzip解密
-     * @param str
-     * @returns {string}
-     */
-    let gzipDecode = str => {
-        try {
-            let charData = window.atob(str).split('').map(x => x.charCodeAt(0));
-            let data = Pako.inflate(new Uint8Array(charData));
-            let result = String.fromCharCode.apply(null, new Uint16Array(data));
-            try {
-                return unescape(result);
-            } catch (ee) {
-                return result;
-            }
-        } catch (e) {
-            return 'Error: 当前字符串不能被Gzip解密';
-        }
-    };
-
-    /**
      * 字符串与Hex编码互转
      * @param input
      * @returns {string}
@@ -478,8 +444,6 @@ let EncodeUtils = (() => {
         utf16to8: _utf16to8,
         utf8to16: _utf8to16,
         md5: md5,
-        gzipEncode: gzipEncode,
-        gzipDecode: gzipDecode,
         hexEncode: hexTools.hexEncode,
         hexDecode: hexTools.hexDecode,
         html2js: _html2js,

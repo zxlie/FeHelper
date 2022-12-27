@@ -41,9 +41,6 @@
                                 <label><input type="radio" name="codeType" value="utf8Encode" v-model="selectedType" @click="convert()">URL编码<span class="x-ps">(%开头)</span></label>
                             </div>
                             <div class="radio ui-d-ib ui-mr-20">
-                                <label><input type="radio" name="codeType" value="gzipEncode" v-model="selectedType" @click="convert()">Gzip压缩</label>
-                            </div>
-                            <div class="radio ui-d-ib ui-mr-20">
                                 <label><input type="radio" name="codeType" value="utf16Encode" v-model="selectedType" @click="convert()">UTF16编码<span class="x-ps">(\x开头)</span></label>
                             </div>
                             <div class="radio ui-d-ib ui-mr-20">
@@ -77,9 +74,6 @@
                             </div>
                             <div class="radio ui-d-ib ui-mr-20">
                                 <label><input type="radio" name="codeType" value="utf8Decode" v-model="selectedType" @click="convert()">URL解码<span class="x-ps">(%开头)</span></label>
-                            </div>
-                            <div class="radio ui-d-ib ui-mr-20">
-                                <label><input type="radio" name="codeType" value="gzipDecode" v-model="selectedType" @click="convert()">Gzip解压</label>
                             </div>
                             <div class="radio ui-d-ib ui-mr-20">
                                 <label><input type="radio" name="codeType" value="utf16Decode" v-model="selectedType" @click="convert()">UTF16解码<span class="x-ps">(\x开头)</span></label>
