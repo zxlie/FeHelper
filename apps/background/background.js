@@ -59,8 +59,15 @@ let BgPageInstance = (function () {
     };
 
     // 像页面注入css脚本
-    let _injectContentCss = function(tabId,toolName){
-        InjectTools.inject(tabId, {files: [`${toolName}/content-script.css`]});
+    let _injectContentCss = function(tabId,toolName,isDevTool){
+        if(isDevTool){
+            Awesome.getContentScript(toolName, true)
+                .then(css => {
+                    InjectTools.inject(tabId, { css })
+                });
+        }else{
+            InjectTools.inject(tabId, {files: [`${toolName}/content-script.css`]});
+        }
     };
 
 
@@ -403,7 +410,7 @@ let BgPageInstance = (function () {
                         Monkey.start(request.params);
                         break;
                     case 'inject-content-css':
-                        _injectContentCss(sender.tab.id,request.tool);
+                        _injectContentCss(sender.tab.id,request.tool,!!request.devTool);
                         break;
                 }
                 callback && callback(request.params);

@@ -10,10 +10,11 @@ window.helloworldContentScript = function () {
         chrome.runtime.sendMessage({
             type: 'fh-dynamic-any-thing',
             thing:'inject-content-css',
+            devTool: true,
             tool: 'hello-world'
         });
     }
-    
+
     console.log('你好，我是来自FeHelper的工具Demo：hello world！');
 };
 
