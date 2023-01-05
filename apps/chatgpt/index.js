@@ -34,6 +34,10 @@ new Vue({
     mounted: function () {
         this.$refs.prompt.focus();
         this.authKey = this.decodeAuthKey(this.$refs.prompt.getAttribute('data-key'));
+        // 如果本地有存储过authKey，就优先用本地的
+        Awesome.StorageMgr.get('CHATGPT_AUTH_KEY').then(authKey => {
+            this.authKey = authKey || this.authKey;
+        });
 
         Awesome.StorageMgr.get('CHATGPT_CONVERSATION').then(results => {
             if(results && results.length) {
@@ -93,6 +97,10 @@ new Vue({
                     // 鉴权失败
                     if(resp.status == 401) {
                         json.errorMessage = '出错啦！ChatGPT鉴权失败！';
+                    } else if(resp.status == 429) {
+                        let url = 'https://beta.openai.com/account/api-keys';
+                        json.errorMessage = '当前账号下OpenAI的免费限额用完了，你可以在右上角【机器人设置】中更换为你自己的OpenAI API Key！'
+                            + `如果你还没有OpenAI账号，<a class="resp-tips" target="_blank" href="${url}">你可以点击这里进入</a>，提前申请好API Key！`;
                     } else {
                         json.errorMessage = '发生未知错误，请稍后再试！';
                     }
@@ -190,7 +198,8 @@ new Vue({
             this.showSettingPanel = false;
             Awesome.StorageMgr.set('CHATGPT_IMAGE_SIZE',this.imgSize);
             Awesome.StorageMgr.set('CHATGPT_CHAT_MODEL',this.chatModel);
-            toast('设置成功，已立即生效！');
+            Awesome.StorageMgr.set('CHATGPT_AUTH_KEY',this.authKey);
+            toast('设置成功，已立即生效，可以继续使用了！');
         },
         imageBase64(onlineSrc) {
             let that = this;
@@ -220,9 +229,6 @@ new Vue({
         },
         decodeAuthKey(dataKey){
             return EncodeUtils.utf8Decode(EncodeUtils.base64Decode(dataKey));
-        },
-        loadApiKey(){
-
         }
     }
 

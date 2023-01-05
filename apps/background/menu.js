@@ -64,7 +64,6 @@ export default (function () {
                     };
                     break;
 
-
                 case 'qr-code':
                     toolMap[tool].menuConfig[0].onClick = function (info, tab) {
                         chrome.scripting.executeScript({

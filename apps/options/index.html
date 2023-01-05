@@ -110,8 +110,8 @@
                     <span class="x-tips">（{{fhTools[tool].tips}}）</span>
 
                     <span class="ui-fl-r x-btn-box">
-                        <button class="btn btn-danger btn-xs" @click="offLoad(tool,$event)" v-if="!fhTools[tool].offloadForbid">卸载</button>
-                        <button class="btn btn-disabled btn-xs" v-if="fhTools[tool].offloadForbid" title="系统预装，不可被卸载">卸载</button>
+                        <button class="btn btn-danger btn-xs" @click="offLoad(tool,$event)" v-if="!fhTools[tool].systemInstalled">卸载</button>
+                        <button class="btn btn-disabled btn-xs" v-if="fhTools[tool].systemInstalled" title="系统预装，不可被卸载">卸载</button>
                         <button class="btn btn-xs" :class="fhTools[tool].menu ? 'btn-warning' : 'btn-info'" @click="menuMgr(tool,$event)">{{fhTools[tool].menu ? '移出' : '加入'}}右键</button>
                     </span>
 

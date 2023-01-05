@@ -4,7 +4,7 @@ let toolMap = {
         tips: '页面自动检测并格式化、手动格式化、乱码解码、排序、BigInt、编辑、下载、皮肤定制等',
         contentScriptJs: true,
         contentScriptCss: true,
-        offloadForbid: true,
+        systemInstalled: true,
         menuConfig: [{
             icon: '⒥',
             text: 'JSON格式化',
@@ -60,6 +60,14 @@ let toolMap = {
             icon: '✡',
             text: '代码美化工具',
             contexts: ['page', 'selection', 'editable']
+        }]
+    },
+    'code-compress': {
+        name: '代码压缩工具',
+        tips: 'Web开发用，提供简单的代码压缩功能，支持HTML、Javascript、CSS代码压缩',
+        menuConfig: [{
+            icon: '♯',
+            text: '代码压缩工具'
         }]
     },
     'chatgpt': {

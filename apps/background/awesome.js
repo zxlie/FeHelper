@@ -155,7 +155,7 @@ let Awesome = (() => {
                 }
             });
             Object.keys(toolMap).forEach(tool => {
-                toolMap[tool].installed = toolMap[tool].installed || toolMap[tool].offloadForbid;
+                toolMap[tool].installed = toolMap[tool].systemInstalled || toolMap[tool].installed;
             });
             return toolMap;
         });

@@ -39,6 +39,13 @@
                             <input type="radio" name="rdoImgSize" value="1024x1024" v-model="imgSize" id="rdoImgSize_1024"><label for="rdoImgSize_1024">1024*1024</label>
                         </div>
                     </fieldset>
+
+                    <fieldset>
+                        <legend>设置API-KEY</legend>
+                        <div>
+                            <input type="text" id="elmApiKey" class="form-control" v-model="authKey">
+                        </div>
+                    </fieldset>
                     <div class="x-sure">
                         <input class="btn btn-sm btn-primary ui-mr-10" type="button" value="取消" @click="toggleSettingPanel()">
                         <input class="btn btn-sm btn-success" type="button" value="确定" @click="saveSettings()">
