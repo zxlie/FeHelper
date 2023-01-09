@@ -86,7 +86,7 @@ window.JsonAutoFormat = (() => {
             type: 'fh-dynamic-any-thing',
             thing:'request-jsonformat-options',
             params: STORAGE_KEYS
-        }).then(result => success(result));
+        }, result => success(result));
     };
 
     let _getHtmlFragment = () => {
@@ -301,7 +301,7 @@ window.JsonAutoFormat = (() => {
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
                 thing: 'toggle-jsonformat-options'
-            }).then(show => {
+            }, show => {
                 let toolBarClassList = document.querySelector('#jfToolbar').classList;
                 if (show) {
                     toolBarClassList.remove('t-collapse');

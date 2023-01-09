@@ -137,11 +137,11 @@ html,body {
     margin-top: 0;
 }
 
-.x-toolbar {
+html.fh-jf .x-toolbar {
     padding-top:5px;
     padding-bottom: 5px;
 }
-.x-toolbar.x-inpage {
+html.fh-jf .x-toolbar.x-inpage {
     margin:10px 20px;
 }
 .panel-title>a.x-other-tools {

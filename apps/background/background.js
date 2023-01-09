@@ -368,7 +368,7 @@ let BgPageInstance = (function () {
                         return true;
                     case 'toggle-jsonformat-options':
                         Awesome.StorageMgr.get('JSON_TOOL_BAR_ALWAYS_SHOW').then(result => {
-                            let show = result !== 'false';
+                            let show = result !== false;
                             Awesome.StorageMgr.set('JSON_TOOL_BAR_ALWAYS_SHOW',!show).then(() => {
                                 callback && callback(!show);
                             });

@@ -284,7 +284,7 @@ html..fh-jf body {
 html.fh-jf .x-toolbar {
     background-color: #f5f5f5;
     background: -webkit-linear-gradient(#fafafa, #f4f4f4 40%, #e5e5e5);
-    margin: 10px 0;
+    margin: 0 0 10px ;
     border: 1px solid #ddd;
     border-bottom-color: #ccc;
     border-radius: 4px;

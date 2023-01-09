@@ -75,10 +75,15 @@ let Awesome = (() => {
         let toolKey = TOOL_NAME_TPL.replace('#TOOL-NAME#', toolName);
 
         return Promise.all([StorageMgr.get(toolKey), StorageMgr.get(menuKey)]).then(values => {
-            if (detectMenu) {
-                return values[0] && String(values[1]) === '1';
+            let toolInstalled = !!values[0];
+            // 系统预置的功能，是强制 installed 状态的
+            if(toolMap[toolName] && toolMap[toolName].systemInstalled) {
+                toolInstalled = true;
             }
-            return !!values[0];
+            if (detectMenu) {
+                return toolInstalled && String(values[1]) === '1';
+            }
+            return toolInstalled;
         });
     };
 
@@ -153,9 +158,6 @@ let Awesome = (() => {
                 if (toolMap[tool].hasOwnProperty('_devTool')) {
                     toolMap[tool][key] = toolMap[tool][key] && toolMap[tool]._enable;
                 }
-            });
-            Object.keys(toolMap).forEach(tool => {
-                toolMap[tool].installed = toolMap[tool].systemInstalled || toolMap[tool].installed;
             });
             return toolMap;
         });
