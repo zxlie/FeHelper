@@ -153,12 +153,15 @@ new Vue({
             });
         },
         drawImage(message){
+            let imgSize = this.imgSize || '512x512'
+
             this.chatWithOpenAI({
                 url:'https://api.openai.com/v1/images/generations',
-                data: {prompt:message,n:1,size: this.imgSize || '512x512'},
+                data: {prompt:message,n:1,size: imgSize},
                 buildResponse: json => {
                     return this.imageBase64(json.data[0].url).then(dataURI => {
-                        return `<img src="${dataURI}" alt="图片" class="gpt-image" />`;
+                        let [width, height] = imgSize.split('x')
+                        return `<img src="${dataURI}" alt="图片" class="gpt-image" width="${width}px" height="${height}px" />`;
                     });
                 }
             });
