@@ -1,6 +1,9 @@
 Web前端助手（FeHelper）- crx文件安装方法
 =============================
 
+### 在线下载FeHelper最新版crx文件
+1. 可以从外网搜索FeHelper下载：[https://www.crx4chrome.com/s.php?s=FeHelper](https://www.crx4chrome.com/s.php?s=FeHelper)
+
 ### 安装方法 
 1. 下载当前最新版`*.crx`
 1. chrome浏览器地址栏输入：[chrome://extensions/](chrome://extensions/) 并打开
