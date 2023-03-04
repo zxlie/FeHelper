@@ -16,7 +16,7 @@ new Vue({
         demos: [
             'FeHelper是什么？怎么安装？',
             '用Js写一个冒泡排序的Demo',
-            'Js里的fetch API是怎么用的',
+            'Js里的Fetch API是怎么用的',
             '画一幅三只小猫玩毛线的画',
             '画一幅清明上河图'
         ],
@@ -188,7 +188,7 @@ new Vue({
             if(confirm('防止误操作，你确定要清空所有消息吗？不可恢复哦！')) {
                 this.results = [];
                 this.saveConversation();
-                toast('所有消息已情况！');
+                toast('所有消息已清空！');
             }
         },
         toggleSettingPanel(){
