@@ -37,7 +37,7 @@ export default (() => {
                             }, function () {
                                 chrome.scripting.executeScript({
                                     target: {tabId, allFrames: codeConfig.allFrames},
-                                    func: function(code){evalCore.getEvalInstance(window)(code)},
+                                    func: function(code){try{evalCore.getEvalInstance(window)(code)}catch(x){}},
                                     args: [codeConfig.js]
                                 }, function () {
                                     callback && callback.apply(this, arguments);
@@ -56,7 +56,7 @@ export default (() => {
                         // 注入js脚本
                         chrome.scripting.executeScript({
                             target: {tabId, allFrames: codeConfig.allFrames},
-                            func: function(code){evalCore.getEvalInstance(window)(code)},
+                            func: function(code){try{evalCore.getEvalInstance(window)(code)}catch(x){}},
                             args: [codeConfig.js]
                         }, function () {
                             callback && callback.apply(this, arguments);

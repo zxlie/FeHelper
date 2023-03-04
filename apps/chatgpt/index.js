@@ -11,8 +11,9 @@ new Vue({
     data: {
         prompt: '',
         imgSize: '512x512',
-        chatModel: 'text-davinci-003',
+        chatModel: 'gpt-3.5-turbo',
         showSettingPanel:false,
+        isGPT35:true,
         demos: [
             'FeHelper是什么？怎么安装？',
             '用Js写一个冒泡排序的Demo',
@@ -61,6 +62,7 @@ new Vue({
         });
         Awesome.StorageMgr.get('CHATGPT_CHAT_MODEL').then(model => {
             this.chatModel = model || 'text-davinci-003';
+            this.isGPT35 = /^gpt\-3\.5\-/.test(this.chatModel);
         });
         Awesome.StorageMgr.get('CHATGPT_IMAGE_SIZE').then(size => {
             this.imgSize = size || '512x512';
@@ -142,12 +144,26 @@ new Vue({
             if(/画一幅/.test(message)) {
                 return this.drawImage(message);
             }
+            let url = `https://api.openai.com/v1/completions`;
+            let data = {model:this.chatModel,temperature:0,max_tokens:2048};
+            if(this.isGPT35){
+                url = `https://api.openai.com/v1/chat/completions`;
+                data.messages = [{role:'user',content: message}];
+            }else{
+                data.prompt = message;
+            }
             this.chatWithOpenAI({
-                url:'https://api.openai.com/v1/completions',
-                data: {model:'text-davinci-003',temperature:0,max_tokens:2048,prompt:message},
+                url:url,
+                data: data,
                 buildResponse: json => {
                     return new Promise(resolve => {
-                        return resolve(marked(json.choices[0].text.replace(/^\？\n\n/,'')));
+                        let respText ;
+                        if(this.isGPT35) {
+                            respText = json.choices[0].message.coontent.replace(/^\？\n\n/,'')
+                        }else{
+                            respText = json.choices[0].text.replace(/^\？\n\n/,'');
+                        }
+                        return resolve(marked(respText));
                     });
                 }
             });

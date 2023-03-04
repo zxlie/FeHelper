@@ -40,7 +40,7 @@ export default (() => {
                         let scripts = '(' + ((monkey) => {
                             let injectFunc = () => {
                                 // 执行脚本
-                                evalCore.getEvalInstance(window)(monkey.mScript);
+                                try{evalCore.getEvalInstance(window)(monkey.mScript)}catch(x){}
 
                                 parseInt(monkey.mRefresh) && setTimeout(() => {
                                     location.reload(true);

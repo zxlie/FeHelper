@@ -26,6 +26,8 @@
                     <fieldset>
                         <legend>智能模型</legend>
                         <div>
+                            <input type="radio" name="rdoChatModel" value="gpt-3.5-turbo" v-model="chatModel" id="cm_t4"><label for="cm_t4">gpt-3.5-turbo</label>
+                            <input type="radio" name="rdoChatModel" value="gpt-3.5-turbo-0301" v-model="chatModel" id="cm_t5"><label for="cm_t5">gpt-3.5-turbo-0301</label>
                             <input type="radio" name="rdoChatModel" value="text-davinci-002" v-model="chatModel" id="cm_t2"><label for="cm_t2">text-davinci-002</label>
                             <input type="radio" name="rdoChatModel" value="text-davinci-003" v-model="chatModel" id="cm_t3"><label for="cm_t3">text-davinci-003</label>
                         </div>
