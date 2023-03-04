@@ -621,6 +621,6 @@ window.JsonAutoFormat = (() => {
 })();
 
 
-if(location.protocol !== 'chorme-extension:') {
+if(location.protocol !== 'chrome-extension:') {
     window.JsonAutoFormat.format();
 }

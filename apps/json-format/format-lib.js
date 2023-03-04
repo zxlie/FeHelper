@@ -517,8 +517,7 @@ window.Formatter = (function () {
 
         _initElements();
         jfPre.html(htmlspecialchars(cachedJsonString));
-
-        let worker = new JsonFormatWebWorker();
+        let worker = new JsonFormatWebWorker(true);
         worker.getFormattedHtml({
             data: {
                 jsonString: jsonStr,
@@ -553,7 +552,7 @@ window.Formatter = (function () {
  * 用webworker的形式来进行json格式化，在应对大json的时候，效果会非常明显
  * @constructor
  */
-var JsonFormatWebWorker = function () {
+var JsonFormatWebWorker = function (isUnSupportWorker = false) {
 
     // 引入big-json.js解决大数字的问题
     let __importScript = (filename) => {
@@ -847,19 +846,25 @@ var JsonFormatWebWorker = function () {
     }
 
     // Listen for requests from content pages wanting to set up a port
-    self.onmessage = function (event) {
-        self.postMessage(['FORMATTING']);
-        let rootItem;
-        if (event.data.skin && event.data.skin === 'theme-simple') {
-            rootItem = createDivNode('rootItem');
-            rootItem.textContent = JSON.stringify(JSON.parse(event.data.jsonString), null, 4);
-        } else {
-            rootItem = getItemDOM(JSON.parse(event.data.jsonString), false);
-            rootItem.classList.add('rootItem');
-        }
-        let formattedHtml = `<div id="formattedJson">${rootItem.getOuterHTML()}</div>`;
-        self.postMessage(['FORMATTED', formattedHtml]);
-    };
+    // isUnSupportWorker 为true时，表示不支持webworker，不需要监听消息
+    if (!isUnSupportWorker) {
+        self.onmessage = function (event) {
+            // 插件在乎的是json字符串，所以只有json字符串时才进行格式化
+            if (event.data.jsonString) {
+                self.postMessage(['FORMATTING']);
+                let rootItem;
+                if (event.data.skin && event.data.skin === 'theme-simple') {
+                    rootItem = createDivNode('rootItem');
+                    rootItem.textContent = JSON.stringify(JSON.parse(event.data.jsonString), null, 4);
+                } else {
+                    rootItem = getItemDOM(JSON.parse(event.data.jsonString), false);
+                    rootItem.classList.add('rootItem');
+                }
+                let formattedHtml = `<div id="formattedJson">${rootItem.getOuterHTML()}</div>`;
+                self.postMessage(['FORMATTED', formattedHtml]);
+            }
+        };
+    }
 
     // 针对不支持webworker的情况，允许直接调用
     this.getFormattedHtml = function (options) {
