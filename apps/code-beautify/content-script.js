@@ -51,7 +51,9 @@ window.codebeautifyContentScript = (() => {
             // 用webwork的方式来进行格式化，效率更高
             let worker = new Worker(URL.createObjectURL(new Blob(["(" + highlightWebWorker.toString() + ")()"], {type: 'text/javascript'})));
             worker.onmessage = (event) => {
-                code.innerHTML = "<ol><li><span>" + event.data.replace(/\n/gm, '</span></li><li><span>') + '</span></li></ol>';
+                code.innerHTML = "<ol><li><span>" + event.data
+                    .replace(/</gm,'&lt;').replace(/>/gm,'&gt;')
+                    .replace(/\n/gm, '</span></li><li><span>') + '</span></li></ol>';
                 callback && callback();
             };
             worker.postMessage(txtResult);

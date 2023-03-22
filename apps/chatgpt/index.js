@@ -74,7 +74,8 @@ new Vue({
             if(this.showLoading) return;
             let sendTime = (new Date()).format('yyyy/MM/dd HH:mm:ss');
             // 先加入队列，先展示，获取成功后会移除
-            this.results.push({sendTime,message:configs.data.prompt});
+            let prompt = configs.data.prompt || configs.data.messages[0].content;
+            this.results.push({sendTime,message:prompt});
             this.toggleLoading();
             this.$nextTick(() => {
                 this.letMsgScrollIntoView();
@@ -126,7 +127,7 @@ new Vue({
 
                 return configs.buildResponse(json).then(respContent => {
                     this.results.pop(); // 把最后一个节点移除掉，重新添加一个干净的
-                    this.results.push({ id,sendTime,message:configs.data.prompt,respTime,respContent });
+                    this.results.push({ id,sendTime,message:prompt,respTime,respContent });
                     this.saveConversation();
                     this.toggleLoading();
                     this.$nextTick(() => {
@@ -159,7 +160,7 @@ new Vue({
                     return new Promise(resolve => {
                         let respText ;
                         if(this.isGPT35) {
-                            respText = json.choices[0].message.coontent.replace(/^\？\n\n/,'')
+                            respText = json.choices[0].message.content.replace(/^\？\n\n/,'')
                         }else{
                             respText = json.choices[0].text.replace(/^\？\n\n/,'');
                         }

@@ -104,6 +104,7 @@ new Vue({
                 }
                 // 这里可能会throw exception
                 jsonObj = JSON.parse(source);
+
             } catch (ex) {
                 // new Function的方式，能自动给key补全双引号，但是不支持bigint，所以是下下策，放在try-catch里搞
                 try {
@@ -125,6 +126,15 @@ new Vue({
                         this.errorMsg = exxx.message;
                     }
                 }
+            }
+
+            try{
+                // 这里多做一个动作，给没有携带双引号的Key都自动加上，防止Long类型失真
+                const regex = /([{,]\s*)(\w+)(\s*:)/g;
+                source = source.replace(regex, '$1"$2"$3');
+                jsonObj = JSON.parse(source);
+            }catch(e){
+                this.errorMsg = e.message;
             }
 
             // 是json格式，可以进行JSON自动格式化
