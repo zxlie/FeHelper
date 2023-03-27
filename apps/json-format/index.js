@@ -128,14 +128,15 @@ new Vue({
                 }
             }
 
-            try{
-                // 这里多做一个动作，给没有携带双引号的Key都自动加上，防止Long类型失真
-                const regex = /([{,]\s*)(\w+)(\s*:)/g;
-                source = source.replace(regex, '$1"$2"$3');
-                jsonObj = JSON.parse(source);
-            }catch(e){
-                this.errorMsg = e.message;
-            }
+// 正则结果不符合预期, 注释下线
+//             try{
+//                 // 这里多做一个动作，给没有携带双引号的Key都自动加上，防止Long类型失真
+//                 const regex = /([{,]\s*)(\w+)(\s*:)/g;
+//                 source = source.replace(regex, '$1"$2"$3');
+//                 jsonObj = JSON.parse(source);
+//             }catch(e){
+//                 this.errorMsg = e.message;
+//             }
 
             // 是json格式，可以进行JSON自动格式化
             if (jsonObj != null && typeof jsonObj === "object" && !this.errorMsg.length) {
