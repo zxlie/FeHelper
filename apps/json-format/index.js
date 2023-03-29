@@ -134,7 +134,7 @@ new Vue({
                 source = source.replace(regex, '$1"$2"$3');
                 jsonObj = JSON.parse(source);
             }catch(e){
-                this.errorMsg = e.message;
+                // 这里什么动作都不需要做，这种情况下转换失败的，肯定是Value被污染了，抛弃即可
             }
 
             // 是json格式，可以进行JSON自动格式化
