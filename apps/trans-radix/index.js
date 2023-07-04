@@ -20,6 +20,11 @@ new Vue({
     methods: {
         getId: (type, id) => [type, id].join('_'),
 
+        switchInput: function () {
+            [this.fromSelected, this.toSelected] = [this.toSelected, this.fromSelected];
+            [this.srcValue, this.rstValue] = [this.rstValue, this.srcValue];
+        },
+
         radixRadioClicked: function (type, n) {
             if (type === 1) {
                 this.fromSelected = n;
