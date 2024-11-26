@@ -397,6 +397,17 @@ window.JsonAutoFormat = (() => {
      * @private
      */
     let _getJsonText = function () {
+        // 如果是js内容，则不进行json格式化
+        let isJs = /\.js$/.test(new URL(location.href).pathname);
+        isJs = isJs && document.contentType === 'application/javascript';
+        if (isJs) {
+            return false;
+        }
+
+        // 如果是 HTML 页面，则也不进行 json 格式化
+        if (document.contentType === 'text/html') {
+            return false;
+        }
 
         let pre = document.querySelectorAll('body>pre')[0] || {textContent: ""};
         let source = pre.textContent.trim();
@@ -405,17 +416,9 @@ window.JsonAutoFormat = (() => {
             source = (document.body.textContent || '').trim()
         }
 
-        // 如果是js内容，则不进行json格式化
-        let isJs = /\.js$/.test(new URL(location.href).pathname);
-        isJs = isJs && document.contentType === 'application/javascript';
-        if (isJs) {
-            source = '';
-        }
-
         if (!source) {
             return false;
         }
-
 
         // 1、如果body的内容还包含HTML标签，肯定不是合法的json了
         // 2、如果是合法的json，也只可能有一个text节点
