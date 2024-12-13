@@ -9,7 +9,7 @@ window.screenshotContentScript = function () {
     let MAX_PRIMARY_DIMENSION = 50000 * 2,
         MAX_SECONDARY_DIMENSION = 20000 * 2,
         MAX_AREA = MAX_PRIMARY_DIMENSION * MAX_SECONDARY_DIMENSION;
-    let pageOriginalTitle = document.title;
+        let pageOriginalTitle = document.title;
 
     /**
      * URL合法性校验
