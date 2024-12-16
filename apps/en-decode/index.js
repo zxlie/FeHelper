@@ -101,6 +101,10 @@ new Vue({
                     } else {
                         this.urlResult = res;
                     }
+                } else if(this.selectedType === 'jwtDecode') {
+
+                    let {header,payload,sign} = EncodeUtils.jwtDecode(this.sourceContent);
+                    this.resultContent = `Header: ${header}\n\nPayload: ${payload}\n\nSign: ${sign}`;
                 }
                 this.$forceUpdate();
             });

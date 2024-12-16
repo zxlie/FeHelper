@@ -434,6 +434,65 @@ let EncodeUtils = (() => {
         return hex;
     };
 
+    // 来自网友的贡献，做jwt解码
+    let jwtDecode = (() => {
+        class InvalidTokenError extends Error {
+        }
+        InvalidTokenError.prototype.name = "InvalidTokenError";
+        function b64DecodeUnicode(str) {
+            return decodeURIComponent(atob(str).replace(/(.)/g, (m, p) => {
+                let code = p.charCodeAt(0).toString(16).toUpperCase();
+                if (code.length < 2) {
+                    code = "0" + code;
+                }
+                return "%" + code;
+            }));
+        }
+        function base64UrlDecode(str) {
+            let output = str.replace(/-/g, "+").replace(/_/g, "/");
+            switch (output.length % 4) {
+                case 0:
+                    break;
+                case 2:
+                    output += "==";
+                    break;
+                case 3:
+                    output += "=";
+                    break;
+                default:
+                    throw new Error("base64 string is not of the correct length");
+            }
+            try {
+                return b64DecodeUnicode(output);
+            }
+            catch (err) {
+                return atob(output);
+            }
+        }
+        return function(token) {
+            if (typeof token !== "string") {
+                throw new InvalidTokenError("Invalid token specified: must be a string");
+            }
+            const parts = token.split(".");
+           
+            if (parts.length !== 3) {
+                throw new InvalidTokenError("Invalid token specified: must be three parts");
+            }
+            
+            for(let part of parts){
+                if (typeof part !== "string") {
+                    throw new InvalidTokenError(`Invalid token specified: missing part #${pos + 1}`);
+                }        
+            }
+        
+            return {
+                header: base64UrlDecode(parts[0]),
+                payload: base64UrlDecode(parts[1]),
+                sign: parts[2]
+            }
+        }
+    })();
+
     return {
         uniEncode: _uniEncode,
         uniDecode: _uniDecode,
@@ -448,7 +507,8 @@ let EncodeUtils = (() => {
         hexDecode: hexTools.hexDecode,
         html2js: _html2js,
         urlParamsDecode: _urlParamsDecode,
-        sha1Encode: _sha1Encode
+        sha1Encode: _sha1Encode,
+        jwtDecode
     };
 })();
 
