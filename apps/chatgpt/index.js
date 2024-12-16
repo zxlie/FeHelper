@@ -28,15 +28,17 @@ new Vue({
             respTime:'',
             respContent:''
         },
+        history:[],
         tempId:'',
-        hideDemo: false
+        hideDemo: false,
+        undergoing: false
     },
     mounted: function () {
         this.$refs.prompt.focus();
         this.hideDemo = !!(new URL(location.href)).searchParams.get('hideDemo');
     },
     methods: {
-
+        // 这个代码，主要用来判断大模型返回的内容是不是包含完整的代码块
         validateCodeBlocks(content) {
             let backticksCount = 0;
             let inCodeBlock = false;
@@ -67,6 +69,13 @@ new Vue({
         },
 
         sendMessage(prompt){
+            if(this.undergoing) return;
+            if(this.respResult.id){
+                this.history.push(this.respResult);
+                this.respResult.id = '';
+            }
+
+            this.undergoing = true;
             let sendTime = (new Date()).format('yyyy/MM/dd HH:mm:ss');
             this.$nextTick(() => {
                 this.scrollToBottom();
@@ -76,6 +85,7 @@ new Vue({
             let respContent = '';
             AI.askYiLarge(prompt,(respJson,done) => {
                 if(done){
+                    this.undergoing = false;
                     return;
                 }
                 let id = respJson.id;
