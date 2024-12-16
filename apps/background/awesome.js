@@ -7,7 +7,7 @@ import MSG_TYPE from '../static/js/common.js';
 
 let Awesome = (() => {
 
-    let manifest = chrome.runtime.getManifest();
+    let manifest = chrome.runtime ? chrome.runtime.getManifest() : {};
 
     const SERVER_SITE = manifest.homepage_url;
     const URL_TOOL_TPL = `${SERVER_SITE}/#TOOL-NAME#/index.html`;

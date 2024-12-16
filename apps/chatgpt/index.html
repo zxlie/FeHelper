@@ -1,8 +1,9 @@
 <!DOCTYPE HTML>
 <html lang="zh-CN">
 <head>
-    <title>ChatGPT工具</title>
+    <title>AI(智能助手)</title>
     <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../static/img/favicon.ico">
     <link rel="stylesheet" href="index.css"/>
     <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
@@ -14,58 +15,20 @@
         <div class="panel-heading">
             <h3 class="panel-title">
                 <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
-                    <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper：</a>ChatGPT工具
-
-                <span class="x-toolbox">
-                    <span href="#" id="demoTry" class="x-tooltip blue-tooltip" @click="demoTry()">体验Demo</span><span class="x-line">|</span>
-                    <span href="#" id="msgClean" class="x-tooltip blue-tooltip x-newnote" @click="msgClean()">清空消息</span><span class="x-line">|</span>
-                    <span href="#" id="setting" class="x-tooltip blue-tooltip x-newnote" @click="toggleSettingPanel()">机器人设置</span>
-                </span>
-
-                <div class="box-setting" v-clock v-if="showSettingPanel">
-                    <fieldset>
-                        <legend>智能模型</legend>
-                        <div>
-                            <input type="radio" name="rdoChatModel" value="gpt-3.5-turbo" v-model="chatModel" id="cm_t4"><label for="cm_t4">gpt-3.5-turbo</label>
-                            <input type="radio" name="rdoChatModel" value="gpt-3.5-turbo-0301" v-model="chatModel" id="cm_t5"><label for="cm_t5">gpt-3.5-turbo-0301</label>
-                            <input type="radio" name="rdoChatModel" value="text-davinci-002" v-model="chatModel" id="cm_t2"><label for="cm_t2">text-davinci-002</label>
-                            <input type="radio" name="rdoChatModel" value="text-davinci-003" v-model="chatModel" id="cm_t3"><label for="cm_t3">text-davinci-003</label>
-                        </div>
-                    </fieldset>
-
-                    <fieldset>
-                        <legend>图片尺寸</legend>
-                        <div>
-                            <input type="radio" name="rdoImgSize" value="256x256" v-model="imgSize" id="rdoImgSize_256"><label for="rdoImgSize_256">256*256</label>
-                            <input type="radio" name="rdoImgSize" value="512x512" v-model="imgSize" id="rdoImgSize_512"><label for="rdoImgSize_512">512*512</label>
-                            <input type="radio" name="rdoImgSize" value="1024x1024" v-model="imgSize" id="rdoImgSize_1024"><label for="rdoImgSize_1024">1024*1024</label>
-                        </div>
-                    </fieldset>
-
-                    <fieldset>
-                        <legend>设置API-KEY</legend>
-                        <div>
-                            <input type="text" id="elmApiKey" class="form-control" v-model="authKey">
-                        </div>
-                    </fieldset>
-                    <div class="x-sure">
-                        <input class="btn btn-sm btn-primary ui-mr-10" type="button" value="取消" @click="toggleSettingPanel()">
-                        <input class="btn btn-sm btn-success" type="button" value="确定" @click="saveSettings()">
-                    </div>
-                </div>
+                    <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper：</a>AI(智能助手)
             </h3>
         </div>
     </div>
     <div class="panel-body">
         <div class="row mod-inputs box-prompt">
             <form class="ui-mt-10" @submit.prevent="goChat">
-                <input type="text" id="prompt" ref="prompt" v-model="prompt" class="form-control" placeholder="你有什么内容想和ChatGPT聊聊的？"
+                <input type="text" id="prompt" ref="prompt" v-model="prompt" class="form-control" placeholder="你有什么内容想要咨询AI的？"
                     data-key="c2stNEJUbWRxYW00eENTUXJXRnlNajFUM0JsYmtGSlVlbDJnZ2dGbjI5MVBKQVdzZnZR">
-                <input class="btn btn-sm btn-primary btn-chat" type="button" :disabled="showLoading" value="发送">
+                <input class="btn btn-sm btn-primary btn-chat" type="button" value="发送">
             </form>
         </div>
         <div class="row mod-inputs box-result" ref="boxResult">
-            <div class="row box-tips">
+            <div class="row box-tips" v-if="!hideDemo">
                 <div>你好，这个工具是借助OpenAI的能力，来帮助大家针对性的获取结构化信息，你可以先体验一下这些示例👇👇👇</div>
                 <ul class="x-demos clearfix">
                     <li v-for="demo in demos" @click="sendMessage(demo)">{{demo}}</li>
@@ -75,19 +38,16 @@
             </div>
             <div class="row box-message">
                 <table>
-                    <template v-for="(result,index) in results">
+                    <template v-if="respResult.id">
                         <tr class="x-from-fh">
                             <td class="td-icon"><img src="../static/img/fe-48.png" alt="fehelper"/></td>
-                            <td class="td-content"><b class="x-time">{{result.sendTime}} </b><div class="x-xcontent">{{result.message}}</div></td>
+                            <td class="td-content"><b class="x-time">{{respResult.sendTime}} </b><div class="x-xcontent">{{respResult.message}}</div></td>
                         </tr>
                         <tr class="x-back-gpt">
                             <td class="td-icon">
                                 <svg data-name="OpenAI Logo" width="48px" height="48px" viewBox="140 140 520 520"><defs><linearGradient id="linear" x1="100%" y1="22%" x2="0%" y2="78%"><stop offset="0%" stop-color="rgb(131,211,231)"></stop><stop offset="2%" stop-color="rgb(127,203,229)"></stop><stop offset="25%" stop-color="rgb(86,115,217)"></stop><stop offset="49%" stop-color="rgb(105,80,190)"></stop><stop offset="98%" stop-color="rgb(197,59,119)"></stop><stop offset="100%" stop-color="rgb(197,59,119)"></stop></linearGradient></defs><path id="logo" d="m617.24 354a126.36 126.36 0 0 0 -10.86-103.79 127.8 127.8 0 0 0 -137.65-61.32 126.36 126.36 0 0 0 -95.31-42.49 127.81 127.81 0 0 0 -121.92 88.49 126.4 126.4 0 0 0 -84.5 61.3 127.82 127.82 0 0 0 15.72 149.86 126.36 126.36 0 0 0 10.86 103.79 127.81 127.81 0 0 0 137.65 61.32 126.36 126.36 0 0 0 95.31 42.49 127.81 127.81 0 0 0 121.96-88.54 126.4 126.4 0 0 0 84.5-61.3 127.82 127.82 0 0 0 -15.76-149.81zm-190.66 266.49a94.79 94.79 0 0 1 -60.85-22c.77-.42 2.12-1.16 3-1.7l101-58.34a16.42 16.42 0 0 0 8.3-14.37v-142.39l42.69 24.65a1.52 1.52 0 0 1 .83 1.17v117.92a95.18 95.18 0 0 1 -94.97 95.06zm-204.24-87.23a94.74 94.74 0 0 1 -11.34-63.7c.75.45 2.06 1.25 3 1.79l101 58.34a16.44 16.44 0 0 0 16.59 0l123.31-71.2v49.3a1.53 1.53 0 0 1 -.61 1.31l-102.1 58.95a95.16 95.16 0 0 1 -129.85-34.79zm-26.57-220.49a94.71 94.71 0 0 1 49.48-41.68c0 .87-.05 2.41-.05 3.48v116.68a16.41 16.41 0 0 0 8.29 14.36l123.31 71.19-42.69 24.65a1.53 1.53 0 0 1 -1.44.13l-102.11-59a95.16 95.16 0 0 1 -34.79-129.81zm350.74 81.62-123.31-71.2 42.69-24.64a1.53 1.53 0 0 1 1.44-.13l102.11 58.95a95.08 95.08 0 0 1 -14.69 171.55c0-.88 0-2.42 0-3.49v-116.68a16.4 16.4 0 0 0 -8.24-14.36zm42.49-63.95c-.75-.46-2.06-1.25-3-1.79l-101-58.34a16.46 16.46 0 0 0 -16.59 0l-123.31 71.2v-49.3a1.53 1.53 0 0 1 .61-1.31l102.1-58.9a95.07 95.07 0 0 1 141.19 98.44zm-267.11 87.87-42.7-24.65a1.52 1.52 0 0 1 -.83-1.17v-117.92a95.07 95.07 0 0 1 155.9-73c-.77.42-2.11 1.16-3 1.7l-101 58.34a16.41 16.41 0 0 0 -8.3 14.36zm23.19-50 54.92-31.72 54.92 31.7v63.42l-54.92 31.7-54.92-31.7z" fill="#202123"></path></svg></td>
-                            <td class="td-content" v-if="showLoading && index==results.length-1">
-                                <div>正在加载中，请稍后...<img src="../static/img/loading.gif" alt="loading" class="x-loading-inline"></div>
-                            </td>
-                            <td class="td-content" v-if="!showLoading || index!=results.length-1"><b class="x-time">{{result.respTime}}</b>
-                                <div :id="result.id" class="x-xcontent" v-html="result.respContent"></div>
+                            <td class="td-content"><b class="x-time">{{respResult.respTime}}</b>
+                                <div :id="respResult.id" class="x-xcontent" v-html="respResult.respContent"></div>
                             </td>
                         </tr>
                     </template>
@@ -98,6 +58,8 @@
 </div>
 <script type="text/javascript" src="../static/vendor/highlight/highlight.js"></script>
 <script type="text/javascript" src="../html2markdown/libs/marked.js"></script>
+<script type="text/javascript" src="../html2markdown/libs/rawdeflate.js"></script>
+<script type="text/javascript" src="../html2markdown/libs/rawinflate.js"></script>
 <script type="text/javascript" src="../static/js/utils.js"></script>
 <script type="module" src="index.js"></script>
 </body>
