@@ -3,5 +3,6 @@
 .DS_Store
 node_modules/
 package-lock.json
+Users/
 output/apps/
 output-firefox/

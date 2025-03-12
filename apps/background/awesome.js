@@ -3,7 +3,6 @@
  * @type {{download}}
  */
 import toolMap from './tools.js';
-import MSG_TYPE from '../static/js/common.js';
 
 let Awesome = (() => {
 
@@ -126,7 +125,7 @@ let Awesome = (() => {
      * 有些工具其实已经卸载过了，但是本地还有冗余的静态文件，都需要统一清理一遍
      */
     let gcLocalFiles = () => getAllTools().then(tools => Object.keys(tools).forEach(tool => {
-        if (!tools[tool]._devTool && !tools[tool].installed) {
+        if (!tools[tool] || !tools[tool]._devTool && !tools[tool].installed) {
             offLoad(tool);
         }
     }));
@@ -170,7 +169,9 @@ let Awesome = (() => {
             if (sortTools && sortTools.length) {
                 let map = {};
                 sortTools.forEach(tool => {
-                    map[tool] = allTools[tool];
+                    if(allTools[tool]) {
+                        map[tool] = allTools[tool];
+                    }
                 });
                 Object.keys(allTools).forEach(tool => {
                     if (!map[tool]) {

@@ -59,8 +59,8 @@ new Vue({
                 this.fhTools = tools;
                 let isSortArrEmpty = !this.sortArray.length;
 
-                Object.keys(tools).forEach(tool => {
-                    if (tools[tool].installed) {
+                Object.keys(tools).forEach(tool => {                    
+                    if (tools[tool] && tools[tool].installed) {
                         isSortArrEmpty && (tool !== 'devtools') && this.sortArray.push(tool);
                     }
                 });
@@ -85,13 +85,17 @@ new Vue({
             let tools = {};
             let installed = {};
             Object.keys(this.fhTools).forEach(tool => {
-                if (this.fhTools[tool].installed) {
+                if (this.fhTools[tool] && this.fhTools[tool].installed) {
                     installed[tool] = this.fhTools[tool];
                 }
             });
             if (this.sortArray.length) {
                 this.sortArray.forEach(tool => {
-                    tools[tool] = installed[tool];
+                    if (this.fhTools[tool]) {
+                        tools[tool] = installed[tool];
+                    }else{
+                        Awesome.offLoad(tool);
+                    }
                 });
                 Awesome.SortToolMgr.set(this.sortArray);
             } else {

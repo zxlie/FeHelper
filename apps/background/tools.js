@@ -70,7 +70,7 @@ let toolMap = {
             text: '代码压缩工具'
         }]
     },
-    'chatgpt': {
+    'aiagent': {
         name: 'AI(智能助手)',
         tips: '由AI强力支撑的超智能对话工具，可以让它帮你写代码、改代码、做方案设计、查资料、做分析等',
         menuConfig: [{
