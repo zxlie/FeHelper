@@ -31,42 +31,56 @@ html,body {
     background-color: darkslategray;
 }
 .box-prompt .form-control {
-    height:44px;
+    height:100px;
+    padding:6px;
 }
 .box-result {
     position: fixed;
-    bottom: 100px;
+    bottom: 150px;
     top: 70px;
     left: 10px;
     right: 10px;
     margin: 10px;
-    background-color: #fff;
+    background-color: #fafafa;
     border-color: #ccc;
     overflow: auto;
 }
 .btn-chat {
     position:absolute;
-    top:20px;
+    top:76px;
     right:10px;
     height:44px;
     width:50px;
 }
 .box-tips {
     margin: 0 15px 0 0;
-    text-align: center;
-    color:#aaa;
 }
 ul.x-demos {
-    margin: 30px 0;
+    margin: 30px 0 10px 0;
+    padding: 0;
 }
 ul.x-demos li {
-    display: inline;
-    margin-right: 30px;
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+    flex-grow: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    border-radius: 8px;
+    flex-direction: column;
+    padding: 12px;
+    background-image: linear-gradient(to right, rgba(248, 160, 255, 0.098), rgba(71, 185, 255, 0.098));
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin: 0px 0px 8px;
+    width: 100%;
+    height: auto;
     cursor: pointer;
-    color: #fff;
-    background: #333;
-    padding: 15px;
-    border-radius: 6px;
+    -webkit-box-flex: 0;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-box-align: start;
+    -webkit-box-pack: start;
 }
 ul.x-demos li:hover {
     color:#f00;
@@ -86,12 +100,13 @@ ul.x-demos li:hover {
 }
 .box-message {
     margin: 10px 15px 10px 0;
+    border:1px solid #eee;
 }
 .box-message table {
     width:100%;
 }
 .box-message table td{
-    padding: 10px 20px;
+    padding: 10px 5px;
     vertical-align: top;
 }
 .x-from-fh {
@@ -100,8 +115,14 @@ ul.x-demos li:hover {
     background: #f9f9f9;
 }
 .td-icon {
-    width: 50px;
     padding-right: 0 !important;
+}
+.td-icon img {
+    width:16px;
+}
+.td-icon.x-me img {
+    border: 1px solid #f00;
+    border-radius: 16px;
 }
 b.x-time {
     font-weight: normal;

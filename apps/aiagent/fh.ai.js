@@ -1,8 +1,9 @@
+import EncodeUtils from '../en-decode/endecode-lib.js';
 /**
  * 用零一万物大模型来进行流式问答输出
  */
 let AI = (() => {
-    const defaultKey = '1aaea43f7d0d42a6ba63396d8be508ff';
+    const defaultKey = 'MWFhZWE0M2Y3ZDBkNDJhNmJhNjMzOTZkOGJlNTA4ZmY=';
 
     async function streamChatCompletions(prompt,receivingCallback,apiKey) {
         const url = 'https://api.lingyiwanwu.com/v1/chat/completions';
@@ -10,7 +11,7 @@ let AI = (() => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey || defaultKey}`
+                'Authorization': `Bearer ${apiKey || EncodeUtils.base64Decode(defaultKey)}`
             },
             body: JSON.stringify({
                 model: "yi-large",
@@ -43,7 +44,6 @@ let AI = (() => {
                             const message = JSON.parse(line.replace(/^data:\s+/,''));
                             receivingCallback && receivingCallback(message);
                         } catch (jsonError) {
-                            console.log(line)
                             if(line === 'data: [DONE]'){
                                 receivingCallback && receivingCallback(null,true);
                             }

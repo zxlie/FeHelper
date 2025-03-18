@@ -160,8 +160,9 @@ let BgPageInstance = (function () {
                 }
 
                 if (!isOpened) {
+                    let url = `/${tool}/index.html` + (query ? "?" + query : '');
                     chrome.tabs.create({
-                        url: `/${tool}/index.html` + (query ? "?" + query : ''),
+                        url,
                         active: true
                     }).then(tab => { FeJson[tab.id] = { content: withContent }; });
                 } else {

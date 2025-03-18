@@ -21,14 +21,8 @@
                 <h3 class="panel-title">
                     <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
                         <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：配置页
-                        <span class="x-donate" ref="donate" @mouseover="donateToggle($event)" @mouseout="donateToggle($event)">(<img
-                                src="./coffee.png" width="20" alt="">{{donate.text}})</span>
                     <span class="ui-fl-r x-cur-version"><b>当前版本</b><i>v{{manifest.version}}</i></span>
                 </h3>
-
-                <div class="box-donate hide" ref="boxDonate">
-                    <img :src="donate.image" alt="donate" style="margin: 15px;width:450px">
-                </div>
             </div>
         </div>
 
@@ -160,6 +154,23 @@
                 </li>
             </ul>
         </div>
+
+        <!-- ==============开发者板块============== -->
+        <div class="row ui-mt-10">
+            <hr>
+            <h4># 打赏一下鼓励升级！  <span class="x-tips">（很高兴这个插件能帮助到大家，也感谢大家对这个产品的认可，我尽量抽时间保持更新😄）</span></h4>
+
+            <div class="row ui-mt-10 btn-donate">
+                <button class="btn btn-success" @click="donateToggle(1)">码农不易，来杯咖啡☕️ </button>
+                <button class="btn btn-danger"  @click="donateToggle(0)">我先用着，以后再说😄</button>
+            </div>
+
+            <div class="box-donate hide" ref="boxDonate">
+                <img :src="donate.image" alt="donate" class="x-donate-img">
+            </div>
+           
+        </div>
+
 
     </div>
     </div>

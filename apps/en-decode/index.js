@@ -102,9 +102,11 @@ new Vue({
                         this.urlResult = res;
                     }
                 } else if(this.selectedType === 'jwtDecode') {
-
                     let {header,payload,sign} = EncodeUtils.jwtDecode(this.sourceContent);
                     this.resultContent = `Header: ${header}\n\nPayload: ${payload}\n\nSign: ${sign}`;
+                } else if(this.selectedType === 'cookieDecode') {
+                    let ckJson = EncodeUtils.formatCookieStringToJson(this.sourceContent);
+                    this.resultContent = JSON.stringify(ckJson,null,4);
                 }
                 this.$forceUpdate();
             });

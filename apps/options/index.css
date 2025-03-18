@@ -66,14 +66,11 @@ h5,h4 {
     text-decoration-style: double;
     cursor: default;
 }
-.box-donate {
-    position: absolute;
-    top: 60px;
-    left: 150px;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    padding: 5px;
+.box-donate .x-donate-img {
+    width: 360px;
+}
+.btn-donate {
+    padding: 0 20px;
 }
 .mod-dynamic-tool {
     padding-left: 0;

@@ -188,12 +188,11 @@ new Vue({
             return false;
         },
 
-        donateToggle: function (event) {
+        donateToggle: function (type) {
             let box = this.$refs.boxDonate;
-            if (box.classList.contains('hide')) {
+            if (type === 1) {
                 box.classList.remove('hide');
-                box.style.top = (event.target.offsetTop + 30) + 'px';
-                box.style.left = event.target.offsetLeft + 'px';
+                box.scrollIntoView();
             } else {
                 box.classList.add('hide');
             }

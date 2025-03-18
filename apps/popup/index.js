@@ -63,7 +63,26 @@ new Vue({
 
     methods: {
 
-        runHelper: function (toolName) {
+        runHelper: async function (toolName) {
+            // 如果是aiagent工具，我们就用sidePanel打开
+            
+            if(toolName === 'aiagent'){ 
+                const [tab] = await chrome.tabs.query({
+                    active: true,
+                    lastFocusedWindow: true
+                  });
+                  
+                const tabId = tab.id;
+                await chrome.sidePanel.setOptions({
+                  tabId,
+                  path: '/aiagent/index.html',
+                  enabled: true
+                });
+                await chrome.sidePanel.open({ tabId });
+                return window.close();
+            }
+
+            // 其他的情形，就不在sidePanel中打开了
             let request = {
                 type: MSG_TYPE.OPEN_DYNAMIC_TOOL,
                 page: toolName,

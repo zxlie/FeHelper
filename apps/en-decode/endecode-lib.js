@@ -493,6 +493,38 @@ let EncodeUtils = (() => {
         }
     })();
 
+
+    /**
+     * 将cookie字符串格式化为JSON对象
+     * @param {string} cookieString - 原始的cookie字符串
+     * @returns {string} 格式化后的JSON字符串
+     */
+    let formatCookieStringToJson = (cookieString) => {
+        // 将原始cookie字符串分割成各个键值对，并解析为JSON对象
+        const cookiesArray = cookieString.split(';').map(pair => {
+            const [key, value] = pair.trim().split('=');
+            let obj = {},dk , vk ;
+            try {
+                dk = decodeURIComponent(key);
+                vk = decodeURIComponent(value);
+            } catch (error) {
+                dk = key;
+                vk = value;
+            }
+            obj[dk] = vk;
+            return obj;
+        }).reduce((accumulator, current) => {
+            // 合并所有键值对到一个对象中
+            const key = Object.keys(current)[0];
+            accumulator[key] = current[key];
+            return accumulator;
+        }, {});
+    
+        // 返回格式化的JSON
+        return cookiesArray;
+    }
+    
+
     return {
         uniEncode: _uniEncode,
         uniDecode: _uniDecode,
@@ -508,7 +540,8 @@ let EncodeUtils = (() => {
         html2js: _html2js,
         urlParamsDecode: _urlParamsDecode,
         sha1Encode: _sha1Encode,
-        jwtDecode
+        jwtDecode,
+        formatCookieStringToJson
     };
 })();
 
