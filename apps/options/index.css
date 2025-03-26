@@ -40,6 +40,12 @@ h5,h4 {
 .x-disabled {
     opacity: 0.2;
 }
+.box-config {
+    padding: 10px;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    border-top: 0;
+}
 
 #setShortcuts {
     font-size: 14px;

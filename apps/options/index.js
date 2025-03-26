@@ -192,7 +192,6 @@ new Vue({
             let box = this.$refs.boxDonate;
             if (type === 1) {
                 box.classList.remove('hide');
-                box.scrollIntoView();
             } else {
                 box.classList.add('hide');
             }

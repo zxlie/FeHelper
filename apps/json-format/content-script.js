@@ -68,7 +68,6 @@ window.JsonAutoFormat = (() => {
 
     // JSONP形式下的callback name
     let funcName = null;
-    let jsonObj = null;
     let fnTry = null;
     let fnCatch = null;
 
@@ -404,9 +403,19 @@ window.JsonAutoFormat = (() => {
             return false;
         }
 
-        // 如果是 HTML 页面，则也不进行 json 格式化
+        // 如果是 HTML 页面，也要看一下内容是不是明显就是个JSON，如果不是，则也不进行 json 格式化
         if (document.contentType === 'text/html') {
-            return false;
+            // 使用 DOMParser 解析 HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(document.body.outerHTML, "text/html");
+            // 移除不需要的标签
+            doc.querySelectorAll('style, script').forEach(el => el.remove());
+            // 获取清理后的文本
+            const cleanText = doc.body.textContent;
+            let jsonObj = _getJsonObject(cleanText);
+            if(!jsonObj) {
+                return false;
+            }
         }
 
         let pre = document.querySelectorAll('body>pre')[0] || {textContent: ""};
@@ -497,17 +506,12 @@ window.JsonAutoFormat = (() => {
 
 
     /**
-     * 执行format操作
-     * @private
+     * 判断字符串参数是否为一个合法的json，如果是则返回json对象
+     * @param {*} source 
+     * @returns 
      */
-    let _format = function (options) {
-
-        let source = _getJsonText();
-        if (!source) {
-            return;
-        }
-
-        _extendsOptions(options);
+    let _getJsonObject = function (source) {
+        let jsonObj = null;
 
         // 下面校验给定字符串是否为一个合法的json
         try {
@@ -561,8 +565,25 @@ window.JsonAutoFormat = (() => {
                     return;
                 }
             }
-
         }
+
+        try {
+            // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
+            source = JSON.stringify(jsonObj);
+        } catch (ex) {
+            // 通过JSON反解不出来的，一定有问题
+            return;
+        }
+        return jsonObj;
+    };
+
+    /**
+     * 根据最终拿到的json source，对页面进行格式化操作
+     * @param {*} source 
+     * @returns 
+     */
+    let _formatTheSource = function (source) {
+        let jsonObj = _getJsonObject(source);
 
         // 是json格式，可以进行JSON自动格式化
         if (jsonObj != null && typeof jsonObj === "object") {
@@ -574,14 +595,6 @@ window.JsonAutoFormat = (() => {
                     thing:'inject-content-css',
                     tool: 'json-format'
                 });
-            }
-
-            try {
-                // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
-                source = JSON.stringify(jsonObj);
-            } catch (ex) {
-                // 通过JSON反解不出来的，一定有问题
-                return;
             }
 
             // JSON的所有key不能超过预设的值，比如 10000 个，要不然自动格式化会比较卡
@@ -602,20 +615,53 @@ window.JsonAutoFormat = (() => {
                 });
             }
 
-            formatOptions.originalSource = source;
+            formatOptions.originalSource = JSON.stringify(jsonObj);
 
             _initToolbar();
             _didFormat();
         }
     };
 
+    /**
+     * 执行format操作
+     * @private
+     */
+    let _format = function (loadHtmlFragmentFromLocal) {
+
+        let source = '';
+        if(loadHtmlFragmentFromLocal) {
+            source = _getJsonText();
+            if (!source) {
+                return _format(false);
+            }
+            _formatTheSource(source);
+        }else{
+            return fetch(location.href)
+            .then(response => response.text())
+            .then(html => {
+                // 使用 DOMParser 解析 HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+
+                // 移除不需要的标签
+                doc.querySelectorAll('style, script').forEach(el => el.remove());
+
+                // 获取清理后的文本
+                const cleanText = doc.body.textContent;
+                _formatTheSource(cleanText);
+            })
+            .catch();
+        }
+    };
+
     return {
-        format: () => _getAllOptions(result => {
-            if(result.JSON_PAGE_FORMAT) {
+        format: () => _getAllOptions(options => {
+            if(options.JSON_PAGE_FORMAT) {
                 let intervalId = setInterval(() => {
                     if(typeof Formatter !== 'undefined') {
                         clearInterval(intervalId);
-                        _format(result);
+                        _extendsOptions(options);
+                        _format(true);
                     }
                 },pleaseLetJsLoaded);
             }

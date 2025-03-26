@@ -109,6 +109,33 @@ gulp.task('zip', () => {
 
 });
 
+
+// 打包ms-edge安装包
+gulp.task('edge', () => {
+    shell.exec('rm -rf output-edge && cp -r output output-edge && rm -rf output-edge/fehelper.zip');
+
+    // 更新edge所需的配置文件
+    let pathOfMF = './output-edge/apps/manifest.json';
+    let manifest = require(pathOfMF);
+    manifest.description = 'FE助手：JSON工具、代码美化、代码压缩、二维码工具、网页定制工具、便签笔记，等等';
+    delete manifest.update_url;
+    manifest.version = manifest.version.split('.').map(v => parseInt(v)).join('.');
+    delete manifest.update_url;
+    fs.writeFileSync(pathOfMF, JSON.stringify(manifest));
+
+    shell.exec('cd output-edge/apps && zip -r ../fehelper.zip ./ > /dev/null && cd ../../');
+    let size = fs.statSync('output-edge/fehelper.zip').size;
+    size = pretty(size);
+
+    console.log('\n\nfehelper.zip 已打包完成！');
+
+    console.log('\n\n================================================================================');
+    console.log('    当前版本：', manifest.version, '\t文件大小:', size);
+    console.log('    去Edge商店发布吧：https://partner.microsoft.com/zh-cn/dashboard/microsoftedge/overview');
+    console.log('================================================================================\n\n');
+});
+
+
 // 打包Firefox安装包
 gulp.task('firefox', () => {
     shell.exec('rm -rf output-firefox && cp -r output output-firefox && rm -rf output-firefox/fehelper.zip');
@@ -129,13 +156,18 @@ gulp.task('firefox', () => {
     let manifest = require(pathOfMF);
     manifest.description = 'FE助手：JSON工具、代码美化、代码压缩、二维码工具、网页定制工具、便签笔记，等等';
     delete manifest.update_url;
-    manifest.applications = {
+    manifest.browser_specific_settings = {
         "gecko": {
             "id": "fehelper@baidufe.com",
-            "strict_min_version": "57.0"
+            "strict_min_version": "99.0"
         }
     };
-    manifest.version = manifest.version.replace(/\./, '') + 'stable';
+    manifest.background = {
+        "scripts": [
+            "background/background.js"
+        ]
+    };
+    manifest.version = manifest.version.split('.').map(v => parseInt(v)).join('.');
     manifest.content_scripts.splice(1,2);
     fs.writeFileSync(pathOfMF, JSON.stringify(manifest));
 

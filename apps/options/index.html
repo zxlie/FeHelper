@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html lang="zh-CN">
 <head>
-    <title>FeHelper配置项</title>
+    <title>FeHelper-插件配置</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="index.css"/>
     <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
@@ -20,7 +20,7 @@
             <div class="panel-heading">
                 <h3 class="panel-title">
                     <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
-                        <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：配置页
+                        <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：插件配置
                     <span class="ui-fl-r x-cur-version"><b>当前版本</b><i>v{{manifest.version}}</i></span>
                 </h3>
             </div>
@@ -28,8 +28,23 @@
 
         <div class="panel-body mod-content">
 
+        <!-- ==============开发者板块============== -->
         <div class="row">
-            <h4># FH快捷键</h4>
+            <h4># 打赏一下鼓励升级！  <span class="x-tips">（很高兴这个插件能帮助到大家，也感谢大家对这个产品的认可，我尽量抽时间保持更新😄）</span></h4>
+
+            <div class="row ui-mt-10 btn-donate">
+                <button class="btn btn-success" @click="donateToggle(1)">码农不易，来杯咖啡☕️ </button>
+                <button class="btn btn-danger"  @click="donateToggle(0)">我先用着，以后再说😄</button>
+            </div>
+
+            <div class="box-donate hide" ref="boxDonate">
+                <img :src="donate.image" alt="donate" class="x-donate-img">
+            </div>
+            
+        </div>
+
+        <div class="row ui-mt-20">
+            <h4># FH快捷键  <span class="x-tips">（设置一些快捷键，用起来会更方便些）</span></h4>
 
             <a href="#" @click="setShortcuts" id="setShortcuts">&gt;&gt; 点击配置FeHelper快捷键（当前快捷键为：{{ defaultKey }}）&gt;&gt;</a> <br>
             <div class="x-tips">
@@ -37,63 +52,67 @@
             </div>
         </div>
 
-        <div class="row ui-mt-10">
-            <h4># FH基本配置</h4>
+        <div class="row ui-mt-20">
+            <h4># FH基本配置 <span class="x-tips">（插件的一些基础配置，可以在这里统一操作）</span></h4>
 
-            <div class="st-item">
-                <input type="checkbox" value="OPT_ITEM_CONTEXTMENUS" id="opt_item_contextMenus" v-model="selectedOpts"/>
-                <label for="opt_item_contextMenus">将&nbsp;<b><i>FeHelper工具</i></b>&nbsp;添加到右键菜单<span class="x-tips">（如果你喜欢用右键菜单来使用FeHelper的方式，那可以在这里开启）</span></label> <br/>
+            <div class="box-config">
 
-                <div class="box-inner row ui-ml-20" :class="{'x-disabled':!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')}">
-                    <div class="row-line">
-                        <input type="checkbox" id="MENU_DOWNLOAD_CRX" v-model="menuDownloadCrx" :disabled="!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')"/>
-                        <label for="MENU_DOWNLOAD_CRX">将&nbsp;<b><i>插件分享/下载</i></b>&nbsp;添加到右键菜单</label>
-                    </div>
-                    <div class="row-line">
-                        <input type="checkbox" id="MENU_FEHELPER_SETTING" v-model="menuFeHelperSeting" :disabled="!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')"/>
-                        <label for="MENU_FEHELPER_SETTING">将&nbsp;<b><i>FeHelper设置</i></b>&nbsp;添加到右键菜单</label>
-                    </div>
-                </div>
-            </div>
+                <div class="st-item">
+                    <input type="checkbox" value="OPT_ITEM_CONTEXTMENUS" id="opt_item_contextMenus" v-model="selectedOpts"/>
+                    <label for="opt_item_contextMenus">将&nbsp;<b><i>FeHelper工具</i></b>&nbsp;添加到右键菜单<span class="x-tips">（如果你喜欢用右键菜单来使用FeHelper的方式，那可以在这里开启）</span></label> <br/>
 
-            <div class="st-item">
-                <input type="checkbox" value="FORBID_OPEN_IN_NEW_TAB" id="FORBID_OPEN_IN_NEW_TAB" v-model="selectedOpts"/>
-                <label for="FORBID_OPEN_IN_NEW_TAB">禁止在多个 Tab页/窗口 同时打开<span class="x-tips">（如果同一个工具，您只希望保留一个活动窗口，那可以勾选上）</span></label> <br/>
-            </div>
-
-            <div class="st-item">
-                <input type="checkbox" value="CONTENT_SCRIPT_ALLOW_ALL_FRAMES" id="CONTENT_SCRIPT_ALLOW_ALL_FRAMES" v-model="selectedOpts"/>
-                <label for="CONTENT_SCRIPT_ALLOW_ALL_FRAMES">授权FeHelper访问页面所有iframe<span class="x-tips">（默认不对网页内嵌的iframe支持，如果有需要可自行开启）</span></label> <br/>
-            </div>
-
-            <div class="st-item">
-                <input type="checkbox" value="JSON_PAGE_FORMAT" id="JSON_PAGE_FORMAT" v-model="selectedOpts"/>
-                <label for="JSON_PAGE_FORMAT">开启JSON自动美化功能（<span class="x-tips">页面<b><i>自动检测并格式化</i></b>，您可在JSON自动美化页面进行工具<b><i>高级定制</i></b>，包括皮肤自定义等）</span></label> <br/>
-            </div>
-
-            <div class="st-item" v-if="!isFirefox">
-                <input type="checkbox" value="AUTO_DARK_MODE" id="AUTO_DARK_MODE" v-model="selectedOpts"/>
-                <label for="AUTO_DARK_MODE">自动开启夜间模式（<span class="x-tips">眼睛保卫战，晚上<b><i>19:00~06:00</i></b>使用工具的时候自动开启夜间模式）</span></label>
-                <a href="#" class="a-btn" @click="turnLight($event)">体验一下夜间模式！</a>
-                <span class="x-count-down" v-cloak v-if="countDown>0">本次体验将在<b>{{countDown}}秒</b>后自动结束...</span> <br/>
-
-                <div class="box-inner row ui-ml-20" :class="{'x-disabled':!selectedOpts.includes('AUTO_DARK_MODE')}">
-                    <div class="row-line">
-                        <input type="checkbox" value="ALWAYS_DARK_MODE" id="ALWAYS_DARK_MODE" v-model="selectedOpts" :disabled="!selectedOpts.includes('AUTO_DARK_MODE')"/>
-                        <label for="ALWAYS_DARK_MODE">始终开启夜间模式（<span class="x-tips">忽略时间限制，随时Dark Mode）</span></label>
+                    <div class="box-inner row ui-ml-20" :class="{'x-disabled':!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')}">
+                        <div class="row-line">
+                            <input type="checkbox" id="MENU_DOWNLOAD_CRX" v-model="menuDownloadCrx" :disabled="!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')"/>
+                            <label for="MENU_DOWNLOAD_CRX">将&nbsp;<b><i>插件分享/下载</i></b>&nbsp;添加到右键菜单</label>
+                        </div>
+                        <div class="row-line">
+                            <input type="checkbox" id="MENU_FEHELPER_SETTING" v-model="menuFeHelperSeting" :disabled="!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')"/>
+                            <label for="MENU_FEHELPER_SETTING">将&nbsp;<b><i>FeHelper设置</i></b>&nbsp;添加到右键菜单</label>
+                        </div>
                     </div>
                 </div>
+
+                <div class="st-item">
+                    <input type="checkbox" value="FORBID_OPEN_IN_NEW_TAB" id="FORBID_OPEN_IN_NEW_TAB" v-model="selectedOpts"/>
+                    <label for="FORBID_OPEN_IN_NEW_TAB">禁止在多个 Tab页/窗口 同时打开<span class="x-tips">（如果同一个工具，您只希望保留一个活动窗口，那可以勾选上）</span></label> <br/>
+                </div>
+
+                <div class="st-item">
+                    <input type="checkbox" value="CONTENT_SCRIPT_ALLOW_ALL_FRAMES" id="CONTENT_SCRIPT_ALLOW_ALL_FRAMES" v-model="selectedOpts"/>
+                    <label for="CONTENT_SCRIPT_ALLOW_ALL_FRAMES">授权FeHelper访问页面所有iframe<span class="x-tips">（默认不对网页内嵌的iframe支持，如果有需要可自行开启）</span></label> <br/>
+                </div>
+
+                <div class="st-item">
+                    <input type="checkbox" value="JSON_PAGE_FORMAT" id="JSON_PAGE_FORMAT" v-model="selectedOpts"/>
+                    <label for="JSON_PAGE_FORMAT">开启JSON自动美化功能（<span class="x-tips">页面<b><i>自动检测并格式化</i></b>，您可在JSON自动美化页面进行工具<b><i>高级定制</i></b>，包括皮肤自定义等）</span></label> <br/>
+                </div>
+
+                <div class="st-item" v-if="!isFirefox">
+                    <input type="checkbox" value="AUTO_DARK_MODE" id="AUTO_DARK_MODE" v-model="selectedOpts"/>
+                    <label for="AUTO_DARK_MODE">自动开启夜间模式（<span class="x-tips">眼睛保卫战，晚上<b><i>19:00~06:00</i></b>使用工具的时候自动开启夜间模式）</span></label>
+                    <a href="#" class="a-btn" @click="turnLight($event)">体验一下夜间模式！</a>
+                    <span class="x-count-down" v-cloak v-if="countDown>0">本次体验将在<b>{{countDown}}秒</b>后自动结束...</span> <br/>
+
+                    <div class="box-inner row ui-ml-20" :class="{'x-disabled':!selectedOpts.includes('AUTO_DARK_MODE')}">
+                        <div class="row-line">
+                            <input type="checkbox" value="ALWAYS_DARK_MODE" id="ALWAYS_DARK_MODE" v-model="selectedOpts" :disabled="!selectedOpts.includes('AUTO_DARK_MODE')"/>
+                            <label for="ALWAYS_DARK_MODE">始终开启夜间模式（<span class="x-tips">忽略时间限制，随时Dark Mode）</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ui-mt-10">
+                    <button class="btn btn-success" @click="save()">保存</button>
+                    <button class="btn btn-danger"  @click="cancel()">放弃</button>
+                </div>
+                    
             </div>
         </div>
 
-        <div class="row ui-mt-10">
-            <button class="btn btn-success" @click="save()">保存</button>
-            <button class="btn btn-danger"  @click="cancel()">放弃</button>
-        </div>
 
         <!-- ==============FH插件市场板块============== -->
-        <div class="row ui-mt-10">
-            <hr>
+        <div class="row ui-mt-20">
             <h4># FH应用市场 <span class="x-tips">（严格遵循Google官方要求的插件<span class="t-hlt">「单一用途原则」</span>，所以就按需安装吧！当然，你也可以<a href="#" @click="openFeOnline()">&nbsp;去官网使用在线免安装版&gt;&gt;</a>）</span></h4>
 
             <ul class="mod-dynamic-tool">
@@ -153,22 +172,6 @@
                     </span>
                 </li>
             </ul>
-        </div>
-
-        <!-- ==============开发者板块============== -->
-        <div class="row ui-mt-10">
-            <hr>
-            <h4># 打赏一下鼓励升级！  <span class="x-tips">（很高兴这个插件能帮助到大家，也感谢大家对这个产品的认可，我尽量抽时间保持更新😄）</span></h4>
-
-            <div class="row ui-mt-10 btn-donate">
-                <button class="btn btn-success" @click="donateToggle(1)">码农不易，来杯咖啡☕️ </button>
-                <button class="btn btn-danger"  @click="donateToggle(0)">我先用着，以后再说😄</button>
-            </div>
-
-            <div class="box-donate hide" ref="boxDonate">
-                <img :src="donate.image" alt="donate" class="x-donate-img">
-            </div>
-           
         </div>
 
 
