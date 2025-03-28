@@ -389,37 +389,11 @@ window.JsonAutoFormat = (() => {
         });
     };
 
-
     /**
-     * 从页面提取JSON文本
-     * @returns {string}
-     * @private
+     * 从一个dom节点去获取json内容，这里面有很多的判断
      */
-    let _getJsonText = function () {
-        // 如果是js内容，则不进行json格式化
-        let isJs = /\.js$/.test(new URL(location.href).pathname);
-        isJs = isJs && document.contentType === 'application/javascript';
-        if (isJs) {
-            return false;
-        }
-
-        // 如果是 HTML 页面，也要看一下内容是不是明显就是个JSON，如果不是，则也不进行 json 格式化
-        if (document.contentType === 'text/html') {
-            // 使用 DOMParser 解析 HTML
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(document.body.outerHTML, "text/html");
-            // 移除不需要的标签
-            doc.querySelectorAll('style, script').forEach(el => el.remove());
-            // 获取清理后的文本
-            const cleanText = doc.body.textContent;
-            let jsonObj = _getJsonObject(cleanText);
-            if(!jsonObj) {
-                return false;
-            }
-        }
-
-        let pre = document.querySelectorAll('body>pre')[0] || {textContent: ""};
-        let source = pre.textContent.trim();
+    let _getJsonContentFromDOM = function (dom) {
+        let source = dom.textContent.trim();
 
         if (!source) {
             source = (document.body.textContent || '').trim()
@@ -473,6 +447,39 @@ window.JsonAutoFormat = (() => {
         }
 
         return (jsonText || '').trim() || source;
+    };
+
+    /**
+     * 从页面提取JSON文本
+     * @returns {string}
+     * @private
+     */
+    let _getJsonText = function () {
+        // 如果是js内容，则不进行json格式化
+        let isJs = /\.js$/.test(new URL(location.href).pathname);
+        isJs = isJs && document.contentType === 'application/javascript';
+        if (isJs) {
+            return false;
+        }
+
+        // 如果是 HTML 页面，也要看一下内容是不是明显就是个JSON，如果不是，则也不进行 json 格式化
+        if (document.contentType === 'text/html') {
+            // 使用 DOMParser 解析 HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(document.body.outerHTML, "text/html");
+            // 移除不需要的标签
+            doc.querySelectorAll('style, script').forEach(el => el.remove());
+            // 获取清理后的文本
+            const cleanText = doc.body.textContent;
+            let jsonObj = _getJsonObject(cleanText);
+            if(!jsonObj) {
+                return false;
+            }
+        }
+
+        let pre = document.querySelectorAll('body>pre')[0] || {textContent: ""};
+        
+        return _getJsonContentFromDOM(pre);
     };
 
     /**
@@ -626,17 +633,13 @@ window.JsonAutoFormat = (() => {
      * 执行format操作
      * @private
      */
-    let _format = function (loadHtmlFragmentFromLocal) {
+    let _format = function () {
 
-        let source = '';
-        if(loadHtmlFragmentFromLocal) {
-            source = _getJsonText();
-            if (!source) {
-                return _format(false);
-            }
+        let source = _getJsonText();
+        if (source) {
             _formatTheSource(source);
         }else{
-            return fetch(location.href)
+            fetch(location.href)
             .then(response => response.text())
             .then(html => {
                 // 使用 DOMParser 解析 HTML
@@ -645,10 +648,10 @@ window.JsonAutoFormat = (() => {
 
                 // 移除不需要的标签
                 doc.querySelectorAll('style, script').forEach(el => el.remove());
-
-                // 获取清理后的文本
-                const cleanText = doc.body.textContent;
-                _formatTheSource(cleanText);
+                const text = _getJsonContentFromDOM(doc.body);
+                if(text){
+                    _formatTheSource(text);
+                }
             })
             .catch();
         }
@@ -657,11 +660,11 @@ window.JsonAutoFormat = (() => {
     return {
         format: () => _getAllOptions(options => {
             if(options.JSON_PAGE_FORMAT) {
-                let intervalId = setInterval(() => {
+                let intervalId = setTimeout(() => {
                     if(typeof Formatter !== 'undefined') {
                         clearInterval(intervalId);
                         _extendsOptions(options);
-                        _format(true);
+                        _format();
                     }
                 },pleaseLetJsLoaded);
             }
