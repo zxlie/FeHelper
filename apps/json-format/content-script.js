@@ -639,21 +639,22 @@ window.JsonAutoFormat = (() => {
         if (source) {
             _formatTheSource(source);
         }else{
-            fetch(location.href)
-            .then(response => response.text())
-            .then(html => {
-                // 使用 DOMParser 解析 HTML
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, "text/html");
+            // 原计划，是兜底走fetch的方式，再尝试做一次格式化，但是这里会有很多corner Case我没法回归，所以注释掉
+            // fetch(location.href)
+            // .then(response => response.text())
+            // .then(html => {
+            //     // 使用 DOMParser 解析 HTML
+            //     const parser = new DOMParser();
+            //     const doc = parser.parseFromString(html, "text/html");
 
-                // 移除不需要的标签
-                doc.querySelectorAll('style, script').forEach(el => el.remove());
-                const text = _getJsonContentFromDOM(doc.body);
-                if(text){
-                    _formatTheSource(text);
-                }
-            })
-            .catch();
+            //     // 移除不需要的标签
+            //     doc.querySelectorAll('style, script').forEach(el => el.remove());
+            //     const text = _getJsonContentFromDOM(doc.body);
+            //     if(text){
+            //         _formatTheSource(text);
+            //     }
+            // })
+            // .catch();
         }
     };
 
