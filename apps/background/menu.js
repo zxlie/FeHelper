@@ -8,7 +8,6 @@ import CrxDownloader from './crx-download.js';
 import Awesome from './awesome.js';
 import toolMap from './tools.js';
 import Settings from '../options/settings.js';
-import MSG_TYPE from '../static/js/common.js';
 
 export default (function () {
 
