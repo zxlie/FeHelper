@@ -174,8 +174,25 @@ export default (function () {
                 // 如果有本地工具的菜单需要绘制，则需要加一条分割线
                 devTools.length && _createSeparator();
                 // 绘制本地工具的菜单
-                devTools.forEach(tool => _createItem(tool, tools[tool].menuConfig));
-            });
+                devTools.forEach(tool => {
+                    // 说明是自定义工具 构造menuConfig
+                    if(!tools[tool].menuConfig) {
+                        tools[tool].menuConfig = [{
+                            icon: tools[tool].icon,
+                            text: tools[tool].name,
+                            onClick: (info, tab) => {
+                                chrome.DynamicToolRunner({
+                                    page: 'dynamic',
+                                    noPage: !!tools[tool].noPage,
+                                    query: `tool=${tool}`
+                                });
+                                !!tools[tool].noPage && setTimeout(window.close, 200);
+                            }
+                        }];
+                    }
+                    _createItem(tool, tools[tool].menuConfig)
+                });
+              });
 
             // 绘制两个系统提供的菜单，放到最后
             let sysMenu = ['download-crx', 'fehelper-setting'];
