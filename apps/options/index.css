@@ -6,24 +6,32 @@
 
 #pageContainer .panel-body {
     margin: 0 auto;
-    width: 980px;
+    width: 960px;
+    padding: 15px;
 }
 .mod-header {
     position: sticky;
     top:0;
     z-index: 100;
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    margin-bottom: 10px;
 }
 #pageContainer label {
     font-weight: normal;
+    margin-bottom: 0;
 }
 
 #pageContainer h4 {
-    color: #888;
+    color: #333;
     font-size: 18px;
+    margin-top: 25px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom : 1px solid #eee;
 }
 
 h5,h4 {
-    border-bottom : 1px solid #eee;
     padding-bottom: 5px;
 }
 .t-hlt {
@@ -49,17 +57,18 @@ h5,h4 {
 
 #setShortcuts {
     font-size: 14px;
-    text-decoration: underline;
-    color: #666;
+    text-decoration: none;
+    color: #007bff;
     display: inline-block;
     margin-bottom: 5px;
 }
 #setShortcuts:hover {
-    color:#f00;
+    color:#0056b3;
+    text-decoration: underline;
 }
 .x-tips {
     font-size: 12px;
-    color: #aaa;
+    color: #999;
 }
 .x-tips b i {
     text-decoration: underline;
@@ -80,49 +89,80 @@ h5,h4 {
 }
 .mod-dynamic-tool {
     padding-left: 0;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    overflow: hidden;
 }
 .mod-dynamic-tool li {
-    line-height: 28px;
     list-style: none;
-    border-bottom: 1px solid #fff;
+    border-bottom: 1px solid #eee;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #fff;
+}
+.mod-dynamic-tool li:last-child {
+    border-bottom: none;
 }
 .mod-dynamic-tool li:hover {
-    border-bottom-color: #f2dede60;
-    background-color:#f2dede60;
+    border-bottom-color: #eee;
+    background-color: #f8f9fa;
 }
 .mod-dynamic-tool li .x-btn-box {
-    text-align: left;
-    display: inline-block;
-    min-width: 140px;
+    text-align: right;
+    min-width: auto;
+    margin-left: auto;
+    display: flex;
+    gap: 5px;
 }
 .mod-dynamic-tool li i {
-    width: 14px;
-    height: 14px;
-    display: inline-block;
-    margin-right: 5px;
-    color:#48f;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 4px;
+    color: #495057;
     font-style: normal;
+    font-size: 14px;
+    flex-shrink: 0;
 }
 .mod-dynamic-tool li b {
-    display: inline-block;
-    text-align-last: justify;
-    width: 102px;
+    width: auto;
+    flex-shrink: 0;
+    color: #333;
+}
+.mod-dynamic-tool li .x-tips {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #999;
+}
+.mod-dynamic-tool .btn-xs {
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 3px;
 }
 .mod-dynamic-tool .btn {
     position: relative;
 }
-.mod-dynamic-tool .btn i {
-    color: #f00;
-    font-size: 14px;
-    position: absolute;
-    top: -10px;
-    right: -10px;
-}
 .st-item {
     margin-bottom: 10px;
 }
+.st-item input[type="checkbox"] {
+    margin-right: 5px;
+}
+.st-item label {
+    line-height: normal;
+}
+.st-item label .x-tips {
+}
+.st-item .box-inner {
+}
 .st-item .a-btn {
-    font-size:12px;
+    font-size: 12px;
     text-decoration: underline;
 }
 .btn-disabled,
@@ -137,13 +177,16 @@ h5,h4 {
 .x-sort-box {
     margin-right: 10px;
     user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 .x-sort-box i {
     cursor: pointer;
     font-weight: bold;
 }
 .x-sort-box i:hover {
-    color:#f00;
+    color:#007bff;
 }
 .x-sort-box i.x-hidden {
     opacity: 0.2;
@@ -154,17 +197,18 @@ h5,h4 {
     margin-top: 4px;
 }
 .x-cur-version b,.x-cur-version i {
-    background: #5b5b5b;
-    padding: 3px 5px;
+    background: #6c757d;
+    padding: 2px 6px;
     border-radius: 3px 0 0 3px;
     color: #fff;
-    font-weight: lighter;
+    font-weight: normal;
     font-style: normal;
-    font-family: monospace;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
 }
 .x-cur-version i {
     border-radius: 0 3px 3px 0;
-    background: #0e7fbf;
+    background: #007bff;
 }
 [v-cloak] {
     display: none;
