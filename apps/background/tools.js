@@ -240,6 +240,14 @@ let toolMap = {
             text: 'Excel转JSON'
         }]
     },
+    'chart-maker': {
+        name: '图表制作工具',
+        tips: '快速制作各类数据可视化图表，支持柱状图、折线图、饼图等多种图表类型，可导出为图片格式',
+        menuConfig: [{
+            icon: '📊',
+            text: '图表制作工具'
+        }]
+    },
 };
 
 export default toolMap;
