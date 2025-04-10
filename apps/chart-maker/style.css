@@ -1,0 +1,645 @@
+/* 基本样式重置 */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f5f7fa;
+    background-image: linear-gradient(to right, rgba(245, 247, 250, 0.8) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(245, 247, 250, 0.8) 1px, transparent 1px);
+    background-size: 20px 20px;
+    padding-top: 15px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* 主内容区 */
+main {
+    padding: 40px 0;
+}
+
+.app-container {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+/* 左侧边栏 */
+.sidebar {
+    flex: 0 0 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* 面板共用样式 */
+.panel {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.panel:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+.panel::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #4568dc, #b06ab3);
+}
+
+.panel h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    position: relative;
+}
+
+.panel h2::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #4568dc, #b06ab3);
+    border-radius: 3px;
+}
+
+/* 输入组样式 */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #444;
+}
+
+.input-group input[type="text"],
+.input-group select,
+.input-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 12.6px;
+    transition: all 0.3s;
+    background-color: #f9f9f9;
+}
+
+.input-group input[type="text"]:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+    border-color: #4568dc;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(69, 104, 220, 0.2);
+    background-color: white;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    position: relative;
+    left: -260px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 2px;
+    accent-color: #4568dc;
+    width: 16px;
+    height: 16px;
+}
+
+.csv-options {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+/* 按钮样式 */
+.btn {
+    display: inline-block;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn:hover::after {
+    left: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4568dc, #5c7be5);
+    color: white;
+    box-shadow: 0 5px 15px rgba(69, 104, 220, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #3a56bb, #4d69cd);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(69, 104, 220, 0.4);
+}
+
+.btn-primary:disabled {
+    background: #a5b1e2;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #f0f2f5, #e4e7f0);
+    color: #444;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #e4e6e9, #d8dce6);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.input-group .btn {
+    margin-right: 10px;
+}
+
+/* 右侧主要内容区 */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.chart-container {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    padding: 25px;
+    margin-bottom: 6px;
+    transition: box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.chart-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #4568dc, #b06ab3);
+}
+
+.chart-container:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+#chart-wrapper {
+    flex: 1;
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 0 20px 0;
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    background: white;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
+}
+
+/* 添加图表区域默认背景样式 */
+#chart-wrapper:empty {
+    background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23f0f4ff;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23eef4ff;stop-opacity:1' /%3E%3C/linearGradient%3E%3Cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 0 10 L 40 10 M 10 0 L 10 40 M 0 20 L 40 20 M 20 0 L 20 40 M 0 30 L 40 30 M 30 0 L 30 40' fill='none' stroke='%23e0e0e0' stroke-width='0.5'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='16' font-weight='bold' text-anchor='middle' fill='%23aaaaaa' dominant-baseline='middle'%3E选择数据并点击"生成图表"%3C/text%3E%3Cg transform='translate(50%25, 40%25)'%3E%3Cpath d='M-40,-30 L-40,30 L40,30' stroke='%234568dc' stroke-width='2' fill='none' stroke-opacity='0.3'/%3E%3Ccircle cx='-20' cy='10' r='5' fill='%234568dc' fill-opacity='0.3'/%3E%3Ccircle cx='0' cy='-10' r='5' fill='%234568dc' fill-opacity='0.3'/%3E%3Ccircle cx='20' cy='0' r='5' fill='%234568dc' fill-opacity='0.3'/%3E%3Cpath d='M-20,10 L0,-10 L20,0' stroke='%234568dc' stroke-width='2' fill='none' stroke-opacity='0.3'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: cover;
+    background-position: center;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 0 0 15px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* 提示面板 */
+.tips-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: hidden;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.tips-panel::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #4568dc, #b06ab3);
+}
+
+.tips-panel h3 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    color: #333;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.tips-panel h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, #4568dc, #b06ab3);
+    border-radius: 3px;
+}
+
+.tips-panel ul {
+    padding-left: 20px;
+}
+
+.tips-panel li {
+    margin-bottom: 10px;
+    color: #555;
+    position: relative;
+}
+
+.tips-panel li::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 8px;
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(135deg, #4568dc, #b06ab3);
+    border-radius: 50%;
+}
+
+/* 响应式设计 */
+@media (max-width: 900px) {
+    .app-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        flex: initial;
+        width: 100%;
+    }
+    
+    .chart-container {
+        height: 400px;
+    }
+}
+
+/* 数据格式切换相关样式 */
+#simple-data-container,
+#series-data-container,
+#csv-data-container {
+    transition: all 0.3s ease;
+}
+
+/* 图表导出loading效果 */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    backdrop-filter: blur(3px);
+}
+
+.loading-spinner {
+    width: 45px;
+    height: 45px;
+    border: 4px solid rgba(69, 104, 220, 0.3);
+    border-radius: 50%;
+    border-top: 4px solid #4568dc;
+    animation: spin 1s linear infinite;
+    box-shadow: 0 0 10px rgba(69, 104, 220, 0.2);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 通知弹窗样式 */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    background: linear-gradient(135deg, #4caf50, #45a049);
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.notification.error {
+    background: linear-gradient(135deg, #f44336, #e53935);
+}
+
+/* 添加引导动画 */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(69, 104, 220, 0.6); }
+    70% { box-shadow: 0 0 0 12px rgba(69, 104, 220, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(69, 104, 220, 0); }
+}
+
+#generate-btn {
+    animation: pulse 2s infinite;
+}
+
+/* 图表类型画廊 */
+.chart-type-gallery {
+    margin-top: 25px;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 20px;
+}
+
+.chart-type-gallery h3 {
+    font-size: 1.08rem;
+    margin-bottom: 15px;
+    color: #333;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 8px;
+}
+
+.chart-type-gallery h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #4568dc, #b06ab3);
+    border-radius: 3px;
+}
+
+.chart-type-scroller {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 15px;
+    /* 自定义滚动条 */
+    scrollbar-width: thin;
+    scrollbar-color: #ccc #f0f0f0;
+}
+
+.chart-type-scroller::-webkit-scrollbar {
+    height: 8px;
+}
+
+.chart-type-scroller::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 10px;
+}
+
+.chart-type-scroller::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #4568dc, #b06ab3);
+    border-radius: 10px;
+}
+
+.chart-type-group {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 25px;
+    min-width: 250px;
+}
+
+.chart-type-group h4 {
+    font-size: 15.3px;
+    margin: 0 0 12px 0;
+    color: #444;
+    border-bottom: 1px dashed #e0e0e0;
+    padding-bottom: 8px;
+}
+
+.chart-type-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.chart-type-item {
+    width: 85px;
+    text-align: center;
+    cursor: pointer;
+    transition: box-shadow 0.3s, background-color 0.3s;
+    border-radius: 8px;
+    padding: 10px 5px;
+    background-color: #f9f9f9;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+}
+
+.chart-type-item:hover {
+    background-color: #f0f8ff;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.chart-type-item.active {
+    background: linear-gradient(135deg, #e6f2ff, #eef8ff);
+    border: 1px solid #b3d7ff;
+    box-shadow: 0 5px 15px rgba(69, 104, 220, 0.15);
+}
+
+.chart-type-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    background: white;
+    padding: 3px;
+    border: 1px solid #eee;
+}
+
+.chart-type-item span {
+    display: block;
+    font-size: 11.7px;
+    color: #444;
+    white-space: normal;
+    line-height: 1.3;
+}
+
+/* 添加canvas样式 */
+canvas#chart-canvas {
+    height: 450px !important;
+}
+
+/* 为canvas添加默认背景，但在绘制图表时不显示背景 */
+canvas#chart-canvas:not([data-chart-rendered]) {
+    background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23f0f4ff;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23eef4ff;stop-opacity:1' /%3E%3C/linearGradient%3E%3Cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 0 10 L 40 10 M 10 0 L 10 40 M 0 20 L 40 20 M 20 0 L 20 40 M 0 30 L 40 30 M 30 0 L 30 40' fill='none' stroke='%23e0e0e0' stroke-width='0.5'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)'/%3E%3Cg transform='translate(50%25, 50%25)'%3E%3Cpath d='M-40,-30 L-40,30 L40,30' stroke='%234568dc' stroke-width='2' fill='none' stroke-opacity='0.3'/%3E%3Ccircle cx='-20' cy='10' r='5' fill='%234568dc' fill-opacity='0.3'/%3E%3Ccircle cx='0' cy='-10' r='5' fill='%234568dc' fill-opacity='0.3'/%3E%3Ccircle cx='20' cy='0' r='5' fill='%234568dc' fill-opacity='0.3'/%3E%3Cpath d='M-20,10 L0,-10 L20,0' stroke='%234568dc' stroke-width='2' fill='none' stroke-opacity='0.3'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: cover;
+    background-position: center;
+}
+
+/* 确保有data-chart-rendered属性的canvas没有背景图 */
+canvas#chart-canvas[data-chart-rendered] {
+    background-image: none !important;
+}
+
+/* 美化文件上传控件 */
+.input-group input[type="file"] {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.input-group input[type="file"] + label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 15px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #f0f2f5, #e4e7f0);
+    color: #444;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 0;
+    text-align: center;
+    width: 100%;
+}
+
+.input-group input[type="file"] + label:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.input-group input[type="file"] + label::before {
+    content: '\f07c'; /* Use Font Awesome icon code for folder */
+    font-family: "Font Awesome 5 Free"; /* Ensure Font Awesome is loaded */
+    font-weight: 900;
+    margin-right: 8px;
+    display: inline-block; /* Ensure icon aligns properly */
+}
+
+/* 新增的页面头部样式 */
+.page-header {
+    background-color: #f8f9fa;
+    padding: 12px 20px;
+    border-bottom: 1px solid #e3e6f0;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.page-header .header-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: #5a5c69;
+    font-weight: 500;
+    font-size: 1.2rem;
+    transition: color 0.2s ease-in-out;
+}
+
+.page-header .header-link:hover {
+    color: #4e73df;
+}
+
+.page-header .header-link img {
+    margin-right: 8px;
+    height: 18px;
+    width: 18px;
+}
+
+.page-header .header-link .fehelper-text {
+    font-weight: 700;
+}
+
+.page-header .page-title-suffix {
+    margin-left: 8px;
+    font-size: 1.2rem;
+    color: #858796;
+} 

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图表生成器 - 快速创建专业数据可视化</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="chart-icon.svg" type="image/svg+xml">
+    <!-- 引入Chart.js及其插件 (改为本地引用) -->
+    <script src="lib/chart.min.js"></script>
+    <!-- 引入html2canvas库用于导出图片 (改为本地引用) -->
+    <script src="lib/html2canvas.min.js"></script>
+    <!-- 引入XLSX库用于解析Excel文件 (改为本地引用) -->
+    <script src="lib/xlsx.full.min.js"></script>
+    <!-- 引入Hammer.js用于图表交互 (改为本地引用) -->
+    <script src="lib/hammer.min.js"></script>
+    <!-- 引入Chart.js缩放插件 (改为本地引用) -->
+    <script src="lib/chartjs-plugin-zoom.min.js"></script>
+    <!-- 引入Chart.js数据标签插件 -->
+    <script src="lib/chartjs-plugin-datalabels.min.js"></script>
+</head>
+<body>
+    <div class="wrapper" id="pageContainer">
+        <div class="page-header">
+            <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="header-link">
+                <img src="../static/img/fe-16.png" alt="fehelper"/>
+                <span class="fehelper-text">FeHelper</span>
+            </a>
+            <span class="page-title-suffix">：图表生成器</span>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="app-container">
+            <!-- 左侧面板：数据输入区 -->
+            <div class="sidebar">
+                <div class="panel">
+                    <h2>数据输入</h2>
+                    <div class="input-group">
+                        <label>数据输入方式</label>
+                        <div class="input-methods">
+                            <label><input type="radio" name="data-input-method" value="manual" checked> 手动录入</label>
+                            <label><input type="radio" name="data-input-method" value="upload-csv"> 上传Excel/CSV</label>
+                        </div>
+                    </div>
+
+                    <div class="input-group" id="manual-format-container" style="display: none;">
+                        <label for="manual-format">选择数据格式</label>
+                        <select id="manual-format">
+                            <option value="simple">简单数据 (标签,数值)</option>
+                            <option value="series">系列数据 (多组)</option>
+                            <option value="csv">CSV格式</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" id="simple-data-container">
+                        <label for="data-input">输入数据 (每行一条，格式: 标签,数值)</label>
+                        <textarea id="data-input" rows="8" placeholder="产品A,120&#10;产品B,80&#10;产品C,60&#10;产品D,40&#10;产品E,30"></textarea>
+                    </div>
+
+                    <div class="input-group" id="series-data-container" style="display: none;">
+                        <label for="series-data-input">输入系列数据 (每行一个系列，格式: 系列名,值1,值2...)</label>
+                        <textarea id="series-data-input" rows="8" placeholder="一季度,120,80,60,40,30&#10;二季度,130,70,65,45,35&#10;三季度,140,90,55,48,38"></textarea>
+                        <label for="series-labels">标签 (逗号分隔)</label>
+                        <input type="text" id="series-labels" placeholder="产品A,产品B,产品C,产品D,产品E">
+                    </div>
+
+                    <div class="input-group" id="csv-data-container" style="display: none;">
+                        <label for="csv-data-input">粘贴CSV数据 (首行为标题)</label>
+                        <textarea id="csv-data-input" rows="8" placeholder="类别,一季度,二季度,三季度&#10;产品A,120,130,140&#10;产品B,80,70,90&#10;产品C,60,65,55&#10;产品D,40,45,48"></textarea>
+                        <div class="csv-options">
+                            <label>
+                                <input type="checkbox" id="first-row-header" checked> 
+                                第一行为标题
+                            </label>
+                            <label>
+                                <input type="checkbox" id="first-col-labels" checked> 
+                                第一列为标签
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="file" id="file-upload" accept=".csv, .xlsx">
+                        <label for="file-upload">选择CSV/Excel文件</label>
+                    </div>
+
+                    <div class="input-group">
+                        <button id="generate-btn" class="btn btn-primary">生成图表</button>
+                        <button id="sample-data-btn" class="btn btn-secondary">加载样例数据</button>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h2>图表设置</h2>
+                    <input type="hidden" id="chart-type" value="bar">
+                    <div class="input-group">
+                        <label for="chart-title">图表标题</label>
+                        <input type="text" id="chart-title" placeholder="图表标题">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="x-axis-label">X轴标签</label>
+                        <input type="text" id="x-axis-label" placeholder="X轴标签">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="y-axis-label">Y轴标签</label>
+                        <input type="text" id="y-axis-label" placeholder="Y轴标签">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="color-scheme">颜色方案</label>
+                        <select id="color-scheme">
+                            <option value="default">默认方案</option>
+                            <option value="pastel">柔和色系</option>
+                            <option value="bright">明亮色系</option>
+                            <option value="cool">冷色调</option>
+                            <option value="warm">暖色调</option>
+                            <option value="corporate">企业风格</option>
+                            <option value="contrast">高对比度</option>
+                            <option value="rainbow">彩虹色系</option>
+                            <option value="earth">大地色系</option>
+                            <option value="ocean">海洋色系</option>
+                            <option value="vintage">复古色系</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="legend-position">图例位置</label>
+                        <select id="legend-position">
+                            <option value="top">顶部</option>
+                            <option value="right">右侧</option>
+                            <option value="bottom">底部</option>
+                            <option value="left">左侧</option>
+                            <option value="none">不显示</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group checkbox-group">
+                        <!-- 删除"显示网格线"和"启用动画"复选框 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧面板：图表显示区域 -->
+            <div class="main-content">
+                <div class="chart-container">
+                    <div class="chart-actions">
+                        <div class="checkbox-group" style="text-align: left;">
+                            <label><input type="checkbox" id="show-grid-lines" checked> 显示网格线</label>
+                            <label><input type="checkbox" id="animate-chart" checked> 启用动画</label>
+                        </div>
+                        <button id="export-png-btn" class="btn btn-primary" disabled>导出PNG</button>
+                        <button id="export-jpg-btn" class="btn btn-primary" disabled>导出JPG</button>
+                        <button id="copy-img-btn" class="btn btn-secondary" disabled>复制图像</button>
+                    </div>
+                    <div id="chart-wrapper">
+                        <canvas id="chart-canvas"></canvas>
+                    </div>
+                    
+                    <div class="chart-type-gallery">
+                        <h3>图表类型选择</h3>
+                        <div class="chart-type-scroller">
+                            <div class="chart-type-group">
+                                <h4>基础图表</h4>
+                                <div class="chart-type-items">
+                                    <div class="chart-type-item" data-chart-type="bar">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <rect x="10" y="10" width="8" height="40" fill="#4e73df" />
+                                            <rect x="26" y="20" width="8" height="30" fill="#4e73df" />
+                                            <rect x="42" y="30" width="8" height="20" fill="#4e73df" />
+                                        </svg>
+                                        <span>柱状图</span>
+                                    </div>
+                                    <div class="chart-type-item" data-chart-type="horizontalBar">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <rect x="10" y="10" width="40" height="8" fill="#4e73df" />
+                                            <rect x="10" y="26" width="30" height="8" fill="#4e73df" />
+                                            <rect x="10" y="42" width="20" height="8" fill="#4e73df" />
+                                        </svg>
+                                        <span>水平柱状图</span>
+                                    </div>
+                                    <div class="chart-type-item" data-chart-type="line">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <polyline points="10,45 25,15 40,30 55,10" stroke="#4e73df" stroke-width="2" fill="none" />
+                                            <circle cx="10" cy="45" r="3" fill="#4e73df" />
+                                            <circle cx="25" cy="15" r="3" fill="#4e73df" />
+                                            <circle cx="40" cy="30" r="3" fill="#4e73df" />
+                                            <circle cx="55" cy="10" r="3" fill="#4e73df" />
+                                        </svg>
+                                        <span>折线图</span>
+                                    </div>
+                                    <div class="chart-type-item" data-chart-type="area">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <path d="M10,45 L25,15 L40,30 L55,10 L55,50 L10,50 Z" fill="#4e73df" opacity="0.3" />
+                                            <polyline points="10,45 25,15 40,30 55,10" stroke="#4e73df" stroke-width="2" fill="none" />
+                                            <circle cx="10" cy="45" r="3" fill="#4e73df" />
+                                            <circle cx="25" cy="15" r="3" fill="#4e73df" />
+                                            <circle cx="40" cy="30" r="3" fill="#4e73df" />
+                                            <circle cx="55" cy="10" r="3" fill="#4e73df" />
+                                        </svg>
+                                        <span>面积图</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-type-group">
+                                <h4>饼图/环形图</h4>
+                                <div class="chart-type-items">
+                                    <div class="chart-type-item" data-chart-type="pie">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <path d="M30,30 L30,5 A25,25 0 0,1 55,30 Z" fill="#4e73df" />
+                                            <path d="M30,30 L55,30 A25,25 0 0,1 30,55 Z" fill="#1cc88a" />
+                                            <path d="M30,30 L30,55 A25,25 0 0,1 5,30 Z" fill="#36b9cc" />
+                                            <path d="M30,30 L5,30 A25,25 0 0,1 30,5 Z" fill="#f6c23e" />
+                                        </svg>
+                                        <span>饼图</span>
+                                    </div>
+                                    <div class="chart-type-item" data-chart-type="doughnut">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <path d="M30,30 L30,5 A25,25 0 0,1 55,30 L45,30 A15,15 0 0,0 30,15 Z" fill="#4e73df" />
+                                            <path d="M30,30 L55,30 A25,25 0 0,1 30,55 L30,45 A15,15 0 0,0 45,30 Z" fill="#1cc88a" />
+                                            <path d="M30,30 L30,55 A25,25 0 0,1 5,30 L15,30 A15,15 0 0,0 30,45 Z" fill="#36b9cc" />
+                                            <path d="M30,30 L5,30 A25,25 0 0,1 30,5 L30,15 A15,15 0 0,0 15,30 Z" fill="#f6c23e" />
+                                        </svg>
+                                        <span>环形图</span>
+                                    </div>
+                                    <div class="chart-type-item" data-chart-type="polarArea">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <path d="M30,30 L30,10 A20,20 0 0,1 50,30 Z" fill="#4e73df" />
+                                            <path d="M30,30 L50,30 A20,20 0 0,1 30,50 Z" fill="#1cc88a" />
+                                            <path d="M30,30 L30,50 A20,20 0 0,1 10,30 Z" fill="#36b9cc" />
+                                            <path d="M30,30 L10,30 A20,20 0 0,1 30,10 Z" fill="#f6c23e" />
+                                        </svg>
+                                        <span>极地面积图</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-type-group">
+                                <h4>高级图表</h4>
+                                <div class="chart-type-items">
+                                    <div class="chart-type-item" data-chart-type="scatter">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <circle cx="15" cy="20" r="3" fill="#4e73df" />
+                                            <circle cx="25" cy="40" r="3" fill="#4e73df" />
+                                            <circle cx="35" cy="15" r="3" fill="#4e73df" />
+                                            <circle cx="45" cy="30" r="3" fill="#4e73df" />
+                                            <circle cx="20" cy="45" r="3" fill="#4e73df" />
+                                        </svg>
+                                        <span>散点图</span>
+                                    </div>
+                                    <div class="chart-type-item" data-chart-type="radar">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <polygon points="30,10 45,20 40,40 20,40 15,20" stroke="#4e73df" stroke-width="1" fill="#4e73df" fill-opacity="0.2" />
+                                            <line x1="30" y1="30" x2="30" y2="10" stroke="#ccc" />
+                                            <line x1="30" y1="30" x2="45" y2="20" stroke="#ccc" />
+                                            <line x1="30" y1="30" x2="40" y2="40" stroke="#ccc" />
+                                            <line x1="30" y1="30" x2="20" y2="40" stroke="#ccc" />
+                                            <line x1="30" y1="30" x2="15" y2="20" stroke="#ccc" />
+                                        </svg>
+                                        <span>雷达图</span>
+                                    </div>
+                                    <div class="chart-type-item" data-chart-type="bubble">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <circle cx="15" cy="25" r="5" fill="#4e73df" fill-opacity="0.7" />
+                                            <circle cx="30" cy="15" r="7" fill="#4e73df" fill-opacity="0.7" />
+                                            <circle cx="45" cy="35" r="4" fill="#4e73df" fill-opacity="0.7" />
+                                            <circle cx="25" cy="45" r="6" fill="#4e73df" fill-opacity="0.7" />
+                                        </svg>
+                                        <span>气泡图</span>
+                                    </div>
+                                    <div class="chart-type-item" data-chart-type="stackedBar">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <rect x="10" y="10" width="8" height="15" fill="#4e73df" />
+                                            <rect x="10" y="25" width="8" height="15" fill="#1cc88a" />
+                                            <rect x="26" y="20" width="8" height="10" fill="#4e73df" />
+                                            <rect x="26" y="30" width="8" height="10" fill="#1cc88a" />
+                                            <rect x="42" y="30" width="8" height="5" fill="#4e73df" />
+                                            <rect x="42" y="35" width="8" height="5" fill="#1cc88a" />
+                                        </svg>
+                                        <span>堆叠柱状图</span>
+                                    </div>
+                                    <div class="chart-type-item" data-chart-type="stackedArea">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <path d="M10,45 L25,35 L40,30 L55,20 L55,50 L10,50 Z" fill="#4e73df" opacity="0.3" />
+                                            <path d="M10,30 L25,20 L40,20 L55,10 L55,20 L40,30 L25,35 L10,45 Z" fill="#1cc88a" opacity="0.3" />
+                                            <polyline points="10,30 25,20 40,20 55,10" stroke="#1cc88a" stroke-width="2" fill="none" />
+                                            <polyline points="10,45 25,35 40,30 55,20" stroke="#4e73df" stroke-width="2" fill="none" />
+                                        </svg>
+                                        <span>堆叠面积图</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tips-panel">
+                    <h3>使用提示</h3>
+                    <ul>
+                        <li>选择适合您数据的图表类型：数值比较用柱状图，趋势用折线图，占比用饼图</li>
+                        <li>点击图表类型预览图可以直接切换图表</li>
+                        <li>生成图表后可以导出为PNG或JPG格式，方便插入PPT或Word文档</li>
+                        <li>使用"数据标签"功能可以在图表上直接显示数值</li>
+                        <li>尝试不同的颜色方案，为您的报告增添专业感</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="main.js"></script>
+    <script src="chart-generator.js"></script>
+</body>
+</html> 
