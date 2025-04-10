@@ -191,3 +191,11 @@ gulp.task('default', ['clean'], () => {
 gulp.task('sync', () => {
     gulp.src('apps/**/*').pipe(gulp.dest('output/apps'));
 });
+
+gulp.task("watch", () => {
+    gulp.watch("apps/**/*.js", ["sync"]);
+    gulp.watch("apps/**/*.css", ["sync"]);
+    gulp.watch("apps/**/*.html", ["sync"]);
+    gulp.watch("apps/**/*.json", ["sync"]);
+    gulp.watch("apps/**/*.{gif,png,jpg,jpeg,cur,ico}", ["sync"]);
+});
