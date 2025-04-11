@@ -17,26 +17,32 @@ let through = require('through2');
 let path = require('path');
 let pretty = require('pretty-bytes');
 let shell = require('shelljs');
-let runSequence = require('run-sequence');
 
-gulp.task('clean', () => {
-    return gulp.src('output', {read: false}).pipe(clean({force: true}));
-});
+// 在Gulp 4.x中，runSequence已被移除，使用gulp.series和gulp.parallel代替
+// let runSequence = require('run-sequence');
 
-gulp.task('copy', () => {
+// 清理输出目录
+function cleanOutput() {
+    return gulp.src('output', {read: false, allowEmpty: true}).pipe(clean({force: true}));
+}
+
+// 复制静态资源
+function copyAssets() {
     return gulp.src(['apps/**/*.{gif,png,jpg,jpeg,cur,ico}', '!apps/static/screenshot/**/*']).pipe(copy('output'));
-});
+}
 
-gulp.task('json', () => {
+// 处理JSON文件
+function processJson() {
     return gulp.src('apps/**/*.json').pipe(jsonmin()).pipe(gulp.dest('output/apps'));
-});
+}
 
-gulp.task('html', () => {
+// 处理HTML文件
+function processHtml() {
     return gulp.src('apps/**/*.html').pipe(htmlmin({collapseWhitespace: true})).pipe(gulp.dest('output/apps'));
-});
+}
 
 // 合并 & 压缩 js
-gulp.task('js', () => {
+function processJs() {
     let jsMerge = () => {
         return through.obj(function (file, enc, cb) {
             let contents = file.contents.toString('utf-8');
@@ -52,18 +58,17 @@ gulp.task('js', () => {
             };
 
             contents = merge(file.path, contents);
-            file.contents = new Buffer.from(contents);
+            file.contents = Buffer.from(contents);
             this.push(file);
             return cb();
         })
     };
 
     return gulp.src('apps/**/*.js').pipe(jsMerge()).pipe(uglifyjs()).pipe(gulp.dest('output/apps'));
-});
+}
 
 // 合并 & 压缩 css
-gulp.task('css', () => {
-
+function processCss() {
     let cssMerge = () => {
         return through.obj(function (file, enc, cb) {
             let contents = file.contents.toString('utf-8');
@@ -77,18 +82,17 @@ gulp.task('css', () => {
             };
 
             contents = merge(file.path, contents);
-            file.contents = new Buffer.from(contents);
+            file.contents = Buffer.from(contents);
             this.push(file);
             return cb();
         })
     };
 
     return gulp.src('apps/**/*.css').pipe(cssMerge()).pipe(uglifycss()).pipe(gulp.dest('output/apps'));
-});
+}
 
 // 清理冗余文件，并且打包成zip，发布到chrome webstore
-gulp.task('zip', () => {
-
+function zipPackage(cb) {
     // 读取manifest文件
     let pathOfMF = './output/apps/manifest.json';
     let manifest = require(pathOfMF);
@@ -106,12 +110,12 @@ gulp.task('zip', () => {
     console.log('    当前版本：', manifest.version, '\t文件大小:', size);
     console.log('    去Chrome商店发布吧：https://chrome.google.com/webstore/devconsole');
     console.log('================================================================================\n\n');
-
-});
-
+    
+    cb();
+}
 
 // 打包ms-edge安装包
-gulp.task('edge', () => {
+function edgePackage(cb) {
     shell.exec('rm -rf output-edge && cp -r output output-edge && rm -rf output-edge/fehelper.zip');
 
     // 更新edge所需的配置文件
@@ -133,11 +137,12 @@ gulp.task('edge', () => {
     console.log('    当前版本：', manifest.version, '\t文件大小:', size);
     console.log('    去Edge商店发布吧：https://partner.microsoft.com/zh-cn/dashboard/microsoftedge/overview');
     console.log('================================================================================\n\n');
-});
-
+    
+    cb();
+}
 
 // 打包Firefox安装包
-gulp.task('firefox', () => {
+function firefoxPackage(cb) {
     shell.exec('rm -rf output-firefox && cp -r output output-firefox && rm -rf output-firefox/fehelper.zip');
 
     // 清理掉firefox里不支持的tools
@@ -181,13 +186,31 @@ gulp.task('firefox', () => {
     console.log('    当前版本：', manifest.version, '\t文件大小:', size);
     console.log('    去Chrome商店发布吧：https://addons.mozilla.org/zh-CN/developers/addon/web%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B-fehelper/versions');
     console.log('================================================================================\n\n');
-});
+    
+    cb();
+}
 
-// builder
-gulp.task('default', ['clean'], () => {
-    runSequence(['copy', 'css', 'js', 'html', 'json'], 'zip');
-});
+function syncFiles() {
+    return gulp.src('apps/**/*').pipe(gulp.dest('output/apps'));
+}
 
-gulp.task('sync', () => {
-    gulp.src('apps/**/*').pipe(gulp.dest('output/apps'));
-});
+// 注册任务
+gulp.task('clean', cleanOutput);
+gulp.task('copy', copyAssets);
+gulp.task('json', processJson);
+gulp.task('html', processHtml);
+gulp.task('js', processJs);
+gulp.task('css', processCss);
+gulp.task('zip', zipPackage);
+gulp.task('edge', edgePackage);
+gulp.task('firefox', firefoxPackage);
+gulp.task('sync', syncFiles);
+
+// 定义默认任务 - 在Gulp 4.x中，使用series和parallel代替runSequence
+gulp.task('default', 
+    gulp.series(
+        cleanOutput, 
+        gulp.parallel(copyAssets, processCss, processJs, processHtml, processJson), 
+        zipPackage
+    )
+);

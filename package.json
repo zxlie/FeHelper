@@ -7,7 +7,7 @@
     "crypto": "^1.0.1"
   },
   "devDependencies": {
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "gulp-clean": "^0.4.0",
     "gulp-copy": "^1.1.0",
     "gulp-htmlmin": "^4.0.0",
@@ -23,9 +23,6 @@
     "watch": "gulp watch",
     "build": "gulp",
     "preinstall": "npx npm-force-resolutions"
-  },
-  "resolutions": {
-    "graceful-fs": "^4.2.4"
   },
   "repository": {
     "type": "git",
