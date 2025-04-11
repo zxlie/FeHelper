@@ -214,3 +214,11 @@ gulp.task('default',
         zipPackage
     )
 );
+
+gulp.task("watch", () => {
+    gulp.watch("apps/**/*.js", ["sync"]);
+    gulp.watch("apps/**/*.css", ["sync"]);
+    gulp.watch("apps/**/*.html", ["sync"]);
+    gulp.watch("apps/**/*.json", ["sync"]);
+    gulp.watch("apps/**/*.{gif,png,jpg,jpeg,cur,ico}", ["sync"]);
+});
