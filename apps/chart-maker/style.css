@@ -17,6 +17,7 @@ body {
     padding-top: 15px;
     max-width: 1200px;
     margin: 0 auto;
+    font-size:100%;
 }
 
 .container {
@@ -128,7 +129,7 @@ main {
     display: flex;
     align-items: center;
     position: relative;
-    left: -260px;
+    left: -230px;
 }
 
 .checkbox-group label {
