@@ -455,6 +455,7 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     cursor: pointer;
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .recommendation-card:hover {

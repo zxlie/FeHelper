@@ -13,38 +13,43 @@
 }
 
 .fe-function-title {
-    padding: 5px;
-    color: #522;
-    font-weight: bolder;
+    padding: 8px 12px;
+    color: #2b2d42;
+    font-weight: 600;
     cursor: default;
-    border-bottom: 1px dotted #aaa;
-    text-align: center;
+    border-bottom: 1px solid rgba(67, 97, 238, 0.1);
+    background: linear-gradient(to right, #f8f9ff, #f0f2ff);
     font-size: 12px;
+    letter-spacing: 0.5px;
 }
 
 .fe-function-title span {
     font-weight: normal;
-    color: #e1e1e1;
+    color: #999;
+    font-size: 10px;
 }
 
 ul.fe-function-list {
-    padding: 0 10px;
+    padding: 0;
     list-style: none;
-    width: 130px;
+    width: 100%;
+    margin: 0;
 }
 
 ul.fe-function-list li {
-    padding: 3px 5px 3px 5px;
+    padding: 2px 16px 2px 40px;
     cursor: pointer;
-    color: #555;
-    -webkit-transition: all .4s ease;
-    text-align: justify;
+    color: #4a4c6d;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     display: block;
-    height: 20px;
-    line-height: 20px;
-    width: 120px;
-    border-bottom: 1px dashed #e5e5e5;
-    overflow: hidden;
+    align-items: center;
+    height: 28px;
+    border-radius: 6px;
+    margin: 2px 0;
+    border-bottom: 1px solid rgba(67, 97, 238, 0.05);
+    text-align: justify;
+    position: relative;
+    line-height: 28px;
 }
 
 ul.fe-function-list li:last-child {
@@ -53,8 +58,10 @@ ul.fe-function-list li:last-child {
 
 ul.fe-function-list li.x-hovered,
 ul.fe-function-list li:hover {
-    color: #ff3C11;
-    background: #f1f1f1;
+    color: #000;
+    background: rgba(67, 97, 238, 0.08);
+    box-shadow: 0 2px 6px rgba(67, 97, 238, 0.08);
+    font-weight: 600;
 }
 
 ul.fe-function-list li > span {
@@ -70,12 +77,26 @@ ul.fe-function-list li:after {
 }
 
 ul.fe-function-list li > b {
-    width: 14px;
-    height: 14px;
-    -webkit-transition: all .5s ease;
-    display: inline-block;
-    margin-right: 5px;
-    color:#48f;
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.1);
+    padding: 0px;
+    border-radius: 50%;
+    margin-right: 2px;
+    color: currentColor;
+    filter: drop-shadow(0 2px 4px rgba(67, 97, 238, 0.1));
+    position: absolute;
+    left: 10px;
+    top: 6px;
+}
+
+/* 暗黑模式适配 */
+.dark-mode .fe-function-list li > b {
+    background: rgba(255,255,255,0.1);
 }
 
 ul.fe-function-list li:hover > b {
@@ -89,15 +110,17 @@ ul.fe-function-list li i {
 }
 
 .fe-feedback {
-    font-size: 12px;
-    border-top: 1px dotted #ddd;
-    padding: 5px 15px;
-    line-height: 20px;
-    color: #888;
+    font-size: 13px;
+    border-top: 1px solid rgba(67, 97, 238, 0.08);
+    padding: 8px 16px;
+    margin-top: 0px;
+    background: linear-gradient(to right, rgba(67, 97, 238, 0.05), rgba(67, 97, 238, 0.05));
+    color: var(--text-color);
+    opacity: 0.9;
 }
 
 .fe-feedback a {
-    color: #888;
+    color: #666;
     text-decoration: none;
     text-align: left;
 }
@@ -132,6 +155,7 @@ svg:not(:root) {
     margin-left: 5px;
     display: inline-flex;
     align-items: center;
+    color: #666;
 }
 
 .fe-feedback .x-settings:hover {
