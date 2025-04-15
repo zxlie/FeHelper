@@ -1,0 +1,144 @@
+.fe-whole-page {
+    font-size: 14px;
+    user-select: none;
+    padding: 0;
+    margin: 0;
+    width: 152px;
+    position: relative;
+    overflow: hidden;
+}
+
+.fe-hide {
+    display: none;
+}
+
+.fe-function-title {
+    padding: 5px;
+    color: #522;
+    font-weight: bolder;
+    cursor: default;
+    border-bottom: 1px dotted #aaa;
+    text-align: center;
+    font-size: 12px;
+}
+
+.fe-function-title span {
+    font-weight: normal;
+    color: #e1e1e1;
+}
+
+ul.fe-function-list {
+    padding: 0 10px;
+    list-style: none;
+    width: 130px;
+}
+
+ul.fe-function-list li {
+    padding: 3px 5px 3px 5px;
+    cursor: pointer;
+    color: #555;
+    -webkit-transition: all .4s ease;
+    text-align: justify;
+    display: block;
+    height: 20px;
+    line-height: 20px;
+    width: 120px;
+    border-bottom: 1px dashed #e5e5e5;
+    overflow: hidden;
+}
+
+ul.fe-function-list li:last-child {
+    border-bottom: none;
+}
+
+ul.fe-function-list li.x-hovered,
+ul.fe-function-list li:hover {
+    color: #ff3C11;
+    background: #f1f1f1;
+}
+
+ul.fe-function-list li > span {
+    padding-left: 24px;
+}
+
+ul.fe-function-list li:after {
+    content: ' ';
+    display: inline-block;
+    width: 100%;
+    overflow: hidden;
+    height: 0;
+}
+
+ul.fe-function-list li > b {
+    width: 14px;
+    height: 14px;
+    -webkit-transition: all .5s ease;
+    display: inline-block;
+    margin-right: 5px;
+    color:#48f;
+}
+
+ul.fe-function-list li:hover > b {
+    -webkit-transform: rotate(360deg);
+}
+
+ul.fe-function-list li i {
+    color: #aaa;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.fe-feedback {
+    font-size: 12px;
+    border-top: 1px dotted #ddd;
+    padding: 5px 15px;
+    line-height: 20px;
+    color: #888;
+}
+
+.fe-feedback a {
+    color: #888;
+    text-decoration: none;
+    text-align: left;
+}
+
+.fe-feedback a:hover {
+    color: #c00;
+}
+
+svg:not(:root) {
+    overflow: hidden;
+}
+
+.fe-feedback svg {
+    vertical-align: middle;
+    display: inline-block;
+    fill: currentColor;
+    margin-right: 3px;
+}
+
+.fe-feedback img {
+    opacity: 0.6;
+    position: relative;
+    top: 1px;
+}
+.fe-feedback a:hover img {
+    opacity: 1.0;
+}
+
+.fe-feedback .x-settings {
+    float: right;
+    cursor: pointer;
+    margin-left: 5px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.fe-feedback .x-settings:hover {
+    color: #c00;
+}
+.fe-feedback .x-fb,
+.fe-feedback .x-settings
+{
+    float: right;
+}

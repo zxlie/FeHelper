@@ -1,0 +1,161 @@
+@import url("../static/vendor/highlight/github.css");
+
+html.fh-cb body {
+    font-size: 14px;
+    background: #fff;
+}
+#fehelper_tips {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    box-sizing: border-box;
+    padding: 2px 10px 3px 40px;
+    width: 100%;
+    height: 37px;
+    border-bottom: 1px solid #AAAAAB;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA7UlEQVQ4EWN4KSwb8EJO7fxzbon/6Lg+Yc5/3wlvseLgKW/v+/a/CWB4xi/9AF0jjL9dzxurZpihfhPfnmeAKcZGP+SX/h/S+QivIXgNABlalboUqwF+EyFegxvwnwwA8gr1DUAPizOyBnC3wQIPmSbogtvCinADkBkwQwga8JRHElkfnI3TAHQvgPgwANOETGO4AN2Ax7xSMP0YNMggggZcF1PB0AgTQDEA3WYY/4SCKdaEBPMG3AUwDej0Tl1P/Aa8lFHBmZlAhi1wzMZpQODktxcYXkopBzzjl76AbjOMjytLh09/+yBmzvsAAD5azgb97zJPAAAAAElFTkSuQmCC), linear-gradient(to bottom, #FEEFAE, #FAE692);
+    background-position: 10px 50%, 0 0;
+    background-repeat: no-repeat, repeat-x;
+    font: 15px/32px 'Helvetica', 'Segoe UI', Arial, 'Microsoft Yahei', Simsun, sans-serif;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#fehelper_tips .desc {
+    margin-right: 1em;
+    vertical-align: middle;
+}
+
+#fehelper_tips .desc i {
+    color:red;
+    padding: 0 5px;
+    text-decoration: underline;
+}
+
+#fehelper_tips .doing {
+    color: red;
+    font-size: 14px;
+    margin-left: 20px;
+}
+
+#fehelper_tips button {
+    margin: 0 0 0 10px;
+    height: 28px;
+    outline: none;
+    border: 1px solid #968A59;
+    border-radius: 3px;
+    background-image: linear-gradient(to bottom, #FFFBEA, #FBEDB1);
+    vertical-align: middle;
+    color:#000;
+}
+
+#fehelper_tips button:hover {
+    border-color: #4B452C;
+}
+
+#fehelper_tips button:active {
+    border-color: #4C4733;
+    background-image: linear-gradient(to bottom, #FDF2C0, #FEF9E3);
+}
+
+#fehelper_tips .close {
+    float: right;
+    margin: 8px 0 0;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    border: none;
+    cursor: pointer;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABs0lEQVQ4EZ2TzWtTQRTFf3d8WrMwGyWLdmGEYkFFFylIaruQ/qMVXOnKnUs11ohGrUptoGBoitRSRZMIUfPeXJk7k/TDjeYt3mHmnjtz5pwZyQ/uKQIoTINZ6FRNvVOgU8YCpkNn6tVH9ROUE+NQd+ikfsh3NinEokBeCJvtTyinEBFUFXGn6XS/GJ7kO4J/6gOg6mhv7/Hg4WseP91CcSAZjxofuHu/SWdnH5KScZ+ZaN0WQ861K/MMhmdZb77COVuf1rtdVm8vcak6ixY/It34EBc4EqEWPeq1Ks4Jz19sGHllaZGbtYvo6CuIHos8ixmaCSAR1ffBDymVSkncTzTvHcn6kJ8FRnQ3GOYRmeHJszYbm3ss12t2uxrNFr+GPZbrlxH8Mb4dIUQZdIlkvH2/w8s3XVZuLVK7PmeVPL9BY71F5cI5FuYrCEXkh+VH+3fUokqR5Vpmu9Pn6kIFPzqwKCU7z8fugOrcGUQHMdpxxL8/r2k6erLA4bIyPv8+tiSiKyO+/5dlk7cQvQj/Ap9/M+nhjYTPsOil4NI4zVvQ0YNocmj4n3G6iXGr4EXc8d/xD6YQKq6fj1B0AAAAAElFTkSuQmCC) no-repeat 50% 50%;
+}
+
+#fehelper_tips .close span {
+    display: block;
+    height: 100%;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACyklEQVQ4EVWTS28URxSFv1tV3dOe7nn6IRsPSAMo4hUnC2QLIhRlA0gRsAJ2WUXKIrvwD/IDss+KRTYIZxXxkJlNVgmWCVIUFLFAToI1gx0YsD1+zUx3V1Q9w0hZXVXVPfeeW/cciV/ftQhgYRAFlAarSA562b3J+1ibAglYO8wb5BuX8f4OPPaabV7+9Aubf/yFSh0IUqWofFindvU8YW0ca/uDXq5W//UdK+4oPs37j3l1f5l8kEN6fbTRGbUkTrG+YXe/x/Tlsxy+9gnWdnE4M2BvaD1Y5k3jKZFnyEcBJlcY0pUsxv0YlSS8/fl3xGhqny9g0y7KWst+6y0bS0/IG6E0XaW0cAGxFnHEhjE8OUdxskxehH8bv7HbbCMiKMSj1VghGvMJyxHB3DzVL25Runwjm99VKV26ztTX35L74DRhNSIKPF41VrBojIim83yNsqsmwkbjIZv7wvGvvhmuBgqXbvLi++9IVh4TlQt4Imw+X0PEYOKDHsqC75uMUmWqwvrSIi9gWIQMvL20yHS9lrHyPYPq9uh39jBuh8oolFYDytgsUUqF4RnCUpF8fXb0rjyNxAo3ntGBD3kPGw+E4VYTXbxO4eKNrLNDuXF2qkW2Hy1mq0vTFBXm0GHgGMQUTxwhXV3Hi1OC+c9G4M6jH7Ou78fpt/6m+2yFdMyncGwGsTHS3/jBHrRj/rl9j4oVtto7xLVTxH/+ykx9NlNca7WJPXySaGuNwkSJNzal/uUVchXtdJAQTIZUL3xEx9cUKyF69ekI7Cxy6Ogs0dZLilNltn3N5KcfkxsPEUlRmReSXSbOnaJ0/gzbgaZ47NDow8R5RYT8kSneGaE4f4Lxc6ch3cWJUHrrt+3IjCqk+26P9vIzdlabqGRoJq0Jj84wsTCHXxlDHHho3qzAwI4DzaM8UAWUHiPuJpl1jaew9gAbd4D4fx75D8MvHH6oTBAOAAAAAElFTkSuQmCC) no-repeat 50% 50%;
+    opacity: 0;
+    transition: opacity .2s;
+}
+
+#fehelper_tips .close:hover span {
+    opacity: .85;
+}
+
+#fehelper_tips .close:active span {
+    opacity: 1;
+}
+#fehelper_tips .ask {
+    color: #f00;
+}
+
+#fehelper_tips .forbid,
+#fehelper_tips .encoding{
+    float: right;
+    font-size: 12px;
+    color: #666;
+    text-decoration: underline;
+    margin-right:20px;
+    cursor: pointer;
+}
+#fehelper_tips .forbid:hover,
+#fehelper_tips .encoding:hover{
+    color:red;
+}
+#fehelper_tips .encoding {
+    float: none;
+    margin-left: 10px;
+}
+
+html.fh-cb body.show-tipsbar > *,
+html.fh-cb body.show-beautified > *{
+    transition: .2s linear;
+}
+
+html.fh-cb body.show-tipsbar pre,
+html.fh-cb body.show-beautified pre {
+    transform: translate3d(0, 37px, 0);
+}
+
+html.fh-cb body #fehelper_tips {
+    transform: none;
+}
+html.fh-cb body.show-tipsbar .copy{
+    display: none;
+}
+html.fh-cb body.show-beautified .copy {
+    display: inline-block;
+}
+
+html.fh-cb body.processing > :not(#fehelper_tips) {
+    opacity: .5;
+    pointer-events: none;
+    cursor: wait;
+}
+html.fh-cb pre {
+    padding-top: 0;
+}
+html.fh-cb pre>code[class*="language"] {
+    overflow: initial;
+}
+
+html.fh-cb pre ol {
+    background: #f9f9f9;
+    color:#ccc;
+}
+html.fh-cb pre ol li {
+    margin: 0 0 0 2px;
+    padding: 1px 0 1px 5px;
+    background: #fff;
+    border-left: 1px solid #ddd;
+}
+html.fh-cb pre ol li>span {
+    color: #444;
+}
+html.fh-cb pre ol li:hover {
+    background:#f5f5f5;
+}
+.show-tipsbar pre,
+html.jf-cb pre {
+    padding: 30px 2px 0;
+}

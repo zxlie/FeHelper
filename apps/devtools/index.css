@@ -1,0 +1,280 @@
+@import url("../static/css/bootstrap.min.css");
+@import url("../static/vendor/codemirror/codemirror.css");
+
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+ul.box-tools li {
+    list-style: none;
+    float: left;
+    font-size: 14px;
+    margin: 10px 20px 10px 0;
+    border: 1px solid #ccc;
+    padding: 20px 15px 10px;
+    border-radius: 10px;
+    background: #fefefe;
+    width: 400px;
+    box-shadow: 2px 2px #f2f2f2;
+    height: 154px;
+    user-select: none;
+}
+
+ul.box-tools li i.x-icon {
+    float: left;
+    font-size: 30pt;
+    font-style: normal;
+    display: block;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    color: red;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 2px 2px #eee;
+}
+
+ul.box-tools li .x-infos {
+    margin-left: 80px;
+    height: 90px;
+    overflow: hidden;
+}
+
+ul.box-tools li .x-tips {
+    margin-top: 10px;
+    color: #888;
+    font-size: 12px;
+}
+
+ul.box-tools li .x-btns {
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+}
+
+.given-icons {
+    width: 70%;
+    margin: 0 auto;
+    box-sizing: border-box;
+    font-size: 18px;
+    word-break: break-all;
+    background: #fff;
+    border: 1px solid #aaa;
+    border-radius: 10px;
+    padding: 10px 10px 10px 20px;
+    position: fixed;
+    top: 120px;
+    left: 15%;
+    box-shadow: 4px 4px #eee;
+    z-index: 100;
+}
+
+.given-icons h3 {
+    color: #48b;
+    margin:0;
+}
+
+.given-icons .the-icons i {
+    font-style: normal;
+    padding: 5px;
+    cursor: default;
+}
+
+.given-icons .the-icons i:hover {
+    color: #f00;
+    background: #ff0;
+}
+
+.given-icons .x-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #f00;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.given-icons .x-close:hover {
+    color: #b00;
+}
+
+ul.box-tools li.x-addtool {
+    width: 154px;
+    border-radius: 78px;
+    text-align: center;
+    font-size: 120pt;
+    line-height: 120px;
+    color: #eee;
+    text-shadow: 5px 4px #fff;
+    background: #fcfcfc;
+    border-color: #eee;
+}
+
+ul.box-tools li.x-addtool:hover {
+    color: #ccc;
+    cursor: pointer;
+    border-color: #ccc;
+    background: #f5f5f5;
+}
+
+.x-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: #000;
+    opacity: 0.4;
+}
+
+.fh-editor .x-editor-container {
+    width: 90%;
+    margin: 0 auto;
+    position: absolute;
+    left: 5%;
+    top: 40px;
+    height: calc(100% - 60px);
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    box-shadow: 3px 3px #aaa;
+}
+
+.fh-editor .x-editor-container .x-topbar {
+    background: #f5f5f5;
+    height: 30px;
+    border-radius: 4px 4px 0 0;
+    line-height: 30px;
+    padding: 0 10px 0 10px;
+}
+
+.fh-editor .x-editor-container .x-leftside {
+    background: #fff;
+    width: 250px;
+    height: calc(100% - 30px);
+    float: left;
+    border-radius: 0 0 0 4px;
+    border-top: 1px solid #ddd;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.fh-editor .x-editor-container .x-rightside {
+    position: absolute;
+    left: 250px;
+    right: 0;
+    top: 30px;
+    bottom: 0;
+}
+
+.fh-editor .x-editor-container .CodeMirror {
+    width: 100%;
+    height: 100%;
+    border-radius: 0 0 4px 0;
+}
+
+.fh-editor .x-editor-container .x-topbar .x-icon {
+    color: #f00;
+    font-style: normal;
+}
+
+.fh-editor .x-editor-container .x-topbar .x-close {
+    color: #f00;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.fh-editor .x-editor-container .x-topbar .x-close:hover {
+    text-decoration: underline;
+}
+
+.fh-editor .x-editor-container .x-topbar .x-save {
+    color: #48b;
+}
+
+.fh-editor .x-editor-container .x-topbar .x-save:hover {
+    color: #68b;
+}
+
+ul.box-files li {
+    list-style: none;
+    user-select: none;
+    padding: 0 2px 0 10px;
+    border-bottom: 1px solid #f2f2f2;
+    height: 26px;
+    line-height: 26px;
+    font-size: 14px;
+    cursor: default;
+    position: relative;
+}
+ul.box-files li.x-selected:after {
+    content: '\2714';
+    position: absolute;
+    right: 10px;
+}
+ul.box-files li:hover {
+    background: #eee;
+}
+ul.box-files li .x-delete {
+    position: absolute;
+    right: 30px;
+    top:0;
+    font-size: 12px;
+    color: #48b;
+    text-decoration: underline;
+    display: none;
+    cursor: pointer;
+}
+ul.box-files li .x-delete:hover {
+    color: #f00;
+}
+ul.box-files li:hover .x-delete {
+    display: inline-block;
+}
+ul.box-files li .x-folder {
+    color: #ddd;
+    font-style: italic;
+}
+ul.box-files li .x-file {
+    word-break: keep-all;
+    white-space: nowrap;
+}
+
+ul.box-files li.x-tools {
+    border-bottom: none;
+    padding: 10px 2px 0 10px
+}
+ul.box-files li.x-tools:hover {
+    background: transparent;
+}
+
+.x-new-tool-form form {
+    width: 600px;
+    position: absolute;
+    top: 130px;
+    left: calc(50% - 300px);
+    background: #fff;
+    padding: 10px;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+}
+
+#fehelper_alertmsg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000000;
+    background: #000;
+    display: inline-block;
+    color: #fff;
+    text-align: center;
+    padding: 10px 10px;
+    margin: 0 auto;
+    font-size: 14px;
+    border-bottom: 1px solid #aaa;
+}
+
+[v-cloak] {
+    display: none;
+}

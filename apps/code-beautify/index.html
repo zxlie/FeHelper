@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    <title>代码美化工具</title>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../static/img/favicon.ico">
+    <link rel="stylesheet" href="index.css"/>
+    <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+    <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+</head>
+<body>
+<div class="wrapper" id="pageContainer">
+    <div class="panel panel-default" style="margin-bottom: 0px;">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                    <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：代码美化 - <span id="codeTitle">{{selectedType}}</span>
+            </h3>
+        </div>
+    </div>
+    <div class="panel-body mod-code">
+
+        <div class="row">
+            <textarea class="form-control mod-textarea" id="codeSource" ref="codeSource" placeholder="在这里粘贴需要进行美化的代码" v-model="sourceContent"></textarea>
+        </div>
+        <div class="row ui-mt-10">
+
+            <div class="radio ui-d-ib">
+                <label><input id="codeTypeJs" name="codeType" type="radio" value="Javascript" v-model="selectedType">JS代码美化</label>
+            </div>
+
+            <div class="radio ui-d-ib ui-ml-10">
+                <label><input id="codeTypeCss" name="codeType" type="radio" value="CSS" v-model="selectedType">CSS代码美化</label>
+            </div>
+
+            <div class="radio ui-d-ib ui-ml-10">
+                <label><input id="codeTypeHTML" name="codeType" type="radio" value="HTML" v-model="selectedType">HTML代码美化</label>
+            </div>
+
+            <div class="radio ui-d-ib ui-ml-10">
+                <label><input id="codeTypeXML" name="codeType" type="radio" value="XML" v-model="selectedType">XML代码美化</label>
+            </div>
+
+            <div class="radio ui-d-ib ui-ml-10">
+                <label><input id="codeTypeSQL" name="codeType" type="radio" value="SQL" v-model="selectedType">SQL代码美化</label>
+            </div>
+
+            <button id="btnFormat" class="btn btn-success ui-fl-r" @click="format">格式化</button>
+            <button id="btnCopy" class="btn btn-warning ui-fl-r ui-mr-10" @click="copy" v-show="showCopyBtn">复制结果</button>
+        </div>
+        <div class="row" id="jfContent" ref="jfContentBox" v-html="resultContent"></div>
+    </div>
+</div>
+<script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="beautify-html.js"></script>
+<script type="text/javascript" src="beautify-vk.js"></script>
+<script type="text/javascript" src="beautify.js"></script>
+<script type="text/javascript" src="beautify-css.js"></script>
+<script type="text/javascript" src="../static/vendor/prism/prism.js"></script>
+<script type="text/javascript" src="index.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <head>
+        <title>简易版Postman</title>
+        <meta charset="UTF-8">
+        <link rel="shortcut icon" href="../static/img/favicon.ico">
+        <link rel="stylesheet" href="../static/vendor/jquery/jquery-ui.min.css">
+        <link rel="stylesheet" href="index.css" />
+        <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+        <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    </head>
+    <body class="theme-default">
+
+    <div class="wrapper" id="pageContainer">
+        <div class="panel panel-default" style="margin-bottom: 0px;">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                        <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：简易版Postman</h3>
+            </div>
+        </div>
+        <div class="panel-body mod-endecode">
+
+            <div class="row mod-inputs">
+                <div class="ui-mt-10">
+                    <label for="url">接口地址：</label>
+                    <input type="text" id="url" ref="url" v-model="urlContent" class="form-control f-url" placeholder="请输入Api地址">
+
+                    <span class="x-xdemo" @click="setDemo(1)">Get示例</span>
+                    <span class="x-xdemo" @click="setDemo(2)">Post示例</span>
+
+                </div>
+
+                <div class="ui-mt-10 u-p-c" v-if="urlParams.length">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>参数key</th>
+                                <th>参数value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="param in urlParams">
+                                <th><input v-model="param.key" class="form-control f-header-key"/></th>
+                                <th><input v-model="param.value" class="form-control f-header-value"/></th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="ui-mt-10" v-cloak v-show="methodContent === 'POST'">
+                    <label for="param">请求参数：</label>
+                    <textarea type="text" v-model="paramContent" id="param" class="form-control f-param" placeholder="请输入参数"></textarea>
+
+                    <span class="x-xdemo" @click="transParamMode()">参数转<span v-html="paramMode==='kv'?'JSON':'URL-KV'">JSON</span>格式</span>
+                </div>
+
+                <div class="ui-mt-10">
+                    <label for="param">加头信息：</label>
+                    <div style="display: inline-block;">
+                        <div v-for="(item,$index) in headerList" style="margin-top:2px">
+                            <input type="text" :id="'header_key_' + item" class="form-control f-header-key" placeholder="Content-Type"><input type="text" :id="'header_value_' + item" class="form-control f-header-value" placeholder="text/json; charset=utf-8">
+                            <span class="x-xdemo" v-if="$index==0" @click="addHeader">继续添加</span>
+                            <span class="x-xdemo" v-if="$index>0" @click="deleteHeader($event)">删除</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="ui-mt-10">
+                    <label for="method">请求方式：</label>
+                    <select id="method" v-model="methodContent" class="form-control f-method">
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="HEAD">HEAD</option>
+                        <option value="PUT">PUT</option>
+                        <option value="DELETE">DELETE</option>
+                    </select>
+
+                    <div class="url-encode" v-cloak v-if="methodContent==='POST'">
+                        <input type="checkbox" name="urlencoded" id="urlencoded" value="1" v-model="urlencodedDefault">
+                        <label for="urlencoded">默认携带Header：<i>Content-Type: application/x-www-form-urlencoded</i></label>
+                    </div>
+                </div>
+
+                <div class="ui-mt-10">
+                    <input class="btn btn-success" type="button" value="发送请求" @click="postman()">
+                </div>
+            </div>
+
+
+
+            <div ref="resultContainer" class="row hide">
+                <div id="tabs">
+                    <ul class="the-tabs">
+                        <li><a href="#tab-content">数据</a></li>
+                        <li><a href="#tab-json">JSON</a></li>
+                        <li><a href="#tab-header">响应头</a></li>
+                    </ul>
+
+                    <div id="tab-content" class="mod-tab">{{resultContent}}</div>
+
+                    <div class="mod-tab" id="tab-json">
+                        <div class="x-toolbar">
+                            <span class="x-sort">
+                                <span class="x-stitle">排序：</span>
+                                <label for="sort_null">默认</label>
+                                <input type="radio" name="jsonsort" id="sort_null" value="0" checked>
+                                <label for="sort_asc">升序</label>
+                                <input type="radio" name="jsonsort" id="sort_asc" value="1">
+                                <label for="sort_desc">降序</label>
+                                <input type="radio" name="jsonsort" id="sort_desc" value="-1">
+                            </span>
+                            <span id="optionBar"></span>
+                        </div>
+                        <div id="formattingMsg"><span class="x-loading"></span>格式化中...</div>
+                        <div id="jfCallbackName_start" class="callback-name" v-html="jfCallbackName_start"></div>
+                        <div id="jfContent" v-html=" errorMsgForJson || resultContent"></div>
+                        <pre id="jfContent_pre"></pre>
+                        <div id="jfCallbackName_end" class="callback-name" v-html="jfCallbackName_end"></div>
+                    </div>
+
+                    <div id="tab-header" class="mod-tab">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>头信息</th>
+                                <th>具体内容</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="(h,index) in responseHeaders">
+                                <td>{{index+1}}</td>
+                                <td>{{h[0]}}</td>
+                                <td>{{h[1]}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+    <script src="../static/vendor/jquery/jquery.extend.js"></script>
+    <script src="../static/vendor/jquery/jquery-ui.min.js"></script>
+    <script src="../json-format/json-bigint.js"></script>
+    <script src="../json-format/format-lib.js"></script>
+    <script src="../json-format/json-abc.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+    </body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <head>
+        <title>FeHelper-代码压缩工具（支持HTML/Javascript/CSS）</title>
+        <meta charset="UTF-8">
+        <link rel="shortcut icon" href="../static/img/favicon.ico">
+        <link rel="stylesheet" href="index.css" />
+        <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+        <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    </head>
+    <body>
+    <div class="wrapper" id="pageContainer">
+        <div class="panel panel-default" style="margin-bottom: 0px;">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                        <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：代码压缩工具
+                </h3>
+            </div>
+        </div>
+        <div class="panel-body mod-code">
+
+            <div class="row">
+                <textarea class="form-control mod-textarea" id="codeSource" ref="codeSource" v-model="sourceContent" placeholder="在这里粘贴需要进行压缩的代码"></textarea>
+            </div>
+
+            <div class="row ui-mt-10 ui-mb-10">
+
+                <button id="btnFormat" class="btn btn-success btn-sm ui-mr-20" @click="compress()">压缩</button>
+
+                <div class="radio ui-d-ib">
+                    <label><input id="codeTypeHtml" name="codeType" type="radio" value="html" v-model="codeType" @click="changeCodeType('html')">HTML压缩</label>
+                </div>
+
+                <div class="radio ui-d-ib ui-ml-20">
+                    <label><input id="codeTypeJs" name="codeType" type="radio" value="js" v-model="codeType" @click="changeCodeType('js')">Javascript压缩</label>
+                </div>
+
+                <div class="radio ui-d-ib ui-ml-20">
+                    <label><input id="codeTypeCss" name="codeType" type="radio" value="css" v-model="codeType" @click="changeCodeType('css')">CSS压缩</label>
+                </div>
+
+                <div class="ui-fl-r x-right-info" v-cloak v-show="!!resultContent">
+                    <span class="box-infos" v-html="compressInfo"></span>
+                    <button class="btn btn-sm btn-primary" @click="copyToClipboard(resultContent)">复制结果</button>
+                </div>
+            </div>
+
+            <div class="row rst-item" v-cloak v-show="!!resultContent">
+                <textarea class="form-control mod-textarea" :class="hasError?'x-error':''" ref="jfContent" disabled
+                          placeholder="压缩后的代码将在这里显示" v-model="resultContent"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/vendor/uglifyjs3/minify.js"></script>
+    <script src="../static/vendor/uglifyjs3/utils.js"></script>
+    <script src="../static/vendor/uglifyjs3/ast.js"></script>
+    <script src="../static/vendor/uglifyjs3/parse.js"></script>
+    <script src="../static/vendor/uglifyjs3/transform.js"></script>
+    <script src="../static/vendor/uglifyjs3/scope.js"></script>
+    <script src="../static/vendor/uglifyjs3/output.js"></script>
+    <script src="../static/vendor/uglifyjs3/compress.js"></script>
+    <script type="text/javascript" src="uglifyjs3.js"></script>
+
+    <script src="../static/vendor/codemirror/codemirror.js"></script>
+    <script src="../static/vendor/codemirror/javascript.js"></script>
+    <script src="../static/vendor/codemirror/css.js"></script>
+    <script src="../static/vendor/codemirror/xml.js"></script>
+    <script src="../static/vendor/codemirror/htmlmixed.js"></script>
+    <script src="../static/vendor/codemirror/active-line.js"></script>
+    <script src="../static/vendor/codemirror/matchbrackets.js"></script>
+    <script src="../static/vendor/codemirror/placeholder.js"></script>
+    <script type="text/javascript" src="htmlminifier.min.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+
+    <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+    </body>
+</html>

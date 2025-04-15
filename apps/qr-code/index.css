@@ -1,0 +1,122 @@
+@import url("../static/css/bootstrap.min.css");
+
+.row .x-sizes {
+    margin-right: 20px;
+}
+
+.row .x-colors {
+    margin-right: 20px;
+}
+#codeSource {
+    height: 100px;
+}
+canvas {
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+.x-logo {
+    position: absolute;
+    left: -10000px;
+    top:-10000px;
+}
+hr.x-hr  {
+    margin: 2px 0;
+}
+#preview {
+    padding: 5px;
+    text-align: center;
+}
+.panel-heading .x-tips {
+    font-size:12px;
+    float: right;
+    padding-bottom: 2px;
+    border-bottom: 1px solid #ccc;
+    cursor: default;
+}
+.panel-heading .x-tips:hover {
+    border-bottom-color: #f00;
+}
+.panel-heading .x-tips i {
+    color: #f00;
+}
+#_creset {
+    font-size:12px;
+}
+
+
+.tips{
+    color:#aaa;
+    margin: 10px 0;
+    font-size: 12px;
+}
+
+table {
+    width:100%;
+    table-layout: fixed;
+}
+td {
+    width:50%;
+    vertical-align: top;
+}
+td .x-panel {
+    height:460px;
+    background: #fff url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABLCAIAAAB7tddWAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoTWFjaW50b3NoKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo1Q0VBNzA0MjEyMDUxMUUzODk2Q0JFM0Q1RjE4QkExQyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo1Q0VBNzA0MzEyMDUxMUUzODk2Q0JFM0Q1RjE4QkExQyI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjAzNDA2MkY1MTIwMzExRTM4OTZDQkUzRDVGMThCQTFDIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjAzNDA2MkY2MTIwMzExRTM4OTZDQkUzRDVGMThCQTFDIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+K6izdgAAAk1JREFUeNrt2+uOgjAQhuG9/5tUPEs0nhU87hvNGoJY0C0yyNffBNuHdjpT8Oeidm0/IhCEIAQhCEEIQhCCEMT5fA6CoHVt7Xb7dDo1d0Yw/tZfE4QgBCEIQQjCHMThcBiPx51Op/XBljngl1pufvEaxH6//zCBUQjmwttd+SqI9rUJ4pK89XA4jKKoocEyCUG8aO6ukYSg5hOEIAQhCEH4gOCa+Xze7/e5vtvtTiaT4/HYOAj2116vl0psgiDYbrcGy7YSIQaDQWaSh0VJ88IixHK5dCS80+m0KRBhGDogWDIex8D8St7cVowYjUYOCGr5gr8YxzEhFjhiLUGXqfRY4JiGoPcOCMJH7m8xnmc3od5LVjqmIXa7nQOCPTX3HOy26TrK6tVqVQMIR5hgnrv7ysAe910HqHUILmBJp7pO7OBpe1G4tfV6bR3iHu0WiwWrfTab5aZSjMG9IjLXyGazqQHEq2eibxzD3V+FfwkEU8bLAWe9IVg1vk56awxB+ExN74ZCkCB5PPuvKwS5gN+XICYg6AQDI1lgv2TjzL2hOwGtKwQBj9KoeCpNj1PXfwMEWVNmt5gazxaRu1SvJYR7nRMLH4+kvIeG6iGKDInyIVliUCCU98a4GojiQ6IoIHeMoohFVOor9QogiPmVfCVgC4JnW8nXM+Ygytj5aglhtglCEIIQhCCMQFT1neVLh9qfeAlM+WQcgh5+AiKOY5vZ5H06FDkN8gBxO2gNw5C00s7UoCf0h1795xtY/e9TEIIQhCAEIQhBCEIQftovDwuUVV5nLjcAAAAASUVORK5CYII=) center 120px no-repeat;
+    border:4px dashed #ddd;
+    position: relative;
+    text-align: center;
+    margin-right: 10px;
+}
+td .x-panel .x-tips {
+    position: absolute;
+    display: block;
+    width: 100%;
+    top: 320px;
+    color:#aaa;
+    text-align: center;
+}
+.tips i{
+    color: #454545;
+}
+#upload {
+    font-size: 20px;
+    background: #00b7ee;
+    border-radius: 3px;
+    line-height: 44px;
+    height: 45px;
+    padding: 0 30px;
+    color: #fff;
+    display: inline-block;
+    margin: 5px auto 15px;
+    cursor: pointer;
+    box-shadow: 0 1px 1px rgba(0,0,0,.1);
+    text-decoration: none;
+}
+#upload:hover {
+    background: #00a2d4;
+}
+#decodePreview {max-width: 260px;max-height: 260px;margin-top:10px;}
+form {display: none}
+#decodeResult {
+    height:460px;
+    padding:4px;
+    margin:0;
+    resize:none;outline:none;
+    background: #fcfcfc;
+    border:1px solid #ddd;
+}
+.x-switch {
+    margin-left: 30px;
+    font-size: 12px;
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.x-switch:hover {
+    color: #cc8841;
+}
+.x-switch {
+    color:#f00;
+    border-bottom: 1px solid #f00;
+}

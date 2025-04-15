@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN" class="fh-jf">
+    <head>
+        <title>JSON格式化查看工具</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="index.css" />
+		<script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+        <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    </head>
+    <body class="theme-default">
+        <div class="wrapper wp-json" id="pageContainer">
+            <div class="panel panel-default" style="margin-bottom: 0px;">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                            <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：JSON格式化
+                        <span class="x-xdemo" ref="demoLink1" @click="setDemo">示例1：JSON片段</span>
+                        <a class="x-xdemo" href="http://t.weather.sojson.com/api/weather/city/101030100" target="_blank">示例2：在线JSON</a>
+
+                        <span id="layoutBar">
+                            <button id="btnLeftRight" ref="btnLeftRight" class="selected" @click="changeLayout('left-right')">左右布局</button><button id="btnUpDown" ref="btnUpDown" @click="changeLayout('up-down')">上下布局</button>
+                        </span>
+
+                        <a class="x-other-tools" @click="openOptionsPage()">去开启FeHelper的更多功能&gt;&gt;</a>
+                    </h3>
+                </div>
+            </div>
+
+            <div class="x-toolbar x-inpage">
+
+                <button id="btnFormat" class="btn btn-primary btn-xs ui-mr-10" @click="format">格式化</button>
+                <button id="btnCompress" class="btn btn-success btn-xs" @click="compress">压缩</button>
+                <span class="x-split">|</span>
+                <input type="checkbox" v-model="jsonLintSwitch" id="jsonLint" @click="lintOn"><label for="jsonLint">JSONLint</label>
+                <span class="x-split">|</span>
+                <input type="checkbox" v-model="autoDecode" id="endecode" @click="autoDecodeFn"><label for="endecode">自动解码</label>
+                <span class="x-split">|</span>
+                <input type="checkbox" v-model="overrideJson" id="jsonOvrd" @click="setCache"><label for="jsonOvrd">节点编辑</label>
+                <span class="x-split">|</span>
+                <span class="x-sort">
+                    <span class="x-stitle">排序：</span>
+                    <label for="sort_null">默认</label>
+                    <input type="radio" name="jsonsort" id="sort_null" value="0" checked @click="format">
+                    <label for="sort_asc">升序</label>
+                    <input type="radio" name="jsonsort" id="sort_asc" value="1" @click="format">
+                    <label for="sort_desc">降序</label>
+                    <input type="radio" name="jsonsort" id="sort_desc" value="-1" @click="format">
+                </span>
+                <span class="x-split">|</span>
+                <span class="x-endecode">
+                    <button class="xjf-btn xjf-btn-left" @click="uniEncode">Uni编码</button><button class="xjf-btn xjf-btn-mid" @click="uniDecode">Uni解码</button><button class="xjf-btn xjf-btn-right" @click="urlDecode">URL解码</button>
+                </span>
+
+                <span id="optionBar"></span>
+            </div>
+
+            <div class="panel-body mod-json">
+                <div class="row panel-txt">
+                    <textarea class="form-control mod-textarea" id="jsonSource" placeholder="在这里粘贴您需要进行格式化的JSON代码" ref="jsonBox"></textarea>
+                </div>
+
+                <div class="row rst-item" id="modJsonResult">
+                    <div id="formattingMsg"><span class="x-loading"></span>格式化中...</div>
+                    <div id="jfCallbackName_start" class="callback-name" v-html="jfCallbackName_start"></div>
+                    <div id="jfContent" v-html="placeHolder"></div>
+                    <pre id="jfContent_pre"></pre>
+                    <div id="jfCallbackName_end" class="callback-name" v-html="jfCallbackName_end"></div>
+                </div>
+            </div>
+        </div>
+        <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+        <script src="../static/vendor/codemirror/codemirror.js"></script>
+        <script src="../static/vendor/codemirror/javascript.js"></script>
+        <script src="../static/vendor/codemirror/active-line.js"></script>
+        <script src="../static/vendor/codemirror/matchbrackets.js"></script>
+        <script src="../static/vendor/codemirror/placeholder.js"></script>
+        <script src="json-lint.js"></script>
+        <script src="json-bigint.js"></script>
+        <script src="format-lib.js"></script>
+        <script src="json-abc.js"></script>
+        <script src="json-decode.js"></script>
+        <script src="../static/js/dark-mode.js"></script>
+        <script src="index.js" type="module"></script>
+    </body>
+</html>

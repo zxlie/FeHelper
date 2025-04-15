@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <head>
+        <title>FH开发者工具</title>
+        <meta charset="UTF-8">
+        <link rel="shortcut icon" href="../static/img/favicon.ico">
+        <link rel="stylesheet" href="index.css" />
+        <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+        <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    </head>
+    <body>
+        <div class="wrapper wp-json" id="pageContainer">
+            <div class="panel panel-default" style="margin-bottom: 0px;">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                            <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：开发者工具
+                    </h3>
+                </div>
+            </div>
+
+            <div class="panel-body">
+                <button class="btn btn-primary" @click="addNewTool">开始我的第一个FH工具</button>
+                <button class="btn btn-default ui-ml-10" @click="startByDemo()">来个HelloWorld试试</button>
+                <button class="btn btn-default ui-ml-10" @click="loadTool(false)">载入本地工具包（*.zip）</button>
+                <button class="btn btn-default ui-ml-10" @click="addNewTool('url')">从远程服务载入工具</button>
+                <button class="btn btn-default ui-ml-10" @click="givenIcons()">获取现成的图标</button>
+                <button class="btn btn-default ui-ml-10" @click="fhDeveloperDoc">FH工具开发文档</button>
+
+                <hr>
+                <ul class="box-tools">
+                    <li v-for="tool in Object.keys(myTools)" v-cloak>
+                        <i class="x-icon">{{myTools[tool].icon}}</i>
+                        <div class="x-infos">
+                            <b>{{myTools[tool].name}}</b>
+                            <div class="x-tips">{{myTools[tool].tips}}</div>
+                        </div>
+
+                        <div class="x-btns">
+                            <button class="btn btn-xs btn-success" @click="upgrade(tool)">{{tool===demo.name ? '在线' : 'zip包'}}更新</button>
+                            <button class="btn btn-xs btn-success ui-ml-10" @click="upgrade(tool,true)" v-if="myTools[tool].updateUrl">URL更新</button>
+                            <button class="btn btn-xs btn-primary ui-ml-10" @click="downloadTool(tool)">下载zip包</button>
+                            <button class="btn btn-xs btn-primary ui-ml-10" @click="toggleEditor(true,tool)">编辑</button>
+                            <button class="btn btn-xs btn-danger ui-ml-10"  @click="delToolConfigs(tool)">删除</button>
+                            <button class="btn btn-xs ui-fl-r" :class="myTools[tool]._enable ? 'btn-success' : 'btn-warning'" @click="toggleToolEnableStatus(tool)">{{myTools[tool]._enable ? '启用中' : '已停用'}}</button>
+                        </div>
+                    </li>
+
+                    <li class="x-addtool" title="创建工具" @click="addNewTool('local')">+</li>
+                </ul>
+            </div>
+
+            <div class="fh-editor" v-cloak v-show="showEditorFlag">
+                <div class="x-mask"></div>
+                <div class="x-editor-container">
+                    <div class="x-topbar">
+                        <i class="x-icon">{{model.icon}}</i>
+                        <b class="x-title">{{model.name + ' : ' + model.editingFile}}</b>
+                        <span class="x-close ui-fl-r" @click="toggleEditor(false)">关闭</span>
+                    </div>
+                    <div class="x-leftside">
+                        <ul class="box-files">
+                            <li v-for="file in model.files" @click="editFile(model.tool,file)" :class="model.editingFile === file ? 'x-selected' : ''">
+                                <span class="x-file">{{file.split('/').pop()}} <i class="x-folder" v-if="file.split('/').length>1">({{file.substr(0,file.lastIndexOf('/')).split('/').splice(-2,2).join('/')}})</i></span>
+                                <span class="x-delete" @click="deleteFile(model.tool,file,$event)" v-if="!['index.html','fh-config.js'].includes(file)">删除</span>
+                            </li>
+
+                            <li class="x-tools">
+                                <button class="btn btn-xs btn-primary" @click="createFile(model.tool)">创建文件</button>
+                                <button class="btn btn-xs btn-success ui-ml-10" @click="importFile(model.tool)">导入文件</button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="x-rightside">
+                        <textarea class="form-control" id="txtEditor" ref="txtEditor" placeholder="FH开发者工具-编辑器"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="given-icons" v-cloak v-if="showGivenIcons">
+                <h3>FeHelper为您提供的字符图标</h3>
+                <span class="ui-fl-r x-close" @click="givenIcons(true)">关闭</span>
+                <hr>
+                <div class="the-icons">
+                    <i class="x-icon" v-for="icon in givenIconList" @click="selectIcon(icon)">{{icon}}</i>
+                </div>
+            </div>
+
+            <div class="x-new-tool-form" v-cloak v-if="showNewToolForm">
+                <div class="x-mask"></div>
+                <form @submit.prevent="newToolAction($event)" action="#" class="form-horizontal">
+                    <div class="form-group">
+                        <label for="toolId" class="col-sm-2 control-label">工具ID</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="toolId" ref="toolId" placeholder="由数字、字母、减号组成，如：hello-world" maxlength="30" required="required" pattern="[a-z\-0-9]+">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="toolName" class="col-sm-2 control-label">工具名称</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="toolName" ref="toolName" placeholder="中英文均可，但不要超过6个中文字符的宽度" maxlength="20" required="required" pattern="[^\s]+">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="toolIcon" class="col-sm-2 control-label">工具Icon</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="toolIcon" ref="toolIcon" placeholder="工具字符图标" maxlength="1" required="required" pattern="[^\s]+" style="width:300px;display: inline-block">
+                            <span class="btn btn-sm btn-primary" @click="givenIcons()">获取现成图标</span>
+                        </div>
+                    </div>
+                    <div class="form-group" v-if="updateUrlMode">
+                        <label for="updateUrl" class="col-sm-2 control-label">Web地址</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="updateUrl" ref="updateUrl" placeholder="该独立工具所在的Web服务URL" required="required" pattern="http(s)?:\/\/[\w\.\-]+\S+">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="hasContentScript" ref="hasContentScript"> 需要进行页面脚本注入
+                                </label>
+                            </div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="noPage" ref="noPage"> 此工具不需要独立界面
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" class="btn btn-success">确认创建</button>
+                            <button class="btn btn-default ui-ml-20" @click="showNewToolForm=false">取消</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+        <script src="../static/vendor/jszip/jszip.js"></script>
+        <script src="../static/vendor/jszip/zip.js"></script>
+        <script src="../static/vendor/jszip/zip-ext.js"></script>
+        <script src="../static/vendor/jszip/deflate.js"></script>
+        <script src="../static/vendor/jszip/inflate.js"></script>
+        <script src="../static/vendor/jszip/mime-types.js"></script>
+        <script src="../static/vendor/jszip/zip-fs.js"></script>
+        <script src="../static/vendor/jszip/z-worker.js"></script>
+
+        <script src="../static/vendor/codemirror/codemirror.js"></script>
+        <script src="../static/vendor/codemirror/javascript.js"></script>
+        <script src="../static/vendor/codemirror/htmlmixed.js"></script>
+        <script src="../static/vendor/codemirror/xml.js"></script>
+        <script src="../static/vendor/codemirror/css.js"></script>
+        <script src="../static/vendor/codemirror/active-line.js"></script>
+        <script src="../static/vendor/codemirror/matchbrackets.js"></script>
+        <script src="../static/vendor/codemirror/placeholder.js"></script>
+        <script src="../static/vendor/codemirror/formatting.js"></script>
+
+        <script src="./file-tpl.js"></script>
+        <script type="module" src="./index.js"></script>
+    </body>
+</html>

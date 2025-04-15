@@ -1,0 +1,53 @@
+@import url("../static/vendor/codemirror/codemirror.css");
+@import url("../static/css/bootstrap.min.css");
+
+.wp-json {
+    width:auto;
+}
+.wp-json .mod-json {
+    position: absolute;
+    top: 60px;
+    bottom: 0;
+    right:0;
+    left:0;
+}
+body[browser-extension] .wp-json .mod-json {
+    top: 60px;
+}
+.wp-json .mod-json .panel-txt {
+    position: absolute;
+    width: 500px;
+    top: 15px;
+    bottom: 0;
+}
+.wp-json .panel-body {
+    padding:15px 0;
+}
+.wp-json .CodeMirror-scroll {
+    min-height: 550px;
+}
+
+.box-wrapper-left {
+    height: 100%;
+    padding:0 5px 0 0;
+}
+.box-wrapper-right {
+    height: 100%;
+    padding:0 0 0 5px;
+}
+#jsonSourceLeft, #jsonSourceRight, .CodeMirror {
+    height: calc(100%);
+    font-size: 10px;
+}
+.x-error {
+    color: #1f0606;
+    font-size: 12px;
+    margin-left: 30px;
+}
+.x-error .x-hlt {
+    color:#f00;
+    font-weight: bold;
+}
+.x-error .x-hlt1 {
+    color:#f00;
+}

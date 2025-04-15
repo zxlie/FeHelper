@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    <title>Excel/CVS转JSON</title>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../static/img/favicon.ico">
+    <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+
+<div class="wrapper" id="pageContainer">
+    <div class="panel panel-default" style="margin-bottom: 0px;">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                    <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：Excel/CVS转JSON
+            </h3>
+        </div>
+    </div>
+    <div class="panel-body mod-endecode">
+        <div id='base'>
+            <div id='header'>
+
+                <div id='settings'>
+                    <h3>输入配置</h3>
+                    <form id='settingsForm'>
+                        <div><label><input class="settingsElement" type="checkbox" name="" value="" id="headersProvidedCB" checked/>首行为标题</label>
+                        （<span class="settingsGroup">表头转换：
+                            <label><input class="settingsElement" type="radio" name="headerModifications" value="downcase" id='headersDowncase'/>小写&nbsp;&nbsp;</label>
+                            <label><input class="settingsElement" type="radio" name="headerModifications" id='headersUpcase' value="upcase"/> 大写&nbsp;&nbsp;</label>
+                            <label><input class="settingsElement" type="radio" name="headerModifications" id='headersNoTransform' value="none" checked/> 无</label>
+                        </span>）</div>
+
+                        <div>字段分隔符：
+                            <label><input class="settingsElement" type="radio" name="delimiter" id='delimiterAuto' value="auto" checked/>自动&nbsp;&nbsp;</label>
+                            <label><input class="settingsElement" type="radio" name="delimiter" id='delimiterComma' value="comma"/>逗号&nbsp;&nbsp;</label>
+                            <label><input class="settingsElement" type="radio" name="delimiter" id='delimiterTab' value="tab"/>Tab键</label>
+                        </div>
+                        <div>数字分隔符：
+                            <label><input class="settingsElement" type="radio" name="decimal" id='decimalDot' value="dot" checked/>点&nbsp;&nbsp;</label>
+                            <label><input class="settingsElement" type="radio" name="decimal" id='decimalComma' value="comma"/>逗号</label>
+                        </div>
+                    </form>
+
+                    <h3 style="margin-top:40px">输出配置</h3>
+                    <form id="outSettingsForm">
+                        <div>
+                            <label><input class="settingsElement" type="checkbox" name="some_name" value="" id="includeWhiteSpaceCB" checked/>格式调整</label>
+                            （缩进：
+                            <label><input class="settingsElement" type="radio" name="indentType" value="tabs" id='includeWhiteSpaceTabs'/>tab键&nbsp;&nbsp;</label>
+                            <label><input class="settingsElement" type="radio" name="indentType" value="spaces" id='includeWhiteSpaceSpaces' checked/>空格</label>）
+                        </div>
+
+                        <div class="settingsGroup">
+                            <div>
+                            </div>
+                            <div><label>XML节点定义：</label>（仅针对XML结果有效）
+                                <div><label>根节点：<input class="settingsElement form-control" type="text" name="indentType" value="root" id='root'/></label></div>
+                                <div><label>子节点：<input class="settingsElement form-control" type="text" name="indentType" value="row" id='child'/></label></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id='converter' class=''></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+<script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="CSVParser.js"></script>
+<script type="text/javascript" src="DataGridRenderer.js"></script>
+<script type="text/javascript" src="converter.js"></script>
+<script type="text/javascript" src="index.js"></script>
+
+</body>
+</html>

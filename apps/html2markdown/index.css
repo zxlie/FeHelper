@@ -1,0 +1,187 @@
+@import url("../static/css/bootstrap.min.css");
+@import url("editor.css");
+
+#pageContainer>.panel-default {
+    margin:0;
+}
+
+#srcText {
+    height: 150px;
+}
+#rstCode {
+    height: 330px;
+    width: 100%;
+    border:none;
+    padding: 5px;
+    resize:vertical;
+    background:#000;
+    color:#fff;
+}
+
+#rstCode::selection {
+    background: #faf2cc ;
+}
+
+.ui-ml-05 {
+    margin-left: 5px;
+}
+.x-preview {
+    height: auto;
+    word-break: break-all;
+    white-space: pre-wrap;
+}
+.x-xdemo,.x-switch {
+    margin-left: 30px;
+    font-size: 12px;
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}
+.x-xdemo:hover,.x-switch:hover {
+    color: #cc8841;
+}
+.x-switch {
+    color:#f00;
+    border-bottom: 1px solid #f00;
+}
+
+
+.tbl-editor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    background: #fff;
+}
+
+#title {
+    width: 320px;
+    padding: 0 5px;
+    height: 24px;
+}
+
+.mod-toolbar {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 46px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+}
+
+.mod-editor, .markdown-body{
+    position: absolute;
+    top: 87px;
+    bottom: 0;
+}
+
+.mod-editor {
+    overflow: auto;
+    font-size: 14px;
+    left: 0;
+    right: 50%;
+}
+
+.CodeMirror-scroll {
+    height: 100%;
+    min-height: 100%;
+}
+
+.markdown-body {
+    overflow: auto;
+    padding: 10px;
+    padding-left: 20px;
+    left: 50%;
+    right: 0;
+    box-shadow: inset 1px -5px 10px #ddd
+}
+
+.blog-aside {
+    position: fixed;
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    padding: 20px;
+    background: rgba(0, 0, 0, .5);
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.as-container {
+    background: #f1f1f1;
+    width: 800px;
+    margin: 50px auto 0;
+    padding: 20px;
+    border-radius: 6px;
+    position: relative;
+}
+
+fieldset {
+    padding: 0px 10px 5px;
+    border: 1px solid #ccc;
+    line-height: 28px;
+}
+
+.as-item {
+    margin: 0 0 5px;
+    position: relative;
+}
+
+
+.mod-pageheader, #editor, .mod-footer {
+    display: none;
+}
+.mod-markdown.preview-closed .markdown-body {
+    display:none;
+}
+.mod-markdown.preview-closed .mod-editor {
+    right:0;
+}
+.mod-markdown.mode-h2m .editor-toolbar .x-mask {
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background: #eee;
+    opacity: 0.3;
+    width: 356px;
+}
+.mod-markdown.mode-h2m textarea {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    resize: none;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    padding: 15px;
+}
+
+.mod-markdown.mode-h2m .icon-bold,
+.mod-markdown.mode-h2m .icon-italic,
+.mod-markdown.mode-h2m .icon-quote,
+.mod-markdown.mode-h2m .icon-unordered-list,
+.mod-markdown.mode-h2m .icon-ordered-list,
+.mod-markdown.mode-h2m .icon-link,
+.mod-markdown.mode-h2m .icon-image,
+.mod-markdown.mode-h2m .icon-play,
+.mod-markdown.mode-h2m .icon-music,
+.mod-markdown.mode-h2m .icon-contract,
+.mod-markdown.mode-h2m .icon-fullscreen,
+.mod-markdown.mode-h2m .icon-question,
+.mod-markdown.mode-h2m .icon-info,
+.mod-markdown.mode-h2m .icon-undo,
+.mod-markdown.mode-h2m .icon-redo,
+.mod-markdown.mode-h2m .icon-code,
+.mod-markdown.mode-h2m .icon-preview {
+    opacity: 0.2;
+}

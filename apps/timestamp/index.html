@@ -1,0 +1,190 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <head>
+        <title>时间戳转换工具</title>
+        <meta charset="UTF-8">
+        <link rel="shortcut icon" href="../static/img/favicon.ico">
+        <link rel="stylesheet" href="index.css" />
+        <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+        <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    </head>
+    <body>
+
+    <div class="wrapper" id="pageContainer">
+        <div class="panel panel-default" style="margin-bottom: 0px;">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                        <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：时间戳转换工具
+
+                    <span class="x-gmt-setting">
+                        选择时区：<select class="form-control" v-model="curGMT">
+                            <option value="-12">埃尼威托克岛 (GMT-12)</option>
+                            <option value="-11">萨摩亚群岛 (GMT-11)</option>
+                            <option value="-10">夏威夷 (GMT-10)</option>
+                            <option value="-9">阿拉斯加 (GMT-9)</option>
+                            <option value="-8">太平洋时间 (GMT-8)</option>
+                            <option value="-7">山脉时间 (GMT-7)</option>
+                            <option value="-6">中央标准时间 (GMT-6)</option>
+                            <option value="-5">东部时间 (GMT-5)</option>
+                            <option value="-4">大西洋时间 (GMT-4)</option>
+                            <option value="-3">Brazilia (GMT-3)</option>
+                            <option value="-2">大西洋中部时间(GMT-2)</option>
+                            <option value="-1">亚述尔群岛 (GMT-1)</option>
+                            <option value="0">格林威治标准（GMT）</option>
+                            <option value="1">罗马 (GMT +1)</option>
+                            <option value="2">以色列 (GMT +2)</option>
+                            <option value="3">莫斯科 (GMT +3)</option>
+                            <option value="4">巴库 (GMT +4)</option>
+                            <option value="5">New Delhi (GMT +5)</option>
+                            <option value="6">Dhakar (GMT +6)</option>
+                            <option value="7">曼谷 (GMT +7)</option>
+                            <option value="8">北京 (GMT +8)</option>
+                            <option value="9">东京 (GMT +9)</option>
+                            <option value="10">悉尼 (GMT +10)</option>
+                            <option value="11">Magadan (GMT +11)</option>
+                            <option value="12">惠灵顿 (GMT +12)</option>
+                        </select>
+                    </span>
+
+                </h3>
+            </div>
+        </div>
+
+
+        <div class="panel-body mod-stamp">
+        <h4 class="x-wd">&gt;&gt; Unix时间戳定义</h4>
+        <div class="x-cnt">
+            <div class="row">
+                <span>现在的当地时间为：</span>
+                <input class="form-control ui-d-ib" id="txtNowDate" ref="txtNowDate" v-model="txtNowDate" type="text">
+                <input class="mod-time-input form-control ui-d-ib btn btn-primary ui-ml-10 ui-mr-10" id="btnToggle" ref="btnToggle" @click="unixToggle()" class="-e-btn" type="button" value="暂停" tabindex="-1">
+            </div>
+            <div class="row ui-mt-10">
+                <span>现在的Unix时间戳：</span>
+                <input class="form-control ui-d-ib" id="txtNowS" v-model="txtNowS" type="text" readonly title="点击自动复制到剪贴板" @click="copyToClipboard($event.target.value)">秒
+                <input class="form-control ui-d-ib ui-ml-20" id="txtNowMs" v-model="txtNowMs" type="text" readonly title="点击自动复制到剪贴板" @click="copyToClipboard($event.target.value)">毫秒
+            </div>
+        </div>
+
+        <h4 class="x-wd">&gt;&gt; Unix时间戳 转 当地时间</h4>
+        <div class="row x-cnt">
+            <input class="form-control ui-d-ib" id="txtSrcStamp" ref="txtSrcStamp" v-model="txtSrcStamp" type="text" placeholder="时间戳(eg:1388307215)" tabindex="1">
+            <select ref="selSecFrom" id="selSecFrom" v-model="secFrom" class="form-control x-sel-sec">
+                <option value="s">秒(s)</option>
+                <option value="ms">毫秒(ms)</option>
+            </select>
+            <input class="mod-time-input form-control ui-d-ib btn btn-primary ui-ml-10 ui-mr-10" id="btnStampToLocale" ref="btnStampToLocale" @click="stampToLocale()" class="-e-btn" type="button" value="转换" tabindex="-1">
+            <input class="form-control ui-d-ib" id="txtDesDate" ref="txtDesDate" v-model="txtDesDate" type="text" readonly @click="copyToClipboard($event.target.value)">
+        </div>
+
+        <h4 class="x-wd">&gt;&gt; 当地时间 转 Unix时间戳</h4>
+        <div class="row x-cnt">
+            <input class="form-control ui-d-ib" id="txtLocale" ref="txtLocale" v-model="txtLocale" type="text" placeholder="时间(eg:2015-04-01 10:01:01.620)">
+            <input class="mod-time-input form-control ui-d-ib btn btn-primary ui-ml-10 ui-mr-10" id="btnLocaleToStamp" @click="localeToStamp()" class="-e-btn" type="button" value="转换" tabindex="-1">
+            <input class="form-control ui-d-ib" id="txtDesStamp" ref="txtDesStamp" v-model="txtDesStamp" type="text" readonly @click="copyToClipboard($event.target.value)">
+            <select ref="selSecTo" id="selSecTo" v-model="secTo" class="form-control x-sel-sec">
+                <option value="s">秒(s)</option>
+                <option value="ms">毫秒(ms)</option>
+            </select>
+        </div>
+
+        <h4 class="x-wd">&gt;&gt; 世界时钟</h4>
+        <table class="table table-bordered table-responsive">
+            <thead>
+            <tr>
+                <th>地区</th>
+                <th>时间</th>
+                <th>地区</th>
+                <th>时间</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th>当地时间</th>
+                <td>{{worldTime['local']}}</td>
+                <th>格林威治时间（GMT）</th>
+                <td>{{worldTime['gmt']}}</td>
+            </tr>
+            <tr>
+                <th>埃尼威托克岛 (GMT-12)</th>
+                <td>{{worldTime['-12']}}</td>
+                <th>罗马 (GMT +1)</th>
+                <td>{{worldTime['+1']}}</td>
+            </tr>
+            <tr>
+                <th>萨摩亚群岛 (GMT-11)</th>
+                <td>{{worldTime['-11']}}</td>
+                <th>以色列 (GMT +2)</th>
+                <td>{{worldTime['+2']}}</td>
+            </tr>
+            <tr>
+                <th>夏威夷 (GMT-10)</th>
+                <td>{{worldTime['-10']}}</td>
+                <th>莫斯科 (GMT +3)</th>
+                <td>{{worldTime['+3']}}</td>
+            </tr>
+            <tr>
+                <th>阿拉斯加 (GMT-9) </th>
+                <td>{{worldTime['-9']}}</td>
+                <th>巴库 (GMT +4)</th>
+                <td>{{worldTime['+4']}}</td>
+            </tr>
+            <tr>
+                <th>太平洋时间 (GMT-8)</th>
+                <td>{{worldTime['-8']}}</td>
+                <th>New Delhi (GMT +5)</th>
+                <td>{{worldTime['+5']}}</td>
+            </tr>
+            <tr>
+                <th>山脉时间 (GMT-7)</th>
+                <td>{{worldTime['-7']}}</td>
+                <th>Dhakar (GMT +6)</th>
+                <td>{{worldTime['+6']}}</td>
+            </tr>
+            <tr>
+                <th>中央标准时间 (GMT-6)</th>
+                <td>{{worldTime['-6']}}</td>
+                <th>曼谷 (GMT +7)</th>
+                <td>{{worldTime['+7']}}</td>
+            </tr>
+            <tr>
+                <th>东部时间 (GMT-5)</th>
+                <td>{{worldTime['-5']}}</td>
+                <th>北京 (GMT +8)</th>
+                <td>{{worldTime['+8']}}</td>
+            </tr>
+            <tr>
+                <th>大西洋时间 (GMT-4)</th>
+                <td>{{worldTime['-4']}}</td>
+                <th>东京 (GMT +9)</th>
+                <td>{{worldTime['+9']}}</td>
+            </tr>
+            <tr>
+                <th>Brazilia (GMT-3)</th>
+                <td>{{worldTime['-3']}}</td>
+                <th>悉尼 (GMT +10)</th>
+                <td>{{worldTime['+10']}}</td>
+            </tr>
+            <tr>
+                <th>大西洋中部时间(GMT-2)</th>
+                <td>{{worldTime['-2']}}</td>
+                <th>Magadan (GMT +11)</th>
+                <td>{{worldTime['+11']}}</td>
+            </tr>
+            <tr>
+                <th>亚述尔群岛 (GMT-1)</th>
+                <td>{{worldTime['-1']}}</td>
+                <th>惠灵顿 (GMT +12)</th>
+                <td>{{worldTime['+12']}}</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+    <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="../static/js/utils.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+
+    </body>
+</html>

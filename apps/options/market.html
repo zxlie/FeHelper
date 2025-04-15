@@ -1,0 +1,327 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    <title>FeHelper-插件市场</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="index.css"/>
+    <link rel="stylesheet" href="market.css"/>
+    <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+    <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+</head>
+<body>
+
+<div class="wrapper" id="marketContainer">
+    <div class="main-navbar">
+        <div class="navbar-brand">
+            <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="brand-link">
+                <img src="../static/img/fe-16.png" alt="fehelper"/> 
+                <span class="brand-text">FeHelper</span>
+                <span class="brand-subtitle">插件市场</span>
+            </a>
+        </div>
+        <div class="navbar-actions">
+            <a href="#" @click="openDonateModal" class="nav-item donate-link">
+                <i class="nav-icon">❤</i>
+                <span>打赏鼓励</span>
+            </a>
+            <a href="#" @click="showSettings" class="nav-item settings-link">
+                <i class="nav-icon">⚙</i>
+                <span>插件设置</span>
+            </a>
+            <div class="version-info">
+                <!-- 当版本相同时显示简化信息 -->
+                <div v-if="latestVersion && !needUpdate" class="version-latest">
+                    <i class="version-check-icon">✓</i>
+                    <span>当前已是最新版 </span>
+                    <span class="version-number">v{{manifest.version}}</span>
+                </div>
+                
+                <!-- 当版本不同或未获取到最新版本时显示详细信息 -->
+                <template v-else>
+                    <div class="version-details">
+                        <div class="version-label">当前版本:</div>
+                        <div class="current-version">v{{manifest.version}}</div>
+                    </div>
+                    <div class="version-details">
+                        <div class="version-label">最新版本:</div>
+                        <div class="latest-version-text" v-if="latestVersion">v{{latestVersion}}</div>
+                        <div class="latest-version-container" v-else>
+                            <img class="latest-version-img" @click="openStorePage" src="https://img.shields.io/chrome-web-store/v/pkgccpejnmalmdinmhkkfafefagiiiad?style=flat-square&label=%20" alt="最新版本">
+                        </div>
+                    </div>
+                    <button v-if="needUpdate" @click="openStorePage" class="update-btn">立即更新</button>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <div class="market-container" v-cloak>
+
+        <!-- 设置弹窗 -->
+        <div class="settings-modal" v-if="showSettingsModal" v-cloak>
+            <div class="settings-dialog">
+                <div class="settings-header">
+                    <h3>FeHelper插件配置</h3>
+                    <span class="close-btn" @click="closeSettings">&times;</span>
+                </div>
+                <div class="settings-body">
+                    <!-- FH快捷键设置 -->
+                    <div class="settings-section">
+                        <h4># FH快捷键 <span class="x-tips">（设置一些快捷键，用起来会更方便些）</span></h4>
+                        <a href="#" @click="setShortcuts" id="setShortcuts">&gt;&gt; 点击配置FeHelper快捷键（当前快捷键为：{{ defaultKey }}）&gt;&gt;</a> <br>
+                        <div class="x-tips">
+                            Tips：按下<b>快捷键</b>，自动打开FeHelper工具！然后用「上/下」方向键选择功能，「回车键」直接打开！
+                        </div>
+                    </div>
+
+                    <!-- FH基本配置 -->
+                    <div class="settings-section">
+                        <h4># FH基本配置 <span class="x-tips">（插件的一些基础配置，可以在这里统一操作）</span></h4>
+                        <div class="box-config">
+                            <div class="st-item">
+                                <input type="checkbox" value="OPT_ITEM_CONTEXTMENUS" id="opt_item_contextMenus" v-model="selectedOpts"/>
+                                <label for="opt_item_contextMenus">将&nbsp;<b><i>FeHelper工具</i></b>&nbsp;添加到右键菜单<span class="x-tips">（如果你喜欢用右键菜单来使用FeHelper的方式，那可以在这里开启）</span></label> <br/>
+
+                                <div class="box-inner row ui-ml-20" :class="{'x-disabled':!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')}">
+                                    <div class="row-line">
+                                        <input type="checkbox" id="MENU_DOWNLOAD_CRX" v-model="menuDownloadCrx" :disabled="!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')"/>
+                                        <label for="MENU_DOWNLOAD_CRX">将&nbsp;<b><i>插件分享/下载</i></b>&nbsp;添加到右键菜单</label>
+                                    </div>
+                                    <div class="row-line">
+                                        <input type="checkbox" id="MENU_FEHELPER_SETTING" v-model="menuFeHelperSeting" :disabled="!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')"/>
+                                        <label for="MENU_FEHELPER_SETTING">将&nbsp;<b><i>FeHelper设置</i></b>&nbsp;添加到右键菜单</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="st-item">
+                                <input type="checkbox" value="FORBID_OPEN_IN_NEW_TAB" id="FORBID_OPEN_IN_NEW_TAB" v-model="selectedOpts"/>
+                                <label for="FORBID_OPEN_IN_NEW_TAB">禁止在多个 Tab页/窗口 同时打开<span class="x-tips">（如果同一个工具，您只希望保留一个活动窗口，那可以勾选上）</span></label> <br/>
+                            </div>
+
+                            <div class="st-item">
+                                <input type="checkbox" value="CONTENT_SCRIPT_ALLOW_ALL_FRAMES" id="CONTENT_SCRIPT_ALLOW_ALL_FRAMES" v-model="selectedOpts"/>
+                                <label for="CONTENT_SCRIPT_ALLOW_ALL_FRAMES">授权FeHelper访问页面所有iframe<span class="x-tips">（默认不对网页内嵌的iframe支持，如果有需要可自行开启）</span></label> <br/>
+                            </div>
+
+                            <div class="st-item">
+                                <input type="checkbox" value="JSON_PAGE_FORMAT" id="JSON_PAGE_FORMAT" v-model="selectedOpts"/>
+                                <label for="JSON_PAGE_FORMAT">开启JSON自动美化功能（页面自动检测并格式化，你可在JSON自动美化后进行工具高级定制，包括皮肤等）</label> <br/>
+                            </div>
+
+                            <div class="st-item" v-if="!isFirefox">
+                                <input type="checkbox" value="AUTO_DARK_MODE" id="AUTO_DARK_MODE" v-model="selectedOpts"/>
+                                <label for="AUTO_DARK_MODE">自动开启夜间模式（<span class="x-tips">眼睛保卫战，晚上<b><i>19:00~06:00</i></b>使用工具的时候自动开启夜间模式）</span></label>
+                                <a href="#" class="a-btn" @click="turnLight($event)">体验一下夜间模式！</a>
+                                <span class="x-count-down" v-cloak v-if="countDown>0">本次体验将在<b>{{countDown}}秒</b>后自动结束...</span> <br/>
+
+                                <div class="box-inner row ui-ml-20" :class="{'x-disabled':!selectedOpts.includes('AUTO_DARK_MODE')}">
+                                    <div class="row-line">
+                                        <input type="checkbox" value="ALWAYS_DARK_MODE" id="ALWAYS_DARK_MODE" v-model="selectedOpts" :disabled="!selectedOpts.includes('AUTO_DARK_MODE')"/>
+                                        <label for="ALWAYS_DARK_MODE">始终开启夜间模式（<span class="x-tips">忽略时间限制，随时Dark Mode）</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-footer">
+                    <button class="btn btn-success" @click="saveSettings">保存</button>
+                    <button class="btn btn-danger" @click="closeSettings">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 打赏模态框 -->
+        <div class="settings-modal donate-modal" v-if="showDonateModal" v-cloak>
+            <div class="settings-dialog">
+                <div class="settings-header">
+                    <h3># 打赏一下鼓励升级！</h3>
+                    <span class="close-btn" @click="closeDonateModal">&times;</span>
+                </div>
+                <div class="settings-body">
+                    <div class="donate-content">
+                        <p class="donate-desc">很高兴这个插件能帮助到大家，也感谢大家对这个产品的认可，我尽量抽时间保持更新😄</p>
+                        <div class="donate-qrcode">
+                            <img :src="donate.image" alt="微信打赏二维码" class="donate-image">
+                            <p class="donate-text">{{donate.text}}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-footer">
+                    <button class="btn btn-success" @click="closeDonateModal">我已打赏</button>
+                    <button class="btn btn-danger" @click="closeDonateModal">以后再说</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 自定义确认对话框 -->
+        <div class="settings-modal confirm-modal" v-if="confirmDialog.show" v-cloak>
+            <div class="settings-dialog">
+                <div class="settings-header">
+                    <h3>{{ confirmDialog.title }}</h3>
+                    <span class="close-btn" @click="cancelConfirm">&times;</span>
+                </div>
+                <div class="settings-body">
+                    <div class="confirm-content">
+                        <div class="confirm-icon">❓</div>
+                        <p class="confirm-message">{{ confirmDialog.message }}</p>
+                    </div>
+                </div>
+                <div class="settings-footer">
+                    <button class="btn btn-success" @click="confirmAction">确定</button>
+                    <button class="btn btn-danger" @click="cancelConfirm">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 推荐位和广告位 -->
+        <div class="recommendation-container">
+            <div class="recommendation-section hot-tools">
+                <div class="recommendation-card" @click="installTool('json-format')">
+                    <div class="rec-icon">🔍</div>
+                    <div class="rec-content">
+                        <h4>JSON格式化</h4>
+                        <p>最受欢迎的JSON数据查看和美化工具</p>
+                        <span class="must-tag">必装</span>
+                    </div>
+                </div>
+                <div class="recommendation-card" @click="installTool('chart')">
+                    <div class="rec-icon">📊</div>
+                    <div class="rec-content">
+                        <h4>图表制作工具</h4>
+                        <p>支持多种数据可视化图表，快速生成专业图表</p>
+                        <span class="new-tag">最新</span>
+                    </div>
+                </div>
+                <div class="recommendation-card" @click="installTool('qr-code')">
+                    <div class="rec-icon">📱</div>
+                    <div class="rec-content">
+                        <h4>二维码工具</h4>
+                        <p>快速生成和识别二维码，支持自定义样式</p>
+                        <span class="recommend-tag">推荐</span>
+                    </div>
+                </div>
+                <div class="recommendation-card ad-card">
+                    <div class="rec-icon ad-icon">🔔</div>
+                    <div class="rec-content">
+                        <h4>推广位</h4>
+                        <p>高效的开发工具套件，助力开发者提升效率</p>
+                        <span class="ad-tag">广告</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <!-- 顶部搜索和筛选区 -->
+        <div class="market-header">
+            <div class="search-filters-container">
+                <div class="search-box">
+                    <i class="search-icon">🔍</i>
+                    <input type="text" v-model="searchKey" placeholder="搜索工具..." @input="handleSearch">
+                </div>
+                <div class="filter-group">
+                    <select v-model="currentCategory" @change="handleCategoryChange(currentCategory)" class="filter-select">
+                        <option value="">全部分类</option>
+                        <option v-for="category in categories" :value="category.key">{{category.name}}</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <select v-model="sortType" @change="handleSort" class="filter-select">
+                        <option value="default">默认排序</option>
+                        <option value="newest">最新</option>
+                        <option value="hot">最热</option>
+                    </select>
+                </div>
+                <div class="view-toggle">
+                    <span class="view-btn" :class="{ active: viewMode === 'grid' }" @click="saveViewMode('grid')">网格视图</span>
+                    <span class="view-btn" :class="{ active: viewMode === 'list' }" @click="saveViewMode('list')">列表视图</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主体内容区 -->
+        <div class="market-content">
+            <!-- 侧边栏 -->
+            <div class="market-sidebar">
+                <div class="sidebar-section">
+                    <h4>工具分类</h4>
+                    <ul class="category-list">
+                        <li :class="{active: currentCategory === ''}" 
+                            @click="handleCategoryChange('')">
+                            全部分类
+                            <span class="count">({{Object.keys(originalTools).length}})</span>
+                        </li>
+                        <li v-for="category in categories" 
+                            :class="{active: currentCategory === category.key}"
+                            @click="handleCategoryChange(category.key)">
+                            {{category.name}}
+                            <span class="count">({{getCategoryCount(category.key)}})</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="sidebar-section">
+                    <h4>我的工具</h4>
+                    <ul class="my-tools">
+                        <li @click="showMyInstalled">
+                            已安装
+                            <span class="count">({{installedCount}})</span>
+                        </li>
+                        <li @click="showMyFavorites">
+                            我的收藏
+                            <span class="count">({{getFavoritesCount()}})</span>
+                        </li>
+                        <li @click="showRecentUsed">
+                            最近使用
+                            <span class="count">({{getRecentCount()}})</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 工具展示区 -->
+            <div class="tools-grid">
+                <div :class="['tools-container', viewMode]">
+                    <div v-for="tool in filteredTools" 
+                         :key="tool.key" 
+                         class="tool-card"
+                         :data-category="getToolCategory(tool.key)">
+                        <div class="tool-info">
+                            <h3>
+                                <span class="tool-icon">{{tool.menuConfig[0].icon}}</span>
+                                {{tool.name}}
+                            </h3>
+                            <p class="tool-desc">{{tool.tips}}</p>
+                        </div>
+                        <div class="tool-actions">
+                            <button :class="['btn', tool.installed ? 'btn-danger' : 'btn-success', 'btn-xs']"
+                                    @click="tool.installed ? uninstallTool(tool.key) : installTool(tool.key)"
+                                    :disabled="tool.systemInstalled && tool.installed"
+                                    :data-tool="tool.key">
+                                {{tool.installed ? '卸载' : '安装'}}<span class="x-progress"></span>
+                            </button>
+                            <button class="btn btn-xs" :class="tool.inContextMenu ? 'btn-warning' : 'btn-info'"
+                                    v-if="tool.installed"
+                                    @click="toggleContextMenu(tool.key)">
+                                {{tool.inContextMenu ? '移出右键' : '加入右键'}}
+                            </button>
+                            <button class="btn btn-default btn-xs" 
+                                    :class="{active: tool.favorite}"
+                                    @click="toggleFavorite(tool.key)">
+                                <span class="favorite-icon">❤</span>
+                                {{tool.favorite ? '已收藏' : '收藏'}}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../static/js/dark-mode.js"></script>
+<script type="module" src="market.js"></script>
+
+</body>
+</html> 

@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    <title>Markdown编辑器（支持HTML转Markdown）</title>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../static/img/favicon.ico">
+    <link rel="stylesheet" href="index.css" />
+    <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+    <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+</head>
+<body>
+
+<div class="wrapper" id="pageContainer">
+    <div class="panel panel-default" style="margin-bottom: 0px;">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                    <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：{{toolName[codeType]}}
+                <span class="x-xdemo" ref="demoLink1" @click="setDemo">{{codeType}}是什么？</span>
+                <span class="x-xdemo" ref="importLink" @click="importContent">导入{{codeType}}文件</span>
+
+                <span class="x-switch ui-fl-r" ref="btnSwitch" @click="trans">{{toolName[nextCodeType]}}&gt;&gt;</span>
+            </h3>
+        </div>
+    </div>
+    <div class="panel-body mod-markdown" ref="modMarkdownBox">
+
+        <div class="mod-toolbar">
+            <div class="editor-toolbar">
+                <a class="icon-bold" @click="insert('b')" title="加粗"></a>
+                <a class="icon-italic" @click="insert('i')" title="斜体"></a>
+                <i class="separator">|</i>
+                <a class="icon-quote" @click="insert('quote')" title="备注"></a>
+                <a class="icon-code" @click="insert('code')" title="代码"></a>
+                <i class="separator">|</i>
+                <a class="icon-unordered-list" @click="insert('unordered-list')" title="无序列表"></a>
+                <a class="icon-ordered-list" @click="insert('ordered-list')" title="有序列表"></a>
+                <i class="separator">|</i>
+                <a class="icon-link" @click="insert('link')" title="链接"></a>
+                <a class="icon-image" @click="insert('image')" title="图片"></a>
+                <i class="separator">|</i>
+                <a class="icon-preview" @click="togglePreview" title="实时预览切换"></a>
+                <a class="icon-save" @click="saveMarkdown('md')" title="下载Markdown内容"></a>
+                <a class="icon-pdf" @click="saveMarkdown('html')" title="下载HTML内容"></a>
+
+                <div class="x-mask"></div>
+            </div>
+        </div>
+        <div class="mod-editor">
+            <textarea id="editor" ref="elEditor"></textarea>
+        </div>
+        <div class="markdown-body" ref="boxPreview"></div>
+    </div>
+
+</div>
+
+<script type="text/javascript" src="../static/vendor/codemirror/codemirror.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/overlay.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/markdown.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/gfm.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/xml.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/javascript.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/css.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/htmlmixed.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/clike.js"></script>
+<script type="text/javascript" src="../static/vendor/codemirror/meta.js"></script>
+<script type="text/javascript" src="../static/vendor/h2m/h2m.js"></script>
+<script type="text/javascript" src="../static/vendor/highlight/highlight.js"></script>
+<script type="text/javascript" src="libs/marked.js"></script>
+<script type="text/javascript" src="libs/rawdeflate.js"></script>
+<script type="text/javascript" src="libs/rawinflate.js"></script>
+<script type="text/javascript" src="demo-tpl.js"></script>
+<script type="text/javascript" src="index.js"></script>
+</body>
+</html>

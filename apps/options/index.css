@@ -1,0 +1,234 @@
+@import "../static/css/bootstrap.min.css";
+
+.wrapper {
+    width:auto;
+}
+
+#pageContainer .panel-body {
+    margin: 0 auto;
+    width: 960px;
+    padding: 15px;
+}
+.mod-header {
+    position: sticky;
+    top:0;
+    z-index: 100;
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    margin-bottom: 10px;
+}
+#pageContainer label {
+    font-weight: normal;
+    margin-bottom: 0;
+}
+
+#pageContainer h4 {
+    color: #333;
+    font-size: 18px;
+    margin-top: 25px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom : 1px solid #eee;
+}
+
+h5,h4 {
+    padding-bottom: 5px;
+}
+.t-hlt {
+    color:#f00;
+    font-style: italic;
+}
+
+#MAX_JSON_KEYS_NUMBER {
+    width: 80px;
+    height: auto;
+    display: inline-block;
+    padding: 4px 10px;
+}
+.x-disabled {
+    opacity: 0.2;
+}
+.box-config {
+    padding: 10px;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    border-top: 0;
+}
+
+#setShortcuts {
+    font-size: 14px;
+    text-decoration: none;
+    color: #007bff;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+#setShortcuts:hover {
+    color:#0056b3;
+    text-decoration: underline;
+}
+.x-tips {
+    font-size: 12px;
+    color: #999;
+}
+.x-tips b i {
+    text-decoration: underline;
+}
+.x-donate {
+    font-size: 14px;
+    color: #d00;
+    margin-left: 10px;
+    text-decoration: underline;
+    text-decoration-style: double;
+    cursor: default;
+}
+.box-donate .x-donate-img {
+    width: 360px;
+}
+.btn-donate {
+    padding: 0 20px;
+}
+.mod-dynamic-tool {
+    padding-left: 0;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.mod-dynamic-tool li {
+    list-style: none;
+    border-bottom: 1px solid #eee;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #fff;
+}
+.mod-dynamic-tool li:last-child {
+    border-bottom: none;
+}
+.mod-dynamic-tool li:hover {
+    border-bottom-color: #eee;
+    background-color: #f8f9fa;
+}
+.mod-dynamic-tool li .x-btn-box {
+    text-align: right;
+    min-width: auto;
+    margin-left: auto;
+    display: flex;
+    gap: 5px;
+}
+.mod-dynamic-tool li i {
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 4px;
+    color: #495057;
+    font-style: normal;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.mod-dynamic-tool li b {
+    width: auto;
+    flex-shrink: 0;
+    color: #333;
+}
+.mod-dynamic-tool li .x-tips {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #999;
+}
+.mod-dynamic-tool .btn-xs {
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 3px;
+}
+.mod-dynamic-tool .btn {
+    position: relative;
+}
+.st-item {
+    margin-bottom: 10px;
+}
+.st-item input[type="checkbox"] {
+    margin-right: 5px;
+}
+.st-item label {
+    line-height: normal;
+}
+.st-item label .x-tips {
+}
+.st-item .box-inner {
+}
+.st-item .a-btn {
+    font-size: 12px;
+    text-decoration: underline;
+}
+.btn-disabled,
+.btn-disabled:hover,
+.btn-disabled:active,
+.btn-disabled:focus{
+    color: #aaa;
+    background-color: #ddd;
+    border-color: #ddd;
+    cursor:not-allowed;
+}
+.x-sort-box {
+    margin-right: 10px;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.x-sort-box i {
+    cursor: pointer;
+    font-weight: bold;
+}
+.x-sort-box i:hover {
+    color:#007bff;
+}
+.x-sort-box i.x-hidden {
+    opacity: 0.2;
+    cursor: default;
+}
+.x-cur-version {
+    font-size: 12px;
+    margin-top: 4px;
+}
+.x-cur-version b,.x-cur-version i {
+    background: #6c757d;
+    padding: 2px 6px;
+    border-radius: 3px 0 0 3px;
+    color: #fff;
+    font-weight: normal;
+    font-style: normal;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+}
+.x-cur-version i {
+    border-radius: 0 3px 3px 0;
+    background: #007bff;
+}
+[v-cloak] {
+    display: none;
+}
+.x-count-down {
+    color:#f00;
+    font-size: 12px;
+}
+.x-count-down b {
+    color:#0b0;
+}
+.panel-low-version {
+    text-align: center;
+    padding-top: 200px;
+    color: #bbb;
+}
+.panel-low-version a {
+    text-decoration: underline;
+}
+.panel-low-version b {
+    color:#888;
+    font-weight: normal;
+}

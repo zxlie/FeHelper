@@ -1,0 +1,44 @@
+@import url("../static/vendor/codemirror/codemirror.css");
+@import url("../static/css/bootstrap.min.css");
+
+.mod-textarea {
+    min-height: 200px;
+}
+.panel-title .x-xother {
+    float: right;
+    font-size: 12px;
+    margin-top: 3px;
+    color: blue;
+    text-decoration: underline;
+}
+.panel-title .x-xother:hover {
+    color:red;
+}
+.x-error {
+    color:red;
+}
+[v-cloak] {
+    display: none;
+}
+.box-infos {
+    color:green;
+    margin-right: 20px;
+}
+.x-right-info {
+    margin-top:5px;
+}
+#fehelper_alertmsg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000000;
+    background: #000;
+    display: inline-block;
+    color: #fff;
+    text-align: center;
+    padding: 10px 10px;
+    margin: 0 auto;
+    font-size: 14px;
+    border-bottom: 1px solid #aaa;
+}

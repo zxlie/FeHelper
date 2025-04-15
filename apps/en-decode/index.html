@@ -1,0 +1,138 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <head>
+        <title>信息编解码工具</title>
+        <meta charset="UTF-8">
+        <link rel="shortcut icon" href="../static/img/favicon.ico">
+        <link rel="stylesheet" href="index.css" />
+        <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+        <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    </head>
+    <body>
+
+    <div class="wrapper" id="pageContainer">
+        <div class="panel panel-default" style="margin-bottom: 0px;">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                        <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：信息编解码工具
+
+                    <span class="x-btns">
+                        <input id="btnCodeChange" class="btn btn-sm btn-success" type="button" value="转换" @click="convert()">
+                        <input id="btnCodeClear" class="btn btn-sm btn-warning ui-ml-10" type="button" value="清空" @click="clear()">
+                    </span>
+                </h3>
+            </div>
+        </div>
+        <div class="panel-body mod-endecode">
+            <div class="row">
+                <textarea class="form-control mod-textarea ui-mb-10" id="srcText" ref="srcText" v-model="sourceContent" placeholder="粘贴需要进行转换的字符串"></textarea>
+            </div>
+
+            <div class="row">
+                <table class="x-opts">
+                    <tr>
+                        <td class="td-label"><label>加密：</label></td>
+                        <td>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="uniEncode" v-model="selectedType" @click="convert()">Unicode编码<span class="x-ps">(\u开头)</span></label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="utf8Encode" v-model="selectedType" @click="convert()">URL编码<span class="x-ps">(%开头)</span></label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="utf16Encode" v-model="selectedType" @click="convert()">UTF16编码<span class="x-ps">(\x开头)</span></label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="base64Encode" v-model="selectedType" @click="convert()">Base64编码</label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="md5Encode" v-model="selectedType" @click="convert()">MD5计算</label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="hexEncode" v-model="selectedType" @click="convert()">十六进制编码</label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="sha1Encode" v-model="selectedType" @click="convert()">Sha1加密</label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="htmlEntityEncode" v-model="selectedType" @click="convert()">HTML普通编码</label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="htmlEntityFullEncode" v-model="selectedType" @click="convert()">HTML深度编码</label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="html2js" v-model="selectedType" @click="convert()">HTML转JS</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td-label"><label>解密：</label></td>
+                        <td>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="uniDecode" v-model="selectedType" @click="convert()">Unicode解码<span class="x-ps">(\u开头)</span></label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="utf8Decode" v-model="selectedType" @click="convert()">URL解码<span class="x-ps">(%开头)</span></label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="utf16Decode" v-model="selectedType" @click="convert()">UTF16解码<span class="x-ps">(\x开头)</span></label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="base64Decode" v-model="selectedType" @click="convert()">Base64解码</label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="hexDecode" v-model="selectedType" @click="convert()">十六进制解码</label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="htmlEntityDecode" v-model="selectedType" @click="convert()">HTML实体解码</label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="urlParamsDecode" v-model="selectedType" @click="convert()">URL参数解析</label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="jwtDecode" v-model="selectedType" @click="convert()">JWT解码</label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="cookieDecode" v-model="selectedType" @click="convert()">Cookie格式化</label>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+
+            <div id="rst" class="row ui-mt-20" v-show="resultContent.length || urlResult">
+                <h5>当前数据解析结果如下：</h5>
+                <textarea class="form-control mod-textarea" id="rstCode" ref="rstCode" v-model="resultContent" @mouseover="getResult()" v-if="!urlResult"></textarea>
+
+                <div class="x-url-infos" v-if="urlResult">
+                    <ul>
+                        <li><b>协议</b>：<span>{{urlResult.protocol}}</span></li>
+                        <li><b>域名</b>：<span>{{urlResult.hostname}}</span></li>
+                        <li><b>路径</b>：<span>{{urlResult.pathname}}</span></li>
+                        <li>
+                            <table class="table table-bordered table-hover ui-mt-10">
+                                <tr>
+                                    <thead>
+                                        <th>参数Key</th>
+                                        <th>参数Value</th>
+                                    </thead>
+                                </tr>
+                                <tr v-for="item in urlResult.params">
+                                    <td>{{item[0]}}</td>
+                                    <td>{{item[1]}}</td>
+                                </tr>
+                            </table>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="he.js"></script>
+    <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+    <script type="module" src="index.js"></script>
+    </body>
+</html>

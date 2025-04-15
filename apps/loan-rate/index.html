@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    <title>贷款利率计算器</title>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../static/img/favicon.ico">
+    <link rel="stylesheet" href="index.css" />
+    <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+    <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+</head>
+<body>
+
+<div class="wrapper" id="pageContainer">
+    <div class="panel panel-default" style="margin-bottom: 0px;">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                    <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：贷款利率计算器</h3>
+        </div>
+    </div>
+    <div class="panel-body">
+
+        <!-- 还款计算器 -->
+        <div id="containerPayback">
+
+            <div class="row mod-inputs">
+                <label for="money">贷款本金：</label>
+                <input type="text" id="money" v-model="money" class="form-control"><span>元</span>
+
+                <label for="months" class="x-sp">贷款期限：</label>
+                <input type="text" id="months" v-model="months" class="form-control"><span>月</span>
+
+                <span class="x-exchange" @click="exchange">切换为{{calcModeText[calcMode]}}模式</span>
+                <br/>
+
+                <template v-if="calcMode==='rate'">
+                    <label for="yearRate">年化利率：</label>
+                    <input type="text" id="yearRate" v-model="yearRate" class="form-control"><span>％</span>
+                </template>
+
+                <template v-if="calcMode==='loan'">
+                    <label for="revAllAmount">总还款额：</label>
+                    <input type="text" id="revAllAmount" v-model="revAllAmount" class="form-control"><span>元</span>
+                </template>
+
+
+                <label for="paybackMode" class="x-sp">还款方式：</label>
+                <select id="paybackMode" v-model="paybackMode" class="form-control" @change="paybackConvert">
+                    <option value="1">等额本息</option>
+                    <option value="2">等额本金</option>
+                </select>
+
+                <input type="button" value="计算" class="btn btn-success x-btn" @click="paybackConvert">
+
+                <div class="row x-tips ui-mt-10">
+                    // {{formula[paybackMode]}}
+                </div>
+
+            </div>
+
+
+            <div class="row ui-mt-20 mod-value">
+
+                <h4 class="x-calc-title">推演结果：</h4>
+
+                <table class="table table-bordered table-hover" v-if="calcMode=='rate'">
+                    <thead>
+                    <tr>
+                        <th rowspan="2">期数</th>
+                        <th rowspan="2">月供金额</th>
+                        <th colspan="2">月供拆解</th>
+                        <th colspan="2">累计还款</th>
+                        <th colspan="2">剩余月供</th>
+                    </tr>
+                    <tr>
+                        <th>本金</th>
+                        <th>利息</th>
+                        <th>本金</th>
+                        <th>利息</th>
+                        <th>本金</th>
+                        <th>利息</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(item,index) in billList" v-bind:class="{'x-all' : index===0, 'x-last': index === billList.length - 1}">
+                        <td class="x-name">{{item.name}}</td>
+                        <td class="x-bill">{{item.bill}}</td>
+                        <td class="x-amount">{{item.amount}}</td>
+                        <td class="x-interest">{{item.interest}}</td>
+                        <td class="x-total">{{item.totalAmount}}</td>
+                        <td class="x-total">{{item.totalInterest}}</td>
+                        <td class="x-left">{{item.leftOver}}</td>
+                        <td class="x-left">{{item.leftInterest}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div class="x-rev-result" v-if="calcMode=='loan'">
+                    <label>实际年化：</label><span class="x-revrate">{{revRate}}</span> <br>
+                    <label>利息总额：</label><span class="x-revrate">{{revAllInterest}}元</span> <br>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="index.js"></script>
+</body>
+</html>

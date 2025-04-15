@@ -1,0 +1,125 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8"/>
+        <title>网页油猴工具-网页超级定制助手</title>
+        <link rel="stylesheet" href="index.css"/>
+        <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+        <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    </head>
+
+    <body>
+
+        <div class="wrapper wp-modifiers" id="pageContainer">
+            <div class="panel panel-default" style="margin-bottom: 0px;">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                            <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：网页油猴工具
+
+                        <span class="x-toolbox" v-cloak v-show="!editing">
+                            <a href="#" id="loadDemo" @click="loadDemo()" class="x-tooltip blue-tooltip">来个Demo尝尝</a><span class="x-line">|</span>
+                            <a href="#" id="newMonkey" @click="createMonkey()" class="x-tooltip blue-tooltip">创建猴子</a><span class="x-line">|</span>
+                            <a href="#" id="import" @click="importMonkey()" class="x-tooltip blue-tooltip">导入猴子</a><span class="x-line">|</span>
+                            <a href="#" id="disable" @click="disableMonkey()" class="x-tooltip blue-tooltip">全部停用</a><span class="x-line">|</span>
+                            <a href="#" id="remove" @click="removeMonkey()" class="x-tooltip blue-tooltip">全部删除</a>
+                        </span>
+
+                        <span class="x-toolbox btns-editing" v-cloak v-show="editing">
+                            <input type="button" @click="toggleEditMode()" value="切换编辑模式" class="btn btn-sm btn-primary ui-mr-10">
+                            <input type="button" @click="saveMonkey()" value="保存" class="btn btn-sm btn-success ui-mr-10">
+                            <input type="button" @click="closeEditor()" value="返回" class="btn btn-sm btn-warning">
+                        </span>
+
+                    </h3>
+                </div>
+            </div>
+
+            <div class="panel-body" :class="editing?'cur-editing':''">
+                <div id="monkeyList">
+                    <table class="x-monkeys table table-striped table-responsive table-hover">
+                        <thead>
+                        <tr>
+                            <th class="t-number">序号</th>
+                            <th class="t-description">猴子功能描述</th>
+                            <th class="t-time">最后修改时间</th>
+                            <th class="t-operation">相关操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(cm,$index) in cachedMonkeys" :id="cm.id" :class="{'x-selected': editCM.id === cm.id}">
+                            <td class="t-number">{{$index+1}}</td>
+                            <td><i class="xm-icon" :class="cm.mDisabled === null ? 'xm-create' : (cm.mDisabled ? 'xm-disable' : 'xm-enable')"></i>{{cm.mName || '未命名'}}</td>
+                            <td class="t-time">{{ String(cm.mUpdatedAt) !== 'undefined' && cm.mUpdatedAt || 'a long time ago' }}</td>
+                            <td class="t-operation">
+                                <input type="button" @click="selectMonkey(cm)" value="查看 / 编辑" class="btn btn-sm btn-success">
+                                <input type="button" @click="exportMonkey(cm)" value="导出" class="btn btn-sm btn-primary">
+                                <input type="button" @click="disableMonkey(cm)" :value="cm.mDisabled ? '启用' : '停用'" class="btn btn-sm btn-warning">
+                                <input type="button" @click="removeMonkey(cm)" value="删除" class="btn btn-sm btn-danger">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <form id="monkeyEditor" action="#" ref="mForm">
+                    <div class="" v-show="editWithUI">
+                        <label for="mName">网页猴子名称：</label>
+                        <input type="text" id="mName" v-model="editCM.mName" required class="form-control ui-d-ib" placeholder="如：针对百度全系产品注入脚本">
+                        <span class="x-tips">（Tips：建议描述得详细点儿）</span>
+                    </div>
+
+                    <div class="ui-mt-10" v-show="editWithUI">
+                        <label for="mPattern">网址匹配规则：</label>
+                        <input type="text" id="mPattern" v-model="editCM.mPattern" required class="form-control ui-d-ib" placeholder="如：https://*.baidu.com/*">
+                        <span class="x-tips">（Tips：可写精确网址、或通配符匹配、正则也行...）</span>
+                    </div>
+
+                    <div class=" ui-mt-10" v-show="editWithUI">
+                        <label for="mRefresh">网页自动刷新：</label>
+                        <select id="mRefresh" v-model="editCM.mRefresh" class="form-control ui-d-ib">
+                            <option value="0">不自动刷新</option>
+                            <option value="1">每 1秒 一次</option>
+                            <option value="3">每 3秒 一次</option>
+                            <option value="5">每 5秒 一次</option>
+                            <option value="10">每 10秒 一次</option>
+                            <option value="15">每 15秒 一次</option>
+                            <option value="30">每 30秒 一次</option>
+                            <option value="60">每 1分（60秒） 一次</option>
+                            <option value="90">每 1分半（90秒） 一次</option>
+                            <option value="120">每 2分（120秒） 一次</option>
+                            <option value="180">每 3分（180秒） 一次</option>
+                            <option value="300">每 5分（300秒） 一次</option>
+                            <option value="600">每 10分（600秒） 一次</option>
+                        </select>
+                        <span class="x-tips">（Tips：默认不刷新，请按需设置）</span>
+                    </div>
+
+                    <div class="ui-mt-10" v-show="editWithUI">
+                        <label for="mPattern">依赖第三方js：</label>
+                        <input type="text" id="mRequireJs" v-model="editCM.mRequireJs" class="form-control ui-d-ib" placeholder="如：https://code.jquery.com/jquery-3.4.1.min.js">
+                        <span class="x-tips">（Tips：多个脚本可用逗号或空格分隔）</span>
+                    </div>
+
+                    <div class=" ui-mt-10">
+                        <label for="mScript">猴子注入脚本：</label>
+                        <span class="x-tips">（Tips：可以注入任意JS代码，甚至编写一个智能机器人也是可以的，比如网页定制、自动抢票啥的！）</span>
+                        <textarea id="mScript" ref="mScript" v-model="editCM.mScript" cols="30" rows="10" class="form-control"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+
+        <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+        <script src="../static/vendor/codemirror/codemirror.js"></script>
+        <script src="../static/vendor/codemirror/javascript.js"></script>
+        <script src="../static/vendor/codemirror/active-line.js"></script>
+        <script src="../static/vendor/codemirror/matchbrackets.js"></script>
+        <script src="../static/vendor/codemirror/placeholder.js"></script>
+        <script src="monkey-tpl.js"></script>
+        <script src="index.js"></script>
+        <script src="content-script.js"></script>
+
+    </body>
+</html>

@@ -1,0 +1,179 @@
+@import url("../static/vendor/codemirror/codemirror.css");
+@import url("../static/css/bootstrap.min.css");
+@import url("content-script.css");
+
+body {
+    background-color: #fff;
+}
+html,body {
+    padding: 0;
+    margin: 0;
+    height:100%;
+}
+
+.wp-json {
+    width:auto;
+}
+
+.wp-json .panel-body {
+    padding: 0;
+}
+#jfContent_pre {
+    display: none;
+    padding: 10px;
+}
+
+#errorMsg {
+    color: #f00;
+    margin-left: 10px;
+    float: right;
+}
+.x-placeholder img{
+    width: 400px;
+    opacity: 0.3;
+    margin: 5px 0 0 -8px;
+}
+.x-xdemo,a.x-xdemo {
+    margin-left: 30px;
+    font-size: 12px;
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}
+.x-xdemo:hover {
+    text-decoration: underline;
+}
+
+#errorTips {
+    border-radius: 4px;
+    box-shadow: 6px 5px 7px rgba(229, 163, 163, 0.4);
+    background-color: #ffecf1;
+    border: 1px solid #dbb2b2;
+    margin-top:10px;
+}
+#errorCode .errorEm {
+    background-color:#ff921b;
+}
+#errorTarget {
+    color:#000;
+    background-color:#fff;
+}
+#errorCode {
+    padding:0 10px 10px;
+    word-break: break-all;
+}
+#errorCode ol {
+    padding:0 0 0 3em;
+}
+#errorCode .x-ph {
+    color: #f00;
+    font-weight: bold;
+}
+#tipsBox {
+    color:#b4465c;
+    padding: 6px 0 4px 2em;
+    background-color: #ffecf1;
+}
+#errorCode ol li {
+    padding:4px 7px 0;
+    list-style-type: decimal;
+    color:#b4465c;
+    background-color:#fdf7f7;
+}
+#errorCode ol li div {
+    color:#000;
+}
+
+.x-error {
+    color:red;
+}
+
+/*layout-up-down：上下布局模式*/
+.wp-json.layout-up-down .mod-json .panel-txt {
+    position: static;
+    width: 100%;
+    height: 250px;
+    margin: 0;
+}
+.wp-json.layout-up-down  .CodeMirror {
+    height: 250px;
+}
+.wp-json.layout-up-down .mod-json .rst-item {
+    margin: 0;
+}
+.wp-json.layout-up-down .mod-json .x-placeholder {
+    padding-top: 0;
+    text-align: left;
+}
+
+/* layout-left-right: 左右布局 */
+.wp-json.layout-left-right .mod-json .panel-txt {
+    width: 500px;
+    height: calc(100% - 10px);
+    float: left;
+}
+.wp-json.layout-left-right .mod-json .rst-item {
+    margin: 0 20px 0 30px;
+    padding-bottom:20px;
+    float: left;
+    width: calc(100% - 520px);
+}
+.wp-json.layout-left-right .mod-json .x-placeholder {
+    padding-top: 50px;
+    text-align: center;
+}
+.wp-json.layout-left-right .panel-body {
+    height:calc(100% - 95px);
+    padding-left: 15px;
+}
+.wp-json.layout-left-right  #jsonSource,
+.wp-json.layout-left-right  .CodeMirror {
+    height: calc(100% - 10px);
+}
+.wp-json.layout-left-right #formattedJson {
+    padding-top: 2px;
+}
+.wp-json.layout-left-right #errorTips {
+    margin-top: 0;
+}
+
+html.fh-jf .x-toolbar {
+    padding-top:5px;
+    padding-bottom: 5px;
+}
+html.fh-jf .x-toolbar.x-inpage {
+    margin:10px 20px;
+}
+.panel-title>a.x-other-tools {
+    margin:10px 0 0;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: underline;
+    -webkit-user-select: none;
+    user-select: none;
+    color: #f00;
+    border-bottom: 1px solid #f00;
+    float: right;
+}
+.panel-title>a.x-other-tools:hover {
+    color:#00f;
+}
+.panel-heading {
+    padding:5px 15px;
+}
+
+#layoutBar {margin-left:30px}
+#btnLeftRight,#btnUpDown{
+    -webkit-border-radius:2px;-webkit-box-shadow:0px 1px 3px rgba(0,0,0,0.1);
+    -webkit-user-select:none;background:-webkit-linear-gradient(#fafafa, #f4f4f4 40%, #e5e5e5);outline: none;
+    border:1px solid #aaa;color:#444;font-size:12px;margin-bottom:0px;
+    position:relative;z-index:10;display:inline-block;
+    padding: 0 10px;
+    height: 30px;
+    text-shadow:1px 1px rgba(255,255,255,0.3)}
+#btnUpDown{margin-left:0;border-top-left-radius:0;border-bottom-left-radius:0;border-left:0;}
+#btnLeftRight{margin-right:0;border-top-right-radius:0;border-bottom-right-radius:0;border-right:none}
+#btnLeftRight:hover,#btnUpDown:hover{-webkit-box-shadow:0px 1px 3px rgba(0,0,0,0.2);
+    background:#ebebeb -webkit-linear-gradient(#fefefe, #f8f8f8 40%, #e9e9e9);border-color:#999;color:#222}
+#btnLeftRight.selected, #btnUpDown.selected{-webkit-box-shadow:inset 0px 1px 5px rgba(0,0,0,0.2);
+    background:#ebebeb -webkit-linear-gradient(#e4e4e4, #dfdfdf 40%, #dcdcdc);color:#333}

@@ -1,0 +1,137 @@
+@import url("../static/css/bootstrap.min.css");
+@import url("../json-format/content-script.css");
+
+.wrapper {
+    width:auto;
+}
+.f-url {
+    width: 600px;
+    display: inline-block;
+}
+.f-method {
+    display: inline-block;
+    width:200px;
+    margin-right: 30px;
+}
+textarea.form-control.f-param {
+    display: inline-block;
+    width: 600px;
+    height:90px;
+}
+
+.ui-widget {
+    font-family: Arial,sans-serif;
+    font-size:14px;
+}
+.ui-widget-content {
+    border:none;
+}
+
+.ui-widget-header {
+    background: #fff;
+    border:none;
+    border-bottom: 1px solid #ccc;
+    border-radius: 0;
+    box-shadow: 0px 2px #f1f1f1;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+    background: none;
+    border:0;
+}
+
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active {
+    background: none;
+    color: #48b;
+    border:0;
+}
+.ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited {
+    color: #48b;
+}
+
+.ui-tabs {
+    padding-bottom: 5em;
+}
+.ui-tabs .ui-tabs-nav {
+    margin-top:30px;
+}
+.table {
+    font-size: 14px;
+}
+#tab-content {
+    white-space: pre-wrap;
+    word-break: break-all;
+    padding-bottom: 50px;
+}
+.mod-inputs {
+    padding: 20px;
+    background-color: #f5f5f5;
+    border-radius: 6px;
+    border: 1px solid #eee;
+}
+#jfContent_pre {
+    border:none;
+}
+.mod-tab {
+    position: relative;
+}
+#optionBar {
+    top:2px;
+}
+#formattedJson {
+    padding-top: 21px;
+}
+#jfContent_pre {
+    margin-top: 21px;
+    background:none;
+}
+.the-tabs {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10000;
+}
+.x-xdemo,a.x-xdemo {
+    margin-left: 30px;
+    font-size: 12px;
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+    user-select: none;
+}
+.x-xdemo:hover {
+    text-decoration: underline;
+}
+.x-toolbar {
+    margin:0;
+    top:36px;
+    display: none;
+}
+.f-header-key {
+    width:180px;
+    display: inline-block;
+    margin-right:5px;
+}
+.f-header-value {
+    width:415px;
+    display: inline-block;
+}
+.mod-inputs label {
+    vertical-align: top;
+    margin-top:6px;
+}
+.url-encode {
+    display: inline-block;
+}
+.url-encode #urlencoded{
+    margin-top:10px;
+}
+.u-p-c {
+    padding-left:74px;
+}
+.u-p-c .table {
+    width:auto;
+}
+[v-cloak] {
+    display: none;
+}

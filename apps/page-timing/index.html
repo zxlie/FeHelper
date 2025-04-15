@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <head>
+        <title>当前网页加载时间</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="index.css" />
+        <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+        <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    </head>
+    <body>
+
+    <div class="wrapper" id="pageContainer">
+        <div class="panel panel-default" style="margin-bottom: 0px;">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                        <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：页面性能检测</h3>
+            </div>
+        </div>
+
+        <div class="panel-body mod-json">
+
+            <div id="pageInfo" class="row">
+                被检测的页面：<span id="pageTitle">{{pageTitle}}</span><br>
+                页面完整地址：<span id="pageUrl">{{pageUrl}}</span>
+            </div>
+
+            <div id="pageLoadTime" class="row">
+                <h3>页面各阶段耗时分析</h3>
+                <table class="table table-bordered table-striped table-condensed table-hover">
+                    <thead>
+                        <th >事件</th>
+                        <th >耗时</th>
+                    </thead>
+                    <tbody>
+                        <tr v-if="timing" v-for="t in Object.keys(tmDefination)">
+                            <td>{{tmDefination[t]}}</td>
+                            <td>{{Math.ceil(timing[t])}} ms</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="pageHeaderInfo" class="row" v-show="headerInfo">
+                <h3>页面HTTP Response Header分析</h3>
+                <table class="table table-bordered table-striped table-condensed table-hover">
+                    <thead>
+                        <th >网页信息</th>
+                        <th >数据</th>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(value,key) in headerInfo">
+                            <td>{{key}}</td>
+                            <td>{{value || '-'}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script type="text/javascript" src="index.js"></script>
+    </body>
+</html>
