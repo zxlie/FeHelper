@@ -145,19 +145,50 @@ html.fh-jf .x-toolbar.x-inpage {
     margin:10px 20px;
 }
 .panel-title>a.x-other-tools {
-    margin:10px 0 0;
-    font-size: 12px;
+    margin: 1px 0 0;
+    font-size: 13px;
     cursor: pointer;
-    text-decoration: underline;
+    text-decoration: none;
     -webkit-user-select: none;
     user-select: none;
-    color: #f00;
-    border-bottom: 1px solid #f00;
+    color: #333;
     float: right;
+    background-color: #f5f8ff;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border: 1px solid #d0d9ff;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
 }
+
+.panel-title>a.x-other-tools .icon-plus-circle {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background: url(../static/img/plus-circle.svg) no-repeat center center;
+    background-size: contain;
+    margin-right: 5px;
+}
+
+.panel-title>a.x-other-tools .tool-market-badge {
+    display: inline-block;
+    background-color: #4d89fe;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 5px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
 .panel-title>a.x-other-tools:hover {
-    color:#00f;
+    color: #333;
+    background-color: #e6edff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
 }
+
 .panel-heading {
     padding:5px 15px;
 }

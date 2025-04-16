@@ -15,13 +15,26 @@
                     <h3 class="panel-title">
                         <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
                             <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：JSON比对工具
-
-                        <span class="x-error" v-bind:class="{'x-hlt' : errorHighlight}" v-html="errorMessage"></span>
+                            
+                        <a class="x-other-tools" @click="openOptionsPage"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
                     </h3>
                 </div>
             </div>
 
             <div class="panel-body mod-json">
+                <div class="json-examples">
+                    <span>示例数据：</span>
+                    <a href="#" class="example-button" data-example="userInfo">用户信息</a>
+                    <a href="#" class="example-button" data-example="productData">商品数据</a>
+                    <a href="#" class="example-button" data-example="configOptions">配置选项</a>
+                    <a href="#" class="example-button" data-example="apiResponse">API响应</a>
+                    <span class="x-error result-display" v-bind:class="{'x-hlt': errorHighlight}" v-if="!!errorMessage">
+                        <span class="x-hlt">Tips：</span>
+                        <span v-if="leftSideError" class="x-hlt1">左侧</span>
+                        <span v-if="rightSideError" class="x-hlt1">右侧</span>
+                        <span>{{ errorMessage }}</span>
+                    </span>
+                </div>
                 <div class="col-md-6 box-wrapper-left">
                     <textarea class="form-control mod-textarea" id="jsonSourceLeft" ref="srcLeft" placeholder="在这里粘贴JSON代码"></textarea>
                 </div>
@@ -42,6 +55,8 @@
         <script src="../static/vendor/json-diff/json-patch-duplex.min.js"></script>
         <script src="../static/vendor/json-diff/json-source-map.js"></script>
         <script src="../static/vendor/json-diff/json-diff.js"></script>
+        <script src="./js-adapter.js"></script>
         <script src="./index.js"></script>
+        <script src="./index-event-handler.js"></script>
     </body>
 </html>

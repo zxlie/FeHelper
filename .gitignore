@@ -5,6 +5,6 @@
 node_modules/
 package-lock.json
 Users/
-output/apps/
-output-firefox/apps/
-output-edge/apps/
+output/
+output-firefox/
+output-edge/

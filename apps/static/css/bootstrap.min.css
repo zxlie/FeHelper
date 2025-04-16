@@ -262,7 +262,7 @@ a.x-a-high, a.x-a-high:visited {
     padding-left: 90px;
 }
 #pageContainer>.panel-default {
-    margin: 20px;
+    margin: 0px;
 }
 #pageContainer>.panel-body {
     margin: 0 20px;
@@ -287,4 +287,9 @@ a.x-a-high, a.x-a-high:visited {
 
 .mod-footer .footer-box .x-beian {
     color: #666
+}
+
+html.fh-jf input[type=radio], input[type=checkbox] {
+    position: relative;
+    top: 2px;
 }

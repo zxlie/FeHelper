@@ -100,7 +100,8 @@ new Vue({
 
             // 分类过滤，在所有视图下生效
             if (this.currentCategory) {
-                const categoryTools = TOOL_CATEGORIES.find(c => c.key === this.currentCategory)?.tools || [];
+                const category = TOOL_CATEGORIES.find(c => c.key === this.currentCategory);
+                const categoryTools = category ? category.tools : [];
                 result = result.filter(tool => categoryTools.includes(tool.key));
             }
 
@@ -627,7 +628,8 @@ new Vue({
         },
 
         getCategoryCount(categoryKey) {
-            const categoryTools = TOOL_CATEGORIES.find(c => c.key === categoryKey)?.tools || [];
+            const category = TOOL_CATEGORIES.find(c => c.key === categoryKey);
+            const categoryTools = category ? category.tools : [];
             return categoryTools.length;
         },
 
