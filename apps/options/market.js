@@ -6,7 +6,7 @@ import Settings from './settings.js';
 const TOOL_CATEGORIES = [
     { key: 'dev', name: '开发工具类', tools: ['json-format', 'json-diff', 'code-beautify', 'code-compress', 'postman', 'websocket', 'regexp'] },
     { key: 'encode', name: '编解码转换类', tools: ['en-decode', 'trans-radix', 'timestamp', 'trans-color'] },
-    { key: 'image', name: '图像处理类', tools: ['qr-code', 'image-base64', 'screenshot', 'color-picker'] },
+    { key: 'image', name: '图像处理类', tools: ['qr-code', 'image-base64', 'svg-converter', 'chart-maker' ,'screenshot', 'color-picker'] },
     { key: 'productivity', name: '效率工具类', tools: ['aiagent', 'sticky-notes', 'html2markdown', 'page-monkey'] },
     { key: 'calculator', name: '计算工具类', tools: ['crontab', 'loan-rate', 'password'] },
     { key: 'other', name: '其他工具', tools: [] }
@@ -20,7 +20,7 @@ new Vue({
         searchKey: '',
         currentCategory: '',
         sortType: 'default',
-        viewMode: 'grid', // 默认网格视图
+        viewMode: 'list', // 默认网格视图
         categories: TOOL_CATEGORIES,
         favorites: new Set(),
         recentUsed: [],
@@ -46,7 +46,7 @@ new Vue({
         // 打赏相关
         showDonateModal: false,
         donate: {
-            text: '微信打赏！鼓励升级！',
+            text: '感谢你对FeHelper的认可和支持！',
             image: './donate.jpeg'
         },
 
@@ -72,6 +72,9 @@ new Vue({
         this.checkBrowserType();
         // 检查版本更新
         this.checkVersionUpdate();
+        
+        // 检查URL中是否有donate_from参数
+        this.checkDonateParam();
     },
 
     computed: {
@@ -716,8 +719,22 @@ new Vue({
                         if(pt > 100) {
                             clearInterval(ptInterval);
                             elProgress.textContent = ``;
+                            
+                            // 在进度条完成后显示安装成功的通知
+                            this.showInPageNotification({
+                                message: `${this.originalTools[toolKey].name} 安装成功！`,
+                                type: 'success',
+                                duration: 3000
+                            });
                         }
                     }, 100);
+                } else {
+                    // 如果没有进度条元素，直接显示通知
+                    this.showInPageNotification({
+                        message: `${this.originalTools[toolKey].name} 安装成功！`,
+                        type: 'success',
+                        duration: 3000
+                    });
                 }
                 
                 // 更新原始数据和当前活动数据
@@ -743,13 +760,6 @@ new Vue({
                     toolName: toolKey,
                     action: 'install',
                     showTips: true
-                });
-                
-                // 显示安装成功的通知
-                this.showInPageNotification({
-                    message: `${this.originalTools[toolKey].name} 安装成功！`,
-                    type: 'success',
-                    duration: 3000
                 });
                 
             } catch (error) {
@@ -1141,6 +1151,58 @@ new Vue({
                         body.classList.remove('dark-mode');
                     }
                 }, 1000);
+            }
+        },
+
+        // 检查URL中的donate_from参数并显示打赏弹窗
+        checkDonateParam() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const donateFrom = urlParams.get('donate_from');
+                
+                if (donateFrom) {
+                    console.log('检测到打赏来源参数:', donateFrom);
+                    
+                    // 记录打赏来源
+                    chrome.storage.local.set({
+                        'fehelper_donate_from': donateFrom,
+                        'fehelper_donate_time': Date.now()
+                    });
+                    
+                    // 等待工具数据加载完成
+                    this.$nextTick(() => {
+                        // 在所有工具中查找匹配项
+                        let matchedTool = null;
+                        
+                        // 首先尝试直接匹配工具key
+                        if (this.originalTools && this.originalTools[donateFrom]) {
+                            matchedTool = this.originalTools[donateFrom];
+                        } else if (this.originalTools) {
+                            // 如果没有直接匹配，尝试在所有工具中查找部分匹配
+                            for (const [key, tool] of Object.entries(this.originalTools)) {
+                                if (key.includes(donateFrom) || donateFrom.includes(key) ||
+                                    (tool.name && tool.name.includes(donateFrom)) || 
+                                    (donateFrom && donateFrom.includes(tool.name))) {
+                                    matchedTool = tool;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // 更新打赏文案
+                        if (matchedTool) {
+                            this.donate.text = `看起来【${matchedTool.name}】工具帮助到了你，感谢你的认可！`;
+                        } else {
+                            // 没有匹配到特定工具，使用通用文案
+                            this.donate.text = `感谢你对FeHelper的认可和支持！`;
+                        }
+                        
+                        // 显示打赏弹窗
+                        this.showDonateModal = true;
+                    });
+                }
+            } catch (error) {
+                console.error('处理打赏参数时出错:', error);
             }
         },
     },

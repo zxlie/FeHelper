@@ -248,6 +248,14 @@ let toolMap = {
             text: '图表制作工具'
         }]
     },
+    'svg-converter': {
+        name: 'SVG转为图片',
+        tips: '支持SVG文件转换为PNG、JPG、WEBP等格式，可自定义输出尺寸，支持文件拖放和URL导入',
+        menuConfig: [{
+            icon: '⇲',
+            text: 'SVG转图片工具'
+        }]
+    },
 };
 
 export default toolMap;
