@@ -704,7 +704,7 @@
 }
 
 .settings-body {
-    padding: 20px;
+    padding: 0 20px;
     overflow-y: auto;
     flex: 1;
     scrollbar-width: thin;
@@ -951,6 +951,9 @@
 }
 
 .nav-item {
+    position: relative;
+    transition: all 0.3s ease;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -958,7 +961,6 @@
     text-decoration: none;
     padding: 8px 15px;
     border-radius: 6px;
-    transition: all 0.3s ease;
     font-size: 14px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
     min-width: 100px;
@@ -966,9 +968,9 @@
 }
 
 .nav-item:hover {
-    background-color: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 0.1);
     transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     color: #fff;
     text-decoration: none;
 }
@@ -979,75 +981,106 @@
 }
 
 .nav-icon {
+    display: inline-block;
+    transition: all 0.3s ease;
     margin-right: 6px;
     font-size: 16px;
 }
 
-/* 设置按钮样式 */
-.settings-link {
-    position: relative;
-    overflow: hidden;
-    background-color: rgba(255, 255, 255, 0.15);
+.nav-item:hover .nav-icon {
+    transform: scale(1.2) rotate(10deg);
 }
 
-.settings-link .nav-icon {
-    transition: transform 0.5s ease;
+/* 波纹效果 */
+.nav-item::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.3);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
 }
 
-.settings-link:hover .nav-icon {
-    transform: rotate(180deg);
+.nav-item:hover::after {
+    animation: ripple 0.6s ease-out;
 }
 
-/* 打赏按钮样式 */
-.donate-link {
+/* 打赏鼓励按钮特殊效果 */
+.navbar-actions .donate-link {
     background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
     color: #333;
     position: relative;
     overflow: hidden;
 }
 
-.donate-link:hover {
-    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+.navbar-actions .donate-link:hover {
+    background: linear-gradient(45deg, #ff7675, #d63031);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 105, 97, 0.4);
+    color: #fff;
 }
 
-.donate-link .nav-icon {
+.navbar-actions .donate-link .nav-icon {
     color: #e74c3c;
-    animation: heartbeat 1.3s ease-in-out infinite;
+    font-size: 18px;
 }
 
-.donate-link:hover .nav-icon {
-    animation: heartbeat 0.6s ease-in-out infinite;
+.navbar-actions .donate-link:hover .nav-icon {
+    animation: heartbeat 1.2s infinite;
+    color: #fff;
 }
 
-/* 版本信息样式 */
-.version-info {
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.15);
-    padding: 8px 15px;
-    border-radius: 6px;
-    flex-wrap: wrap;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-/* 暗黑模式下导航栏样式 */
-.dark-mode .main-navbar {
-    background: linear-gradient(to right, #1a1a2e, #16213e);
-}
-
-/* 暗模式下的设置按钮样式 */
-.dark-mode .settings-link {
-    background-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.dark-mode .settings-link:hover {
+/* 设置按钮特殊效果 */
+.navbar-actions .settings-link {
+    position: relative;
+    overflow: hidden;
     background-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.dark-mode .settings-link::after {
-    background: rgba(255, 255, 255, 0.5);
+.navbar-actions .settings-link:hover {
+    background: linear-gradient(45deg, #74b9ff, #0984e3);
+}
+
+.navbar-actions .settings-link .nav-icon {
+    transition: transform 0.5s ease;
+}
+
+.navbar-actions .settings-link:hover .nav-icon {
+    animation: rotate 2s linear infinite;
+}
+
+/* 动画关键帧 */
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 1;
+    }
+    20% {
+        transform: scale(25, 25);
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(40, 40);
+    }
+}
+
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.3); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* 响应式调整 */
@@ -1416,7 +1449,7 @@
 }
 
 .donate-image {
-    max-width: 200px;
+    max-width: 250px;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     margin-bottom: 15px;
@@ -1526,4 +1559,35 @@
 
 .dark-mode .confirm-message {
     color: #ddd;
+}
+
+/* 暗黑模式下的导航栏按钮样式 */
+.dark-mode .navbar-actions .settings-link {
+    background-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .navbar-actions .settings-link:hover {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .navbar-actions .donate-link {
+    background: linear-gradient(135deg, #ff6b6b 0%, #f39c12 100%);
+    color: #fff;
+}
+
+.dark-mode .navbar-actions .donate-link:hover {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    color: #fff;
+}
+
+/* 暗黑模式下的波纹效果 */
+.dark-mode .navbar-actions .nav-item::after {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.dark-mode .navbar-actions .donate-link .nav-icon,
+.dark-mode .navbar-actions .settings-link .nav-icon {
+    color: #fff;
 }

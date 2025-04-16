@@ -8,11 +8,9 @@ const TOOL_CATEGORIES = [
     { key: 'encode', name: '编解码转换类', tools: ['en-decode', 'trans-radix', 'timestamp', 'trans-color'] },
     { key: 'image', name: '图像处理类', tools: ['qr-code', 'image-base64', 'screenshot', 'color-picker'] },
     { key: 'productivity', name: '效率工具类', tools: ['aiagent', 'sticky-notes', 'html2markdown', 'page-monkey'] },
-    { key: 'calculator', name: '计算工具类', tools: ['crontab', 'loan-rate', 'password'] }
+    { key: 'calculator', name: '计算工具类', tools: ['crontab', 'loan-rate', 'password'] },
+    { key: 'other', name: '其他工具', tools: [] }
 ];
-
-// 插件在Chrome商店中的ID
-const EXTENSION_ID = 'pkgccpejnmalmdinmhkkfafefagiiiad';
 
 // Vue实例
 new Vue({
@@ -116,7 +114,20 @@ new Vue({
                         acc.push(...category.tools);
                         return acc;
                     }, []);
-                    result.sort((a, b) => allTools.indexOf(a.key) - allTools.indexOf(b.key));
+                    
+                    result.sort((a, b) => {
+                        const indexA = allTools.indexOf(a.key);
+                        const indexB = allTools.indexOf(b.key);
+                        
+                        // 如果工具不在任何类别中，放到最后
+                        if (indexA === -1 && indexB === -1) {
+                            return a.key.localeCompare(b.key); // 字母顺序排序
+                        }
+                        if (indexA === -1) return 1;
+                        if (indexB === -1) return -1;
+                        
+                        return indexA - indexB;
+                    });
             }
 
             return result;
@@ -169,6 +180,9 @@ new Vue({
                 
                 // 初始化activeTools为所有工具
                 this.activeTools = { ...processedTools };
+                
+                // 更新"其他工具"类别
+                this.updateOtherCategory(Object.keys(processedTools));
 
                 // 默认选中第一个分类
                 if (TOOL_CATEGORIES.length > 0) {
@@ -178,6 +192,26 @@ new Vue({
                 console.error('初始化数据失败:', error);
             } finally {
                 this.loading = false;
+            }
+        },
+        
+        // 更新"其他工具"类别，将未分类的工具添加到此类别
+        updateOtherCategory(allToolKeys) {
+            // 获取所有已分类的工具
+            const categorizedTools = new Set();
+            TOOL_CATEGORIES.forEach(category => {
+                if (category.key !== 'other') {
+                    category.tools.forEach(tool => categorizedTools.add(tool));
+                }
+            });
+            
+            // 找出未分类的工具
+            const uncategorizedTools = allToolKeys.filter(key => !categorizedTools.has(key));
+            
+            // 更新"其他工具"类别
+            const otherCategory = TOOL_CATEGORIES.find(category => category.key === 'other');
+            if (otherCategory) {
+                otherCategory.tools = uncategorizedTools;
             }
         },
 
