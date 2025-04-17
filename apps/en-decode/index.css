@@ -1,55 +1,274 @@
 @import url("../static/css/bootstrap.min.css");
 
+/* 整体容器样式优化 */
+.mod-endecode {
+    padding: 15px;
+    background: linear-gradient(to bottom, #ffffff, #f8f9ff);
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 输入框样式优化 */
 #srcText {
     height: 100px;
+    border: 1px solid #e0e5ff;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+    resize: vertical;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
+
+#srcText:focus {
+    border-color: #4d89fe;
+    box-shadow: 0 0 0 3px rgba(77, 137, 254, 0.1);
+    outline: none;
+}
+
+/* 结果输出框样式优化 */
 #rstCode {
     height: 280px;
+    border: 1px solid #e0e5ff;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+    resize: vertical;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
-.ui-ml-05 {
-    margin-left: 5px;
+
+#rstCode:focus {
+    border-color: #4d89fe;
+    box-shadow: 0 0 0 3px rgba(77, 137, 254, 0.1);
+    outline: none;
 }
+
+/* 选项表格样式优化 */
+.x-opts {
+    width: 100%;
+    font-size: 14px;
+    margin: 12px 0;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.x-opts td {
+    padding: 10px;
+    vertical-align: middle;
+}
+
+.x-opts tr:first-child {
+    border-bottom: 1px solid #eef1ff;
+}
+
+td.td-label {
+    width: 66px;
+    color: #666;
+    font-weight: 500;
+    vertical-align: middle;
+}
+
+/* 单选框组样式优化 */
+.x-opts .radio {
+    margin: 4px 0;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+}
+
+.x-opts .radio label {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin: 0;
+    line-height: 1;
+}
+
+.x-opts .radio label:hover {
+    background-color: #f5f8ff;
+}
+
+.x-opts .radio input[type="radio"] {
+    margin: 0 4px 0 0;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+}
+
+/* 提示文字样式 */
 .x-ps {
-    color:#bbb;
+    color: #a0a8c3;
+    font-size: 12px;
+    margin-left: 4px;
+    display: inline-flex;
+    align-items: center;
 }
+
+/* 按钮组样式优化 */
+.x-btns {
+    margin-top: 15px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.x-btns .btn {
+    padding: 6px 16px;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    border: none;
+    font-weight: 500;
+    height: 32px;
+    line-height: 20px;
+}
+
+.x-btns .btn-success {
+    background: linear-gradient(135deg, #4d89fe, #3f6ad8);
+    box-shadow: 0 2px 6px rgba(77, 137, 254, 0.2);
+}
+
+.x-btns .btn-success:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(77, 137, 254, 0.3);
+}
+
+.x-btns .btn-warning {
+    background: linear-gradient(135deg, #ff9f43, #ff7a45);
+    box-shadow: 0 2px 6px rgba(255, 159, 67, 0.2);
+}
+
+.x-btns .btn-warning:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 159, 67, 0.3);
+}
+
+/* 结果区域样式优化 */
+#rst {
+    margin-top: 20px;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+#rst h5 {
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #eef1ff;
+    color: #333;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+/* URL解析结果样式优化 */
+.x-url-infos {
+    background: #f8f9ff;
+    border-radius: 8px;
+    padding: 15px;
+}
+
 .x-url-infos ul {
-    padding:0;
-    margin:0;
+    padding: 0;
+    margin: 0;
 }
+
 .x-url-infos ul li {
     list-style: none;
     font-size: 14px;
-    line-height: 24px;
-    padding:0;
-    margin:0;
+    line-height: 1.5;
+    padding: 6px 0;
+    margin: 0;
+    border-bottom: 1px dashed #e0e5ff;
+    display: flex;
+    align-items: center;
 }
+
+.x-url-infos ul li:last-child {
+    border-bottom: none;
+}
+
+.x-url-infos ul li b {
+    color: #666;
+    font-weight: 500;
+    min-width: 60px;
+    display: inline-block;
+}
+
 .x-url-infos table {
-    width:700px;
+    width: 100%;
+    margin-top: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #e0e5ff;
 }
-#rst h5 {
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
+
+.x-url-infos table th {
+    background: #f5f8ff;
+    padding: 10px 12px;
+    font-weight: 500;
+    color: #666;
 }
-.x-btns {
+
+.x-url-infos table td {
+    padding: 8px 12px;
+    border-top: 1px solid #eef1ff;
+    word-break: break-all;
+}
+
+/* 工具市场按钮样式（保持不变） */
+.panel-title>a.x-other-tools {
+    margin: 1px 0 0;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    -webkit-user-select: none;
+    user-select: none;
+    color: #333;
     float: right;
-    top: -6px;
+    background-color: #f5f8ff;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border: 1px solid #d0d9ff;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
     position: relative;
+    top: -6px;
 }
-.x-opts {
-    font-size: 14px;
+
+.panel-title>a.x-other-tools .icon-plus-circle {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background: url(../static/img/plus-circle.svg) no-repeat center center;
+    background-size: contain;
+    margin-right: 5px;
 }
-.x-opts .radio,
-.x-opts .checkbox{
-    margin-top:0;
-    margin-bottom: 0;
+
+.panel-title>a.x-other-tools .tool-market-badge {
+    display: inline-block;
+    background-color: #4d89fe;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 5px;
+    font-size: 12px;
+    font-weight: bold;
 }
-td.td-label {
-    width:60px;
-}
-.x-opts td {
-    padding:5px 0;
-    vertical-align: middle;
-}
-.x-opts tr:first-child {
-    border-bottom: 1px solid #eee;
+
+.panel-title>a.x-other-tools:hover {
+    color: #333;
+    background-color: #e6edff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
 }

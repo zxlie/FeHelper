@@ -119,6 +119,10 @@ new Vue({
 
         getResult: function () {
             this.$refs.rstCode.select();
+        },
+
+        openOptionsPage: function() {
+            chrome.runtime.openOptionsPage();
         }
     }
 });
