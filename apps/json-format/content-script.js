@@ -602,6 +602,7 @@ window.JsonAutoFormat = (() => {
                     thing:'inject-content-css',
                     tool: 'json-format'
                 });
+                cssInjected = true;
             }
 
             // JSON的所有key不能超过预设的值，比如 10000 个，要不然自动格式化会比较卡

@@ -5,6 +5,31 @@
 import Awesome from '../background/awesome.js'
 import MSG_TYPE from '../static/js/common.js';
 
+function triggerScreenshot() {
+    chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+        if (!tabs || !tabs.length || !tabs[0].id) return;
+        
+        const tabId = tabs[0].id;
+        
+        // 先尝试直接发送消息给content script
+        chrome.tabs.sendMessage(tabId, {
+            type: 'fh-screenshot-start'
+        }).then(response => {
+            console.log('截图工具触发成功');
+            window.close();
+        }).catch(error => {
+            console.log('无法直接触发截图工具，尝试使用noPage模式', error);
+            // 如果发送消息失败，使用noPage模式
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'trigger-screenshot',
+                tabId: tabId
+            });
+            window.close();
+        });
+    });
+}
+
 new Vue({
     el: '#pageContainer',
     data: {
@@ -25,7 +50,6 @@ new Vue({
     },
 
     mounted: function () {
-
         // 整个popup窗口支持上线选择
         document.body.addEventListener('keydown', e => {
             let keyCode = e.keyCode || e.which;
@@ -59,6 +83,20 @@ new Vue({
             }
 
         }, false);
+
+        // 查找截图按钮并绑定事件
+        const screenshotButtons = Array.from(document.querySelectorAll('a[data-tool="screenshot"], button[data-tool="screenshot"]'));
+        
+        screenshotButtons.forEach(button => {
+            // 移除原有的点击事件
+            const oldClick = button.onclick;
+            button.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                triggerScreenshot();
+                return false;
+            };
+        });
     },
 
     methods: {

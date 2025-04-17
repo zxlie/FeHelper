@@ -59,6 +59,7 @@
             "json-format/json-decode.js",
             "static/vendor/jquery/jquery-3.3.1.min.js",
             "static/vendor/evalCore.min.js",
+            "screenshot/content-script.js",
 
             "code-beautify/beautify.js",
             "code-beautify/beautify-css.js",

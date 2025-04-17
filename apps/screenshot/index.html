@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="index.css"/>
     <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+    <script type="text/javascript" src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
 </head>
 <body>
@@ -26,7 +27,8 @@
                 <input id="btnSave" class="btn btn-warning btn-sm ui-fl-r" type="button" value="保存图片到本地" @click="save">
             </h5>
             <div class="panel panel-default img-container" id="imageEditor">
-                <canvas :width="totalWidth" :height="totalHeight"></canvas>
+                <canvas id="fehelper_resultCanvas"></canvas>
+                <img id="fehelper_resultImg" style="display:none;">
             </div>
         </div>
     </div>

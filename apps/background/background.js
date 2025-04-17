@@ -272,11 +272,16 @@ let BgPageInstance = (function () {
 
     let _addScreenShotByPages = function(params,callback){
         chrome.tabs.captureVisibleTab(null, {format: 'png', quality: 100}, uri => {
-            callback({ params,uri });
+            callback({ params, uri });
         });
     };
 
     let _showScreenShotResult = function(data){
+        // 确保截图数据完整有效
+        if (!data || !data.screenshots || !data.screenshots.length) {
+            return;
+        }
+        
         chrome.DynamicToolRunner({
             tool: 'screenshot',
             withContent: data
@@ -316,7 +321,6 @@ let BgPageInstance = (function () {
         chrome.runtime.onMessage.addListener(function (request, sender, callback) {
             // 如果发生了错误，就啥都别干了
             if (chrome.runtime.lastError) {
-                console.log('chrome.runtime.lastError:',chrome.runtime.lastError);
                 return true;
             }
 
@@ -327,6 +331,10 @@ let BgPageInstance = (function () {
             }
             // 截屏
             else if (request.type === MSG_TYPE.CAPTURE_VISIBLE_PAGE) {
+                _captureVisibleTab(callback);
+            }
+            // 直接处理content-script.js中的截图请求
+            else if (request.type === 'fh-screenshot-capture-visible') {
                 _captureVisibleTab(callback);
             }
             // 打开动态工具页面
@@ -349,6 +357,17 @@ let BgPageInstance = (function () {
                             message: '配置修改已生效，请继续使用!',
                             autoClose: 2000
                         });
+                        break;
+                    case 'trigger-screenshot':
+                        // 处理从popup触发的截图请求
+                        if (request.tabId) {
+                            _triggerScreenshotTool(request.tabId);
+                        } else {
+                            chrome.DynamicToolRunner({
+                                tool: 'screenshot',
+                                noPage: true
+                            });
+                        }
                         break;
                     case 'request-jsonformat-options':
                         Awesome.StorageMgr.get(request.params).then(result => {
@@ -486,12 +505,46 @@ let BgPageInstance = (function () {
     let _init = function () {
         _checkUpdate();
         _addExtensionListener();
+        
+        // 添加截图工具直接命令 - 通过右键菜单触发
+        chrome.contextMenus.onClicked.addListener((info, tab) => {
+            if (info.menuItemId === 'fehelper-screenshot-page') {
+                _triggerScreenshotTool(tab.id);
+            }
+        });
+        
+        // 创建截图工具右键菜单
+        chrome.contextMenus.create({
+            id: 'fehelper-screenshot-page',
+            title: '网页截图',
+            contexts: ['page']
+        });
+        
         Menu.rebuild();
         // 定期清理冗余的垃圾
         setTimeout(() => {
             Awesome.gcLocalFiles();
         }, 1000 * 10);
     };
+
+    /**
+     * 触发截图工具的执行
+     * @param {number} tabId - 标签页ID
+     */
+    function _triggerScreenshotTool(tabId) {
+        // 先尝试直接发送消息给content script
+        chrome.tabs.sendMessage(tabId, {
+            type: 'fh-screenshot-start'
+        }).then(() => {
+            // 成功触发
+        }).catch(() => {
+            // 如果发送消息失败，使用noPage模式
+            chrome.DynamicToolRunner({
+                tool: 'screenshot',
+                noPage: true
+            });
+        });
+    }
 
     return {
         pageCapture: _captureVisibleTab,
