@@ -84,6 +84,9 @@ new Vue({
         }, false);
     },
     methods: {
+        openOptionsPage() {
+            chrome.runtime.openOptionsPage();
+        },
 
         _sizeFormat: function (num) {
             if (isNaN(num)) {

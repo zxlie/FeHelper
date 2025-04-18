@@ -1230,4 +1230,18 @@ new Vue({
             }
         }
     }
+});
+
+// 添加滚动事件监听
+window.addEventListener('scroll', () => {
+    const header = document.querySelector('.market-header');
+    const sidebar = document.querySelector('.market-sidebar');
+    
+    if (window.scrollY > 10) {
+        header.classList.add('scrolled');
+        sidebar && sidebar.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
+        sidebar && sidebar.classList.remove('scrolled');
+    }
 }); 

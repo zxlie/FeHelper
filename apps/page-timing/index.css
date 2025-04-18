@@ -1,35 +1,109 @@
 @import url("../static/css/bootstrap.min.css");
 
 body {
-    font-family: Tahoma, sans-serif;
-    font-size: 10pt;
-    color:#333;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    color: #2c3e50;
     margin: 0 auto;
+    background-color: #f5f7fa;
 }
-#loadTotal {
-    background:#f1f1f1;
-    font-weight:bold;
+
+.panel-body.mod-json {
+    padding: 20px;
 }
 
 #pageInfo {
-    padding: 10px 0;
-    line-height: 24px;
-    color: #800;
-    font-size: 14px;
+    padding: 15px 20px;
+    line-height: 1.6;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
 }
+
 #pageInfo span {
-    color: #888;
+    color: #5c6f8a;
     word-wrap: break-word;
+    font-size: 14px;
+    margin-left: 8px;
 }
+
+#pageLoadTime, #pageHeaderInfo {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
 #pageLoadTime {
-    width:300px;
-}
-#pageLoadTime,#pageHeaderInfo {
+    width: 48%;
     float: left;
 }
+
 #pageHeaderInfo {
-    margin-left: 50px;
+    width: 48%;
+    float: right;
+    margin-left: 0;
 }
+
 h3 {
-    color:#666;
+    color: #2c3e50;
+    font-size: 18px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.table > thead > tr > th {
+    background: #f8fafc;
+    color: #2c3e50;
+    font-weight: 600;
+    border-bottom: 2px solid #edf2f7;
+    padding: 12px 15px;
+}
+
+.table > tbody > tr > td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #edf2f7;
+    color: #4a5568;
+}
+
+.table > tbody > tr:last-child > td {
+    border-bottom: none;
+}
+
+.table-hover > tbody > tr:hover {
+    background-color: #f8fafc;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #f9fafb;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+    #pageLoadTime, #pageHeaderInfo {
+        width: 100%;
+        float: none;
+    }
+    
+    #pageHeaderInfo {
+        margin-left: 0;
+    }
+    
+    .table-responsive {
+        border: none;
+    }
+}
+
+/* 清除浮动 */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
 }

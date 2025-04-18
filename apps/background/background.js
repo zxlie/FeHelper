@@ -143,6 +143,11 @@ let BgPageInstance = (function () {
 
             activeTab = tabs.filter(tab => tab.active)[0];
 
+            // 如果是二维码工具，且没有传入内容，则使用当前页面的URL
+            if (tool === 'qr-code' && !withContent && activeTab) {
+                withContent = activeTab.url;
+            }
+
             Settings.getOptions((opts) => {
                 let isOpened = false;
                 let tabId;
