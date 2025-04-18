@@ -188,10 +188,8 @@ new Vue({
                 // 更新"其他工具"类别
                 this.updateOtherCategory(Object.keys(processedTools));
 
-                // 默认选中第一个分类
-                if (TOOL_CATEGORIES.length > 0) {
-                    this.currentCategory = TOOL_CATEGORIES[0].key;
-                }
+                // 默认选中"全部分类"
+                this.currentCategory = '';
             } catch (error) {
                 console.error('初始化数据失败:', error);
             } finally {

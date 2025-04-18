@@ -43,11 +43,11 @@ hr.x-hr  {
     font-size:12px;
 }
 
-
 .tips{
-    color:#aaa;
+    color: #666;
     margin: 10px 0;
-    font-size: 12px;
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 table {
@@ -58,65 +58,597 @@ td {
     width:50%;
     vertical-align: top;
 }
-td .x-panel {
-    height:460px;
-    background: #fff url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABLCAIAAAB7tddWAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoTWFjaW50b3NoKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo1Q0VBNzA0MjEyMDUxMUUzODk2Q0JFM0Q1RjE4QkExQyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo1Q0VBNzA0MzEyMDUxMUUzODk2Q0JFM0Q1RjE4QkExQyI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjAzNDA2MkY1MTIwMzExRTM4OTZDQkUzRDVGMThCQTFDIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjAzNDA2MkY2MTIwMzExRTM4OTZDQkUzRDVGMThCQTFDIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+K6izdgAAAk1JREFUeNrt2+uOgjAQhuG9/5tUPEs0nhU87hvNGoJY0C0yyNffBNuHdjpT8Oeidm0/IhCEIAQhCEEIQhCCEMT5fA6CoHVt7Xb7dDo1d0Yw/tZfE4QgBCEIQQjCHMThcBiPx51Op/XBljngl1pufvEaxH6//zCBUQjmwttd+SqI9rUJ4pK89XA4jKKoocEyCUG8aO6ukYSg5hOEIAQhCEH4gOCa+Xze7/e5vtvtTiaT4/HYOAj2116vl0psgiDYbrcGy7YSIQaDQWaSh0VJ88IixHK5dCS80+m0KRBhGDogWDIex8D8St7cVowYjUYOCGr5gr8YxzEhFjhiLUGXqfRY4JiGoPcOCMJH7m8xnmc3od5LVjqmIXa7nQOCPTX3HOy26TrK6tVqVQMIR5hgnrv7ysAe910HqHUILmBJp7pO7OBpe1G4tfV6bR3iHu0WiwWrfTab5aZSjMG9IjLXyGazqQHEq2eibxzD3V+FfwkEU8bLAWe9IVg1vk56awxB+ExN74ZCkCB5PPuvKwS5gN+XICYg6AQDI1lgv2TjzL2hOwGtKwQBj9KoeCpNj1PXfwMEWVNmt5gazxaRu1SvJYR7nRMLH4+kvIeG6iGKDInyIVliUCCU98a4GojiQ6IoIHeMoohFVOor9QogiPmVfCVgC4JnW8nXM+Ygytj5aglhtglCEIIQhCCMQFT1neVLh9qfeAlM+WQcgh5+AiKOY5vZ5H06FDkN8gBxO2gNw5C00s7UoCf0h1795xtY/e9TEIIQhCAEIQhBCEIQftovDwuUVV5nLjcAAAAASUVORK5CYII=) center 120px no-repeat;
-    border:4px dashed #ddd;
-    position: relative;
-    text-align: center;
-    margin-right: 10px;
+
+/* 现代化的内容区域样式 */
+.panel-body.mod-json {
+    padding: 30px;
+    background-color: #ffffff;
 }
-td .x-panel .x-tips {
-    position: absolute;
-    display: block;
+
+/* 输入区域样式 */
+.mod-textarea, #codeSource {
     width: 100%;
-    top: 320px;
-    color:#aaa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    font-size: 14px;
+    line-height: 1.6;
+    background: #fafafa;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.mod-textarea:focus, #codeSource:focus {
+    background: #ffffff;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74,144,226,0.2);
+    outline: none;
+}
+
+/* 操作区域样式 */
+.row.ui-mt-10 {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px !important;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* 输入框样式 */
+#opt_width, #opt_fc {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+    background: #ffffff;
+    transition: all 0.3s ease;
+}
+
+#opt_width:focus, #opt_fc:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74,144,226,0.2);
+    outline: none;
+}
+
+/* 单选框组样式 */
+.radio label {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 15px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+}
+
+.radio input[type="radio"] {
+    margin-right: 4px;
+    position: relative;
+    top: -2px;
+}
+
+/* Style for the hint text to ensure its alignment */
+.hint-text {
+    font-size: 12px;
+    color: #666;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 5px;
+}
+
+/* If the '图标:' text is outside the label, ensure it's also aligned */
+.x-icons {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* 生成按钮样式 */
+.btn-success {
+    background: #4a90e2;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(74,144,226,0.2);
+}
+
+.btn-success:hover {
+    background: #357abd;
+    box-shadow: 0 4px 8px rgba(74,144,226,0.3);
+    transform: translateY(-1px);
+}
+
+/* 结果预览区域 */
+#preview {
+    margin-top: 25px;
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* 解码模式样式 */
+td .x-panel {
+    height: 460px;
+    background: #ffffff;
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-right: 15px;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+td .x-panel:hover {
+    border-color: #4a90e2;
+    background: #f8f9fa;
+}
+
+td .x-panel .x-tips {
+    margin-top: 20px;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+#upload {
+    background: #4a90e2;
+    border-radius: 6px;
+    padding: 12px 24px;
+    font-size: 15px;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(74,144,226,0.2);
+}
+
+#upload:hover {
+    background: #357abd;
+    box-shadow: 0 4px 8px rgba(74,144,226,0.3);
+    transform: translateY(-1px);
+}
+
+#decodePreview {
+    max-width: 100%;
+    max-height: 300px;
+    margin: 15px 0;
+    border-radius: 4px;
+    object-fit: contain;
+}
+
+#decodeResult {
+    height: 460px;
+    padding: 15px;
+    background: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: none;
+    transition: all 0.3s ease;
+}
+
+#decodeResult:focus {
+    background: #ffffff;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74,144,226,0.2);
+    outline: none;
+}
+
+/* 保持原有的顶部导航样式 */
+.x-switch {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2563eb;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    margin-left: 70px;
+    white-space: nowrap;
+    margin-right: auto;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background-color: #eff6ff;
+    transition: all 0.2s ease;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
+}
+
+.x-switch::before {
+    content: '';
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+    background: url('../static/img/switch-mode.svg') no-repeat center center;
+    background-size: contain;
+    opacity: 0.8;
+    transition: transform 0.3s ease;
+}
+
+.x-switch:hover {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    text-decoration: none;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
+    transform: translateY(-1px);
+}
+
+.x-switch:hover::before {
+    transform: rotate(180deg);
+    opacity: 1;
+}
+
+form {
+    display: none;
+}
+
+/* 三栏布局样式 */
+.qr-layout {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    min-height: 500px;
+}
+
+.qr-left, .qr-center, .qr-right {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.qr-left {
+    flex: 1.5;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+}
+
+.qr-center {
+    flex: 1;
+}
+
+.qr-right {
+    flex: 1.5;
+    background-color: #f8f9fa;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-action {
+    background-color: #e9ecef;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 12px;
+    color: #495057;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-action:hover {
+    background-color: #ced4da;
+    color: #212529;
+}
+
+/* Style for successful copy */
+.btn-action-success {
+    background-color: #28a745 !important; /* Green background */
+    color: #fff !important; /* White text */
+}
+
+/* 控制面板样式 */
+.control-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.control-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.control-item label {
+    min-width: 50px;
+    color: #666;
+}
+
+/* 输入框样式优化 */
+.mod-textarea {
+    flex: 1;
+    min-height: 200px;
+    margin: 0;
+    resize: none;
+}
+
+/* 输入框样式 */
+#opt_width, #opt_fc {
+    flex: 1;
+    max-width: 120px;
+    height: 36px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+    background: #ffffff;
+    transition: all 0.3s ease;
+}
+
+/* 按钮容器样式 */
+.control-item:last-child {
+    margin-top: 20px;
+    justify-content: center;
+}
+
+/* 预览区域样式 */
+#preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 260px;
+    background: #fafafa;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+/* 确保图标选择区域样式正确 */
+.x-icons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.radio label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.hint-text {
+    color: #666;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+/* 解码器布局样式 */
+.qr-decoder-layout {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    min-height: 500px;
+}
+
+.decoder-left, .decoder-right {
+    flex: 1;
+    background: #f8f9fa; /* Consistent background */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.decoder-right {
+     background: #fff; /* Keep right panel white or match left */
+}
+
+/* 上传面板样式 */
+.upload-panel {
+    flex: 1;
+    min-height: 300px;
+    background: #fff;
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
 }
-.tips i{
-    color: #454545;
+
+.upload-panel:hover {
+    border-color: #4a90e2;
+    background: #fdfdfd;
 }
+
+.upload-instructions {
+    margin-top: 20px;
+}
+
+.drag-drop-text {
+    display: block;
+    margin-top: 10px;
+    color: #666;
+    font-size: 14px;
+}
+
+/* 上传按钮 (#upload) 使用之前的现代样式 */
 #upload {
-    font-size: 20px;
-    background: #00b7ee;
-    border-radius: 3px;
-    line-height: 44px;
-    height: 45px;
-    padding: 0 30px;
+    background: #4a90e2;
+    border-radius: 6px;
+    padding: 12px 24px;
+    font-size: 15px;
     color: #fff;
-    display: inline-block;
-    margin: 5px auto 15px;
-    cursor: pointer;
-    box-shadow: 0 1px 1px rgba(0,0,0,.1);
     text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(74,144,226,0.2);
+    border: none;
+    display: inline-block;
+    cursor: pointer;
 }
 #upload:hover {
-    background: #00a2d4;
+    background: #357abd;
+    box-shadow: 0 4px 8px rgba(74,144,226,0.3);
+    transform: translateY(-1px);
 }
-#decodePreview {max-width: 260px;max-height: 260px;margin-top:10px;}
-form {display: none}
+
+/* 预览图片样式 */
+#decodePreview {
+    max-width: 100%;
+    max-height: 250px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    object-fit: contain;
+}
+
+/* 解码结果文本域 (#decodeResult) 使用之前的 .mod-textarea 样式 */
 #decodeResult {
-    height:460px;
-    padding:4px;
-    margin:0;
-    resize:none;outline:none;
-    background: #fcfcfc;
-    border:1px solid #ddd;
+    flex: 1;
+    /* Inherits styles from .mod-textarea */
+    min-height: 300px; /* Ensure it takes available space */
+    margin: 0; /* Reset margin */
 }
+
+/* 解码提示文字样式 */
+.decoder-tips {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+}
+
+.decoder-tips i {
+    font-style: normal;
+    color: #333;
+    font-weight: 500;
+}
+
+/* --- Top Navigation Bar --- */
+.panel-heading {
+    padding: 10px 20px; /* Increased padding for more space */
+    background-color: #ffffff; /* Keep white or use a very light grey like #f8f9fa */
+    border-bottom: 1px solid #dee2e6; /* Lighter, softer border color */
+}
+
+.panel-title {
+    font-size: 16px;
+    font-weight: 600; /* Slightly bolder title */
+    display: flex;
+    align-items: center;
+    color: #212529; /* Darker text color */
+}
+
+.title-text-wrapper {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.panel-title .x-a-high {
+    color: #212529; /* Match title color */
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 600; /* Match title weight */
+}
+
+.panel-title .x-a-high img {
+    vertical-align: middle;
+    margin-right: 6px; /* Slightly more space */
+    height: 18px;
+}
+
+/* Style for the mode switch button */
 .x-switch {
-    margin-left: 30px;
-    font-size: 12px;
-    color: blue;
+    font-size: 13px;
+    color: #007bff; /* Standard blue */
     cursor: pointer;
-    text-decoration: underline;
+    text-decoration: none;
+    border-bottom: none;
+    font-weight: 500;
+    margin-left: 70px;
+    white-space: nowrap;
+    margin-right: auto;
+    padding: 4px 8px; /* Add some padding */
+    border-radius: 4px; /* Rounded corners */
+    transition: background-color 0.2s ease, color 0.2s ease; /* Smooth transition */
+}
+
+.x-switch:hover {
+    background-color: #e9ecef; /* Subtle background on hover */
+    color: #0056b3; /* Darker blue on hover */
+    text-decoration: none; /* Remove underline on hover */
+}
+
+/* Style for the "Explore More Tools" button */
+.panel-title>a.x-other-tools {
+    margin: 0; /* Reset margin */
+    font-size: 12px; /* Slightly smaller */
+    cursor: pointer;
+    text-decoration: none;
     -webkit-user-select: none;
     user-select: none;
+    color: #495057; /* Grey text */
+    background-color: #f8f9fa; /* Light grey background */
+    padding: 6px 12px; /* Adjusted padding */
+    border-radius: 6px; /* Standard rounded corners */
+    border: 1px solid #dee2e6; /* Match border color */
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
 }
-.x-switch:hover {
-    color: #cc8841;
+
+.panel-title>a.x-other-tools .icon-plus-circle {
+    display: inline-block;
+    width: 14px; /* Slightly smaller icon */
+    height: 14px;
+    background: url(../static/img/plus-circle.svg) no-repeat center center;
+    background-size: contain;
+    margin-right: 4px;
 }
-.x-switch {
-    color:#f00;
-    border-bottom: 1px solid #f00;
+
+.panel-title>a.x-other-tools .tool-market-badge {
+    display: inline-block;
+    background-color: #007bff; /* Match theme blue */
+    color: white;
+    padding: 2px 7px;
+    border-radius: 4px; /* Slightly less round */
+    margin-left: 6px;
+    font-size: 11px; /* Smaller badge text */
+    font-weight: 500;
+}
+
+.panel-title>a.x-other-tools:hover {
+    color: #212529;
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transform: none; /* Remove translateY */
+}
+.title-text-wrapper-text {
+    margin-left: 10px;
+    position: relative;
+    top: -4px;
+    font-weight: normal;
 }

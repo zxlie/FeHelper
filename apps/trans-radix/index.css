@@ -1,39 +1,148 @@
 @import url("../static/css/bootstrap.min.css");
 
+/* 全局样式 */
+.panel-body {
+    background: #f8f9fa;
+    color: #2c3e50;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    margin-top: -1px;
+}
+
+/* 代码提示样式 */
+.row.x-tips {
+    font-family: 'Consolas', monospace;
+    font-size: 14px;
+    color: #6c757d;
+    font-style: italic;
+    margin-bottom: 30px;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 6px;
+    border-left: 4px solid #3498db;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* 单选按钮组样式 */
 .mod-radios {
     font-size: 14px;
+    background: #ffffff;
+    padding: 15px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
-.mod-value label{
-    margin-right: 0;
-    font-size: 16px;
+
+/* 单选按钮和标签样式 */
+.mod-radios input[type="radio"] {
+    display: none;
 }
+
+.mod-radios label {
+    margin-right: 15px;
+    font-weight: normal;
+    font-size: 14px;
+    padding: 6px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.mod-radios input[type="radio"]:checked + label {
+    background: #3498db;
+    color: #fff;
+    border-color: #3498db;
+}
+
+.mod-radios label:hover {
+    border-color: #3498db;
+    color: #3498db;
+}
+
+/* 输入框组样式 */
+.mod-value {
+    margin: 20px 0;
+}
+
+.mod-value label {
+    margin-right: 15px;
+    font-size: 15px;
+    color: #2c3e50;
+}
+
 .mod-value .x-input {
     display: inline-block;
     width: 400px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    color: #2c3e50;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
 }
+
+.mod-value .x-input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    outline: none;
+}
+
+/* 下拉选择框样式 */
 select.x-select {
     display: inline-block;
     width: 114px;
-}
-.radix-tips {
-    margin-left: 220px;
-    font-size: 14px;
-    letter-spacing: 3px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    color: #2c3e50;
+    padding: 8px;
+    border-radius: 6px;
     cursor: pointer;
-    user-select: none;
-}
-.radix-tips:hover {
-    color: #0000ffcc;
+    transition: all 0.2s ease;
 }
 
-.row.x-tips {
-    font-size: 14px;
-    color: #aaa;
-    font-style: italic;
-    margin-bottom: 40px;
+select.x-select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    outline: none;
 }
-label {
-    margin-right: 20px;
-    font-weight: normal;
-    font-size: 14px;
+
+/* 交换按钮样式 */
+.radix-tips {
+    display: inline-block;
+    margin: 20px 0 20px 220px;
+    font-size: 15px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    user-select: none;
+    padding: 8px 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    color: #666;
+    background: #ffffff;
+}
+
+.radix-tips:hover {
+    background: #3498db;
+    color: #ffffff;
+    border-color: #3498db;
+    box-shadow: 0 2px 6px rgba(52, 152, 219, 0.2);
+}
+
+/* 禁用状态的输入框样式 */
+.x-input[readonly] {
+    background: #f8f9fa;
+    color: #495057;
+    cursor: not-allowed;
+}
+
+/* 添加柔和的过渡动画 */
+.panel-body * {
+    transition: all 0.2s ease;
+}
+#pageContainer>.panel-body {
+    margin-top: 20px;
 }
