@@ -4,6 +4,8 @@
     <title>颜色转换工具</title>
     <meta charset="UTF-8">
     <link rel="shortcut icon" href="../static/img/favicon.ico">
+    <!-- Remove Color Picker CSS -->
+    <!-- <link rel="stylesheet" href="../static/vendor/a-color-picker/acolorpicker.min.css"> -->
     <link rel="stylesheet" href="index.css" />
     <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
@@ -18,39 +20,144 @@
                     <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：颜色转换工具</h3>
         </div>
     </div>
-    <div class="panel-body">
+    <div class="panel-body"> <!-- Remove main-content-area -->
+        <!-- Remove colorPickerContainer -->
+
         <div class="row x-tips ui-mt-10">
-            // 支持颜色值的RGB（RGBA）与十六进制（HEX）色值之间的互转，eg：<br>
-            1、#43ad7f7f  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  =>  &nbsp;&nbsp;&nbsp;  rgba(67, 173, 127, 0.50) <br>
-            2、rgb(190,20,128)  &nbsp;&nbsp;  =>  &nbsp;&nbsp;&nbsp;  #be1480
+             // 支持颜色值的RGB/RGBA、HEX、HSL/HSLA、HSV/HSVA互转。
         </div>
 
-        <div class="row">
-            <h4>HEX转RGB：</h4>
-            <label for="fromHEX">HEX</label>
-            <input type="text" class="form-control col-input ui-mr-10" id="fromHEX" placeholder="如:#F2C685"
-                   maxlength="9" v-model="fromHEX" @input="colorHexToRgb">
-            <label>预览</label><div class="demo-color" :style="{background:fromHEX}">&nbsp;</div>
+        <!-- Move Alpha Slider Row to the top -->
+        <div class="row ui-mt-20 alpha-slider-row global-alpha-slider">
+            <label for="alphaSlider">全局透明度 (Alpha):</label>
+            <input type="range" id="alphaSlider" class="alpha-slider" min="0" max="100" step="1" v-model.number="alphaPercent" @input="updateAlphaFromSlider">
+            <span class="alpha-value">{{ (alphaPercent / 100).toFixed(2).replace(/\.0+$/,'') }}</span>
+       </div>
 
-            <label for="toRGB" class="x-xlabel">RGB</label>
-            <input type="text" class="form-control col-input" id="toRGB" readonly v-model="toRGB">
-            <label>预览</label><div class="demo-color" :style="{background:toRGB}">&nbsp;</div>
+        <!-- Reintroduce modules grid -->
+        <div class="modules-grid ui-mt-20">
+            <!-- HEX Module -->
+            <div class="color-module module-hex">
+                <h4>HEX 输入</h4>
+                <div class="input-group primary-input">
+                    <label for="fromHEX">HEX</label>
+                    <input type="text" class="form-control col-input" id="fromHEX" placeholder="如: #F2C68580"
+                           maxlength="9" v-model="fromHEX" @input="updateFromHEX">
+                    <label>预览</label><div class="demo-color" :style="{background: safeBgColor(fromHEX)}">&nbsp;</div>
+                </div>
+                <h5>输出:</h5>
+                <div class="output-group">
+                    <label>RGB</label>
+                    <input type="text" class="form-control col-output" readonly :value="toRGB">
+                    <button class="btn-copy" title="复制" @click="copyToClipboard(toRGB)"> C </button>
+                </div>
+                <div class="output-group">
+                    <label>HSL</label>
+                    <input type="text" class="form-control col-output" readonly :value="toHSL">
+                    <button class="btn-copy" title="复制" @click="copyToClipboard(toHSL)"> C </button>
+                </div>
+                <div class="output-group">
+                    <label>HSV</label>
+                    <input type="text" class="form-control col-output" readonly :value="toHSV">
+                    <button class="btn-copy" title="复制" @click="copyToClipboard(toHSV)"> C </button>
+                </div>
+            </div>
+
+            <!-- RGB Module -->
+            <div class="color-module module-rgb">
+                <h4>RGB 输入</h4>
+                <div class="input-group primary-input">
+                    <label for="fromRGB">RGB</label>
+                    <input type="text" class="form-control col-input" id="fromRGB" placeholder="如: rgba(67,173,127,0.5)"
+                           maxlength="35" v-model="fromRGB" @input="updateFromRGB">
+                     <label>预览</label><div class="demo-color" :style="{background: safeBgColor(fromRGB)}">&nbsp;</div>
+                </div>
+                 <h5>输出:</h5>
+                 <div class="output-group">
+                     <label>HEX</label>
+                     <input type="text" class="form-control col-output" readonly :value="toHEX">
+                     <button class="btn-copy" title="复制" @click="copyToClipboard(toHEX)"> C </button>
+                 </div>
+                 <div class="output-group">
+                     <label>HSL</label>
+                     <input type="text" class="form-control col-output" readonly :value="toHSL">
+                     <button class="btn-copy" title="复制" @click="copyToClipboard(toHSL)"> C </button>
+                 </div>
+                 <div class="output-group">
+                     <label>HSV</label>
+                     <input type="text" class="form-control col-output" readonly :value="toHSV">
+                     <button class="btn-copy" title="复制" @click="copyToClipboard(toHSV)"> C </button>
+                 </div>
+            </div>
+
+            <!-- HSL Module -->
+            <div class="color-module module-hsl">
+                 <h4>HSL 输入</h4>
+                 <div class="input-group primary-input">
+                     <label for="fromHSL">HSL</label>
+                     <input type="text" class="form-control col-input" id="fromHSL" placeholder="如: hsla(154, 44%, 47%, 0.5)"
+                            maxlength="45" v-model="fromHSL" @input="updateFromHSL">
+                     <label>预览</label><div class="demo-color" :style="{background: safeBgColor(fromHSL)}">&nbsp;</div>
+                 </div>
+                 <h5>输出:</h5>
+                  <div class="output-group">
+                      <label>HEX</label>
+                      <input type="text" class="form-control col-output" readonly :value="toHEX">
+                      <button class="btn-copy" title="复制" @click="copyToClipboard(toHEX)"> C </button>
+                  </div>
+                  <div class="output-group">
+                      <label>RGB</label>
+                      <input type="text" class="form-control col-output" readonly :value="toRGB">
+                      <button class="btn-copy" title="复制" @click="copyToClipboard(toRGB)"> C </button>
+                  </div>
+                  <div class="output-group">
+                      <label>HSV</label>
+                      <input type="text" class="form-control col-output" readonly :value="toHSV">
+                      <button class="btn-copy" title="复制" @click="copyToClipboard(toHSV)"> C </button>
+                  </div>
+            </div>
+
+            <!-- HSV Module -->
+             <div class="color-module module-hsv">
+                 <h4>HSV 输入</h4>
+                 <div class="input-group primary-input">
+                     <label for="fromHSV">HSV</label>
+                     <input type="text" class="form-control col-input" id="fromHSV" placeholder="如: hsva(154, 61%, 68%, 0.5)"
+                            maxlength="45" v-model="fromHSV" @input="updateFromHSV">
+                     <label>预览</label><div class="demo-color" :style="{background: safeBgColor(fromHSV)}">&nbsp;</div>
+                 </div>
+                  <h5>输出:</h5>
+                  <div class="output-group">
+                      <label>HEX</label>
+                      <input type="text" class="form-control col-output" readonly :value="toHEX">
+                      <button class="btn-copy" title="复制" @click="copyToClipboard(toHEX)"> C </button>
+                  </div>
+                  <div class="output-group">
+                      <label>RGB</label>
+                      <input type="text" class="form-control col-output" readonly :value="toRGB">
+                      <button class="btn-copy" title="复制" @click="copyToClipboard(toRGB)"> C </button>
+                  </div>
+                  <div class="output-group">
+                      <label>HSL</label>
+                      <input type="text" class="form-control col-output" readonly :value="toHSL">
+                      <button class="btn-copy" title="复制" @click="copyToClipboard(toHSL)"> C </button>
+                  </div>
+             </div>
+        </div> <!-- Close .modules-grid -->
+
+        <!-- Remove Alpha slider from here -->
+        <!--
+        <div class="row ui-mt-20 alpha-slider-row">
+             <label for="alphaSlider">透明度 (Alpha):</label>
+             <input type="range" id="alphaSlider" class="alpha-slider" min="0" max="100" step="1" v-model.number="alphaPercent" @input="updateAlphaFromSlider">
+             <span class="alpha-value">{{ (alphaPercent / 100).toFixed(2).replace(/\.0+$/,'') }}</span>
         </div>
-
-        <div class="row ui-mt-20">
-            <h4>RGB转HEX：</h4>
-            <label for="fromRGB">RGB</label>
-            <input type="text" class="form-control col-input ui-mr-10" id="fromRGB" placeholder="如:rgb(200,100,255)"
-                   maxlength="25" v-model="fromRGB" @input="colorRgbToHex">
-            <label>预览</label><div class="demo-color" :style="{background:fromRGB}">&nbsp;</div>
-
-            <label for="toHEX" class="x-xlabel">HEX</label>
-            <input type="text" class="form-control col-input" id="toHEX" readonly v-model="toHEX">
-            <label>预览</label><div class="demo-color" :style="{background:toHEX}">&nbsp;</div>
-        </div>
+        -->
     </div>
 </div>
 <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+<!-- Remove Color Picker JS -->
+<!-- <script src="../static/vendor/a-color-picker/acolorpicker.js"></script> -->
 <script type="text/javascript" src="index.js"></script>
 </body>
 </html>
