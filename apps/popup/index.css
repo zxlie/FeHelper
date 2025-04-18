@@ -37,7 +37,7 @@ ul.fe-function-list {
 }
 
 ul.fe-function-list li {
-    padding: 2px 16px 2px 40px;
+    padding: 2px 10px 2px 38px;
     cursor: pointer;
     color: #4a4c6d;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);

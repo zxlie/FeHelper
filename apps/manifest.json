@@ -88,7 +88,7 @@
     }
   ],
   "content_security_policy": {
-      "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'self'"
+    "extension_pages": "script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; object-src 'self'"
   },
   "update_url": "https://clients2.google.com/service/update2/crx",
   "homepage_url": "https://www.baidufe.com/fehelper"

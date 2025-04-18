@@ -127,11 +127,11 @@ let toolMap = {
         }]
     },
     'regexp': {
-        name: 'JS正则表达式',
-        tips: '正则校验工具，默认提供一些工作中常用的正则表达式，支持内容实时匹配并高亮显示结果',
+        name: '正则公式速查',
+        tips: '支持 JavaScript / Python / PHP / Java 等语言的正则速查，包含验证类、提取类、替换类、格式化类、特殊字符类、编程相关等常用正则表达式',
         menuConfig: [{
             icon: '✙',
-            text: 'JS正则表达式'
+            text: '正则公式速查'
         }]
     },
     'trans-radix': {

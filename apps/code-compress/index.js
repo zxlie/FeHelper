@@ -155,6 +155,14 @@ new Vue({
             document.body.removeChild(input);
 
             this.toast('压缩结果已复制成功，随处粘贴可用！');
+        },
+        loadExample(type,event) {
+            if(event){
+                event.preventDefault();
+            }
+            this.codeType = type;
+            editor.setValue(EXAMPLES[type]);
+            this.changeCodeType(type);
         }
     }
 });

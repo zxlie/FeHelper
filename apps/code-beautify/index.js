@@ -7,7 +7,14 @@ new Vue({
         selectedType: 'Javascript',
         sourceContent: '',
         resultContent: '',
-        showCopyBtn: false
+        showCopyBtn: false,
+        examples: {
+            js: `function foo(){var x=10;if(x>5){return x*2;}else{return x/2;}}`,
+            css: `.header{position:fixed;top:0;left:0;width:100%;background:#fff;z-index:100;}.header .logo{float:left;margin:10px;}.header .nav{float:right;}`,
+            html: `<div class="container"><div class="header"><h1>标题</h1><nav><ul><li><a href="#">首页</a></li><li><a href="#">关于</a></li></ul></nav></div><div class="content"><p>内容区域</p></div></div>`,
+            xml: `<?xml version="1.0" encoding="UTF-8"?><root><person><name>张三</name><age>25</age><city>北京</city></person><person><name>李四</name><age>30</age><city>上海</city></person></root>`,
+            sql: `SELECT u.name,o.order_id,p.product_name FROM users u LEFT JOIN orders o ON u.id=o.user_id LEFT JOIN products p ON o.product_id=p.id WHERE u.status='active' AND o.create_time>='2024-01-01' ORDER BY o.create_time DESC;`
+        }
     },
 
     mounted: function () {
@@ -79,7 +86,7 @@ new Vue({
                     css_beautify(this.sourceContent, {}, result => beauty(result));
                     break;
                 case 'HTML':
-                    beauty(html_beautify(this.sourceContent,{indent_size:15}));
+                    beauty(html_beautify(this.sourceContent,{indent_size:4}));
                     break;
                 case 'SQL':
                     beauty(vkbeautify.sql(this.sourceContent, 4));
@@ -131,6 +138,25 @@ new Vue({
             window.feHelperAlertMsgTid = window.setTimeout(function () {
                 elAlertMsg.style.display = 'none';
             }, 3000);
+        },
+
+        loadExample(type,event) {
+            if(event){
+                event.preventDefault();
+            }
+            const typeMap = {
+                'js': 'Javascript',
+                'css': 'CSS',
+                'html': 'HTML',
+                'xml': 'XML',
+                'sql': 'SQL'
+            };
+            
+            this.sourceContent = this.examples[type];
+            this.selectedType = typeMap[type];
+            this.$nextTick(() => {
+                this.format();
+            });
         }
     }
 });
