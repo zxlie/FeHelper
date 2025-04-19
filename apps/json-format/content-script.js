@@ -89,6 +89,21 @@ window.JsonAutoFormat = (() => {
     };
 
     let _getHtmlFragment = () => {
+
+        // 判断当前地区是否在美国
+        const isInUSA = () => {
+            // 通过时区判断是否在美国
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const isUSTimeZone = /^America\/(New_York|Chicago|Denver|Los_Angeles|Anchorage|Honolulu)/.test(timeZone);
+
+            // 通过语言判断
+            const language = navigator.language || navigator.userLanguage;
+            const isUSLanguage = language.toLowerCase().indexOf('en-us') > -1;
+
+            // 如果时区和语言都符合美国特征,则认为在美国
+            return (isUSTimeZone && isUSLanguage);
+        };
+
         return [
             '<div id="jfToolbar" class="x-toolbar" style="display:none">' +
             '    <a href="https://www.baidufe.com/fehelper/index.html" target="_blank" class="x-a-title">' +
@@ -107,6 +122,7 @@ window.JsonAutoFormat = (() => {
             '       <span class="x-settings"><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" width="14">' +
             '           <path fill-rule="evenodd" d="M14 8.77v-1.6l-1.94-.64-.45-1.09.88-1.84-1.13-1.13-1.81.91-1.09-.45-.69-1.92h-1.6l-.63 1.94-1.11.45-1.84-.88-1.13 1.13.91 1.81-.45 1.09L0 7.23v1.59l1.94.64.45 1.09-.88 1.84 1.13 1.13 1.81-.91 1.09.45.69 1.92h1.59l.63-1.94 1.11-.45 1.84.88 1.13-1.13-.92-1.81.47-1.09L14 8.75v.02zM7 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"></path>' +
             '       </svg>高级定制</span>' +
+            '       <a class="x-other-tools' + (isInUSA() ? ' x-other-tools-us' : '') + '" style="cursor:pointer"><i class="icon-plus-circle">+</i>探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>' +
             '       <a id="toggleBtn" title="展开或收起工具栏">隐藏&gt;&gt;</a>' +
             '    </span>' +
             '</div>',
@@ -219,6 +235,7 @@ window.JsonAutoFormat = (() => {
                     elBody.addClass('remove-quote');
                 }
             });
+
         } else if (sPanel[0].offsetHeight) {
             return sPanel.hide();
         } else {
@@ -310,6 +327,13 @@ window.JsonAutoFormat = (() => {
                     tgBtn.html('&lt;&lt;');
                 }
                 $('#jfToolbar input[name="alwaysShowToolbar"]').prop('checked', show);
+            });
+        });
+        
+        $('.fe-feedback .x-other-tools').on('click', function (e) {
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-options-page'
             });
         });
 
@@ -639,23 +663,6 @@ window.JsonAutoFormat = (() => {
         let source = _getJsonText();
         if (source) {
             _formatTheSource(source);
-        }else{
-            // 原计划，是兜底走fetch的方式，再尝试做一次格式化，但是这里会有很多corner Case我没法回归，所以注释掉
-            // fetch(location.href)
-            // .then(response => response.text())
-            // .then(html => {
-            //     // 使用 DOMParser 解析 HTML
-            //     const parser = new DOMParser();
-            //     const doc = parser.parseFromString(html, "text/html");
-
-            //     // 移除不需要的标签
-            //     doc.querySelectorAll('style, script').forEach(el => el.remove());
-            //     const text = _getJsonContentFromDOM(doc.body);
-            //     if(text){
-            //         _formatTheSource(text);
-            //     }
-            // })
-            // .catch();
         }
     };
 

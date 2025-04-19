@@ -437,6 +437,9 @@ let BgPageInstance = (function () {
                     case 'inject-content-css':
                         _injectContentCss(sender.tab.id,request.tool,!!request.devTool);
                         break;
+                    case 'open-options-page':
+                        chrome.runtime.openOptionsPage();
+                        break;
                 }
                 callback && callback(request.params);
             } else {

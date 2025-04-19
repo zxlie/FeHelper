@@ -290,7 +290,7 @@ html.fh-jf .x-toolbar {
     border-radius: 4px;
     -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
     box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
-    padding: 5px 15px;
+    padding: 10px 15px;
     position: sticky;
     top: 0;
     z-index: 10000;
@@ -561,6 +561,58 @@ html.fh-jf svg:not(:root) {
 .t-collapse .mod-setting-panel {
     position: fixed;
     right: 8px;
+}
+
+.fe-feedback>a.x-other-tools {
+    margin: 1px 0 0;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    -webkit-user-select: none;
+    user-select: none;
+    color: #333;
+    float: right;
+    background-color: #f5f8ff;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border: 1px solid #d0d9ff;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    position: relative;
+    top: -8px;
+    right: -10px;
+}
+.fe-feedback>a.x-other-tools-us {
+    display: none;
+}
+
+.fe-feedback>a.x-other-tools .icon-plus-circle {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-size: contain;
+    font-size: 16px;
+    font-style: normal;
+    line-height: 14px;
+    margin-right: 0px;
+}
+
+.fe-feedback>a.x-other-tools .tool-market-badge {
+    display: inline-block;
+    background-color: #4d89fe;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 5px;
+    font-size: 12px;
+    font-weight: bold;
+}
+.fe-feedback>a.x-other-tools:hover {
+    color: #333;
+    background-color: #e6edff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
 }
 
 /*================ 皮肤：theme-default ===================*/
