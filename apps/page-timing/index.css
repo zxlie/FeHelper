@@ -2,108 +2,390 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-size: 14px;
+    font-size: 13px;
     color: #2c3e50;
     margin: 0 auto;
     background-color: #f5f7fa;
 }
 
 .panel-body.mod-json {
-    padding: 20px;
+    padding: 15px;
 }
 
-#pageInfo {
-    padding: 15px 20px;
-    line-height: 1.6;
+/* 页面基本信息样式 */
+.info-card {
     background: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 15px;
     margin-bottom: 20px;
 }
 
-#pageInfo span {
-    color: #5c6f8a;
-    word-wrap: break-word;
-    font-size: 14px;
-    margin-left: 8px;
+.info-item {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
 }
 
-#pageLoadTime, #pageHeaderInfo {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-#pageLoadTime {
-    width: 48%;
-    float: left;
-}
-
-#pageHeaderInfo {
-    width: 48%;
-    float: right;
-    margin-left: 0;
-}
-
-h3 {
-    color: #2c3e50;
-    font-size: 18px;
-    margin-bottom: 20px;
-    font-weight: 600;
-}
-
-.table {
-    width: 100%;
+.info-item label {
+    color: #666;
+    min-width: 100px;
     margin-bottom: 0;
 }
 
-.table > thead > tr > th {
-    background: #f8fafc;
+.info-item span {
     color: #2c3e50;
+    word-break: break-all;
+}
+
+.update-time {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    color: #999;
+    font-size: 12px;
+    text-align: right;
+}
+
+/* 性能概览区域样式 */
+.performance-overview {
+    margin-bottom: 20px;
+}
+
+.performance-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+/* 核心Web指标网格布局 */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.metric-item {
+    padding: 15px;
+    border-radius: 6px;
+    text-align: center;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.metric-item.text-success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+.metric-item.text-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+}
+
+.metric-item.text-danger {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+
+.metric-value {
+    font-size: 24px;
     font-weight: 600;
-    border-bottom: 2px solid #edf2f7;
-    padding: 12px 15px;
+    margin-bottom: 5px;
 }
 
-.table > tbody > tr > td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #edf2f7;
-    color: #4a5568;
+.metric-label {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 5px;
 }
 
-.table > tbody > tr:last-child > td {
-    border-bottom: none;
+.metric-status {
+    font-size: 12px;
+    font-weight: 500;
 }
 
-.table-hover > tbody > tr:hover {
-    background-color: #f8fafc;
+/* 页面加载时间和内存使用布局 */
+.flex-container {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
 }
 
-.table-striped > tbody > tr:nth-of-type(odd) {
-    background-color: #f9fafb;
+.half-width {
+    flex: 1;
+    min-width: 0;
+}
+
+/* 时间列表样式 */
+.timing-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.timing-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.timing-label {
+    color: #666;
+}
+
+.timing-value {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+/* 内存使用样式 */
+.memory-usage {
+    padding: 10px;
+}
+
+.memory-item {
+    margin-bottom: 10px;
+}
+
+.memory-label {
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.memory-value {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.memory-bar {
+    height: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.used-bar {
+    position: absolute;
+    height: 100%;
+    background: #4CAF50;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.total-bar {
+    position: absolute;
+    height: 100%;
+    background: rgba(76, 175, 80, 0.3);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+/* 详细信息区域样式 */
+.detail-card {
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 15px;
+    background: #f8f9fa;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.toggle-icon {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.card-header[aria-expanded="true"] .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.card-content {
+    padding: 15px;
+}
+
+/* 表格样式优化 */
+.table {
+    margin-bottom: 0;
+    font-size: 13px;
+}
+
+.table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    padding: 10px;
+}
+
+.table td {
+    padding: 8px 10px;
+    vertical-align: middle;
 }
 
 /* 响应式布局 */
 @media (max-width: 768px) {
-    #pageLoadTime, #pageHeaderInfo {
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .flex-container {
+        flex-direction: column;
+    }
+
+    .half-width {
         width: 100%;
-        float: none;
-    }
-    
-    #pageHeaderInfo {
-        margin-left: 0;
-    }
-    
-    .table-responsive {
-        border: none;
     }
 }
 
-/* 清除浮动 */
-.row:after {
-    content: "";
-    display: table;
-    clear: both;
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* 响应式布局 */
+@media screen and (max-width: 1200px) {
+    .wrapper {
+        min-width: 600px;
+    }
+    
+    .table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* 工具提示样式 */
+[title] {
+    cursor: help;
+}
+
+/* 优化建议样式 */
+#optimizationSuggestions {
+    margin: 20px 0;
+}
+
+.performance-section {
+    margin: 25px 0;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.performance-section h3 {
+    margin: 0 0 20px;
+    color: #2c3e50;
+    font-size: 18px;
+    font-weight: 600;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+.suggestion-item {
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fff;
+    transition: all 0.3s ease;
+}
+
+.suggestion-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.suggestion-category {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.category-warning {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.category-critical {
+    background: #ffe0e0;
+    color: #d32f2f;
+}
+
+.category-info {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.suggestion-title {
+    margin: 10px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.suggestion-description {
+    margin: 12px 0;
+    color: #5c6b7a;
+    line-height: 1.6;
+}
+
+.suggestion-list {
+    margin: 15px 0 5px;
+    padding-left: 20px;
+}
+
+.suggestion-list li {
+    margin: 8px 0;
+    color: #3c4858;
+    line-height: 1.5;
+    position: relative;
+    padding-left: 5px;
+}
+
+.suggestion-list li::before {
+    content: "•";
+    color: #666;
+    position: absolute;
+    left: -15px;
+}
+
+/* 卡片头部样式 */

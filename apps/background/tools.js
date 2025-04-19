@@ -223,13 +223,13 @@ let toolMap = {
         }]
     },
     'page-timing': {
-        name: '网页性能检测',
-        tips: '检测网页加载性能，包括握手、响应、渲染等各阶段耗时，同时提供Response Headers以便分析',
+        name: '网站性能优化',
+        tips: '全面分析网页性能指标，包括核心Web指标(LCP/FID/CLS)、资源加载性能、内存使用、长任务监控等，并提供针对性的优化建议',
         contentScriptJs: true,
         noPage: true,
         menuConfig: [{
             icon: 'Σ',
-            text: '网页性能检测'
+            text: '网站性能优化'
         }]
     },
     'excel2json': {

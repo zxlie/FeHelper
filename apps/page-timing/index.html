@@ -19,46 +19,178 @@
         </div>
 
         <div class="panel-body mod-json">
-
-            <div id="pageInfo" class="row">
-                被检测的页面：<span id="pageTitle">{{pageTitle}}</span><br>
-                页面完整地址：<span id="pageUrl">{{pageUrl}}</span>
+            <!-- 页面基本信息 -->
+            <div id="pageInfo" class="row info-card">
+                <div class="info-item">
+                    <label>被检测的页面：</label>
+                    <span id="pageTitle">{{pageTitle}}</span>
+                </div>
+                <div class="info-item">
+                    <label>页面完整地址：</label>
+                    <span id="pageUrl">{{pageUrl}}</span>
+                </div>
+                <div class="info-item" v-if="networkInfo">
+                    <label>网络状态：</label>
+                    <span>{{networkInfo.effectiveType}} / {{networkInfo.downlink}}Mbps / RTT:{{networkInfo.rtt}}ms</span>
+                </div>
+                <div class="update-time">
+                    <span>数据更新时间：{{new Date().toLocaleString()}}</span>
+                </div>
+            </div>
+            
+            <!-- 网页优化建议 -->
+            <div class="performance-section">
+                <h3>性能优化建议</h3>
+                <div v-for="suggestion in optimizationSuggestions" :key="suggestion.title" class="suggestion-item">
+                    <span :class="['suggestion-category', 'category-' + suggestion.type]">{{suggestion.category}}</span>
+                    <h4 class="suggestion-title">{{suggestion.title}}</h4>
+                    <p class="suggestion-description">{{suggestion.description}}</p>
+                    <ul class="suggestion-list">
+                        <li v-for="item in suggestion.suggestions" :key="item">{{item}}</li>
+                    </ul>
+                </div>
             </div>
 
-            <div id="pageLoadTime" class="row">
-                <h3>页面各阶段耗时分析</h3>
-                <table class="table table-bordered table-striped table-condensed table-hover">
-                    <thead>
-                        <th >事件</th>
-                        <th >耗时</th>
-                    </thead>
-                    <tbody>
-                        <tr v-if="timing" v-for="t in Object.keys(tmDefination)">
-                            <td>{{tmDefination[t]}}</td>
-                            <td>{{Math.ceil(timing[t])}} ms</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- 性能概览区域 -->
+            <div class="performance-overview">
+                <!-- 核心Web指标 -->
+                <div id="coreWebVitals" class="row performance-card" v-if="webVitals">
+                    <h3>核心Web指标 (Core Web Vitals)</h3>
+                    <div class="metrics-grid">
+                        <div class="metric-item" :class="getLCPStatus(webVitals.lcp)">
+                            <div class="metric-value">{{Math.ceil(webVitals.lcp)}} ms</div>
+                            <div class="metric-label">最大内容绘制 (LCP)</div>
+                            <div class="metric-status">{{getLCPStatusText(webVitals.lcp)}}</div>
+                        </div>
+                        <div class="metric-item" :class="getFIDStatus(webVitals.fid)">
+                            <div class="metric-value">{{webVitals.fid ? Math.ceil(webVitals.fid) + ' ms' : '未触发'}}</div>
+                            <div class="metric-label">首次输入延迟 (FID)</div>
+                            <div class="metric-status">{{getFIDStatusText(webVitals.fid)}}</div>
+                        </div>
+                        <div class="metric-item" :class="getCLSStatus(webVitals.cls)">
+                            <div class="metric-value">{{webVitals.cls ? webVitals.cls.toFixed(3) : '0'}}</div>
+                            <div class="metric-label">累积布局偏移 (CLS)</div>
+                            <div class="metric-status">{{getCLSStatusText(webVitals.cls)}}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 页面加载时间和内存使用 -->
+                <div class="flex-container">
+                    <div id="pageLoadTime" class="row performance-card half-width">
+                        <h3>页面加载时间</h3>
+                        <div class="timing-list" v-if="timing">
+                            <div class="timing-item" v-for="t in Object.keys(tmDefination)">
+                                <span class="timing-label">{{tmDefination[t]}}</span>
+                                <span class="timing-value">{{Math.ceil(timing[t])}} ms</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="performanceMetrics" class="row performance-card half-width" v-if="performanceMetrics">
+                        <h3>内存使用情况</h3>
+                        <div class="memory-usage">
+                            <div class="memory-item">
+                                <div class="memory-label">已用/总量/限制</div>
+                                <div class="memory-value">
+                                    {{formatSize(performanceMetrics.usedJSHeapSize)}} / 
+                                    {{formatSize(performanceMetrics.totalJSHeapSize)}} / 
+                                    {{formatSize(performanceMetrics.jsHeapSizeLimit)}}
+                                </div>
+                            </div>
+                            <div class="memory-bar">
+                                <div class="used-bar" :style="{width: (performanceMetrics.usedJSHeapSize / performanceMetrics.jsHeapSizeLimit * 100) + '%'}"></div>
+                                <div class="total-bar" :style="{width: (performanceMetrics.totalJSHeapSize / performanceMetrics.jsHeapSizeLimit * 100) + '%'}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- HTTP Header信息 -->
+            <div id="pageHeaderInfo" class="row detail-card" v-show="headerInfo">
+                <div class="card-header" @click="toggleSection('headerInfo')">
+                    <h3>HTTP Response Header分析</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content" v-show="sectionsVisible.headerInfo">
+                    <table class="table table-bordered table-striped table-condensed table-hover">
+                        <thead>
+                            <th>Header</th>
+                            <th>值</th>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(value,key) in headerInfo">
+                                <td>{{key}}</td>
+                                <td>{{value || '-'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <div id="pageHeaderInfo" class="row" v-show="headerInfo">
-                <h3>页面HTTP Response Header分析</h3>
-                <table class="table table-bordered table-striped table-condensed table-hover">
-                    <thead>
-                        <th >网页信息</th>
-                        <th >数据</th>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(value,key) in headerInfo">
-                            <td>{{key}}</td>
-                            <td>{{value || '-'}}</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- 长任务监控 -->
+            <div id="longTasks" class="row detail-card" v-if="longTasks && longTasks.length">
+                <div class="card-header" @click="toggleSection('longTasks')">
+                    <h3>长任务监控 (超过50ms的任务)</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content" v-show="sectionsVisible.longTasks">
+                    <table class="table table-bordered table-striped table-condensed table-hover">
+                        <thead>
+                            <th>开始时间</th>
+                            <th>持续时间</th>
+                            <th>任务名称</th>
+                        </thead>
+                        <tbody>
+                            <tr v-for="task in longTasks">
+                                <td>{{formatTime(task.startTime)}}</td>
+                                <td>{{Math.ceil(task.duration)}} ms</td>
+                                <td>{{task.name}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 详细信息区域 -->
+            <div class="details-section">
+                <!-- 资源加载性能 -->
+                <div id="resourceTiming" class="row detail-card" v-if="resources && resources.length">
+                    <div class="card-header" @click="toggleSection('resourceTiming')">
+                        <h3>资源加载性能分析</h3>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="card-content" v-show="sectionsVisible.resourceTiming">
+                        <table class="table table-bordered table-striped table-condensed table-hover">
+                            <thead>
+                                <th>资源</th>
+                                <th>类型</th>
+                                <th>大小</th>
+                                <th>总耗时</th>
+                                <th>DNS查询</th>
+                                <th>TCP连接</th>
+                                <th>请求响应</th>
+                                <th>内容下载</th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="resource in resources">
+                                    <td :title="resource.name">{{getFileName(resource.name)}}</td>
+                                    <td>{{resource.entryType}}</td>
+                                    <td>{{formatSize(resource.transferSize)}}</td>
+                                    <td>{{Math.ceil(resource.duration)}} ms</td>
+                                    <td>{{Math.ceil(resource.dnsTime)}} ms</td>
+                                    <td>{{Math.ceil(resource.tcpTime)}} ms</td>
+                                    <td>{{Math.ceil(resource.ttfb)}} ms</td>
+                                    <td>{{Math.ceil(resource.downloadTime)}} ms</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
             </div>
         </div>
-
     </div>
 
     <script type="text/javascript" src="index.js"></script>
