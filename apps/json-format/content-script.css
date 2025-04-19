@@ -298,8 +298,13 @@ html.fh-jf .x-toolbar {
     user-select: none;
 }
 
+html.fh-jf .x-toolbar .x-stitle {
+    font-weight: 700;
+}
 html.fh-jf .x-toolbar .x-sort input {
     margin-right: 10px;
+    position: relative;
+    top: 2px;
 }
 html.fh-jf .x-toolbar span {
     white-space: normal !important;
@@ -512,7 +517,7 @@ html.fh-jf svg:not(:root) {
 /*设置面板*/
 .mod-setting-panel {
     position: absolute;
-    top: 32px;
+    top: 43px;
     right: 0;
     z-index:10000;
     width:300px;
