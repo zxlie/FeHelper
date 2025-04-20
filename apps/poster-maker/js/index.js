@@ -59,7 +59,7 @@ function setupPreviewZoom() {
   
   // 添加重置事件
   resetZoomBtn.addEventListener('click', () => {
-    currentZoom = 1;
+    currentZoom = 0.65;
     applyZoom();
   });
   
@@ -82,4 +82,7 @@ function setupPreviewZoom() {
     
     applyZoom();
   });
+
+  // 初始化时自动触发重置缩放
+  resetZoomBtn.click();
 }

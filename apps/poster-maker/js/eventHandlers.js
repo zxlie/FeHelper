@@ -12,7 +12,7 @@ export function setupEventListeners() {
         
         // 隐藏所有内容面板
         document.querySelectorAll('.tab-content').forEach(content => {
-          content.classList.remove('active');
+          content.style.display = 'none';
         });
         
         // 添加当前选项卡的active类
@@ -20,9 +20,12 @@ export function setupEventListeners() {
         
         // 显示对应的内容面板
         const tabId = tab.dataset.tab;
-        const tabContent = document.getElementById(tabId);
-        if (tabContent) {
-          tabContent.classList.add('active');
+        if (tabId === 'templates') {
+          document.getElementById('templates-tab').style.display = 'block';
+        } else if (tabId === 'editor') {
+          document.getElementById('editor-tab').style.display = 'block';
+        } else if (tabId === 'advanced') {
+          document.getElementById('advanced-tab').style.display = 'block';
         }
       });
     });
