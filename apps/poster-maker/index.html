@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>海报生成工具</title>
+  
+  <!-- 本地CSS文件 -->
+  <link rel="stylesheet" href="css/main.css">
+  
+</head>
+<body>
+  <div class="main-navbar">
+    <div class="navbar-brand">
+      <a href="#" class="brand-link">
+        <img src="../static/img/fe-48.png" alt="fehelper"/> 
+        <span class="brand-text">FeHelper</span>
+        <span class="brand-subtitle">海报生成工具</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <main class="app-main">
+      <div class="tool-panel">
+        <div class="panel-tabs">
+          <button class="panel-tab active" data-tab="templates-tab">模板</button>
+          <button class="panel-tab" data-tab="editor-tab">编辑</button>
+          <button class="panel-tab" data-tab="advanced-tab">高级</button>
+        </div>
+        
+        <div class="panel-content">
+          <div class="tab-content active" id="templates-tab">
+            <div class="template-selection">
+              <div class="template-categories">
+                <button class="category-btn active" data-category="all">全部</button>
+                <button class="category-btn" data-category="promotion">促销</button>
+                <button class="category-btn" data-category="social">社交</button>
+                <button class="category-btn" data-category="work">工作</button>
+                <button class="category-btn" data-category="tech">技术</button>
+                <button class="category-btn" data-category="product">产品</button>
+                <button class="category-btn" data-category="operation">运营</button>
+                <button class="category-btn" data-category="other">其他</button>
+              </div>
+              <div class="templates-container" id="templates-container"></div>
+            </div>
+          </div>
+          
+          <div class="tab-content" id="editor-tab">
+            <div class="editor-panel">
+              <div class="edit-form" id="edit-form">
+                <p class="placeholder-message">请先选择一个模板</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="tab-content" id="advanced-tab">
+            <div class="advanced-options">
+              <div class="option-group">
+                <h3>布局调整</h3>
+                <div class="form-group">
+                  <label for="poster-width">宽度比例</label>
+                  <div class="range-slider-container">
+                    <input type="range" id="poster-width" min="80" max="120" value="100" class="range-slider">
+                    <span class="range-value">100%</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="poster-height">高度比例</label>
+                  <div class="range-slider-container">
+                    <input type="range" id="poster-height" min="80" max="120" value="100" class="range-slider">
+                    <span class="range-value">100%</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="option-group">
+                <h3>滤镜效果</h3>
+                <div class="form-group">
+                  <label for="brightness">亮度</label>
+                  <div class="range-slider-container">
+                    <input type="range" id="brightness" min="50" max="150" value="100" class="range-slider">
+                    <span class="range-value">100%</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="contrast">对比度</label>
+                  <div class="range-slider-container">
+                    <input type="range" id="contrast" min="50" max="150" value="100" class="range-slider">
+                    <span class="range-value">100%</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="saturation">饱和度</label>
+                  <div class="range-slider-container">
+                    <input type="range" id="saturation" min="0" max="200" value="100" class="range-slider">
+                    <span class="range-value">100%</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="option-group">
+                <h3>导出选项</h3>
+                <div class="form-group">
+                  <label for="export-quality">导出质量</label>
+                  <div class="range-slider-container">
+                    <input type="range" id="export-quality" min="70" max="100" value="90" class="range-slider">
+                    <span class="range-value">90%</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="export-format">导出格式</label>
+                  <select id="export-format" class="form-control">
+                    <option value="png">PNG (透明背景)</option>
+                    <option value="jpeg">JPEG (高兼容性)</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="option-group">
+                <h3>水印设置</h3>
+                <div class="form-group">
+                  <label>
+                    <input type="checkbox" id="enable-watermark"> 添加水印
+                  </label>
+                </div>
+                <div class="watermark-options" style="display: none;">
+                  <div class="form-group">
+                    <label for="watermark-text">水印文字</label>
+                    <input type="text" id="watermark-text" class="form-control" value="我的品牌">
+                  </div>
+                  <div class="form-group">
+                    <label for="watermark-position">位置</label>
+                    <select id="watermark-position" class="form-control">
+                      <option value="bottom-right">右下角</option>
+                      <option value="bottom-left">左下角</option>
+                      <option value="top-right">右上角</option>
+                      <option value="top-left">左上角</option>
+                      <option value="center">中央</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="watermark-opacity">透明度</label>
+                    <div class="range-slider-container">
+                      <input type="range" id="watermark-opacity" min="10" max="100" value="30" class="range-slider">
+                      <span class="range-value">30%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="preview-panel">
+        <div class="preview-header">
+          <h2>预览</h2>
+          <div class="zoom-controls">
+            <button class="zoom-btn" id="zoom-out">缩小</button>
+            <button class="zoom-btn" id="zoom-reset">重置</button>
+            <button class="zoom-btn" id="zoom-in">放大</button>
+          </div>
+        </div>
+        <div class="preview-container">
+          <div id="poster-preview" class="poster-preview"></div>
+        </div>
+        <div class="action-buttons">
+          <button id="download-btn" class="btn primary-btn" disabled>
+            <i class="fas fa-download"></i> 下载海报
+          </button>
+          <button id="share-btn" class="btn secondary-btn" disabled>
+            <i class="fas fa-share-alt"></i> 分享
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- 分享模态框 -->
+    <div id="share-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>分享到社交平台</h2>
+        <div class="share-options">
+          <div class="share-option" data-platform="wechat">
+            <i class="fab fa-weixin"></i>
+            <span>微信</span>
+          </div>
+          <div class="share-option" data-platform="weibo">
+            <i class="fab fa-weibo"></i>
+            <span>微博</span>
+          </div>
+          <div class="share-option" data-platform="xiaohongshu">
+            <i class="fas fa-book"></i>
+            <span>小红书</span>
+          </div>
+          <div class="share-option" data-platform="qq">
+            <i class="fab fa-qq"></i>
+            <span>QQ</span>
+          </div>
+        </div>
+        <div class="share-instructions">
+          <p>1. 点击下载海报</p>
+          <p>2. 打开对应社交软件</p>
+          <p>3. 从相册中选择刚刚下载的海报</p>
+        </div>
+      </div>
+    </div>
+    
+    <div id="overlay" class="overlay"></div>
+  </div>
+
+  <!-- 依赖库 -->
+  <script src="../chart-maker/lib/html2canvas.min.js"></script>
+  <script src="./js/FileSaver.min.js"></script>
+  
+  <!-- 本地JS文件 -->
+  <script type="module" src="./js/index.js"></script>
+</body>
+</html>
