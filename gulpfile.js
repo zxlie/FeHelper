@@ -17,6 +17,7 @@ let through = require('through2');
 let path = require('path');
 let pretty = require('pretty-bytes');
 let shell = require('shelljs');
+let babel = require('gulp-babel');
 
 // 在Gulp 4.x中，runSequence已被移除，使用gulp.series和gulp.parallel代替
 // let runSequence = require('run-sequence');
@@ -48,7 +49,6 @@ function processJs() {
             let contents = file.contents.toString('utf-8');
 
             let merge = (fp, fc) => {
-
                 // 合并 __importScript
                 return fc.replace(/__importScript\(\s*(['"])([^'"]*)\1\s*\)/gm, function (frag, $1, mod) {
                     let mp = path.resolve(fp, '../' + mod + (/\.js$/.test(mod) ? '' : '.js'));
@@ -64,7 +64,17 @@ function processJs() {
         })
     };
 
-    return gulp.src('apps/**/*.js').pipe(jsMerge()).pipe(uglifyjs()).pipe(gulp.dest('output/apps'));
+    return gulp.src('apps/**/*.js')
+        .pipe(jsMerge())
+        .pipe(babel({
+            presets: ['@babel/preset-env']
+        }))
+        .pipe(uglifyjs({
+            compress: {
+                ecma: 2015
+            }
+        }))
+        .pipe(gulp.dest('output/apps'));
 }
 
 // 合并 & 压缩 css

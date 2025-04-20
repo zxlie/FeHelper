@@ -7,12 +7,15 @@
     "crypto": "^1.0.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.9",
     "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
     "gulp-clean": "^0.4.0",
     "gulp-copy": "^1.1.0",
     "gulp-htmlmin": "^4.0.0",
     "gulp-jsonminify": "^1.1.0",
-    "gulp-uglify-es": "^1.0.1",
+    "gulp-uglify-es": "^3.0.0",
     "gulp-uglifycss": "^1.0.9",
     "gulp-zip": "^4.1.0",
     "pretty-bytes": "^4.0.2",
