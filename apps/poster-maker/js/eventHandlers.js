@@ -62,62 +62,8 @@ export function setupEventListeners() {
     });
   }
   
-  // 分享按钮
-  const shareBtn = document.getElementById('share-btn');
-  const shareModal = document.getElementById('share-modal');
-  const overlay = document.getElementById('overlay');
-  const closeModal = document.querySelector('.close-modal');
-  
-  if (shareBtn && shareModal && overlay && closeModal) {
-    // 打开分享模态框
-    shareBtn.addEventListener('click', () => {
-      shareModal.style.display = 'block';
-      overlay.style.display = 'block';
-    });
-    
-    // 关闭分享模态框
-    closeModal.addEventListener('click', () => {
-      shareModal.style.display = 'none';
-      overlay.style.display = 'none';
-    });
-    
-    // 点击遮罩层关闭模态框
-    overlay.addEventListener('click', () => {
-      shareModal.style.display = 'none';
-      overlay.style.display = 'none';
-    });
-    
-    // 设置分享选项点击事件
-    const shareOptions = document.querySelectorAll('.share-option');
-    shareOptions.forEach(option => {
-      option.addEventListener('click', () => {
-        // 先下载海报
-        window.downloadPoster();
-        
-        const platform = option.dataset.platform;
-        alert(`已下载海报，请在${getPlatformName(platform)}中分享`);
-        
-        // 关闭模态框
-        shareModal.style.display = 'none';
-        overlay.style.display = 'none';
-      });
-    });
-  }
-  
   // 设置高级选项事件监听器
   setupAdvancedOptions();
-}
-
-// 获取平台名称
-function getPlatformName(platform) {
-  const platforms = {
-    wechat: '微信',
-    weibo: '微博',
-    xiaohongshu: '小红书',
-    qq: 'QQ'
-  };
-  
-  return platforms[platform] || '社交平台';
 }
 
 // 设置高级选项事件监听器

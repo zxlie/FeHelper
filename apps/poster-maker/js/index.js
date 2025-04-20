@@ -3,6 +3,10 @@ import { renderTemplates } from './templateRenderer.js';
 import { setupEventListeners } from './eventHandlers.js';
 import { setupImageUpload } from './imageUpload.js';
 
+// 将模板和渲染函数挂载到window对象上
+window.templates = templates;
+window.renderTemplates = renderTemplates;
+
 document.addEventListener('DOMContentLoaded', () => {
   // 渲染所有模板缩略图
   renderTemplates(templates);

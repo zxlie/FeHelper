@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>海报生成工具</title>
+  <title>海报快速生成</title>
   
   <!-- 本地CSS文件 -->
   <link rel="stylesheet" href="css/main.css">
@@ -15,7 +15,7 @@
       <a href="#" class="brand-link">
         <img src="../static/img/fe-48.png" alt="fehelper"/> 
         <span class="brand-text">FeHelper</span>
-        <span class="brand-subtitle">海报生成工具</span>
+        <span class="brand-subtitle">海报快速生成</span>
       </a>
     </div>
   </div>
@@ -43,13 +43,12 @@
             <div class="template-selection">
               <div class="template-categories">
                 <button class="category-btn active" data-category="all">全部</button>
-                <button class="category-btn" data-category="promotion">促销</button>
-                <button class="category-btn" data-category="social">社交</button>
-                <button class="category-btn" data-category="work">工作</button>
                 <button class="category-btn" data-category="tech">技术</button>
                 <button class="category-btn" data-category="product">产品</button>
                 <button class="category-btn" data-category="operation">运营</button>
-                <button class="category-btn" data-category="other">其他</button>
+                <button class="category-btn" data-category="promotion">促销</button>
+                <button class="category-btn" data-category="social">社交</button>
+                <button class="category-btn" data-category="work">工作</button>
               </div>
               <div class="templates-container" id="templates-container"></div>
             </div>
@@ -178,52 +177,14 @@
           <button id="download-btn" class="btn primary-btn" disabled>
             <i class="fas fa-download"></i> 下载海报
           </button>
-          <button id="share-btn" class="btn secondary-btn" disabled>
-            <i class="fas fa-share-alt"></i> 分享
-          </button>
         </div>
       </div>
     </main>
-
-    <!-- 分享模态框 -->
-    <div id="share-modal" class="modal">
-      <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2>分享到社交平台</h2>
-        <div class="share-options">
-          <div class="share-option" data-platform="wechat">
-            <i class="fab fa-weixin"></i>
-            <span>微信</span>
-          </div>
-          <div class="share-option" data-platform="weibo">
-            <i class="fab fa-weibo"></i>
-            <span>微博</span>
-          </div>
-          <div class="share-option" data-platform="xiaohongshu">
-            <i class="fas fa-book"></i>
-            <span>小红书</span>
-          </div>
-          <div class="share-option" data-platform="qq">
-            <i class="fab fa-qq"></i>
-            <span>QQ</span>
-          </div>
-        </div>
-        <div class="share-instructions">
-          <p>1. 点击下载海报</p>
-          <p>2. 打开对应社交软件</p>
-          <p>3. 从相册中选择刚刚下载的海报</p>
-        </div>
-      </div>
-    </div>
-    
-    <div id="overlay" class="overlay"></div>
   </div>
 
-  <!-- 依赖库 -->
+  <!-- 引入JavaScript文件 -->
+  <script src="js/FileSaver.min.js"></script>
   <script src="../chart-maker/lib/html2canvas.min.js"></script>
-  <script src="./js/FileSaver.min.js"></script>
-  
-  <!-- 本地JS文件 -->
-  <script type="module" src="./js/index.js"></script>
+  <script type="module" src="js/index.js"></script>
 </body>
 </html>

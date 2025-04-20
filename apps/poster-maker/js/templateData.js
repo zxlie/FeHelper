@@ -6,12 +6,12 @@ export const templates = [
     category: 'promotion',
     thumbnail: 'https://images.unsplash.com/photo-1607082349566-187342175e2f?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
-      { name: 'title', type: 'text', label: '标题', default: '限时优惠' },
-      { name: 'subtitle', type: 'text', label: '副标题', default: '全场商品5折起' },
-      { name: 'date', type: 'text', label: '日期', default: '2023年12月1日-12月31日' },
       { name: 'mainImage', type: 'image', label: '主图', default: 'https://images.unsplash.com/photo-1607082349566-187342175e2f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
       { name: 'bgColor', type: 'color', label: '背景颜色', default: '#ff5e62' },
       { name: 'textColor', type: 'color', label: '文字颜色', default: '#ffffff' },
+      { name: 'title', type: 'text', label: '标题', default: '限时优惠' },
+      { name: 'subtitle', type: 'text', label: '副标题', default: '全场商品5折起' },
+      { name: 'date', type: 'text', label: '日期', default: '2023年12月1日-12月31日' },
       { name: 'footerText', type: 'text', label: '底部提示文字', default: '扫码或长按识别二维码' },
       { name: 'footerSubText', type: 'text', label: '底部副提示文字', default: '了解更多详情' }
     ],
@@ -36,12 +36,12 @@ export const templates = [
     category: 'event',
     thumbnail: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
-      { name: 'eventName', type: 'text', label: '活动名称', default: '新品发布会' },
-      { name: 'eventDate', type: 'text', label: '活动日期', default: '2023年12月15日 14:00' },
-      { name: 'eventLocation', type: 'text', label: '活动地点', default: '上海市浦东新区XX大厦' },
       { name: 'mainImage', type: 'image', label: '主图', default: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
       { name: 'bgColor', type: 'color', label: '背景颜色', default: '#1a2a6c' },
       { name: 'accentColor', type: 'color', label: '强调色', default: '#fdbb2d' },
+      { name: 'eventName', type: 'text', label: '活动名称', default: '新品发布会' },
+      { name: 'eventDate', type: 'text', label: '活动日期', default: '2023年12月15日 14:00' },
+      { name: 'eventLocation', type: 'text', label: '活动地点', default: '上海市浦东新区XX大厦' },
       { name: 'buttonText', type: 'text', label: '按钮文字', default: '诚挚邀请' },
       { name: 'footerText', type: 'text', label: '底部文字', default: '扫描二维码报名参加' }
     ],
@@ -57,7 +57,7 @@ export const templates = [
           <p style="font-size: 18px; margin-bottom: 30px;"><i class="fas fa-map-marker-alt" style="margin-right: 10px; color: ${data.accentColor};"></i> ${data.eventLocation}</p>
           <div style="padding: 15px 30px; background-color: ${data.accentColor}; color: #000; font-size: 18px; font-weight: bold; border-radius: 30px;">${data.buttonText}</div>
         </div>
-        <div style="position: absolute; bottom: 20px; width: 100%; text-align: center; font-size: 14px; opacity: 0.7;">
+        <div style="position: absolute; bottom: 10px; width: 100%; text-align: center; font-size: 14px; opacity: 0.7;">
           <p>${data.footerText}</p>
         </div>
       </div>
@@ -69,12 +69,12 @@ export const templates = [
     category: 'product',
     thumbnail: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
-      { name: 'productName', type: 'text', label: '产品名称', default: '智能手表 Pro' },
-      { name: 'tagline', type: 'text', label: '产品标语', default: '科技引领未来' },
-      { name: 'price', type: 'text', label: '产品价格', default: '¥1999' },
       { name: 'productImage', type: 'image', label: '产品图片', default: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
       { name: 'bgColor', type: 'color', label: '背景颜色', default: '#f6f6f6' },
-      { name: 'accentColor', type: 'color', label: '强调色', default: '#ff6b6b' }
+      { name: 'accentColor', type: 'color', label: '强调色', default: '#ff6b6b' },
+      { name: 'productName', type: 'text', label: '产品名称', default: '智能手表 Pro' },
+      { name: 'tagline', type: 'text', label: '产品标语', default: '科技引领未来' },
+      { name: 'price', type: 'text', label: '产品价格', default: '¥1999' }
     ],
     template: (data) => `
       <div style="width: 100%; height: 100%; background-color: ${data.bgColor}; font-family: 'Arial', sans-serif; position: relative; overflow: hidden;">
@@ -103,11 +103,11 @@ export const templates = [
     category: 'social',
     thumbnail: 'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
-      { name: 'quote', type: 'textarea', label: '名言内容', default: '生活不是等待风暴过去，而是学会在雨中翩翩起舞。' },
-      { name: 'author', type: 'text', label: '作者', default: '佚名' },
       { name: 'bgImage', type: 'image', label: '背景图片', default: 'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
       { name: 'overlayColor', type: 'color', label: '遮罩颜色', default: 'rgba(0, 0, 0, 0.4)' },
-      { name: 'textColor', type: 'color', label: '文字颜色', default: '#ffffff' }
+      { name: 'textColor', type: 'color', label: '文字颜色', default: '#ffffff' },
+      { name: 'quote', type: 'textarea', label: '名言内容', default: '生活不是等待风暴过去，而是学会在雨中翩翩起舞。' },
+      { name: 'author', type: 'text', label: '作者', default: '佚名' },
     ],
     template: (data) => `
       <div style="width: 100%; height: 100%; position: relative; font-family: 'Georgia', serif; overflow: hidden;">
@@ -134,12 +134,12 @@ export const templates = [
     category: 'food',
     thumbnail: 'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
+      { name: 'foodImage', type: 'image', label: '菜品图片', default: 'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
+      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#ffffff' },
+      { name: 'accentColor', type: 'color', label: '强调色', default: '#ff9a3c' },
       { name: 'dishName', type: 'text', label: '菜品名称', default: '香煎三文鱼' },
       { name: 'description', type: 'textarea', label: '简短描述', default: '鲜嫩多汁，营养丰富的美味佳肴' },
       { name: 'cookTime', type: 'text', label: '烹饪时间', default: '25分钟' },
-      { name: 'foodImage', type: 'image', label: '菜品图片', default: 'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
-      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#ffffff' },
-      { name: 'accentColor', type: 'color', label: '强调色', default: '#ff9a3c' }
     ],
     template: (data) => `
       <div style="width: 100%; height: 100%; background-color: ${data.bgColor}; font-family: 'Montserrat', sans-serif; position: relative; overflow: hidden;">
@@ -174,12 +174,12 @@ export const templates = [
     category: 'travel',
     thumbnail: 'https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
+      { name: 'travelImage', type: 'image', label: '旅行图片', default: 'https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
+      { name: 'overlayColor', type: 'color', label: '遮罩颜色', default: 'rgba(0, 0, 0, 0.3)' },
+      { name: 'accentColor', type: 'color', label: '强调色', default: '#4ecdc4' },
       { name: 'location', type: 'text', label: '地点名称', default: '巴厘岛' },
       { name: 'tagline', type: 'text', label: '标语', default: '遇见天堂般的美景' },
       { name: 'date', type: 'text', label: '日期', default: '2023年夏' },
-      { name: 'travelImage', type: 'image', label: '旅行图片', default: 'https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
-      { name: 'overlayColor', type: 'color', label: '遮罩颜色', default: 'rgba(0, 0, 0, 0.3)' },
-      { name: 'accentColor', type: 'color', label: '强调色', default: '#4ecdc4' }
     ],
     template: (data) => `
       <div style="width: 100%; height: 100%; position: relative; font-family: 'Roboto', sans-serif; overflow: hidden;">
@@ -214,12 +214,12 @@ export const xiaohongshuTemplates = [
     category: 'xiaohongshu',
     thumbnail: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
+      { name: 'mainImage', type: 'image', label: '主图', default: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
+      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#ffffff' },
+      { name: 'accentColor', type: 'color', label: '强调色', default: '#ff4757' },
       { name: 'title', type: 'text', label: '标题', default: '这家店也太好吃了吧！绝对五星推荐！' },
       { name: 'content', type: 'textarea', label: '内容', default: '无意中发现的宝藏小店，环境超级好，菜品颜值和口味都很赞，价格也很实惠，强烈推荐大家来打卡！' },
       { name: 'tags', type: 'text', label: '标签', default: '#美食探店 #宝藏餐厅 #推荐' },
-      { name: 'mainImage', type: 'image', label: '主图', default: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
-      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#ffffff' },
-      { name: 'accentColor', type: 'color', label: '强调色', default: '#ff4757' }
     ],
     template: (data) => `
       <div style="width: 100%; height: 100%; background-color: ${data.bgColor}; font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; position: relative; overflow: hidden;">
@@ -258,12 +258,12 @@ export const xiaohongshuTemplates = [
     category: 'xiaohongshu',
     thumbnail: 'https://images.unsplash.com/photo-1469594292607-7bd90f8d3ba4?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
+      { name: 'mainImage', type: 'image', label: '主图', default: 'https://images.unsplash.com/photo-1469594292607-7bd90f8d3ba4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
+      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#f9f9f9' },
+      { name: 'accentColor', type: 'color', label: '强调色', default: '#ff4757' },
       { name: 'title', type: 'text', label: '标题', default: '超治愈的周末旅行，放空自己的绝佳去处' },
       { name: 'content', type: 'textarea', label: '内容', default: '周末和闺蜜一起去了这个小众景点，环境超级好，人也不多，拍照很出片，完全治愈了工作的疲惫~' },
       { name: 'tags', type: 'text', label: '标签', default: '#周末出行 #小众景点 #旅行 #治愈系' },
-      { name: 'mainImage', type: 'image', label: '主图', default: 'https://images.unsplash.com/photo-1469594292607-7bd90f8d3ba4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
-      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#f9f9f9' },
-      { name: 'accentColor', type: 'color', label: '强调色', default: '#ff4757' }
     ],
     template: (data) => `
       <div style="width: 100%; height: 100%; background-color: ${data.bgColor}; font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; position: relative; overflow: hidden; padding: 15px;">
@@ -304,11 +304,11 @@ export const wechatMomentsTemplates = [
     category: 'wechat',
     thumbnail: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
-      { name: 'content', type: 'textarea', label: '内容', default: '今天的晚餐，色香味俱全，自己做的就是香！#美食 #晚餐' },
       { name: 'mainImage', type: 'image', label: '主图', default: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
-      { name: 'location', type: 'text', label: '位置', default: '家里的小厨房' },
       { name: 'bgColor', type: 'color', label: '背景颜色', default: '#f7f7f7' },
-      { name: 'textColor', type: 'color', label: '文字颜色', default: '#333333' }
+      { name: 'textColor', type: 'color', label: '文字颜色', default: '#333333' },
+      { name: 'content', type: 'textarea', label: '内容', default: '今天的晚餐，色香味俱全，自己做的就是香！#美食 #晚餐' },
+      { name: 'location', type: 'text', label: '位置', default: '家里的小厨房' },
     ],
     template: (data) => `
       <div style="width: 100%; height: 100%; background-color: ${data.bgColor}; font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; position: relative; overflow: hidden; padding: 20px;">
@@ -353,11 +353,11 @@ export const wechatMomentsTemplates = [
     category: 'wechat',
     thumbnail: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
-      { name: 'content', type: 'textarea', label: '内容', default: '和好友共度美好时光，感恩遇见 🙏' },
       { name: 'mainImage', type: 'image', label: '主图', default: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
-      { name: 'time', type: 'text', label: '时间', default: '昨天 20:30' },
       { name: 'bgColor', type: 'color', label: '背景颜色', default: '#f7f7f7' },
-      { name: 'accentColor', type: 'color', label: '强调色', default: '#576b95' }
+      { name: 'accentColor', type: 'color', label: '强调色', default: '#576b95' },
+      { name: 'content', type: 'textarea', label: '内容', default: '和好友共度美好时光，感恩遇见 🙏' },
+      { name: 'time', type: 'text', label: '时间', default: '昨天 20:30' },
     ],
     template: (data) => `
       <div style="width: 100%; height: 100%; background-color: ${data.bgColor}; font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; position: relative; overflow: hidden; padding: 20px;">
@@ -413,12 +413,12 @@ export const workGroupTemplates = [
     category: 'work',
     thumbnail: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
-      { name: 'title', type: 'text', label: '标题', default: '本周业绩回顾与下周计划' },
-      { name: 'content', type: 'textarea', label: '内容', default: '团队本周超额完成销售目标，达成率120%。下周将重点关注新产品推广和客户回访工作。' },
-      { name: 'date', type: 'text', label: '日期', default: '2023年12月15日' },
       { name: 'chartImage', type: 'image', label: '图表图片', default: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
       { name: 'bgColor', type: 'color', label: '背景颜色', default: '#ffffff' },
       { name: 'accentColor', type: 'color', label: '强调色', default: '#2c3e50' },
+      { name: 'title', type: 'text', label: '标题', default: '本周业绩回顾与下周计划' },
+      { name: 'content', type: 'textarea', label: '内容', default: '团队本周超额完成销售目标，达成率120%。下周将重点关注新产品推广和客户回访工作。' },
+      { name: 'date', type: 'text', label: '日期', default: '2023年12月15日' },
       { name: 'targetValue', type: 'text', label: '目标达成率', default: '120%' },
       { name: 'growthValue', type: 'text', label: '同比增长率', default: '+15%' },
       { name: 'satisfactionValue', type: 'text', label: '客户满意度', default: '89%' },
@@ -428,7 +428,7 @@ export const workGroupTemplates = [
     ],
     template: (data) => `
       <div style="width: 100%; height: 100%; background-color: ${data.bgColor}; font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; position: relative; overflow: hidden; padding: 20px;">
-        <div style="background-color: white; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.08); height: calc(100% - 40px);">
+        <div style="background-color: white; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.08); height: calc(100% - 0px);">
           <div style="background-color: ${data.accentColor}; color: white; padding: 20px; position: relative;">
             <h1 style="font-size: 22px; font-weight: 600; margin-bottom: 10px;">${data.title}</h1>
             <p style="font-size: 14px;">${data.date}</p>
@@ -482,14 +482,14 @@ export const workGroupTemplates = [
     category: 'work',
     thumbnail: 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
+      { name: 'projectImage', type: 'image', label: '项目图片', default: 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
+      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#f8f9fa' },
+      { name: 'accentColor', type: 'color', label: '强调色', default: '#3498db' },
       { name: 'title', type: 'text', label: '标题', default: '项目进度报告' },
       { name: 'projectName', type: 'text', label: '项目名称', default: '新零售系统升级' },
       { name: 'progress', type: 'text', label: '进度百分比', default: '75' },
       { name: 'startDate', type: 'text', label: '开始日期', default: '2023年10月15日' },
       { name: 'deadline', type: 'text', label: '截止日期', default: '2023年12月31日' },
-      { name: 'projectImage', type: 'image', label: '项目图片', default: 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
-      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#f8f9fa' },
-      { name: 'accentColor', type: 'color', label: '强调色', default: '#3498db' },
       { name: 'teamMemberCount', type: 'text', label: '额外团队成员数', default: '+3' },
       { name: 'reportLinkText', type: 'text', label: '报告链接文字', default: '查看详细报告' },
       { name: 'shareLinkText', type: 'text', label: '分享链接文字', default: '分享' },
@@ -573,13 +573,13 @@ export const techTemplates = [
     category: 'tech',
     thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
+      { name: 'bgImage', type: 'image', label: '背景图片', default: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
+      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#1e272e' },
+      { name: 'accentColor', type: 'color', label: '强调色', default: '#0984e3' },
       { name: 'title', type: 'text', label: '标题', default: '技术团队周报' },
       { name: 'week', type: 'text', label: '周期', default: '2023年第48周' },
       { name: 'achievements', type: 'textarea', label: '主要成果', default: '1. 完成用户中心重构\n2. 修复了5个关键性Bug\n3. 性能优化提升30%' },
       { name: 'nextWeek', type: 'textarea', label: '下周计划', default: '1. 开始新功能开发\n2. 进行代码审查\n3. 优化CI/CD流程' },
-      { name: 'bgImage', type: 'image', label: '背景图片', default: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
-      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#1e272e' },
-      { name: 'accentColor', type: 'color', label: '强调色', default: '#0984e3' },
       { name: 'bugFixCount', type: 'text', label: 'Bug修复数量', default: '5' },
       { name: 'newFeatureCount', type: 'text', label: '新功能数量', default: '2' },
       { name: 'performanceImprovement', type: 'text', label: '性能提升', default: '30%' },
@@ -641,12 +641,12 @@ export const techTemplates = [
     category: 'tech',
     thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
+      { name: 'codeImage', type: 'image', label: '代码截图', default: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
+      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#282c34' },
+      { name: 'accentColor', type: 'color', label: '强调色', default: '#61dafb' },
       { name: 'title', type: 'text', label: '标题', default: '优雅的代码解决方案' },
       { name: 'language', type: 'text', label: '编程语言', default: 'JavaScript' },
       { name: 'description', type: 'textarea', label: '描述', default: '这个优化方案将原本O(n²)的算法复杂度降低到了O(n)，大幅提升了性能。' },
-      { name: 'codeImage', type: 'image', label: '代码截图', default: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
-      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#282c34' },
-      { name: 'accentColor', type: 'color', label: '强调色', default: '#61dafb' }
     ],
     template: (data) => `
       <div style="width: 100%; height: 100%; background-color: ${data.bgColor}; font-family: 'Fira Code', 'Source Code Pro', monospace; position: relative; overflow: hidden; padding: 20px; color: #abb2bf;">
@@ -698,12 +698,12 @@ export const productTemplates = [
     category: 'product',
     thumbnail: 'https://images.unsplash.com/photo-1572177812156-58036aae439c?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
+      { name: 'productImage', type: 'image', label: '产品图片', default: 'https://images.unsplash.com/photo-1572177812156-58036aae439c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
+      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#ffffff' },
+      { name: 'accentColor', type: 'color', label: '强调色', default: '#6c5ce7' },
       { name: 'title', type: 'text', label: '标题', default: '2024年产品路线图' },
       { name: 'q1Goals', type: 'textarea', label: 'Q1目标', default: '用户体验优化\n核心功能重构\n新用户引导流程' },
       { name: 'q2Goals', type: 'textarea', label: 'Q2目标', default: '数据分析平台\n企业版功能\nAPI升级' },
-      { name: 'productImage', type: 'image', label: '产品图片', default: 'https://images.unsplash.com/photo-1572177812156-58036aae439c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
-      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#ffffff' },
-      { name: 'accentColor', type: 'color', label: '强调色', default: '#6c5ce7' }
     ],
     template: (data) => `
       <div style="width: 100%; height: 100%; background-color: ${data.bgColor}; font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; position: relative; overflow: hidden;">
@@ -719,7 +719,7 @@ export const productTemplates = [
         <div style="position: absolute; top: 35%; left: 0; width: 100%; padding: 30px;">
           <div style="display: flex; margin-bottom: 30px;">
             <div style="flex: 1; margin-right: 20px;">
-              <div style="display: flex; align-items: center; margin-bottom: 15px;">
+              <div style="display: flex; align-items: center; margin: 15px 0;">
                 <div style="width: 30px; height: 30px; border-radius: 50%; background-color: ${data.accentColor}; color: white; display: flex; justify-content: center; align-items: center; margin-right: 10px; font-weight: 600;">Q1</div>
                 <h2 style="font-size: 18px; font-weight: 600; color: #333;">1-3月</h2>
               </div>
@@ -728,7 +728,7 @@ export const productTemplates = [
               </div>
             </div>
             <div style="flex: 1;">
-              <div style="display: flex; align-items: center; margin-bottom: 15px;">
+              <div style="display: flex; align-items: center; margin: 15px 0; ">
                 <div style="width: 30px; height: 30px; border-radius: 50%; background-color: ${data.accentColor}; color: white; display: flex; justify-content: center; align-items: center; margin-right: 10px; font-weight: 600;">Q2</div>
                 <h2 style="font-size: 18px; font-weight: 600; color: #333;">4-6月</h2>
               </div>
@@ -772,13 +772,13 @@ export const productTemplates = [
     category: 'product',
     thumbnail: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
+      { name: 'researchImage', type: 'image', label: '研究图片', default: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
+      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#f5f7fa' },
+      { name: 'accentColor', type: 'color', label: '强调色', default: '#00b894' },
       { name: 'title', type: 'text', label: '标题', default: '用户研究报告' },
       { name: 'subtitle', type: 'text', label: '副标题', default: '核心用户行为分析' },
       { name: 'findings', type: 'textarea', label: '主要发现', default: '1. 80%的用户在首次使用时遇到了导航困难\n2. 核心功能的使用频率低于预期\n3. 用户对新功能的接受度高' },
       { name: 'recommendations', type: 'textarea', label: '改进建议', default: '1. 优化首页导航结构\n2. 增强核心功能的引导\n3. 加快新功能的迭代速度' },
-      { name: 'researchImage', type: 'image', label: '研究图片', default: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
-      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#f5f7fa' },
-      { name: 'accentColor', type: 'color', label: '强调色', default: '#00b894' }
     ],
     template: (data) => `
       <div style="width: 100%; height: 100%; background-color: ${data.bgColor}; font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; position: relative; overflow: hidden; padding: 25px;">
@@ -863,12 +863,12 @@ export const operationTemplates = [
     category: 'operation',
     thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
+      { name: 'chartImage', type: 'image', label: '图表图片', default: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
+      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#ffffff' },
+      { name: 'accentColor', type: 'color', label: '强调色', default: '#fd79a8' },
       { name: 'title', type: 'text', label: '标题', default: '11月营销活动分析报告' },
       { name: 'highlights', type: 'textarea', label: '亮点', default: '1. 新用户增长率达到35%，超过目标25%\n2. 活动转化率提升40%\n3. 社交媒体互动量增长60%' },
       { name: 'nextSteps', type: 'textarea', label: '下一步计划', default: '1. 扩大社交媒体投放\n2. 优化转化漏斗\n3. 增加会员专属活动' },
-      { name: 'chartImage', type: 'image', label: '图表图片', default: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
-      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#ffffff' },
-      { name: 'accentColor', type: 'color', label: '强调色', default: '#fd79a8' }
     ],
     template: (data) => `
       <div style="width: 100%; height: 100%; background-color: ${data.bgColor}; font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; position: relative; overflow: hidden; padding: 20px;">
@@ -936,13 +936,13 @@ export const operationTemplates = [
     category: 'operation',
     thumbnail: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=240&h=240&q=80',
     fields: [
+      { name: 'campaignImage', type: 'image', label: '活动图片', default: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
+      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#ffeaa7' },
+      { name: 'accentColor', type: 'color', label: '强调色', default: '#d63031' },
       { name: 'title', type: 'text', label: '活动标题', default: '年末狂欢购物节' },
       { name: 'subtitle', type: 'text', label: '副标题', default: '全场低至5折，多重好礼等你拿' },
       { name: 'period', type: 'text', label: '活动时间', default: '12月18日-12月31日' },
       { name: 'highlights', type: 'textarea', label: '活动亮点', default: '1. 爆品限时秒杀\n2. 满300减100\n3. 新用户专享券\n4. 会员额外95折' },
-      { name: 'campaignImage', type: 'image', label: '活动图片', default: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
-      { name: 'bgColor', type: 'color', label: '背景颜色', default: '#ffeaa7' },
-      { name: 'accentColor', type: 'color', label: '强调色', default: '#d63031' }
     ],
     template: (data) => `
       <div style="width: 100%; height: 100%; background-color: ${data.bgColor}; font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; position: relative; overflow: hidden;">
@@ -977,13 +977,6 @@ export const operationTemplates = [
               立即参与
             </div>
           </div>
-        </div>
-        
-        <div style="position: absolute; bottom: 20px; left: 30px; display: flex; align-items: center;">
-          <div style="width: 30px; height: 30px; border-radius: 50%; background-color: ${data.accentColor}; display: flex; justify-content: center; align-items: center; margin-right: 10px;">
-            <i class="fas fa-qrcode" style="color: white; font-size: 14px;"></i>
-          </div>
-          <p style="font-size: 14px; color: #666;">扫码了解更多</p>
         </div>
       </div>
     `

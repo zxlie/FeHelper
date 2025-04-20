@@ -31,7 +31,7 @@ body {
 .app-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px 20px;
+  padding: 0 20px 0px;
 }
 
 /* 头部样式 */
@@ -57,8 +57,8 @@ body {
 .app-main {
   display: flex;
   gap: 20px;
-  max-height: calc(100vh - 150px);
-  height: calc(100vh - 150px); /* 添加固定高度 */
+  max-height: calc(100vh - 80px);
+  height: calc(100vh - 80px); /* 添加固定高度 */
 }
 
 .tool-panel {
@@ -395,14 +395,25 @@ body {
 
 .poster-preview {
   width: 375px;
-  height: 667px;
+  min-height: 667px;
   background-color: white;
   box-shadow: var(--shadow);
   border-radius: var(--radius);
-  overflow: hidden;
   position: relative;
   transform-origin: center;
   transition: transform 0.3s ease;
+}
+
+.poster-preview > div {
+  min-height: 667px;
+  display: flex;
+  flex-direction: column;
+}
+
+.poster-preview img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 .poster-preview.with-filter {
@@ -682,8 +693,6 @@ body {
 }
 
 .brand-text {
-  font-size: 18px;
-  font-weight: 600;
   margin-right: 8px;
 }
 
@@ -699,4 +708,82 @@ body {
   margin-bottom: 0;
   padding-bottom: 0;
   border-bottom: none;
+}
+
+/* 特殊布局样式 */
+.special-layout {
+  background-color: var(--background-color);
+  padding: 15px;
+  border-radius: var(--radius);
+  position: relative;
+}
+
+.special-layout .image-upload {
+  height: 100%;
+}
+
+.special-layout .upload-preview {
+  height: 150px;
+}
+
+.special-layout .color-picker {
+  width: 100%;
+  height: 40px;
+}
+
+.special-layout label {
+  margin-bottom: 8px;
+  color: var(--text-color);
+  font-weight: 500;
+}
+.special-layout .left-column{
+  flex: 1;
+  width: 240px;
+}
+.special-layout .right-column{
+  flex: 1;
+  width: 120px;
+  position: absolute;
+  top: 15px;
+  right: 20px;
+}
+
+.special-layout .upload-btn{
+  position: absolute;
+  bottom: 0;
+  background: #0009;
+  color: #fff;
+  width: 240px;
+  text-align: center;
+}
+
+/* 加载提示 */
+.loading-tip {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.loading-tip i {
+  font-size: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-tip .fa-spin {
+  animation: spin 1s linear infinite;
 }

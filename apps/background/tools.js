@@ -248,14 +248,6 @@ let toolMap = {
             text: '图表制作工具'
         }]
     },
-    'poster-maker': {
-        name: '海报生成工具',
-        tips: '快速创建营销推广海报，支持朋友圈、小红书等多种模板，可自定义文字、图片和配色',
-        menuConfig: [{
-            icon: '🖼️',
-            text: '海报生成工具'
-        }]
-    },
     'svg-converter': {
         name: 'SVG转为图片',
         tips: '支持SVG文件转换为PNG、JPG、WEBP等格式，可自定义输出尺寸，支持文件拖放和URL导入',
@@ -264,6 +256,14 @@ let toolMap = {
             text: 'SVG转图片工具'
         }]
     },
+    'poster-maker': {
+        name: '海报快速生成',
+        tips: '快速创建营销推广海报，支持朋友圈、小红书等多种模板，可自定义文字、图片和配色',
+        menuConfig: [{
+            icon: '🖼️',
+            text: '海报快速生成'
+        }]
+    }
 };
 
 export default toolMap;

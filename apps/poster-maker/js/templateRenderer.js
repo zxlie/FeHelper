@@ -60,7 +60,6 @@ export function initializeEditor(template) {
   const editForm = document.getElementById('edit-form');
   const posterPreview = document.getElementById('poster-preview');
   const downloadBtn = document.getElementById('download-btn');
-  const shareBtn = document.getElementById('share-btn');
   
   if (!editForm || !posterPreview) return;
   
@@ -91,7 +90,6 @@ export function initializeEditor(template) {
   hardcodedTexts.forEach((text, index) => {
     // 检查文本是否已存在于字段中，或者是否是常见文本
     if (!existingDefaults.includes(text) && !isCommonText(text)) {
-      // 为检测到的文本创建一个更有意义的标签
       let label = '检测到的文本';
       
       if (text.length > 15) {
@@ -108,15 +106,113 @@ export function initializeEditor(template) {
       });
     }
   });
-  
-  // 为每个字段创建表单控件
-  allFields.forEach(field => {
-    // 确保字段有默认值，避免undefined
+
+  // 创建特殊的布局容器用于前三个字段
+  const specialFormGroup = document.createElement('div');
+  specialFormGroup.className = 'form-group special-layout';
+  specialFormGroup.style.display = 'flex';
+  specialFormGroup.style.gap = '15px';
+  specialFormGroup.style.marginBottom = '20px';
+
+  // 左侧图片容器
+  const leftColumn = document.createElement('div');
+  leftColumn.style.flex = '1';
+  leftColumn.classList.add('left-column');
+
+  // 右侧颜色容器
+  const rightColumn = document.createElement('div');
+  rightColumn.style.flex = '1';
+  rightColumn.style.display = 'flex';
+  rightColumn.style.flexDirection = 'column';
+  rightColumn.style.gap = '30px';
+  rightColumn.classList.add('right-column');
+
+  // 处理前三个特殊字段
+  const firstThreeFields = allFields.slice(0, 3);
+  const remainingFields = allFields.slice(3);
+
+  firstThreeFields.forEach((field, index) => {
+    const label = document.createElement('label');
+    label.textContent = field.label;
+    label.setAttribute('for', `field-${field.name}`);
+
+    if (index === 0) { // 图片字段
+      const imageUpload = document.createElement('div');
+      imageUpload.className = 'image-upload';
+      
+      const imagePreview = document.createElement('div');
+      imagePreview.className = 'upload-preview';
+      
+      const img = document.createElement('img');
+      img.src = field.default || '';
+      img.id = `preview-${field.name}`;
+      imagePreview.appendChild(img);
+      
+      const uploadButton = document.createElement('label');
+      uploadButton.className = 'upload-btn';
+      uploadButton.textContent = '更换图片';
+      uploadButton.setAttribute('for', `field-${field.name}`);
+      
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.id = `field-${field.name}`;
+      input.style.display = 'none';
+      
+      input.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            img.src = event.target.result;
+            window.currentValues[field.name] = event.target.result;
+            updatePosterPreview();
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+      
+      imageUpload.appendChild(imagePreview);
+      imageUpload.appendChild(uploadButton);
+      imageUpload.appendChild(input);
+      
+      leftColumn.appendChild(label);
+      leftColumn.appendChild(imageUpload);
+      
+      window.currentValues[field.name] = field.default || '';
+    } else { // 颜色字段
+      const colorContainer = document.createElement('div');
+      colorContainer.style.flex = '1';
+      
+      const input = document.createElement('input');
+      input.type = 'color';
+      input.className = 'color-picker';
+      input.id = `field-${field.name}`;
+      input.value = field.default || '#000000';
+      
+      input.addEventListener('input', function(e) {
+        window.currentValues[field.name] = e.target.value;
+        updatePosterPreview();
+      });
+      
+      window.currentValues[field.name] = field.default || '';
+      
+      colorContainer.appendChild(label);
+      colorContainer.appendChild(input);
+      rightColumn.appendChild(colorContainer);
+    }
+  });
+
+  specialFormGroup.appendChild(leftColumn);
+  specialFormGroup.appendChild(rightColumn);
+  editForm.appendChild(specialFormGroup);
+
+  // 处理剩余字段
+  remainingFields.forEach(field => {
     if (field.default === undefined || field.default === null) {
       field.default = '';
     }
     
-    // 如果是检测到的文本字段，但内容过短或不需要编辑，则跳过
     if (field.name.startsWith('detected_text_') && isCommonText(field.default)) {
       return;
     }
@@ -130,7 +226,6 @@ export function initializeEditor(template) {
     
     let input;
     
-    // 根据字段类型创建不同的输入控件
     switch (field.type) {
       case 'textarea':
         input = document.createElement('textarea');
@@ -171,7 +266,6 @@ export function initializeEditor(template) {
         input.id = `field-${field.name}`;
         input.style.display = 'none';
         
-        // 添加图片预览功能
         input.addEventListener('change', function(e) {
           const file = e.target.files[0];
           if (file) {
@@ -193,12 +287,11 @@ export function initializeEditor(template) {
         formGroup.appendChild(imageUpload);
         editForm.appendChild(formGroup);
         
-        // 存储默认值
         window.currentValues[field.name] = field.default || '';
         
         return;
         
-      default: // text 和其他类型
+      default:
         input = document.createElement('input');
         input.type = 'text';
         input.className = 'form-control';
@@ -206,13 +299,11 @@ export function initializeEditor(template) {
         input.value = field.default || '';
     }
     
-    // 添加输入事件监听器
     input.addEventListener('input', function(e) {
       window.currentValues[field.name] = e.target.value;
       updatePosterPreview();
     });
     
-    // 存储默认值
     window.currentValues[field.name] = field.default || '';
     
     formGroup.appendChild(label);
@@ -220,9 +311,8 @@ export function initializeEditor(template) {
     editForm.appendChild(formGroup);
   });
   
-  // 启用下载和分享按钮
+  // 启用下载按钮
   if (downloadBtn) downloadBtn.disabled = false;
-  if (shareBtn) shareBtn.disabled = false;
   
   // 更新预览
   updatePosterPreview();
@@ -325,6 +415,46 @@ window.downloadPoster = function(format = 'png', quality = 0.9) {
   
   if (!posterPreview) return;
   
+  // 显示加载提示
+  const loadingTip = document.createElement('div');
+  loadingTip.className = 'loading-tip';
+  loadingTip.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在生成海报...';
+  document.body.appendChild(loadingTip);
+
+  // 获取所有图片并保存原始样式
+  const images = posterPreview.getElementsByTagName('img');
+  const originalStyles = Array.from(images).map(img => ({
+    width: img.style.width,
+    height: img.style.height,
+    maxWidth: img.style.maxWidth,
+    maxHeight: img.style.maxHeight,
+    objectFit: img.style.objectFit
+  }));
+
+  // 创建一个函数来清理资源
+  const cleanup = () => {
+    try {
+      // 移除加载提示
+      if (loadingTip && loadingTip.parentNode) {
+        loadingTip.remove();
+      }
+      
+      // 恢复图片原始样式
+      Array.from(images).forEach((img, index) => {
+        if (originalStyles[index]) {
+          Object.assign(img.style, originalStyles[index]);
+        }
+      });
+      
+      // 恢复水印
+      if (watermarkData) {
+        watermarkData.parent.appendChild(watermarkData.element);
+      }
+    } catch (error) {
+      console.error('清理资源时发生错误:', error);
+    }
+  };
+  
   // 临时移除水印（如果有）以便导出时不包含水印
   const watermark = posterPreview.querySelector('.poster-watermark');
   let watermarkData = null;
@@ -337,39 +467,130 @@ window.downloadPoster = function(format = 'png', quality = 0.9) {
     watermark.remove();
   }
   
-  // 使用全局的html2canvas将预览区域转换为图片
-  html2canvas(posterPreview, {
-    scale: 2, // 提高图片质量
-    useCORS: true, // 允许加载跨域图片
-    allowTaint: true,
-    backgroundColor: format === 'png' ? null : 'white'
-  }).then(canvas => {
-    // 根据格式选择导出方式
-    if (format === 'png') {
-      canvas.toBlob(blob => {
-        const templateName = window.currentTemplate ? window.currentTemplate.name : 'poster';
-        // 使用全局的saveAs
-        saveAs(blob, `${templateName}-${Date.now()}.png`);
-      }, 'image/png');
-    } else {
-      canvas.toBlob(blob => {
-        const templateName = window.currentTemplate ? window.currentTemplate.name : 'poster';
-        // 使用全局的saveAs
-        saveAs(blob, `${templateName}-${Date.now()}.jpg`);
-      }, 'image/jpeg', quality);
-    }
+  try {
+    // 获取预览区域的实际尺寸
+    const previewRect = posterPreview.getBoundingClientRect();
+    const previewWidth = previewRect.width;
+    const previewHeight = previewRect.height;
     
-    // 导出完成后恢复水印
-    if (watermarkData) {
-      watermarkData.parent.appendChild(watermarkData.element);
+    // 优化图片尺寸和质量
+    Array.from(images).forEach(img => {
+      // 保持图片原始比例
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.maxWidth = 'none'; // 移除最大宽度限制
+      img.style.objectFit = 'cover';
+      img.style.imageRendering = 'high-quality';
+      img.style.webkitFontSmoothing = 'antialiased';
+      img.style.mozOsxFontSmoothing = 'grayscale';
+      
+      // 强制浏览器使用高质量缩放
+      if (img.naturalWidth && img.naturalHeight) {
+        img.setAttribute('width', img.naturalWidth);
+        img.setAttribute('height', img.naturalHeight);
+      }
+    });
+  } catch (error) {
+    console.error('设置图片样式时发生错误:', error);
+    cleanup();
+    return;
+  }
+  
+  // 优化的html2canvas配置
+  const canvasOptions = {
+    scale: format === 'png' ? 3 : 2, // 提高缩放比例以获得更清晰的输出
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: format === 'png' ? null : 'white',
+    imageTimeout: 30000, // 30秒超时
+    logging: false,
+    onclone: function(clonedDoc) {
+      try {
+        const clonedImages = clonedDoc.getElementsByTagName('img');
+        Array.from(clonedImages).forEach(img => {
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.maxWidth = 'none';
+          img.style.objectFit = 'cover';
+          img.style.imageRendering = 'high-quality';
+          img.style.webkitFontSmoothing = 'antialiased';
+          img.style.mozOsxFontSmoothing = 'grayscale';
+          
+          if (img.naturalWidth && img.naturalHeight) {
+            img.setAttribute('width', img.naturalWidth);
+            img.setAttribute('height', img.naturalHeight);
+          }
+          
+          // 确保图片已加载
+          if (!img.complete) {
+            return new Promise((resolve) => {
+              img.onload = resolve;
+            });
+          }
+        });
+      } catch (error) {
+        console.error('克隆文档时发生错误:', error);
+      }
+    }
+  };
+
+  // 使用Promise.race来添加超时处理
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error('生成超时')), 40000); // 40秒总超时
+  });
+
+  Promise.race([
+    html2canvas(posterPreview, canvasOptions),
+    timeoutPromise
+  ]).then(canvas => {
+    try {
+      // 根据格式选择导出方式
+      const exportQuality = format === 'png' ? undefined : 1.0; // 最高质量JPEG
+      const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
+      
+      // 获取原始canvas的尺寸
+      const originalWidth = canvas.width;
+      const originalHeight = canvas.height;
+      
+      // 创建一个新的canvas，保持原始比例
+      const tempCanvas = document.createElement('canvas');
+      const ctx = tempCanvas.getContext('2d', {
+        alpha: format === 'png',
+        willReadFrequently: false,
+        desynchronized: true
+      });
+      
+      // 设置输出尺寸，保持原始比例
+      const maxWidth = 1600; // 增加最大宽度以提高清晰度
+      const scale = maxWidth / originalWidth;
+      tempCanvas.width = maxWidth;
+      tempCanvas.height = originalHeight * scale;
+      
+      // 使用高质量的图像平滑
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      
+      // 绘制调整后的图像，保持比例
+      ctx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
+      
+      // 如果是PNG格式，尝试优化透明度处理
+      if (format === 'png') {
+        const imageData = ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+        ctx.putImageData(imageData, 0, 0);
+      }
+      
+      tempCanvas.toBlob(blob => {
+        const templateName = window.currentTemplate ? window.currentTemplate.name : 'poster';
+        saveAs(blob, `${templateName}-${Date.now()}.${format}`);
+        cleanup();
+      }, mimeType, exportQuality);
+    } catch (error) {
+      console.error('导出图片时发生错误:', error);
+      cleanup();
     }
   }).catch(error => {
     console.error('下载海报失败:', error);
-    alert('下载失败，请重试');
-    
-    // 出错时也恢复水印
-    if (watermarkData) {
-      watermarkData.parent.appendChild(watermarkData.element);
-    }
+    alert('生成海报失败，请重试');
+    cleanup();
   });
 }
