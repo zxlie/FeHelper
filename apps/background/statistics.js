@@ -294,11 +294,37 @@ let Statistics = (function() {
         scheduleSyncStats();
     };
     
+    /**
+     * 获取最近使用的工具（按最近使用时间倒序，默认最近10个）
+     * @param {number} limit - 返回的最大数量
+     * @returns {Promise<string[]>} 工具名称数组
+     */
+    const getRecentUsedTools = async (limit = 10) => {
+        // 确保数据已加载
+        await loadUsageData();
+        // 收集所有日期，按新到旧排序
+        const dates = Object.keys(usageData.dailyUsage).sort((a, b) => b.localeCompare(a));
+        const toolSet = [];
+        for (const date of dates) {
+            const tools = Object.keys(usageData.dailyUsage[date].tools || {});
+            for (const tool of tools) {
+                if (!toolSet.includes(tool)) {
+                    toolSet.push(tool);
+                    if (toolSet.length >= limit) {
+                        return toolSet;
+                    }
+                }
+            }
+        }
+        return toolSet;
+    };
+    
     return {
         init,
         recordInstallation,
         recordUpdate,
-        recordToolUsage
+        recordToolUsage,
+        getRecentUsedTools
     };
 })();
 

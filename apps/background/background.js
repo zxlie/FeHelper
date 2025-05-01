@@ -507,6 +507,18 @@ let BgPageInstance = (function () {
                     case 'open-donate-modal':
                         chrome.gotoDonateModal(request.params.toolName);
                         break;
+                    case 'load-json-script':
+                        // 处理加载JSON格式化相关脚本的请求
+                        fetch(request.script)
+                            .then(response => response.text())
+                            .then(scriptContent => {
+                                callback && callback(scriptContent);
+                            })
+                            .catch(error => {
+                                console.error('加载脚本失败:', error);
+                                callback && callback(null);
+                            });
+                        return true; // 异步响应需要返回true
                 }
                 callback && callback(request.params);
             } else {

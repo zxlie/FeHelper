@@ -1,6 +1,7 @@
 import Awesome from '../background/awesome.js'
 import MSG_TYPE from '../static/js/common.js';
 import Settings from './settings.js';
+import Statistics from '../background/statistics.js';
 
 // 工具分类定义
 const TOOL_CATEGORIES = [
@@ -58,10 +59,13 @@ new Vue({
             callback: null,
             data: null
         },
+
+        recentCount: 0,
     },
 
     async created() {
         await this.initData();
+        this.recentCount = (await Statistics.getRecentUsedTools(10)).length;
         // 初始化后更新已安装工具数量
         this.updateInstalledCount();
         // 恢复用户的视图模式设置
@@ -157,6 +161,7 @@ new Vue({
                 // 获取最近使用数据
                 const recentUsed = await this.getRecentUsedData();
                 this.recentUsed = recentUsed;
+                this.recentCount = recentUsed.length;
 
                 // 获取已安装工具列表
                 const installedTools = await Awesome.getInstalledTools();
@@ -576,11 +581,8 @@ new Vue({
         },
 
         async getRecentUsedData() {
-            return new Promise((resolve) => {
-                chrome.storage.local.get('recentUsed', (result) => {
-                    resolve(result.recentUsed || []);
-                });
-            });
+            // 直接从Statistics模块获取最近使用的工具
+            return await Statistics.getRecentUsedTools(10);
         },
 
         async saveFavorites() {
@@ -595,12 +597,6 @@ new Vue({
             } catch (error) {
                 console.error('保存收藏失败:', error);
             }
-        },
-
-        async saveRecentUsed() {
-            await chrome.storage.local.set({
-                recentUsed: this.recentUsed
-            });
         },
 
         handleSearch() {
@@ -649,10 +645,6 @@ new Vue({
             return this.favorites.size;
         },
 
-        getRecentCount() {
-            return this.recentUsed.length;
-        },
-
         getToolCategory(toolKey) {
             for (const category of TOOL_CATEGORIES) {
                 if (category.tools.includes(toolKey)) {
@@ -678,11 +670,14 @@ new Vue({
             this.updateActiveTools('favorites');
         },
 
-        showRecentUsed() {
+        async showRecentUsed() {
             this.currentView = 'recent';
             this.currentCategory = '';
             this.searchKey = '';
-            this.updateActiveTools('recent');
+            // 实时获取最近使用
+            this.recentUsed = await Statistics.getRecentUsedTools(10);
+            this.recentCount = this.recentUsed.length;
+            await this.updateActiveTools('recent');
         },
 
         // 重置工具列表到原始状态
@@ -742,9 +737,6 @@ new Vue({
                 if (this.activeTools[toolKey]) {
                     this.activeTools[toolKey].installed = true;
                 }
-                
-                // 添加到最近使用
-                this.addToRecentUsed(toolKey);
                 
                 // 更新已安装工具数量
                 this.updateInstalledCount();
@@ -885,24 +877,6 @@ new Vue({
             }
         },
 
-        addToRecentUsed(toolKey) {
-            // 移除已存在的记录
-            const index = this.recentUsed.indexOf(toolKey);
-            if (index > -1) {
-                this.recentUsed.splice(index, 1);
-            }
-            
-            // 添加到开头
-            this.recentUsed.unshift(toolKey);
-            
-            // 限制最大记录数
-            if (this.recentUsed.length > 10) {
-                this.recentUsed.pop();
-            }
-            
-            this.saveRecentUsed();
-        },
-
         async updateActiveTools(view) {
             if (this.loading || Object.keys(this.originalTools).length === 0) {
                 return;
@@ -935,6 +909,7 @@ new Vue({
                     );
                     break;
                 case 'recent':
+                    // 切换recent时，recentUsed已在showRecentUsed中实时拉取
                     this.activeTools = Object.fromEntries(
                         Object.entries(this.originalTools).filter(([key]) => this.recentUsed.includes(key))
                     );
@@ -1204,6 +1179,12 @@ new Vue({
             } catch (error) {
                 console.error('处理打赏参数时出错:', error);
             }
+        },
+
+        // 补充 getRecentCount，保证模板调用不报错，且数据源唯一
+        async getRecentCount() {
+            const recent = await Statistics.getRecentUsedTools(10);
+            return recent.length;
         },
     },
 
