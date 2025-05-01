@@ -10,6 +10,7 @@ import Menu from './menu.js';
 import Awesome from './awesome.js';
 import InjectTools from './inject-tools.js';
 import Monkey from './monkey.js';
+import Statistics from './statistics.js';
 
 
 let BgPageInstance = (function () {
@@ -238,6 +239,9 @@ let BgPageInstance = (function () {
         chrome.DynamicToolRunner({
             tool: MSG_TYPE.JSON_FORMAT
         });
+        
+        // 记录工具使用
+        Statistics.recordToolUsage(MSG_TYPE.JSON_FORMAT);
     };
 
     /**
@@ -369,14 +373,22 @@ let BgPageInstance = (function () {
             // 截屏
             else if (request.type === MSG_TYPE.CAPTURE_VISIBLE_PAGE) {
                 _captureVisibleTab(callback);
+                // 记录工具使用
+                Statistics.recordToolUsage('screenshot');
             }
             // 直接处理content-script.js中的截图请求
             else if (request.type === 'fh-screenshot-capture-visible') {
                 _captureVisibleTab(callback);
+                // 记录工具使用
+                Statistics.recordToolUsage('screenshot');
             }
             // 打开动态工具页面
             else if (request.type === MSG_TYPE.OPEN_DYNAMIC_TOOL) {
                 chrome.DynamicToolRunner(request);
+                // 记录工具使用
+                if (request.page) {
+                    Statistics.recordToolUsage(request.page);
+                }
                 callback && callback();
             }
             // 打开其他页面
@@ -384,6 +396,10 @@ let BgPageInstance = (function () {
                 chrome.DynamicToolRunner({
                     tool: request.page
                 });
+                // 记录工具使用
+                if (request.page) {
+                    Statistics.recordToolUsage(request.page);
+                }
                 callback && callback();
             }
             // 任何事件，都可以通过这个钩子来完成
@@ -405,6 +421,8 @@ let BgPageInstance = (function () {
                                 noPage: true
                             });
                         }
+                        // 记录工具使用
+                        Statistics.recordToolUsage('screenshot');
                         break;
                     case 'request-jsonformat-options':
                         Awesome.StorageMgr.get(request.params).then(result => {
@@ -430,9 +448,13 @@ let BgPageInstance = (function () {
                                 callback && callback(!show);
                             });
                         });
+                        // 记录工具使用
+                        Statistics.recordToolUsage('json-format');
                         return true; // 这个返回true是非常重要的！！！要不然callback会拿不到结果
                     case 'code-beautify':
                         _codeBeautify(request.params);
+                        // 记录工具使用
+                        Statistics.recordToolUsage('code-beautify');
                         break;
                     case 'close-beautify':
                         Awesome.StorageMgr.set('JS_CSS_PAGE_BEAUTIFY',0);
@@ -443,6 +465,8 @@ let BgPageInstance = (function () {
                             tool: 'qr-code',
                             query: `mode=decode`
                         });
+                        // 记录工具使用
+                        Statistics.recordToolUsage('qr-code');
                         break;
                     case 'request-page-content':
                         request.params = FeJson[request.tabId];
@@ -453,18 +477,26 @@ let BgPageInstance = (function () {
                             tool: 'page-timing',
                             withContent: request.wpoInfo
                         });
+                        // 记录工具使用
+                        Statistics.recordToolUsage('page-timing');
                         break;
                     case 'color-picker-capture':
                         _colorPickerCapture(request.params);
+                        // 记录工具使用
+                        Statistics.recordToolUsage('color-picker');
                         break;
                     case 'add-screen-shot-by-pages':
                         _addScreenShotByPages(request.params,callback);
+                        // 记录工具使用
+                        Statistics.recordToolUsage('screenshot');
                         return true;
                     case 'page-screenshot-done':
                         _showScreenShotResult(request.params);
                         break;
                     case 'request-monkey-start':
                         Monkey.start(request.params);
+                        // 记录工具使用
+                        Statistics.recordToolUsage('page-monkey');
                         break;
                     case 'inject-content-css':
                         _injectContentCss(sender.tab.id,request.tool,!!request.devTool);
@@ -502,9 +534,13 @@ let BgPageInstance = (function () {
             switch (reason) {
                 case 'install':
                     chrome.runtime.openOptionsPage();
+                    // 记录新安装用户
+                    Statistics.recordInstallation();
                     break;
                 case 'update':
                     _animateTips('+++1');
+                    // 记录更新安装
+                    Statistics.recordUpdate(previousVersion);
                     if (previousVersion === '2019.12.2415') {
                         notifyText({
                             message: '历尽千辛万苦，FeHelper已升级到最新版本，可以到插件设置页去安装旧版功能了！',
@@ -553,6 +589,8 @@ let BgPageInstance = (function () {
         chrome.contextMenus.onClicked.addListener((info, tab) => {
             if (info.menuItemId === 'fehelper-screenshot-page') {
                 _triggerScreenshotTool(tab.id);
+                // 记录工具使用
+                Statistics.recordToolUsage('screenshot');
             }
         });
         
@@ -562,6 +600,9 @@ let BgPageInstance = (function () {
             title: '网页截图',
             contexts: ['page']
         });
+        
+        // 初始化统计功能
+        Statistics.init();
         
         Menu.rebuild();
         // 定期清理冗余的垃圾
