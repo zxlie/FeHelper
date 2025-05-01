@@ -118,6 +118,7 @@ window.JsonAutoFormat = (() => {
             '    </span>' +
             '    <span class="x-fix-encoding"><span class="x-split">|</span><button class="xjf-btn" id="jsonGetCorrectCnt">乱码修正</button></span>' +
             '    <span id="optionBar"></span>' +
+            '    <span class="x-donate-link' + (isInUSA() ? ' x-donate-link-us' : '') + '"><a href="#" id="donateLink"><i class="nav-icon">❤</i>打赏鼓励</a></span>' +
             '    <span class="fe-feedback">' +
             '       <span class="x-settings"><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" width="14">' +
             '           <path fill-rule="evenodd" d="M14 8.77v-1.6l-1.94-.64-.45-1.09.88-1.84-1.13-1.13-1.81.91-1.09-.45-.69-1.92h-1.6l-.63 1.94-1.11.45-1.84-.88-1.13 1.13.91 1.81-.45 1.09L0 7.23v1.59l1.94.64.45 1.09-.88 1.84 1.13 1.13 1.81-.91 1.09.45.69 1.92h1.59l.63-1.94 1.11-.45 1.84.88 1.13-1.13-.92-1.81.47-1.09L14 8.75v.02zM7 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"></path>' +
@@ -339,6 +340,15 @@ window.JsonAutoFormat = (() => {
 
         $('.fe-feedback .x-settings').click(e => _createSettingPanel());
         $('#jsonGetCorrectCnt').click(e => _getCorrectContent());
+
+        $('.x-toolbar .x-donate-link').on('click', function (e) {
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'json-format' }
+            });
+        });
+        
     };
 
     let _didFormat = function () {

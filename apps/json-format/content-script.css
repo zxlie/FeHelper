@@ -591,6 +591,15 @@ html.fh-jf svg:not(:root) {
 .fe-feedback>a.x-other-tools-us {
     display: none;
 }
+.x-toolbar>.x-donate-link {
+    margin-left: 20px;
+}
+.x-toolbar>.x-donate-link-us {
+    display: none;
+}
+.x-toolbar>.x-donate-link a:hover {
+    color: #f00;
+}
 
 .fe-feedback>a.x-other-tools .icon-plus-circle {
     display: inline-block;

@@ -8,10 +8,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportPngBtn = document.getElementById('export-png-btn');
     const exportJpgBtn = document.getElementById('export-jpg-btn');
     const copyImgBtn = document.getElementById('copy-img-btn');
-    const chartTypeSelect = document.getElementById('chart-type');
     const manualFormatSelect = document.getElementById('manual-format');
     const fileUploadInput = document.getElementById('file-upload');
     const manualFormatContainer = document.getElementById('manual-format-container');
+    const donateLink = document.querySelector('.x-donate-link');
+    const otherToolsLink = document.querySelector('.x-other-tools');
+
     const manualInputContainers = [simpleDataContainer, seriesDataContainer, csvDataContainer];
     
     // 初始化显示状态
@@ -53,6 +55,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 fileUploadInput.value = ''; // 清空文件选择
             }
         });
+    });
+
+    // 监听打赏链接点击事件
+    donateLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing: 'open-donate-modal', 
+            params: { toolName: 'chart-maker' }
+        });
+    });
+
+    // 监听探索更多工具链接点击事件
+    otherToolsLink.addEventListener('click', function(event) {
+        event.preventDefault(); 
+        chrome.runtime.openOptionsPage();
     });
 
     // 监听手动格式选择变化

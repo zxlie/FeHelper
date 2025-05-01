@@ -103,6 +103,38 @@ let BgPageInstance = (function () {
     };
 
     /**
+     * 打开打赏弹窗
+     * @param {string} toolName - 工具名称
+     */
+    chrome.gotoDonateModal = function (toolName) {
+        chrome.tabs.query({currentWindow: true}, function (tabs) {
+
+            Settings.getOptions((opts) => {
+                let isOpened = false;
+                let tabId;
+                let reg = new RegExp("^chrome.*\\/options\\/index.html\\?donate_from=" + toolName + "$", "i");
+                for (let i = 0, len = tabs.length; i < len; i++) {
+                    if (reg.test(tabs[i].url)) {
+                        isOpened = true;
+                        tabId = tabs[i].id;
+                        break;
+                    }
+                }
+                if (!isOpened) {
+                    let url = `/options/index.html?donate_from=${toolName}`;
+                    chrome.tabs.create({ url,active: true });
+                } else {
+                    chrome.tabs.update(tabId, {highlighted: true}).then(tab => {
+                        chrome.tabs.reload(tabId);
+                    });
+                }
+
+            });
+
+        });
+    };
+
+    /**
      * 动态运行工具
      * @param configs
      * @config tool 工具名称
@@ -439,6 +471,9 @@ let BgPageInstance = (function () {
                         break;
                     case 'open-options-page':
                         chrome.runtime.openOptionsPage();
+                        break;
+                    case 'open-donate-modal':
+                        chrome.gotoDonateModal(request.params.toolName);
                         break;
                 }
                 callback && callback(request.params);

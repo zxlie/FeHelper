@@ -1256,6 +1256,19 @@ new Vue({
                     dimensions: '解析出错'
                 };
             }
+        },
+
+        /**
+         * 打开打赏弹窗
+         */
+        openDonateModal: function () {
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: {
+                    toolName: 'svg-converter'
+                }
+            });
         }
     }
 });

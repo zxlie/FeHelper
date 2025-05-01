@@ -298,6 +298,15 @@ new Vue({
                  // Optionally, provide a fallback link or message
                  // window.open('options.html'); // Example fallback
             }
+        },
+
+        openDonateModal: function(event ){
+            event.preventDefault();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'qr-code' }
+            });
         }
     }
 });

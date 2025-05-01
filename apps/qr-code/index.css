@@ -244,7 +244,7 @@ td .x-panel .x-tips {
 }
 
 /* 保持原有的顶部导航样式 */
-.x-switch {
+.x-switch,.x-donate-link {
     font-size: 14px;
     font-weight: 500;
     color: #2563eb;
@@ -276,7 +276,7 @@ td .x-panel .x-tips {
     transition: transform 0.3s ease;
 }
 
-.x-switch:hover {
+.x-switch:hover,.x-donate-link:hover {
     background-color: #dbeafe;
     color: #1d4ed8;
     text-decoration: none;
@@ -287,6 +287,11 @@ td .x-panel .x-tips {
 .x-switch:hover::before {
     transform: rotate(180deg);
     opacity: 1;
+}
+.x-donate-link {
+    margin: 0 10px;
+    font-size: 12px;
+    font-weight: normal;
 }
 
 form {

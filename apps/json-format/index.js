@@ -23,7 +23,8 @@ new Vue({
         jsonLintSwitch: true,
         autoDecode: false,
         fireChange: true,
-        overrideJson: false
+        overrideJson: false,
+        isInUSAFlag: false
     },
     mounted: function () {
         // 自动开关灯控制
@@ -33,6 +34,8 @@ new Vue({
 
         this.autoDecode = localStorage.getItem(AUTO_DECODE);
         this.autoDecode = this.autoDecode === 'true';
+
+        this.isInUSAFlag = this.isInUSA();
 
         this.jsonLintSwitch = (localStorage.getItem(JSON_LINT) !== 'false');
         this.overrideJson = (localStorage.getItem(EDIT_ON_CLICK) === 'true');
@@ -77,6 +80,19 @@ new Vue({
         }
     },
     methods: {
+        isInUSA: function () {
+            // 通过时区判断是否在美国
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const isUSTimeZone = /^America\/(New_York|Chicago|Denver|Los_Angeles|Anchorage|Honolulu)/.test(timeZone);
+
+            // 通过语言判断
+            const language = navigator.language || navigator.userLanguage;
+            const isUSLanguage = language.toLowerCase().indexOf('en-us') > -1;
+
+            // 如果时区和语言都符合美国特征,则认为在美国
+            return (isUSTimeZone && isUSLanguage);
+        },
+
         format: function () {
             this.errorMsg = '';
             this.placeHolder = this.defaultResultTpl;
@@ -284,6 +300,14 @@ new Vue({
 
         openOptionsPage: function(){
             chrome.runtime.openOptionsPage();
+        },
+
+        openDonateModal: function(){
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'json-format' }
+            });
         },
 
         setDemo: function () {

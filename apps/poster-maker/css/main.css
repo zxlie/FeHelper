@@ -677,6 +677,14 @@ body {
 .navbar-brand {
   display: flex;
   align-items: center;
+  position: relative;
+}
+.mod-head-actions{
+  position: absolute;
+  right: 0;
+} 
+.mod-head-actions a:hover{
+  color: #f00;
 }
 
 .brand-link {
