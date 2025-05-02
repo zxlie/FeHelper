@@ -319,12 +319,104 @@ let Statistics = (function() {
         return toolSet;
     };
     
+    /**
+     * 获取DashBoard统计数据
+     * @returns {Promise<Object>} 统计数据对象
+     */
+    const getDashboardData = async () => {
+        await loadUsageData();
+        // 最近10次使用的工具及时间
+        const recent = [];
+        const recentDetail = [];
+        const dates = Object.keys(usageData.dailyUsage).sort((a, b) => b.localeCompare(a));
+        for (const date of dates) {
+            for (const tool of Object.keys(usageData.dailyUsage[date].tools || {})) {
+                if (!recent.includes(tool)) {
+                    recent.push(tool);
+                    recentDetail.push({ tool, date });
+                    if (recent.length >= 10) break;
+                }
+            }
+            if (recent.length >= 10) break;
+        }
+        // 工具使用总次数排行
+        const mostUsed = Object.entries(usageData.tools)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10)
+            .map(([name, count]) => ({ name, count }));
+        const totalCount = Object.values(usageData.tools).reduce((a, b) => a + b, 0);
+        const activeDays = Object.keys(usageData.dailyUsage).length;
+        const allDates = Object.keys(usageData.dailyUsage).sort();
+        // 最近10天每日使用情况
+        const dailyTrend = allDates.slice(-10).map(date => ({
+            date,
+            count: Object.values(usageData.dailyUsage[date].tools || {}).reduce((a, b) => a + b, 0)
+        }));
+        // 首次和最近活跃日期
+        const firstDate = allDates[0] || '';
+        const lastDate = allDates[allDates.length - 1] || '';
+        // 连续活跃天数
+        let maxStreak = 0, curStreak = 0, prev = '';
+        for (let i = 0; i < allDates.length; i++) {
+            if (i === 0 || (new Date(allDates[i]) - new Date(prev) === 86400000)) {
+                curStreak++;
+            } else {
+                maxStreak = Math.max(maxStreak, curStreak);
+                curStreak = 1;
+            }
+            prev = allDates[i];
+        }
+        maxStreak = Math.max(maxStreak, curStreak);
+        // 本月/本周统计
+        const now = new Date();
+        const thisMonth = now.toISOString().slice(0, 7);
+        const thisWeekMonday = new Date(now.setDate(now.getDate() - now.getDay() + 1)).toISOString().slice(0, 10);
+        let monthCount = 0, weekCount = 0;
+        allDates.forEach(date => {
+            const cnt = Object.values(usageData.dailyUsage[date].tools || {}).reduce((a, b) => a + b, 0);
+            if (date.startsWith(thisMonth)) monthCount += cnt;
+            if (date >= thisWeekMonday) weekCount += cnt;
+        });
+        // 平均每日使用次数
+        const avgPerDay = activeDays ? Math.round(totalCount / activeDays * 10) / 10 : 0;
+        // 最活跃的一天
+        let maxDay = { date: '', count: 0 };
+        allDates.forEach(date => {
+            const cnt = Object.values(usageData.dailyUsage[date].tools || {}).reduce((a, b) => a + b, 0);
+            if (cnt > maxDay.count) maxDay = { date, count: cnt };
+        });
+        // 最近未使用天数
+        let daysSinceLast = 0;
+        if (lastDate) {
+            const diff = Math.floor((new Date() - new Date(lastDate)) / 86400000);
+            daysSinceLast = diff > 0 ? diff : 0;
+        }
+        return {
+            recent,
+            recentDetail,
+            mostUsed,
+            totalCount,
+            activeDays,
+            dailyTrend,
+            firstDate,
+            lastDate,
+            maxStreak,
+            monthCount,
+            weekCount,
+            avgPerDay,
+            maxDay,
+            daysSinceLast,
+            allDates
+        };
+    };
+    
     return {
         init,
         recordInstallation,
         recordUpdate,
         recordToolUsage,
-        getRecentUsedTools
+        getRecentUsedTools,
+        getDashboardData
     };
 })();
 

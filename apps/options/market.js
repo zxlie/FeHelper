@@ -2,6 +2,7 @@ import Awesome from '../background/awesome.js'
 import MSG_TYPE from '../static/js/common.js';
 import Settings from './settings.js';
 import Statistics from '../background/statistics.js';
+import toolMap from '../background/tools.js';
 
 // 工具分类定义
 const TOOL_CATEGORIES = [
@@ -61,6 +62,8 @@ new Vue({
         },
 
         recentCount: 0,
+        showDashboard: false, // 是否显示DashBoard
+        dashboardData: null, // DashBoard数据
     },
 
     async created() {
@@ -609,12 +612,11 @@ new Vue({
                 this.currentView = 'all';
                 this.updateActiveTools('all');
             }
-            
             this.currentCategory = category;
             this.searchKey = '';
-            
             // 确保工具显示正确
             this.activeTools = { ...this.originalTools };
+            this.showDashboard = false;
         },
 
         handleSort() {
@@ -661,6 +663,7 @@ new Vue({
             await this.updateActiveTools('installed');
             // 更新已安装工具数量
             await this.updateInstalledCount();
+            this.showDashboard = false;
         },
 
         showMyFavorites() {
@@ -668,16 +671,24 @@ new Vue({
             this.currentCategory = '';
             this.searchKey = '';
             this.updateActiveTools('favorites');
+            this.showDashboard = false;
         },
 
         async showRecentUsed() {
             this.currentView = 'recent';
             this.currentCategory = '';
             this.searchKey = '';
-            // 实时获取最近使用
-            this.recentUsed = await Statistics.getRecentUsedTools(10);
-            this.recentCount = this.recentUsed.length;
-            await this.updateActiveTools('recent');
+            // 拉取DashBoard数据并显示
+            this.dashboardData = await Statistics.getDashboardData();
+            this.showDashboard = true;
+            // 不再更新工具列表
+        },
+
+        // 关闭DashBoard，恢复工具列表
+        closeDashboard() {
+            this.showDashboard = false;
+            this.currentView = 'all';
+            this.updateActiveTools('all');
         },
 
         // 重置工具列表到原始状态
@@ -1186,6 +1197,132 @@ new Vue({
             const recent = await Statistics.getRecentUsedTools(10);
             return recent.length;
         },
+
+        renderDashboard() {
+            const dashboardContainerId = 'fh-dashboard-panel';
+            let container = document.getElementById(dashboardContainerId);
+            // 只在showDashboard且currentView为recent时隐藏工具列表
+            const grid = document.querySelector('.tools-grid');
+            if (!this.showDashboard || this.currentView !== 'recent') {
+                if (container) container.style.display = 'none';
+                if (grid) grid.style.display = '';
+                return;
+            }
+            if (grid) grid.style.display = 'none';
+            if (!container) {
+                container = document.createElement('div');
+                container.id = dashboardContainerId;
+                container.style = 'padding:32px; background:#fff; border-radius:8px; margin:24px; box-shadow:0 2px 12px #eee; min-width:700px;';
+                const main = document.querySelector('.market-main') || document.querySelector('.market-content');
+                if (main) main.prepend(container);
+                else document.body.appendChild(container);
+            }
+            container.style.display = 'block';
+            const data = this.dashboardData || {};
+            // 工具ID转中文名和icon
+            const toolName = (key) => (this.originalTools && this.originalTools[key] && this.originalTools[key].name) ? this.originalTools[key].name : key;
+            const toolIcon = (key) => {
+                if (toolMap[key] && toolMap[key].menuConfig && toolMap[key].menuConfig[0] && toolMap[key].menuConfig[0].icon) {
+                    return toolMap[key].menuConfig[0].icon;
+                }
+                return toolName(key).slice(0,1);
+            };
+            // 插入美观样式
+            if (!document.getElementById('fh-dashboard-style')) {
+                const style = document.createElement('style');
+                style.id = 'fh-dashboard-style';
+                style.innerHTML = `
+                .fh-dashboard-cards { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 24px;}
+                .fh-card { background: linear-gradient(135deg,#f7f9fa 60%,#e3eafc 100%); border-radius: 12px; box-shadow:0 2px 8px #f0f0f0; padding:18px 24px; min-width:120px; flex:1; text-align:center; font-size:15px;}
+                .fh-card.main { background: linear-gradient(135deg,#e3fcec 60%,#e3eafc 100%);}
+                .fh-card-num { font-size:32px; font-weight:bold; margin-bottom:4px;}
+                .fh-calendar { display:inline-block; margin-left:12px; }
+                .fh-cal-cell { display:inline-block; width:18px; height:18px; line-height:18px; text-align:center; border-radius:3px; margin:1px; background:#eee; color:#888; font-size:12px;}
+                .fh-cal-cell.used { background:#4285f4; color:#fff; font-weight:bold;}
+                .fh-dashboard-section { background:#fff; border-radius:12px; box-shadow:0 1px 4px #f0f0f0; padding:18px 24px; margin-bottom:24px;}
+                .fh-dashboard-header { margin-bottom:24px; }
+                .fh-dashboard-header h2 { font-size:22px; margin:0; }
+                .fh-tool-bar { display:inline-block; width:18px; height:18px; border-radius:3px; background:#e3eafc; margin-right:6px; vertical-align:middle; }
+                .fh-tool-bar-inner { display:inline-block; height:100%; border-radius:3px; background:#4285f4; }
+                .fh-tool-list { margin:0; padding:0; list-style:none; }
+                .fh-tool-list li { margin-bottom:10px; }
+                .fh-tool-icon { display:inline-block; width:18px; height:18px; border-radius:3px; background:#e3eafc; margin-right:6px; vertical-align:middle; text-align:center; font-size:14px; }
+                .fh-dashboard-sub { color:#888; font-size:13px; margin-bottom:8px; }
+                `;
+                document.head.appendChild(style);
+            }
+            // 30天活跃日历
+            const today = new Date();
+            let calendar = '<div class="fh-calendar">';
+            for(let i=29;i>=0;i--){
+                const d = new Date(today.getTime()-i*86400000);
+                const ds = d.toISOString().slice(0,10);
+                const used = data.allDates && data.allDates.includes(ds);
+                calendar += `<span class="fh-cal-cell${used?' used':''}" title="${ds}">${d.getDate()}</span>`;
+            }
+            calendar += '</div>';
+            // 主卡片区块
+            let html = `
+            <div class="fh-dashboard-header">
+              <h2>FeHelper 使用统计仪表盘 <span style="font-size:16px;color:#bbb;">(近30天)</span></h2>
+            </div>
+            <div class="fh-dashboard-cards">
+              <div class="fh-card main"><div class="fh-card-num">${data.totalCount||0}</div><div>总使用次数</div></div>
+              <div class="fh-card main"><div class="fh-card-num">${data.activeDays||0}</div><div>活跃天数</div></div>
+              <div class="fh-card"><div>${data.firstDate||'-'}<br>~<br>${data.lastDate||'-'}</div><div>统计区间</div></div>
+              <div class="fh-card"><div class="fh-card-num">${data.maxStreak||0}</div><div>最长连续活跃天数</div></div>
+              <div class="fh-card"><div class="fh-card-num">${data.monthCount||0}</div><div>本月使用次数</div></div>
+              <div class="fh-card"><div class="fh-card-num">${data.weekCount||0}</div><div>本周使用次数</div></div>
+              <div class="fh-card"><div class="fh-card-num">${data.avgPerDay||0}</div><div>平均每日使用</div></div>
+              <div class="fh-card"><div>${data.maxDay.date||'-'}<br><b>${data.maxDay.count||0}</b></div><div>最活跃日</div></div>
+              <div class="fh-card"><div class="fh-card-num">${data.daysSinceLast||0}</div><div>最近未使用天数</div></div>
+            </div>
+            <div class="fh-dashboard-section">
+                <div class="fh-dashboard-sub">近30天活跃日历：</div>${calendar}
+            </div>
+            <div class="fh-dashboard-section" style="display:flex;gap:32px;flex-wrap:wrap;">
+                <div style="flex:2;min-width:320px;">
+                    <div class="fh-dashboard-sub"><b>最近10天活跃趋势：</b></div>
+                    <div style="display:flex;align-items:end;height:80px;margin-top:8px;">
+                        ${
+                            (data.dailyTrend||[]).map(d=>{
+                                const max = Math.max(...(data.dailyTrend||[]).map(x=>x.count),1);
+                                return `<div title='${d.date}: ${d.count}' style='width:20px;height:${d.count/max*60}px;background:#4285f4;margin-right:4px;border-radius:2px;'></div>`;
+                            }).join('')
+                        }
+                    </div>
+                    <div style="font-size:12px;color:#888;margin-top:4px;">
+                        ${(data.dailyTrend||[]).map(d=>`<span style='display:inline-block;width:20px;text-align:center;'>${d.date.slice(5)}</span>`).join('')}
+                    </div>
+                </div>
+                <div style="flex:3;min-width:320px;">
+                    <div class="fh-dashboard-sub"><b>使用最多的工具：</b></div>
+                    <ul class="fh-tool-list">
+                        ${(data.mostUsed||[]).map(t=>{
+                            const percent = data.totalCount ? Math.round(t.count/data.totalCount*100) : 0;
+                            return `<li style='margin-bottom:12px;display:flex;align-items:center;'>
+                                <span class='fh-tool-icon'>${toolIcon(t.name)}</span>
+                                <span style='display:inline-block;width:100px;'>${toolName(t.name)}</span>
+                                <span style='display:inline-block;width:60px;color:#888;'>(x${t.count})</span>
+                                <span class='fh-tool-bar' style='width:80px;height:10px;margin:0 8px;'>
+                                    <span class='fh-tool-bar-inner' style='width:${percent*0.8}px;'></span>
+                                </span>
+                                <span style='color:#888;'>${percent}%</span>
+                            </li>`;
+                        }).join('')}
+                    </ul>
+                </div>
+            </div>
+            <div class="fh-dashboard-section">
+                <div class="fh-dashboard-sub"><b>最近10次使用的工具：</b></div>
+                <ul style="margin:8px 0 0 0;padding:0;list-style:none;">
+                    ${(data.recentDetail||[]).map(t=>`<li style='display:inline-block;margin-right:24px;'>${toolName(t.tool)} <span style='color:#888;'>(${t.date})</span></li>`).join('')}
+                </ul>
+            </div>
+            `;
+            container.innerHTML = html;
+            window.__vue__ = this;
+        },
     },
 
     watch: {
@@ -1209,8 +1346,20 @@ new Vue({
                     this.searchKey = '';
                 }
             }
-        }
-    }
+        },
+        showDashboard(val) {
+            this.renderDashboard();
+        },
+        dashboardData(val) {
+            this.renderDashboard();
+        },
+    },
+
+    mounted() {
+        this.$nextTick(() => {
+            this.renderDashboard();
+        });
+    },
 });
 
 // 添加滚动事件监听
