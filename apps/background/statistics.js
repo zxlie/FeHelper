@@ -1,13 +1,18 @@
 /**
- * FeHelper数据统计模块 - 使用GA4实现
+ * FeHelper数据统计模块
  * @author fehelper
  */
 
 import Awesome from './awesome.js';
 
-// GA4测量ID - 需要替换为您自己的GA4测量ID
-const GA4_MEASUREMENT_ID = 'G-1NWRCJRT01';
-const GA4_API_SECRET = 'wHIo3W6uRRCvhZ18hwOmiA';
+// 数据上报服务器地址
+let manifest = chrome.runtime.getManifest();
+let SERVER_TRACK_URL = '';
+if (manifest.name && manifest.name.endsWith('-Dev')) {
+    SERVER_TRACK_URL = 'https://chrome.fehelper.com/api/track';
+} else {
+    SERVER_TRACK_URL = 'https://localhost:3001/api/track';
+}
 
 // 用户ID存储键名
 const USER_ID_KEY = 'FH_USER_ID';
@@ -15,6 +20,9 @@ const USER_ID_KEY = 'FH_USER_ID';
 const LAST_ACTIVE_DATE_KEY = 'FH_LAST_ACTIVE_DATE';
 // 用户日常使用数据存储键名
 const USER_USAGE_DATA_KEY = 'FH_USER_USAGE_DATA';
+
+// 记录background启动时间
+const FH_TIME_OPENED = Date.now();
 
 let Statistics = (function() {
     
@@ -88,69 +96,90 @@ let Statistics = (function() {
     };
     
     /**
-     * 使用GA4发送事件数据
+     * 获取客户端详细信息，对标百度统计/GA/友盟
+     * @returns {Object}
+     */
+    const getClientInfo = () => {
+        const nav = navigator;
+        const screenInfo = window.screen;
+        const lang = nav.language || nav.userLanguage || '';
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        const ua = nav.userAgent;
+        const platform = nav.platform;
+        const vendor = nav.vendor;
+        const colorDepth = screenInfo.colorDepth;
+        const screenWidth = screenInfo.width;
+        const screenHeight = screenInfo.height;
+        const deviceMemory = nav.deviceMemory || '';
+        const hardwareConcurrency = nav.hardwareConcurrency || '';
+        // 网络信息
+        const connection = nav.connection || nav.mozConnection || nav.webkitConnection || {};
+        // 屏幕方向
+        const screenOrientation = screenInfo.orientation ? screenInfo.orientation.type : '';
+        // 触摸支持
+        const touchSupport = ('ontouchstart' in window) || (nav.maxTouchPoints > 0);
+        // JS堆内存（仅Chrome）
+        let memoryJSHeapSize = '';
+        if (window.performance && window.performance.memory) {
+            memoryJSHeapSize = window.performance.memory.jsHeapSizeLimit;
+        }
+        return {
+            language: lang,
+            timezone,
+            userAgent: ua,
+            platform,
+            vendor,
+            colorDepth,
+            screenWidth,
+            screenHeight,
+            deviceMemory,
+            hardwareConcurrency,
+            extensionVersion: chrome.runtime.getManifest().version,
+            // 新增字段
+            networkType: connection.effectiveType || '',
+            downlink: connection.downlink || '',
+            rtt: connection.rtt || '',
+            online: nav.onLine,
+            touchSupport,
+            cookieEnabled: nav.cookieEnabled,
+            doNotTrack: nav.doNotTrack,
+            appVersion: nav.appVersion,
+            appName: nav.appName,
+            product: nav.product,
+            vendorSub: nav.vendorSub,
+            screenOrientation,
+            memoryJSHeapSize,
+            timeOpened: FH_TIME_OPENED
+        };
+    };
+
+    /**
+     * 使用自建服务器发送事件数据
      * @param {string} eventName - 事件名称
      * @param {Object} params - 事件参数
      */
-    const sendToGA4 = async (eventName, params = {}) => {
-        // 获取设备和浏览器信息
-        const manifest = chrome.runtime.getManifest();
-        
-        // 确保获取用户ID
+    const sendToServer = async (eventName, params = {}) => {
         const uid = await getUserId();
-        
-        // 构建GA4所需参数
-        const gaParams = {
-            client_id: uid,
-            user_id: uid,
-            non_personalized_ads: true,
+        const clientInfo = getClientInfo();
+        const payload = {
+            event: eventName,
+            userId: uid,
+            date: todayStr,
+            timestamp: Date.now(),
+            ...clientInfo,
             ...params
         };
-        
-        // GA4主URL
-        const mainURL = `https://www.google-analytics.com/mp/collect?measurement_id=${GA4_MEASUREMENT_ID}&api_secret=${GA4_API_SECRET}`;
-        // 国内备用URL (可以使用自己的代理转发)
-        const backupURL = `https://chrome.fehelper.com/mp/collect?measurement_id=${GA4_MEASUREMENT_ID}&api_secret=${GA4_API_SECRET}`;
-        
-        // 准备发送的数据
-        const data = {
-            client_id: uid,
-            user_id: uid,
-            events: [
-                {
-                    name: eventName,
-                    params: {
-                        extension_version: manifest.version,
-                        ...gaParams
-                    }
-                }
-            ]
-        };
-        
         try {
-            // 主要尝试直接发送到GA
-            fetch(mainURL, {
+            fetch(SERVER_TRACK_URL, {
                 method: 'POST',
-                body: JSON.stringify(data),
-                keepalive: true,
+                body: JSON.stringify(payload),
                 headers: {
                     'Content-Type': 'application/json'
-                }
-            }).catch(error => {
-                // 如果主要GA服务器失败，尝试备用URL
-                if (backupURL) {
-                    fetch(backupURL, {
-                        method: 'POST',
-                        body: JSON.stringify(data),
-                        keepalive: true,
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    }).catch(e => console.log('备用GA4统计服务器发送失败:', e));
-                }
-            });
+                },
+                keepalive: true
+            }).catch(e => console.log('自建统计服务器发送失败:', e));
         } catch (error) {
-            console.log('GA4统计发送失败:', error);
+            console.log('自建统计发送失败:', error);
         }
     };
     
@@ -175,8 +204,8 @@ let Statistics = (function() {
                     };
                 }
                 
-                // 发送每日活跃记录到GA4
-                sendToGA4('daily_active_user', {
+                // 发送每日活跃记录到自建服务器
+                sendToServer('daily_active_user', {
                     date: todayStr
                 });
             }
@@ -189,7 +218,7 @@ let Statistics = (function() {
      * 记录插件安装事件
      */
     const recordInstallation = async () => {
-        sendToGA4('extension_installed');
+        sendToServer('extension_installed');
     };
     
     /**
@@ -197,9 +226,16 @@ let Statistics = (function() {
      * @param {string} previousVersion - 更新前的版本
      */
     const recordUpdate = async (previousVersion) => {
-        sendToGA4('extension_updated', {
+        sendToServer('extension_updated', {
             previous_version: previousVersion
         });
+    };
+    
+    /**
+     * 记录插件卸载事件
+     */
+    const recordUninstall = async () => {
+        sendToServer('extension_uninstall');
     };
     
     /**
@@ -230,8 +266,8 @@ let Statistics = (function() {
         // 保存使用数据
         await saveUsageData();
         
-        // 发送工具使用记录到GA4
-        sendToGA4('tool_used', {
+        // 发送工具使用记录到自建服务器
+        sendToServer('tool_used', {
             tool_name: toolName,
             date: todayStr
         });
@@ -250,7 +286,7 @@ let Statistics = (function() {
                 .slice(0, 5)
                 .map(([name, count]) => ({name, count}));
             
-            sendToGA4('usage_summary', {
+            sendToServer('usage_summary', {
                 top_tools: JSON.stringify(toolRanking)
             });
             
@@ -271,26 +307,12 @@ let Statistics = (function() {
     };
     
     /**
-     * 初始化GA4测量代码
-     */
-    const initGA4 = async () => {
-        // 获取用户ID
-        const uid = await getUserId();
-        
-        // 发送初始化事件
-        sendToGA4('extension_loaded', {
-            extension_version: chrome.runtime.getManifest().version
-        });
-    };
-    
-    /**
      * 初始化统计模块
      */
     const init = async () => {
         await getUserId();
         await loadUsageData();
         await recordDailyActiveUser();
-        await initGA4();
         scheduleSyncStats();
     };
     
@@ -416,7 +438,8 @@ let Statistics = (function() {
         recordUpdate,
         recordToolUsage,
         getRecentUsedTools,
-        getDashboardData
+        getDashboardData,
+        recordUninstall
     };
 })();
 

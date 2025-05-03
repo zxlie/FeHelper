@@ -572,8 +572,18 @@ let BgPageInstance = (function () {
                     break;
             }
         });
+        
         // 卸载
-        chrome.runtime.setUninstallURL(chrome.runtime.getManifest().homepage_url);
+        chrome.runtime.setUninstallURL(chrome.runtime.getManifest().homepage_url, () => {
+            // 记录卸载事件
+            try {
+                import('./statistics.js').then(({default: Statistics}) => {
+                    Statistics.recordUninstall();
+                });
+            } catch (e) {
+                // 忽略异常
+            }
+        });
     };
 
     /**
