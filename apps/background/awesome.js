@@ -293,6 +293,60 @@ let Awesome = (() => {
         return {get, set};
     })();
 
+    /**
+     * 采集客户端信息并发送给background
+     */
+    let collectAndSendClientInfo = () => {
+        try {
+            const nav = navigator;
+            const screenInfo = window.screen;
+            const lang = nav.language || nav.userLanguage || '';
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+            const ua = nav.userAgent;
+            const platform = nav.platform;
+            const vendor = nav.vendor;
+            const colorDepth = screenInfo.colorDepth;
+            const screenWidth = screenInfo.width;
+            const screenHeight = screenInfo.height;
+            const deviceMemory = nav.deviceMemory || '';
+            const hardwareConcurrency = nav.hardwareConcurrency || '';
+            const connection = nav.connection || nav.mozConnection || nav.webkitConnection || {};
+            const screenOrientation = screenInfo.orientation ? screenInfo.orientation.type : '';
+            const touchSupport = ('ontouchstart' in window) || (nav.maxTouchPoints > 0);
+            let memoryJSHeapSize = '';
+            if (window.performance && window.performance.memory) {
+                memoryJSHeapSize = window.performance.memory.jsHeapSizeLimit;
+            }
+            const clientInfo = {
+                language: lang,
+                timezone,
+                userAgent: ua,
+                platform,
+                vendor,
+                colorDepth,
+                screenWidth,
+                screenHeight,
+                deviceMemory,
+                hardwareConcurrency,
+                networkType: connection.effectiveType || '',
+                downlink: connection.downlink || '',
+                rtt: connection.rtt || '',
+                online: nav.onLine,
+                touchSupport,
+                cookieEnabled: nav.cookieEnabled,
+                doNotTrack: nav.doNotTrack,
+                appVersion: nav.appVersion,
+                appName: nav.appName,
+                product: nav.product,
+                vendorSub: nav.vendorSub,
+                screenOrientation,
+                memoryJSHeapSize
+            };
+            chrome.runtime.sendMessage({ type: 'clientInfo', data: clientInfo });
+        } catch (e) {
+            // 忽略采集异常
+        }
+    };
 
     return {
         StorageMgr,
@@ -307,7 +361,8 @@ let Awesome = (() => {
         gcLocalFiles,
         getAllTools,
         SortToolMgr,
-        CodeCacheMgr
+        CodeCacheMgr,
+        collectAndSendClientInfo
     }
 })();
 

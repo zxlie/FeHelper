@@ -18,7 +18,7 @@ window.JsonAutoFormat = (() => {
         // 使用chrome.runtime.sendMessage向background请求加载脚本
         chrome.runtime.sendMessage({
             type: 'fh-dynamic-any-thing',
-            thing: 'load-json-script',
+            thing: 'load-local-script',
             script: url
         }, (scriptContent) => {
             if (!scriptContent) {
@@ -437,6 +437,17 @@ window.JsonAutoFormat = (() => {
                 $('#jfCallbackName_end').html(')');
             }
         }
+        
+        // 埋点：自动触发json-format-auto
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing: 'statistics-tool-usage',
+            params: {
+                tool_name: 'json-format',
+                url: location.href
+            }
+        });
+        
     };
 
     let _getCorrectContent = function () {
@@ -698,6 +709,18 @@ window.JsonAutoFormat = (() => {
             _formatTheSource(source);
         }
     };
+
+    // 页面加载后自动采集
+    try {
+        if (window.chrome && chrome.runtime && chrome.runtime.sendMessage && window.Awesome && window.Awesome.collectAndSendClientInfo) {
+            window.Awesome.collectAndSendClientInfo();
+        } else {
+            // fallback: 动态加载Awesome模块
+            import(chrome.runtime.getURL('background/awesome.js')).then(module => {
+                module.default.collectAndSendClientInfo();
+            }).catch(() => {});
+        }
+    } catch(e) {}
 
     return {
         format: () => _getAllOptions(options => {

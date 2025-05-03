@@ -61,6 +61,9 @@
             "static/vendor/evalCore.min.js",
             "screenshot/content-script.js",
 
+            "background/awesome.js",
+            "background/tools.js",
+
             "code-beautify/beautify.js",
             "code-beautify/beautify-css.js",
 

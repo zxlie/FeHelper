@@ -24,6 +24,9 @@ let BgPageInstance = (function () {
         /^https:\/\/chrome\.google\.com/
     ];
 
+    // 全局缓存最新的客户端信息
+    let FH_CLIENT_INFO = {};
+
     /**
      * 文本格式，可以设置一个图标和标题
      * @param {Object} options
@@ -342,14 +345,14 @@ let BgPageInstance = (function () {
     };
 
     let _codeBeautify = function(params){
-        if (['javascript', 'css'].includes(params.fileType)) {
-            Awesome.StorageMgr.get('JS_CSS_PAGE_BEAUTIFY').then(val => {
-                if(val !== '0') {
-                    let js = `window._codebutifydetect_('${params.fileType}')`;
-                    InjectTools.inject(params.tabId, { js });
-                }
-            });
-        }
+        Awesome.StorageMgr.get('JS_CSS_PAGE_BEAUTIFY').then(val => {
+            if(val !== '0') {
+                let js = `window._codebutifydetect_('${params.fileType}')`;
+                InjectTools.inject(params.tabId, { js });
+                // 记录工具使用
+                Statistics.recordToolUsage('code-beautify');
+            }
+        });
     };
 
     /**
@@ -453,8 +456,6 @@ let BgPageInstance = (function () {
                         return true; // 这个返回true是非常重要的！！！要不然callback会拿不到结果
                     case 'code-beautify':
                         _codeBeautify(request.params);
-                        // 记录工具使用
-                        Statistics.recordToolUsage('code-beautify');
                         break;
                     case 'close-beautify':
                         Awesome.StorageMgr.set('JS_CSS_PAGE_BEAUTIFY',0);
@@ -507,7 +508,7 @@ let BgPageInstance = (function () {
                     case 'open-donate-modal':
                         chrome.gotoDonateModal(request.params.toolName);
                         break;
-                    case 'load-json-script':
+                    case 'load-local-script':
                         // 处理加载JSON格式化相关脚本的请求
                         fetch(request.script)
                             .then(response => response.text())
@@ -519,6 +520,10 @@ let BgPageInstance = (function () {
                                 callback && callback(null);
                             });
                         return true; // 异步响应需要返回true
+                    case 'statistics-tool-usage':
+                        // 埋点：自动触发json-format-auto
+                        Statistics.recordToolUsage(request.params.tool_name,request.params);
+                        break;
                 }
                 callback && callback(request.params);
             } else {
@@ -574,16 +579,7 @@ let BgPageInstance = (function () {
         });
         
         // 卸载
-        chrome.runtime.setUninstallURL(chrome.runtime.getManifest().homepage_url, () => {
-            // 记录卸载事件
-            try {
-                import('./statistics.js').then(({default: Statistics}) => {
-                    Statistics.recordUninstall();
-                });
-            } catch (e) {
-                // 忽略异常
-            }
-        });
+        chrome.runtime.setUninstallURL(chrome.runtime.getManifest().homepage_url);
     };
 
     /**
@@ -651,6 +647,13 @@ let BgPageInstance = (function () {
             });
         });
     }
+
+    // 监听options页面传递的客户端信息
+    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+        if (request && request.type === 'clientInfo' && request.data) {
+            FH_CLIENT_INFO = request.data;
+        }
+    });
 
     return {
         pageCapture: _captureVisibleTab,

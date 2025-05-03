@@ -6,13 +6,35 @@ window.codebeautifyContentScript = (() => {
         if (location.protocol === 'chrome-extension:' || chrome.runtime && chrome.runtime.getURL) {
             url = chrome.runtime.getURL('code-beautify/' + filename);
         }
-        fetch(url).then(resp => resp.text()).then(jsText => {
-            if(window.evalCore && window.evalCore.getEvalInstance){
-                return window.evalCore.getEvalInstance(window)(jsText);
+        // 使用chrome.runtime.sendMessage向background请求加载脚本
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing: 'load-local-script',
+            script: url
+        }, (scriptContent) => {
+            if (!scriptContent) {
+                console.error('Failed to load script:', filename);
+                return;
             }
-            let el = document.createElement('script');
-            el.textContent = jsText;
-            document.head.appendChild(el);
+            
+            // 如果有evalCore则使用它
+            if (window.evalCore && window.evalCore.getEvalInstance) {
+                try {
+                    window.evalCore.getEvalInstance(window)(scriptContent);
+                } catch(e) {
+                    console.error('Failed to evaluate script using evalCore:', e);
+                }
+            } else {
+                // 创建一个函数来执行脚本
+                try {
+                    // 使用Function构造函数创建一个函数，并在当前窗口上下文中执行
+                    // 这比动态创建script元素更安全，因为它不涉及DOM操作
+                    const executeScript = new Function(scriptContent);
+                    executeScript.call(window);
+                } catch(e) {
+                    console.error('Failed to execute script:', filename, e);
+                }
+            }
         });
     };
 
@@ -191,11 +213,13 @@ window.codebeautifyContentScript = (() => {
             fileType = undefined;
         }
 
-        chrome.runtime.sendMessage({
-            type: 'fh-dynamic-any-thing',
-            thing: 'code-beautify',
-            params: { fileType, tabId: window.__FH_TAB_ID__ || null }
-        });
+        if (['javascript', 'css'].includes(fileType)) {
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'code-beautify',
+                params: { fileType, tabId: window.__FH_TAB_ID__ || null }
+            });
+        }
     };
 
 })();

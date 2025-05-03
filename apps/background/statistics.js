@@ -9,9 +9,9 @@ import Awesome from './awesome.js';
 let manifest = chrome.runtime.getManifest();
 let SERVER_TRACK_URL = '';
 if (manifest.name && manifest.name.endsWith('-Dev')) {
-    SERVER_TRACK_URL = 'https://chrome.fehelper.com/api/track';
+    SERVER_TRACK_URL = 'http://localhost:3001/api/track';
 } else {
-    SERVER_TRACK_URL = 'https://localhost:3001/api/track';
+    SERVER_TRACK_URL = 'https://chrome.fehelper.com/api/track';
 }
 
 // 用户ID存储键名
@@ -96,59 +96,12 @@ let Statistics = (function() {
     };
     
     /**
-     * 获取客户端详细信息，对标百度统计/GA/友盟
+     * 获取客户端详细信息（仅background可用字段）
      * @returns {Object}
      */
     const getClientInfo = () => {
-        const nav = navigator;
-        const screenInfo = window.screen;
-        const lang = nav.language || nav.userLanguage || '';
-        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-        const ua = nav.userAgent;
-        const platform = nav.platform;
-        const vendor = nav.vendor;
-        const colorDepth = screenInfo.colorDepth;
-        const screenWidth = screenInfo.width;
-        const screenHeight = screenInfo.height;
-        const deviceMemory = nav.deviceMemory || '';
-        const hardwareConcurrency = nav.hardwareConcurrency || '';
-        // 网络信息
-        const connection = nav.connection || nav.mozConnection || nav.webkitConnection || {};
-        // 屏幕方向
-        const screenOrientation = screenInfo.orientation ? screenInfo.orientation.type : '';
-        // 触摸支持
-        const touchSupport = ('ontouchstart' in window) || (nav.maxTouchPoints > 0);
-        // JS堆内存（仅Chrome）
-        let memoryJSHeapSize = '';
-        if (window.performance && window.performance.memory) {
-            memoryJSHeapSize = window.performance.memory.jsHeapSizeLimit;
-        }
         return {
-            language: lang,
-            timezone,
-            userAgent: ua,
-            platform,
-            vendor,
-            colorDepth,
-            screenWidth,
-            screenHeight,
-            deviceMemory,
-            hardwareConcurrency,
             extensionVersion: chrome.runtime.getManifest().version,
-            // 新增字段
-            networkType: connection.effectiveType || '',
-            downlink: connection.downlink || '',
-            rtt: connection.rtt || '',
-            online: nav.onLine,
-            touchSupport,
-            cookieEnabled: nav.cookieEnabled,
-            doNotTrack: nav.doNotTrack,
-            appVersion: nav.appVersion,
-            appName: nav.appName,
-            product: nav.product,
-            vendorSub: nav.vendorSub,
-            screenOrientation,
-            memoryJSHeapSize,
             timeOpened: FH_TIME_OPENED
         };
     };
@@ -161,12 +114,27 @@ let Statistics = (function() {
     const sendToServer = async (eventName, params = {}) => {
         const uid = await getUserId();
         const clientInfo = getClientInfo();
+        // 合并background全局的FH_CLIENT_INFO
+        let extraInfo = {};
+        try {
+            if (typeof chrome !== 'undefined' && chrome && chrome.runtime && chrome.runtime.getBackgroundPage) {
+                await new Promise(resolve => {
+                    chrome.runtime.getBackgroundPage(bg => {
+                        if (bg && bg.FH_CLIENT_INFO) {
+                            extraInfo = bg.FH_CLIENT_INFO;
+                        }
+                        resolve();
+                    });
+                });
+            }
+        } catch(e) {}
         const payload = {
             event: eventName,
             userId: uid,
             date: todayStr,
             timestamp: Date.now(),
             ...clientInfo,
+            ...extraInfo,
             ...params
         };
         try {
@@ -242,7 +210,7 @@ let Statistics = (function() {
      * 记录工具使用情况
      * @param {string} toolName - 工具名称
      */
-    const recordToolUsage = async (toolName) => {
+    const recordToolUsage = async (toolName, params = {}) => {
         // 确保今天的记录存在
         if (!usageData.dailyUsage[todayStr]) {
             usageData.dailyUsage[todayStr] = {
@@ -269,7 +237,8 @@ let Statistics = (function() {
         // 发送工具使用记录到自建服务器
         sendToServer('tool_used', {
             tool_name: toolName,
-            date: todayStr
+            date: todayStr,
+            ...params
         });
     };
     
