@@ -10,20 +10,20 @@ const TrackSchema = new mongoose.Schema({
     browserVersion: String,
     os: String,
     osVersion: String,
-    deviceType: String,
-    deviceVendor: String,
-    deviceModel: String,
     language: String,
-    timezone: String,
     platform: String,
     IP: String,
     country: String,
     province: String,
     city: String,
-    online: Boolean,
     extensionVersion: String,
-    previous_version: String,
     tool_name: String,
 }, { timestamps: true });
+
+TrackSchema.index({ userId: 1 });
+TrackSchema.index({ tool_name: 1 });
+TrackSchema.index({ event: 1 });
+
+mongoose.set('autoIndex', false);
 
 module.exports = mongoose.models.Track || mongoose.model('Track', TrackSchema); 

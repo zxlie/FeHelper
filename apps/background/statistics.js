@@ -122,8 +122,6 @@ let Statistics = (function() {
             userAgent: nav.userAgent || '',
             language: nav.language || '',
             platform: nav.platform || '',
-            vendor: nav.vendor || '',
-            online: nav.onLine,
             extensionVersion: chrome.runtime.getManifest().version,
             ...tabInfo
         };
@@ -141,9 +139,18 @@ let Statistics = (function() {
         const payload = {
             event: eventName,
             userId: uid,
-            ...clientInfo,
-            ...params
+            ...clientInfo
         };
+        // 只允许 TrackSchema 里的字段
+        const allowedFields = [
+            'tool_name', 'extensionVersion', 'browser', 'browserVersion', 'os', 'osVersion',
+            'IP', 'country', 'province', 'city', 'pageUrl', 'pageTitle', 'language', 'platform'
+        ];
+        for (const key of allowedFields) {
+            if (params[key] !== undefined) {
+                payload[key] = params[key];
+            }
+        }
         try {
             fetch(SERVER_TRACK_URL, {
                 method: 'POST',

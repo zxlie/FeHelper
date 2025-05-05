@@ -19,9 +19,6 @@ router.post('/', async (req, res) => {
         if (ip.startsWith('::ffff:')) ip = ip.replace('::ffff:', '');
         const geo = geoip.lookup(ip) || {};
 
-        // 设备类型判断
-        const deviceType = uaResult.device.type || (uaResult.os.name && uaResult.os.name.match(/Android|iOS|iPhone|iPad/i) ? 'mobile' : 'desktop');
-
         // 只保留 TrackSchema 中定义的字段
         const data = {
             // 用户与会话
@@ -40,11 +37,7 @@ router.post('/', async (req, res) => {
             browserVersion: uaResult.browser.version || '',
             os: uaResult.os.name || '',
             osVersion: uaResult.os.version || '',
-            deviceType: deviceType || '',
-            deviceVendor: uaResult.device.vendor || '',
-            deviceModel: uaResult.device.model || '',
             language: body.language || headers['accept-language'] || '',
-            timezone: body.timezone || '',
             platform: body.platform || uaResult.os.name || '',
 
             // 网络与地理
@@ -52,11 +45,9 @@ router.post('/', async (req, res) => {
             country: geo.country || '',
             province: geo.region || '',
             city: geo.city || '',
-            online: typeof body.online === 'boolean' ? body.online : null,
 
             // 扩展相关
             extensionVersion: body.extensionVersion || '',
-            previous_version: body.previous_version || '',
             tool_name: body.tool_name || '',
         };
         

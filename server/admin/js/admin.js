@@ -46,6 +46,7 @@ const toolNameMap = {
 
 // 顶部导航栏（无打赏按钮，仅限本人使用）
 const HeaderNav = defineComponent({
+  emits: ['show-query-modal'],
   template: `
     <header class="w-full h-14 bg-white shadow flex items-center justify-between px-6 fixed top-0 left-0 z-10">
       <div class="flex items-center space-x-3">
@@ -54,6 +55,7 @@ const HeaderNav = defineComponent({
       </div>
       <div class="flex items-center space-x-4">
         <span class="text-gray-500 text-sm">仅限本人使用</span>
+        <button @click="$emit('show-query-modal')" class="ml-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">查询</button>
         <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.485 0 4.797.607 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
       </div>
     </header>
@@ -293,9 +295,119 @@ const LoginModal = defineComponent({
   `
 });
 
+// 查询模态框组件
+const QueryModal = defineComponent({
+  props: ['show'],
+  emits: ['close'],
+  setup(props, { emit }) {
+    const toolName = ref('');
+    const event = ref('');
+    const userId = ref('');
+    const startTime = ref('');
+    const endTime = ref('');
+    const page = ref(1);
+    const pageSize = ref(20);
+    const total = ref(0);
+    const list = ref([]);
+    const loading = ref(false);
+
+    // 固定字段顺序
+    const fields = [
+      'userId',
+      'extensionVersion',
+      'tool_name',
+      'browser',
+      'os',
+      'language',
+      'country',
+      'province',
+      'city',
+      'pageUrl',
+      'pageTitle'
+    ];
+
+    const doQuery = async () => {
+      loading.value = true;
+      try {
+        const params = new URLSearchParams();
+        if (toolName.value) params.append('tool_name', toolName.value);
+        if (event.value) params.append('event', event.value);
+        if (userId.value) params.append('userId', userId.value);
+        if (startTime.value) params.append('startTime', startTime.value);
+        if (endTime.value) params.append('endTime', endTime.value);
+        params.append('page', page.value);
+        params.append('pageSize', pageSize.value);
+        const res = await fetch(`/api/admin/raw?${params.toString()}`, { credentials: 'include' });
+        const data = await res.json();
+        list.value = data.list || [];
+        total.value = data.total || 0;
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    const handlePageChange = (newPage) => {
+      page.value = newPage;
+      doQuery();
+    };
+
+    const close = () => {
+      emit('close');
+    };
+
+    return {
+      toolName, event, userId, startTime, endTime, page, pageSize, total, list, loading,
+      doQuery, handlePageChange, close, fields
+    };
+  },
+  template: `
+    <div v-if="show" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow-lg p-8 w-[1200px] max-h-[90vh] overflow-auto relative">
+        <button @click="close" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+        <div class="text-lg font-bold mb-4">数据查询</div>
+        <div class="flex flex-wrap gap-4 mb-4">
+          <input v-model="toolName" class="border rounded px-3 py-2" placeholder="工具名" />
+          <input v-model="event" class="border rounded px-3 py-2" placeholder="事件类型" />
+          <input v-model="userId" class="border rounded px-3 py-2" placeholder="用户ID" />
+          <input v-model="startTime" type="date" class="border rounded px-3 py-2" placeholder="开始日期" />
+          <input v-model="endTime" type="date" class="border rounded px-3 py-2" placeholder="结束日期" />
+          <button @click="doQuery" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">查询</button>
+        </div>
+        <div v-if="loading" class="text-center text-gray-500 py-8">加载中...</div>
+        <table v-else class="min-w-full text-xs border border-gray-200 border-collapse mb-4">
+          <thead>
+            <tr>
+              <th v-for="field in fields" :key="field" class="px-2 py-1 border border-gray-200 bg-gray-50">{{field}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in list" :key="item._id">
+              <td v-for="field in fields" :key="field" class="px-2 py-1 border border-gray-200">
+                <span v-if="typeof item[field] === 'object' && item[field] !== null">{{ JSON.stringify(item[field]) }}</span>
+                <span v-else>{{ item[field] }}</span>
+              </td>
+            </tr>
+            <tr v-if="list.length === 0">
+              <td :colspan="fields.length" class="text-center border border-gray-200 py-4">暂无数据</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="flex justify-between items-center">
+          <span>共 {{total}} 条</span>
+          <div>
+            <button :disabled="page<=1" @click="handlePageChange(page-1)" class="px-2 py-1 border rounded mr-2">上一页</button>
+            <span>第 {{page}} 页</span>
+            <button :disabled="page*pageSize>=total" @click="handlePageChange(page+1)" class="px-2 py-1 border rounded ml-2">下一页</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
 // App组件定义，保持在所有子组件定义之后
 const App = defineComponent({
-  components: { HeaderNav, OverviewPanel, TopTools, SimpleTable, ErrorAlert, EventTrendTable, LoginModal },
+  components: { HeaderNav, OverviewPanel, TopTools, SimpleTable, ErrorAlert, EventTrendTable, LoginModal, QueryModal },
   setup() {
     // 数据定义
     const overview = ref({});
@@ -315,6 +427,7 @@ const App = defineComponent({
     const loading = ref(true);
     const loggedIn = ref(false);
     const loginError = ref(null);
+    const showQueryModal = ref(false);
 
     // API请求工具函数
     const fetchApi = async (url) => {
@@ -466,13 +579,15 @@ const App = defineComponent({
       tools, eventDist, errorMsg, loading, eventTrend,
       loggedIn,
       loginError,
-      handleLogin
+      handleLogin,
+      showQueryModal
     };
   },
   template: `
     <LoginModal :show="!loggedIn" :error="loginError" @login="handleLogin" />
     <div v-if="loggedIn">
-      <HeaderNav />
+      <HeaderNav @show-query-modal="showQueryModal = true" />
+      <QueryModal :show="showQueryModal" @close="showQueryModal = false" />
       <main class="pt-16 px-6 max-w-7xl mx-auto">
         <ErrorAlert :message="errorMsg" />
         <OverviewPanel :overview="overview" />
