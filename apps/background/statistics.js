@@ -96,13 +96,36 @@ let Statistics = (function() {
     };
     
     /**
-     * 获取客户端详细信息（仅background可用字段）
+     * 获取客户端详细信息（仅background可用字段，兼容service worker环境，字段与服务端一致）
      * @returns {Object}
      */
-    const getClientInfo = () => {
+    const getClientInfo = async () => {
+        let tabInfo = {};
+        try {
+            // 获取当前活动tab的页面信息
+            const tabs = await new Promise(resolve => {
+                chrome.tabs.query({active: true, currentWindow: true}, resolve);
+            });
+            if (tabs && tabs.length > 0) {
+                const tab = tabs[0];
+                tabInfo = {
+                    pageUrl: tab.url || '',
+                    pageTitle: tab.title || ''
+                };
+            }
+        } catch (e) {
+            // 忽略tab获取异常
+        }
+        const nav = self.navigator || {};
+        // 只采集服务端需要的字段
         return {
+            userAgent: nav.userAgent || '',
+            language: nav.language || '',
+            platform: nav.platform || '',
+            vendor: nav.vendor || '',
+            online: nav.onLine,
             extensionVersion: chrome.runtime.getManifest().version,
-            timeOpened: FH_TIME_OPENED
+            ...tabInfo
         };
     };
 
@@ -113,28 +136,12 @@ let Statistics = (function() {
      */
     const sendToServer = async (eventName, params = {}) => {
         const uid = await getUserId();
-        const clientInfo = getClientInfo();
-        // 合并background全局的FH_CLIENT_INFO
-        let extraInfo = {};
-        try {
-            if (typeof chrome !== 'undefined' && chrome && chrome.runtime && chrome.runtime.getBackgroundPage) {
-                await new Promise(resolve => {
-                    chrome.runtime.getBackgroundPage(bg => {
-                        if (bg && bg.FH_CLIENT_INFO) {
-                            extraInfo = bg.FH_CLIENT_INFO;
-                        }
-                        resolve();
-                    });
-                });
-            }
-        } catch(e) {}
+        const clientInfo = await getClientInfo();
+        // 只保留服务端 TrackSchema 需要的字段
         const payload = {
             event: eventName,
             userId: uid,
-            date: todayStr,
-            timestamp: Date.now(),
             ...clientInfo,
-            ...extraInfo,
             ...params
         };
         try {

@@ -1,0 +1,47 @@
+/* 保证主内容区不出现横向滚动条 */
+#main-content {
+  overflow-x: hidden;
+}
+
+/* 图表区域优化：让grid自适应且不超屏 */
+.grid {
+  min-width: 0;
+}
+
+/* 图表容器自适应宽度，防止溢出 */
+.echart-container, .echarts {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* 响应式优化，防止大屏下间距过大 */
+@media (min-width: 1024px) {
+  .grid-cols-2 > * {
+    min-width: 0;
+  }
+  .grid-cols-3 > * {
+    min-width: 0;
+  }
+}
+
+/* 让body和html始终100vw，防止外部溢出 */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.echart-parent {
+  max-width: 220px;
+  min-width: 0;
+  width: 220px;
+  height: 220px;
+  overflow: hidden;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.echart-parent > div {
+  width: 100% !important;
+  height: 100% !important;
+} 
