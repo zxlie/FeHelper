@@ -5,7 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { mongoUri } = require('./models/config');
 const path = require('path');
-const UAParser = require('ua-parser-js');
+const session = require('express-session');
 
 const app = express();
 const PORT = 3001;
@@ -13,6 +13,12 @@ const PORT = 3001;
 // 中间件
 app.use(cors());
 app.use(bodyParser.json());
+app.use(session({
+  secret: 'fehelper-secret',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
+}));
 
 // 注册API路由（必须在静态资源之前）
 app.use('/api/admin', require('./api/admin'));

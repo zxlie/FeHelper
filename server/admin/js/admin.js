@@ -8,6 +8,42 @@ console.log('Vue library loaded, createApp function:', typeof createApp); // 检
 const apiBase = '/api/admin';
 console.log('Defining components...'); // 日志点 1
 
+// 工具英文名到中文名映射
+const toolNameMap = {
+  'json-format': 'JSON美化工具',
+  'json-diff': 'JSON比对工具',
+  'qr-code': '二维码/解码',
+  'image-base64': '图片转Base64',
+  'en-decode': '信息编码转换',
+  'code-beautify': '代码美化工具',
+  'code-compress': '代码压缩工具',
+  'aiagent': 'AI，请帮帮忙',
+  'timestamp': '时间(戳)转换',
+  'password': '随机密码生成',
+  'sticky-notes': '我的便签笔记',
+  'html2markdown': 'Markdown转换',
+  'postman': '简易Postman',
+  'websocket': 'Websocket工具',
+  'regexp': '正则公式速查',
+  'trans-radix': '进制转换工具',
+  'trans-color': '颜色转换工具',
+  'crontab': 'Crontab工具',
+  'loan-rate': '贷(还)款利率',
+  'devtools': 'FH开发者工具',
+  'page-monkey': '网页油猴工具',
+  'screenshot': '网页截屏工具',
+  'color-picker': '页面取色工具',
+  'naotu': '便捷思维导图',
+  'grid-ruler': '网页栅格标尺',
+  'page-timing': '网站性能优化',
+  'excel2json': 'Excel转JSON',
+  'chart-maker': '图表制作工具',
+  'svg-converter': 'SVG转为图片',
+  'poster-maker': '海报快速生成',
+  'popup': 'FH Popup页面',
+  'options': 'FH插件市场'
+};
+
 // 顶部导航栏（无打赏按钮，仅限本人使用）
 const HeaderNav = defineComponent({
   template: `
@@ -53,65 +89,43 @@ const OverviewPanel = defineComponent({
   `
 });
 
-// 工具英文名到中文名映射
-const toolNameMap = {
-  'json-format': 'JSON美化工具',
-  'json-diff': 'JSON比对工具',
-  'qr-code': '二维码/解码',
-  'image-base64': '图片转Base64',
-  'en-decode': '信息编码转换',
-  'code-beautify': '代码美化工具',
-  'code-compress': '代码压缩工具',
-  'aiagent': 'AI，请帮帮忙',
-  'timestamp': '时间(戳)转换',
-  'password': '随机密码生成',
-  'sticky-notes': '我的便签笔记',
-  'html2markdown': 'Markdown转换',
-  'postman': '简易Postman',
-  'websocket': 'Websocket工具',
-  'regexp': '正则公式速查',
-  'trans-radix': '进制转换工具',
-  'trans-color': '颜色转换工具',
-  'crontab': 'Crontab工具',
-  'loan-rate': '贷(还)款利率',
-  'devtools': 'FH开发者工具',
-  'page-monkey': '网页油猴工具',
-  'screenshot': '网页截屏工具',
-  'color-picker': '页面取色工具',
-  'naotu': '便捷思维导图',
-  'grid-ruler': '网页栅格标尺',
-  'page-timing': '网站性能优化',
-  'excel2json': 'Excel转JSON',
-  'chart-maker': '图表制作工具',
-  'svg-converter': 'SVG转为图片',
-  'poster-maker': '海报快速生成',
-
-  "popup": "FH Popup页面",
-  "options": "FH插件市场",
-};
-
-// 工具排行
-const TopTools = defineComponent({
-  props: ['tools'],
-  template: `
-    <div class="bg-white rounded shadow p-4">
-      <div class="font-bold mb-2">FeHelper工具使用排名</div>
-      <ol class="list-decimal ml-6 text-sm text-gray-700">
-        <li v-if="tools.length === 0">暂无数据</li>
-        <li v-for="tool in tools" :key="tool.name">
-          {{tool.name}} <span class="text-gray-400">({{tool.pv}})</span>
-        </li>
-      </ol>
-    </div>
-  `
-});
-
 // 分布表格
 const SimpleTable = defineComponent({
-  props: ['title', 'data', 'label'],
+  props: ['title', 'data', 'label', 'cardColor'],
+  computed: {
+    cardBg() {
+      const map = {
+        blue: 'bg-blue-50',
+        green: 'bg-green-50',
+        yellow: 'bg-yellow-50',
+        purple: 'bg-purple-50',
+        pink: 'bg-pink-50',
+        indigo: 'bg-indigo-50',
+        orange: 'bg-orange-50',
+        teal: 'bg-teal-50',
+        default: 'bg-white'
+      };
+      return map[this.cardColor] || map.default;
+    },
+    barColor() {
+      const map = {
+        blue: 'bg-blue-400',
+        green: 'bg-green-400',
+        yellow: 'bg-yellow-400',
+        purple: 'bg-purple-400',
+        pink: 'bg-pink-400',
+        indigo: 'bg-indigo-400',
+        orange: 'bg-orange-400',
+        teal: 'bg-teal-400',
+        default: 'bg-gray-200'
+      };
+      return map[this.cardColor] || map.default;
+    }
+  },
   template: `
-    <div class="bg-white rounded shadow p-4">
-      <div class="font-bold mb-2">{{title}}</div>
+    <div :class="cardBg + ' rounded-xl shadow-lg p-4 mb-2 relative'">
+      <div :class="barColor + ' absolute top-0 left-0 w-full h-1 rounded-t'" />
+      <div class="font-bold mb-2 text-base">{{title}}</div>
       <table class="min-w-full text-xs border border-gray-200">
         <thead>
           <tr>
@@ -135,6 +149,33 @@ const SimpleTable = defineComponent({
   `
 });
 
+// 工具排行
+const TopTools = defineComponent({
+  props: ['tools', 'cardColor'],
+  template: `
+    <div :class="(cardColor || 'indigo') + ' rounded-xl shadow-lg p-4 mb-2 relative'">
+      <div class="font-bold mb-2 text-base">工具排行</div>
+      <table class="min-w-full text-xs border border-gray-200 border-collapse">
+        <thead>
+          <tr>
+            <th class="px-2 py-1 border border-gray-200 bg-gray-50">工具</th>
+            <th class="px-2 py-1 border border-gray-200 bg-gray-50">PV（访问次数）</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="tools.length === 0">
+            <td colspan="2" class="px-2 py-1 text-center border border-gray-200">暂无数据</td>
+          </tr>
+          <tr v-for="tool in tools" :key="tool.name">
+            <td class="px-2 py-1 border border-gray-200">{{tool.name}}</td>
+            <td class="px-2 py-1 border border-gray-200">{{tool.pv}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `
+});
+
 // 错误提示
 const ErrorAlert = defineComponent({
   props: ['message'],
@@ -150,10 +191,41 @@ const eventTrend = ref([]);
 
 // 新增事件趋势表格
 const EventTrendTable = defineComponent({
-  props: ['data'],
+  props: ['data', 'cardColor'],
+  computed: {
+    cardBg() {
+      const map = {
+        blue: 'bg-blue-50',
+        green: 'bg-green-50',
+        yellow: 'bg-yellow-50',
+        purple: 'bg-purple-50',
+        pink: 'bg-pink-50',
+        indigo: 'bg-indigo-50',
+        orange: 'bg-orange-50',
+        teal: 'bg-teal-50',
+        default: 'bg-white'
+      };
+      return map[this.cardColor] || map.default;
+    },
+    barColor() {
+      const map = {
+        blue: 'bg-blue-400',
+        green: 'bg-green-400',
+        yellow: 'bg-yellow-400',
+        purple: 'bg-purple-400',
+        pink: 'bg-pink-400',
+        indigo: 'bg-indigo-400',
+        orange: 'bg-orange-400',
+        teal: 'bg-teal-400',
+        default: 'bg-gray-200'
+      };
+      return map[this.cardColor] || map.default;
+    }
+  },
   template: `
-    <div class="bg-white rounded shadow p-4">
-      <div class="font-bold mb-2">事件趋势（最近30天）</div>
+    <div :class="cardBg + ' rounded-xl shadow-lg p-4 mb-2 relative'">
+      <div :class="barColor + ' absolute top-0 left-0 w-full h-1 rounded-t'" />
+      <div class="font-bold mb-2 text-base">事件趋势（最近30天）</div>
       <table class="min-w-full text-xs border border-gray-200">
         <thead>
           <tr>
@@ -177,8 +249,53 @@ const EventTrendTable = defineComponent({
   `
 });
 
+const LoginModal = defineComponent({
+  props: ['show', 'error'],
+  emits: ['login'],
+  setup(props, { emit }) {
+    const username = ref('');
+    const password = ref('');
+    const loading = ref(false);
+    const doLogin = async () => {
+      loading.value = true;
+      try {
+        const res = await fetch(apiBase + '/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: username.value, password: password.value }),
+          credentials: 'include'
+        });
+        if (res.ok) {
+          emit('login');
+        } else {
+          emit('login', await res.json());
+        }
+      } finally {
+        loading.value = false;
+      }
+    };
+    return { username, password, loading, doLogin };
+  },
+  template: `
+    <div v-if="show" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+      <div class="bg-white rounded shadow-lg p-8 w-80">
+        <div class="text-lg font-bold mb-4">登录后台</div>
+        <div class="mb-2">
+          <input v-model="username" class="w-full border rounded px-3 py-2" placeholder="用户名" autocomplete="username" />
+        </div>
+        <div class="mb-4">
+          <input v-model="password" type="password" class="w-full border rounded px-3 py-2" placeholder="密码" autocomplete="current-password" />
+        </div>
+        <div v-if="error" class="text-red-500 text-sm mb-2">{{error.error}}</div>
+        <button @click="doLogin" :disabled="loading" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">{{loading ? '登录中...' : '登录'}}</button>
+      </div>
+    </div>
+  `
+});
+
+// App组件定义，保持在所有子组件定义之后
 const App = defineComponent({
-  components: { HeaderNav, OverviewPanel, TopTools, SimpleTable, ErrorAlert, EventTrendTable },
+  components: { HeaderNav, OverviewPanel, TopTools, SimpleTable, ErrorAlert, EventTrendTable, LoginModal },
   setup() {
     // 数据定义
     const overview = ref({});
@@ -196,11 +313,13 @@ const App = defineComponent({
     const eventDist = ref([]);
     const errorMsg = ref('');
     const loading = ref(true);
+    const loggedIn = ref(false);
+    const loginError = ref(null);
 
     // API请求工具函数
     const fetchApi = async (url) => {
       try {
-        const res = await fetch(url);
+        const res = await fetch(url, { credentials: 'include' });
         if (!res.ok) throw new Error(`${url} 请求失败: ${res.status} ${res.statusText}`);
         return await res.json();
       } catch (err) {
@@ -309,49 +428,73 @@ const App = defineComponent({
       }
     };
 
-    onMounted(() => {
-      loadAll();
+    // 检查登录状态
+    const checkLogin = async () => {
+      try {
+        const res = await fetch(apiBase + '/check-login', { credentials: 'include' });
+        if (res.status === 200) {
+          loggedIn.value = true;
+        } else {
+          // 401等非200状态，均视为未登录（401是未登录的正常表现）
+          loggedIn.value = false;
+        }
+      } catch (e) {
+        // 网络异常等也视为未登录
+        loggedIn.value = false;
+      }
+    };
+
+    // 登录成功后重新加载
+    const handleLogin = async (err) => {
+      if (!err || err.success) {
+        loginError.value = null;
+        loggedIn.value = true;
+        await loadAll();
+      } else {
+        loginError.value = err;
+      }
+    };
+
+    onMounted(async () => {
+      await checkLogin();
+      if (loggedIn.value) await loadAll();
     });
 
     return {
       overview, browserDist, osDist, deviceTypeDist, fhVerDist,
       langDist, eventPieDist, countryDist, provinceDist, cityDist,
-      tools, eventDist, errorMsg, loading, eventTrend
+      tools, eventDist, errorMsg, loading, eventTrend,
+      loggedIn,
+      loginError,
+      handleLogin
     };
   },
   template: `
-    <div>
+    <LoginModal :show="!loggedIn" :error="loginError" @login="handleLogin" />
+    <div v-if="loggedIn">
       <HeaderNav />
-      <div class="flex pt-14 h-screen">
-        <main class="flex-1 p-8 overflow-auto bg-gray-50 min-h-screen" id="main-content">
-          <ErrorAlert :message="errorMsg" />
-          <div v-if="loading" class="text-center py-8">
-            <div class="text-xl text-gray-600">加载中...</div>
-          </div>
-          <div v-else>
-            <OverviewPanel :overview="overview" />
-            <!-- 表格区域：两行，每行4个表格，全部可见 -->
-            <div class="w-full mx-auto">
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <SimpleTable title="浏览器类型/版本分布" :data="browserDist" label="浏览器/版本" />
-                <SimpleTable title="操作系统分布" :data="osDist" label="操作系统/版本" />
-                <SimpleTable title="设备类型分布" :data="deviceTypeDist" label="设备类型" />
-                <SimpleTable title="FeHelper版本分布" :data="fhVerDist" label="版本号" />
-                <SimpleTable title="用户语言分布" :data="langDist" label="语言" />
-                <SimpleTable title="事件类型分布（主区域）" :data="eventPieDist" label="事件类型" />
-                <SimpleTable title="国家分布" :data="countryDist" label="国家" />
-                <SimpleTable title="省份分布" :data="provinceDist" label="省份" />
-                <SimpleTable title="城市分布" :data="cityDist" label="城市" />
-              </div>
-            </div>
-            <!-- 其它内容 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <TopTools :tools="tools" />
-              <EventTrendTable :data="eventTrend" />
-            </div>
-          </div>
-        </main>
-      </div>
+      <main class="pt-16 px-6 max-w-7xl mx-auto">
+        <ErrorAlert :message="errorMsg" />
+        <OverviewPanel :overview="overview" />
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <SimpleTable title="FeHelper版本分布" :data="fhVerDist" label="版本号" cardColor="blue" />
+          <SimpleTable title="浏览器分布" :data="browserDist" label="浏览器" cardColor="green" />
+          <SimpleTable title="操作系统分布" :data="osDist" label="操作系统" cardColor="yellow" />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <SimpleTable title="设备类型分布" :data="deviceTypeDist" label="设备类型" cardColor="purple" />
+          <SimpleTable title="语言分布" :data="langDist" label="语言" cardColor="pink" />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <SimpleTable title="国家分布" :data="countryDist" label="国家" cardColor="indigo" />
+          <SimpleTable title="省份分布" :data="provinceDist" label="省份" cardColor="teal" />
+          <SimpleTable title="城市分布" :data="cityDist" label="城市" cardColor="orange" />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <TopTools :tools="tools" cardColor="indigo" />
+          <EventTrendTable :data="eventDist" cardColor="teal" />
+        </div>
+      </main>
     </div>
   `
 });

@@ -4,6 +4,39 @@ const Track = require('../models/track'); // 引入Track模型
 
 console.log('admin.js 已加载'); // 日志A
 
+// 登录校验中间件
+function checkLogin(req, res, next) {
+  if (req.session && req.session.isAdmin) {
+    return next();
+  }
+  res.status(401).json({ error: '未登录' });
+}
+
+// 登录接口
+router.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  if (username === 'zxlie' && password === 'fehelper') {
+    req.session.isAdmin = true;
+    res.json({ success: true });
+  } else {
+    res.status(401).json({ error: '用户名或密码错误' });
+  }
+});
+
+// 退出登录接口
+router.post('/logout', (req, res) => {
+  req.session.isAdmin = false;
+  res.json({ success: true });
+});
+
+// 只保护需要登录的API，track相关接口不受影响
+// 只对本文件下的API做登录校验
+router.use((req, res, next) => {
+  // 仅对非/login和非/logout接口做校验
+  if (['/login', '/logout'].includes(req.path)) return next();
+  checkLogin(req, res, next);
+});
+
 // admin 路由全局日志
 router.use((req, res, next) => {
   console.log('admin 路由收到请求:', req.path);
@@ -326,6 +359,15 @@ router.get('/event-trend', async (req, res) => {
     { $sort: { _id: 1 } }
   ]);
   res.json(agg);
+});
+
+// 检查登录状态接口
+router.get('/check-login', (req, res) => {
+  if (req.session && req.session.isAdmin) {
+    res.status(200).json({ loggedIn: true });
+  } else {
+    res.status(401).json({ loggedIn: false });
+  }
 });
 
 module.exports = router; 
