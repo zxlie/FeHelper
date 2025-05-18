@@ -9,7 +9,8 @@ import Awesome from './awesome.js';
 let manifest = chrome.runtime.getManifest();
 let SERVER_TRACK_URL = '';
 if (manifest.name && manifest.name.endsWith('-Dev')) {
-    SERVER_TRACK_URL = 'http://localhost:3001/api/track';
+    // SERVER_TRACK_URL = 'http://localhost:3001/api/track';
+    SERVER_TRACK_URL = 'https://chrome.fehelper.com/api/track';
 } else {
     SERVER_TRACK_URL = 'https://chrome.fehelper.com/api/track';
 }
