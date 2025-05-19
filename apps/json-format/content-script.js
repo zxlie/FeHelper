@@ -14,13 +14,36 @@ window.JsonAutoFormat = (() => {
         if (location.protocol === 'chrome-extension:' || chrome.runtime && chrome.runtime.getURL) {
             url = chrome.runtime.getURL('json-format/' + filename);
         }
-        fetch(url).then(resp => resp.text()).then(jsText => {
-            if(window.evalCore && window.evalCore.getEvalInstance){
-                return window.evalCore.getEvalInstance(window)(jsText);
+        
+        // 使用chrome.runtime.sendMessage向background请求加载脚本
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing: 'load-local-script',
+            script: url
+        }, (scriptContent) => {
+            if (!scriptContent) {
+                console.error('Failed to load script:', filename);
+                return;
             }
-            let el = document.createElement('script');
-            el.textContent = jsText;
-            document.head.appendChild(el);
+            
+            // 如果有evalCore则使用它
+            if (window.evalCore && window.evalCore.getEvalInstance) {
+                try {
+                    window.evalCore.getEvalInstance(window)(scriptContent);
+                } catch(e) {
+                    console.error('Failed to evaluate script using evalCore:', e);
+                }
+            } else {
+                // 创建一个函数来执行脚本
+                try {
+                    // 使用Function构造函数创建一个函数，并在当前窗口上下文中执行
+                    // 这比动态创建script元素更安全，因为它不涉及DOM操作
+                    const executeScript = new Function(scriptContent);
+                    executeScript.call(window);
+                } catch(e) {
+                    console.error('Failed to execute script:', filename, e);
+                }
+            }
         });
     };
 
@@ -118,6 +141,7 @@ window.JsonAutoFormat = (() => {
             '    </span>' +
             '    <span class="x-fix-encoding"><span class="x-split">|</span><button class="xjf-btn" id="jsonGetCorrectCnt">乱码修正</button></span>' +
             '    <span id="optionBar"></span>' +
+            '    <span class="x-donate-link' + (isInUSA() ? ' x-donate-link-us' : '') + '"><a href="#" id="donateLink"><i class="nav-icon">❤</i>打赏鼓励</a></span>' +
             '    <span class="fe-feedback">' +
             '       <span class="x-settings"><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" width="14">' +
             '           <path fill-rule="evenodd" d="M14 8.77v-1.6l-1.94-.64-.45-1.09.88-1.84-1.13-1.13-1.81.91-1.09-.45-.69-1.92h-1.6l-.63 1.94-1.11.45-1.84-.88-1.13 1.13.91 1.81-.45 1.09L0 7.23v1.59l1.94.64.45 1.09-.88 1.84 1.13 1.13 1.81-.91 1.09.45.69 1.92h1.59l.63-1.94 1.11-.45 1.84.88 1.13-1.13-.92-1.81.47-1.09L14 8.75v.02zM7 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"></path>' +
@@ -339,6 +363,15 @@ window.JsonAutoFormat = (() => {
 
         $('.fe-feedback .x-settings').click(e => _createSettingPanel());
         $('#jsonGetCorrectCnt').click(e => _getCorrectContent());
+
+        $('.x-toolbar .x-donate-link').on('click', function (e) {
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'json-format' }
+            });
+        });
+        
     };
 
     let _didFormat = function () {
@@ -404,6 +437,17 @@ window.JsonAutoFormat = (() => {
                 $('#jfCallbackName_end').html(')');
             }
         }
+        
+        // 埋点：自动触发json-format-auto
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing: 'statistics-tool-usage',
+            params: {
+                tool_name: 'json-format',
+                url: location.href
+            }
+        });
+        
     };
 
     let _getCorrectContent = function () {
@@ -665,6 +709,18 @@ window.JsonAutoFormat = (() => {
             _formatTheSource(source);
         }
     };
+
+    // 页面加载后自动采集
+    try {
+        if (window.chrome && chrome.runtime && chrome.runtime.sendMessage && window.Awesome && window.Awesome.collectAndSendClientInfo) {
+            window.Awesome.collectAndSendClientInfo();
+        } else {
+            // fallback: 动态加载Awesome模块
+            import(chrome.runtime.getURL('background/awesome.js')).then(module => {
+                module.default.collectAndSendClientInfo();
+            }).catch(() => {});
+        }
+    } catch(e) {}
 
     return {
         format: () => _getAllOptions(options => {

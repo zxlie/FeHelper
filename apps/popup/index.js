@@ -47,6 +47,16 @@ new Vue({
 
         // 自动开关灯
         DarkModeMgr.turnLightAuto();
+
+        // 记录工具使用
+        // 埋点：自动触发json-format-auto
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing: 'statistics-tool-usage',
+            params: {
+                tool_name: 'popup'
+            }
+        });
     },
 
     mounted: function () {
@@ -97,6 +107,11 @@ new Vue({
                 return false;
             };
         });
+
+        // 页面加载后自动采集
+        if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
+            Awesome.collectAndSendClientInfo();
+        }
     },
 
     methods: {

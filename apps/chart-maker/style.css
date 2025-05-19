@@ -14,8 +14,7 @@ body {
     background-image: linear-gradient(to right, rgba(245, 247, 250, 0.8) 1px, transparent 1px),
                       linear-gradient(to bottom, rgba(245, 247, 250, 0.8) 1px, transparent 1px);
     background-size: 20px 20px;
-    padding-top: 15px;
-    max-width: 1200px;
+    
     margin: 0 auto;
     font-size:100%;
 }
@@ -613,6 +612,7 @@ canvas#chart-canvas[data-chart-rendered] {
     display: flex;
     align-items: center;
     margin-bottom: 20px;
+    position: relative;
 }
 
 .page-header .header-link {
@@ -621,7 +621,7 @@ canvas#chart-canvas[data-chart-rendered] {
     text-decoration: none;
     color: #5a5c69;
     font-weight: 500;
-    font-size: 1.2rem;
+    font-size: 14px;
     transition: color 0.2s ease-in-out;
 }
 
@@ -641,6 +641,90 @@ canvas#chart-canvas[data-chart-rendered] {
 
 .page-header .page-title-suffix {
     margin-left: 8px;
-    font-size: 1.2rem;
-    color: #858796;
+    font-size: 14px;
+    font-weight: 500;
 } 
+/* Style for the "Explore More Tools" button */
+.page-header>a.x-other-tools {
+    margin: 0; /* Reset margin */
+    font-size: 12px; /* Slightly smaller */
+    cursor: pointer;
+    text-decoration: none;
+    -webkit-user-select: none;
+    user-select: none;
+    color: #495057; /* Grey text */
+    background-color: #f8f9fa; /* Light grey background */
+    padding: 6px 12px; /* Adjusted padding */
+    border-radius: 6px; /* Standard rounded corners */
+    border: 1px solid #dee2e6; /* Match border color */
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    position: absolute;
+    right: 10px;
+}
+
+.page-header>a.x-other-tools .icon-plus-circle {
+    display: inline-block;
+    width: 14px; /* Slightly smaller icon */
+    height: 14px;
+    background: url(../static/img/plus-circle.svg) no-repeat center center;
+    background-size: contain;
+    margin-right: 4px;
+}
+
+.page-header>a.x-other-tools .tool-market-badge {
+    display: inline-block;
+    background-color: #007bff; /* Match theme blue */
+    color: white;
+    padding: 2px 7px;
+    border-radius: 4px; /* Slightly less round */
+    margin-left: 6px;
+    font-size: 11px; /* Smaller badge text */
+    font-weight: 500;
+}
+
+.page-header>a.x-other-tools:hover {
+    color: #212529;
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transform: none; /* Remove translateY */
+}
+/* 保持原有的顶部导航样式 */
+.x-donate-link {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2563eb;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    margin-left: 70px;
+    white-space: nowrap;
+    margin-right: auto;
+    padding: 5px 16px;
+    border-radius: 20px;
+    background-color: #eff6ff;
+    transition: all 0.2s ease;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
+}
+
+.x-donate-link:hover {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    text-decoration: none;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
+    transform: translateY(-1px);
+}
+
+.x-donate-link {
+    margin: 0 10px;
+    font-size: 12px;
+    font-weight: normal;
+    position: absolute;
+    right: 220px;
+}

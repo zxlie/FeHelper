@@ -82,6 +82,15 @@ new Vue({
         
         // 检查URL中是否有donate_from参数
         this.checkDonateParam();
+
+        // 埋点：自动触发options
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing: 'statistics-tool-usage',
+            params: {
+                tool_name: 'options'
+            }
+        });
     },
 
     computed: {
@@ -1374,4 +1383,9 @@ window.addEventListener('scroll', () => {
         header.classList.remove('scrolled');
         sidebar && sidebar.classList.remove('scrolled');
     }
-}); 
+});
+
+// 页面加载后自动采集
+if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
+    Awesome.collectAndSendClientInfo();
+} 

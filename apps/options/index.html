@@ -273,13 +273,14 @@
                         </li>
                         <li @click="showRecentUsed">
                             最近使用
-                            <span class="count">({{getRecentCount()}})</span>
+                            <span class="count">({{recentCount}})</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
             <!-- 工具展示区 -->
+            <div id="fh-dashboard-panel" style="display:none;"></div>
             <div class="tools-grid">
                 <div :class="['tools-container', viewMode]">
                     <div v-for="tool in filteredTools" 
@@ -320,7 +321,7 @@
 </div>
 
 <script src="../static/js/dark-mode.js"></script>
-<script type="module" src="market.js"></script>
+<script type="module" src="index.js"></script>
 
 </body>
 </html> 

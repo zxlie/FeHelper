@@ -10,6 +10,7 @@ import Menu from './menu.js';
 import Awesome from './awesome.js';
 import InjectTools from './inject-tools.js';
 import Monkey from './monkey.js';
+import Statistics from './statistics.js';
 
 
 let BgPageInstance = (function () {
@@ -22,6 +23,9 @@ let BgPageInstance = (function () {
     let blacklist = [
         /^https:\/\/chrome\.google\.com/
     ];
+
+    // 全局缓存最新的客户端信息
+    let FH_CLIENT_INFO = {};
 
     /**
      * 文本格式，可以设置一个图标和标题
@@ -99,6 +103,38 @@ let BgPageInstance = (function () {
                     .map(tool => Awesome.getContentScript(tool).then(js => {
                         InjectTools.inject(tabId, { js });
                     }));
+        });
+    };
+
+    /**
+     * 打开打赏弹窗
+     * @param {string} toolName - 工具名称
+     */
+    chrome.gotoDonateModal = function (toolName) {
+        chrome.tabs.query({currentWindow: true}, function (tabs) {
+
+            Settings.getOptions((opts) => {
+                let isOpened = false;
+                let tabId;
+                let reg = new RegExp("^chrome.*\\/options\\/index.html\\?donate_from=" + toolName + "$", "i");
+                for (let i = 0, len = tabs.length; i < len; i++) {
+                    if (reg.test(tabs[i].url)) {
+                        isOpened = true;
+                        tabId = tabs[i].id;
+                        break;
+                    }
+                }
+                if (!isOpened) {
+                    let url = `/options/index.html?donate_from=${toolName}`;
+                    chrome.tabs.create({ url,active: true });
+                } else {
+                    chrome.tabs.update(tabId, {highlighted: true}).then(tab => {
+                        chrome.tabs.reload(tabId);
+                    });
+                }
+
+            });
+
         });
     };
 
@@ -206,6 +242,9 @@ let BgPageInstance = (function () {
         chrome.DynamicToolRunner({
             tool: MSG_TYPE.JSON_FORMAT
         });
+        
+        // 记录工具使用
+        Statistics.recordToolUsage(MSG_TYPE.JSON_FORMAT);
     };
 
     /**
@@ -306,14 +345,14 @@ let BgPageInstance = (function () {
     };
 
     let _codeBeautify = function(params){
-        if (['javascript', 'css'].includes(params.fileType)) {
-            Awesome.StorageMgr.get('JS_CSS_PAGE_BEAUTIFY').then(val => {
-                if(val !== '0') {
-                    let js = `window._codebutifydetect_('${params.fileType}')`;
-                    InjectTools.inject(params.tabId, { js });
-                }
-            });
-        }
+        Awesome.StorageMgr.get('JS_CSS_PAGE_BEAUTIFY').then(val => {
+            if(val !== '0') {
+                let js = `window._codebutifydetect_('${params.fileType}')`;
+                InjectTools.inject(params.tabId, { js });
+                // 记录工具使用
+                Statistics.recordToolUsage('code-beautify');
+            }
+        });
     };
 
     /**
@@ -337,14 +376,22 @@ let BgPageInstance = (function () {
             // 截屏
             else if (request.type === MSG_TYPE.CAPTURE_VISIBLE_PAGE) {
                 _captureVisibleTab(callback);
+                // 记录工具使用
+                Statistics.recordToolUsage('screenshot');
             }
             // 直接处理content-script.js中的截图请求
             else if (request.type === 'fh-screenshot-capture-visible') {
                 _captureVisibleTab(callback);
+                // 记录工具使用
+                Statistics.recordToolUsage('screenshot');
             }
             // 打开动态工具页面
             else if (request.type === MSG_TYPE.OPEN_DYNAMIC_TOOL) {
                 chrome.DynamicToolRunner(request);
+                // 记录工具使用
+                if (request.page) {
+                    Statistics.recordToolUsage(request.page);
+                }
                 callback && callback();
             }
             // 打开其他页面
@@ -352,6 +399,10 @@ let BgPageInstance = (function () {
                 chrome.DynamicToolRunner({
                     tool: request.page
                 });
+                // 记录工具使用
+                if (request.page) {
+                    Statistics.recordToolUsage(request.page);
+                }
                 callback && callback();
             }
             // 任何事件，都可以通过这个钩子来完成
@@ -373,6 +424,8 @@ let BgPageInstance = (function () {
                                 noPage: true
                             });
                         }
+                        // 记录工具使用
+                        Statistics.recordToolUsage('screenshot');
                         break;
                     case 'request-jsonformat-options':
                         Awesome.StorageMgr.get(request.params).then(result => {
@@ -398,6 +451,8 @@ let BgPageInstance = (function () {
                                 callback && callback(!show);
                             });
                         });
+                        // 记录工具使用
+                        Statistics.recordToolUsage('json-format');
                         return true; // 这个返回true是非常重要的！！！要不然callback会拿不到结果
                     case 'code-beautify':
                         _codeBeautify(request.params);
@@ -411,6 +466,8 @@ let BgPageInstance = (function () {
                             tool: 'qr-code',
                             query: `mode=decode`
                         });
+                        // 记录工具使用
+                        Statistics.recordToolUsage('qr-code');
                         break;
                     case 'request-page-content':
                         request.params = FeJson[request.tabId];
@@ -421,24 +478,51 @@ let BgPageInstance = (function () {
                             tool: 'page-timing',
                             withContent: request.wpoInfo
                         });
+                        // 记录工具使用
+                        Statistics.recordToolUsage('page-timing');
                         break;
                     case 'color-picker-capture':
                         _colorPickerCapture(request.params);
+                        // 记录工具使用
+                        Statistics.recordToolUsage('color-picker');
                         break;
                     case 'add-screen-shot-by-pages':
                         _addScreenShotByPages(request.params,callback);
+                        // 记录工具使用
+                        Statistics.recordToolUsage('screenshot');
                         return true;
                     case 'page-screenshot-done':
                         _showScreenShotResult(request.params);
                         break;
                     case 'request-monkey-start':
                         Monkey.start(request.params);
+                        // 记录工具使用
+                        Statistics.recordToolUsage('page-monkey');
                         break;
                     case 'inject-content-css':
                         _injectContentCss(sender.tab.id,request.tool,!!request.devTool);
                         break;
                     case 'open-options-page':
                         chrome.runtime.openOptionsPage();
+                        break;
+                    case 'open-donate-modal':
+                        chrome.gotoDonateModal(request.params.toolName);
+                        break;
+                    case 'load-local-script':
+                        // 处理加载JSON格式化相关脚本的请求
+                        fetch(request.script)
+                            .then(response => response.text())
+                            .then(scriptContent => {
+                                callback && callback(scriptContent);
+                            })
+                            .catch(error => {
+                                console.error('加载脚本失败:', error);
+                                callback && callback(null);
+                            });
+                        return true; // 异步响应需要返回true
+                    case 'statistics-tool-usage':
+                        // 埋点：自动触发json-format-auto
+                        Statistics.recordToolUsage(request.params.tool_name,request.params);
                         break;
                 }
                 callback && callback(request.params);
@@ -467,9 +551,13 @@ let BgPageInstance = (function () {
             switch (reason) {
                 case 'install':
                     chrome.runtime.openOptionsPage();
+                    // 记录新安装用户
+                    Statistics.recordInstallation();
                     break;
                 case 'update':
                     _animateTips('+++1');
+                    // 记录更新安装
+                    Statistics.recordUpdate(previousVersion);
                     if (previousVersion === '2019.12.2415') {
                         notifyText({
                             message: '历尽千辛万苦，FeHelper已升级到最新版本，可以到插件设置页去安装旧版功能了！',
@@ -489,6 +577,7 @@ let BgPageInstance = (function () {
                     break;
             }
         });
+        
         // 卸载
         chrome.runtime.setUninstallURL(chrome.runtime.getManifest().homepage_url);
     };
@@ -518,6 +607,8 @@ let BgPageInstance = (function () {
         chrome.contextMenus.onClicked.addListener((info, tab) => {
             if (info.menuItemId === 'fehelper-screenshot-page') {
                 _triggerScreenshotTool(tab.id);
+                // 记录工具使用
+                Statistics.recordToolUsage('screenshot');
             }
         });
         
@@ -527,6 +618,9 @@ let BgPageInstance = (function () {
             title: '网页截图',
             contexts: ['page']
         });
+        
+        // 初始化统计功能
+        Statistics.init();
         
         Menu.rebuild();
         // 定期清理冗余的垃圾
@@ -553,6 +647,13 @@ let BgPageInstance = (function () {
             });
         });
     }
+
+    // 监听options页面传递的客户端信息
+    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+        if (request && request.type === 'clientInfo' && request.data) {
+            FH_CLIENT_INFO = request.data;
+        }
+    });
 
     return {
         pageCapture: _captureVisibleTab,

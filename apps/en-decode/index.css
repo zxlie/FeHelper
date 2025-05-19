@@ -272,3 +272,40 @@ td.td-label {
     box-shadow: 0 2px 5px rgba(0,0,0,0.15);
     transform: translateY(-1px);
 }
+
+/* 保持原有的顶部导航样式 */
+.x-donate-link {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2563eb;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    white-space: nowrap;
+    margin-right: auto;
+    border-radius: 20px;
+    background-color: #eff6ff;
+    transition: all 0.2s ease;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
+    position: absolute;
+    right: 230px;
+    top: 8px;
+    padding: 6px 12px;
+}
+
+.x-donate-link:hover {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    text-decoration: none;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
+    transform: translateY(-1px);
+}
+
+.x-donate-link {
+    margin: 0 10px;
+    font-size: 12px;
+    font-weight: normal;
+}
