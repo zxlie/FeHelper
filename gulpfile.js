@@ -20,6 +20,7 @@ let shell = require('shelljs');
 let babel = require('gulp-babel');
 let assert = require('assert');
 let gulpIf = require('gulp-if');
+let imagemin = require('gulp-imagemin');
 
 let isSilentDetect = false; // <-- 添加全局标志位
 
@@ -116,6 +117,23 @@ function processCss() {
     };
 
     return gulp.src('apps/**/*.css').pipe(cssMerge()).pipe(uglifycss()).pipe(gulp.dest('output/apps'));
+}
+
+// 添加图片压缩任务
+function compressImages() {
+    return gulp.src('output/apps/**/*.{png,jpg,jpeg,gif,svg}') // 源目录应为 output
+        .pipe(imagemin([
+            imagemin.gifsicle({interlaced: true}),
+            imagemin.mozjpeg({quality: 75, progressive: true}),
+            imagemin.optipng({optimizationLevel: 5}),
+            imagemin.svgo({
+                plugins: [
+                    {removeViewBox: true},
+                    {cleanupIDs: false}
+                ]
+            })
+        ]))
+        .pipe(gulp.dest('output/apps')); // 覆盖回 output
 }
 
 // 清理冗余文件，并且打包成zip，发布到chrome webstore
@@ -486,6 +504,7 @@ gulp.task('json', processJson);
 gulp.task('html', processHtml);
 gulp.task('js', processJs);
 gulp.task('css', processCss);
+gulp.task('compressImages', compressImages);
 gulp.task('zip', zipPackage);
 gulp.task('edge', edgePackage);
 gulp.task('firefox', firefoxPackage);
@@ -499,6 +518,7 @@ gulp.task('default',
     gulp.series(
         cleanOutput, 
         gulp.parallel(copyAssets, processCss, processJs, processHtml, processJson), 
+        compressImages,
         setSilentDetect,
         detectUnusedFiles,
         unsetSilentDetect,

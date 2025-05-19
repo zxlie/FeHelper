@@ -1,4 +1,3 @@
-
 import InjectTools from './inject-tools.js';
 
 export default (() => {
@@ -73,7 +72,7 @@ export default (() => {
 
             chrome.storage.local.get(PAGE_MONKEY_LOCAL_STORAGE_KEY, (resps) => {
                 let cacheMonkeys, storageMode = false;
-                if (!resps || !resps[PAGE_MONKEY_LOCAL_STORAGE_KEY]) {
+                if ((!resps || !resps[PAGE_MONKEY_LOCAL_STORAGE_KEY]) && typeof localStorage !== 'undefined') {
                     cacheMonkeys = localStorage.getItem(PAGE_MONKEY_LOCAL_STORAGE_KEY) || '[]';
                     storageMode = true;
                 } else {
