@@ -124,6 +124,7 @@ let BgPageInstance = (function () {
                         break;
                     }
                 }
+
                 if (!isOpened) {
                     let url = `/options/index.html?donate_from=${toolName}`;
                     chrome.tabs.create({ url,active: true });
@@ -132,6 +133,8 @@ let BgPageInstance = (function () {
                         chrome.tabs.reload(tabId);
                     });
                 }
+                // 记录工具使用
+                Statistics.recordToolUsage('donate',{from: toolName});
 
             });
 
@@ -438,11 +441,15 @@ let BgPageInstance = (function () {
                             });
                             callback && callback(result);
                         });
+                        // 记录工具使用
+                        Statistics.recordToolUsage('request-jsonformat-options');
                         return true; // 这个返回true是非常重要的！！！要不然callback会拿不到结果
                     case 'save-jsonformat-options':
                         Awesome.StorageMgr.set(request.params).then(() => {
                             callback && callback();
                         });
+                        // 记录工具使用
+                        Statistics.recordToolUsage('save-jsonformat-options');
                         return true;
                     case 'toggle-jsonformat-options':
                         Awesome.StorageMgr.get('JSON_TOOL_BAR_ALWAYS_SHOW').then(result => {
@@ -459,6 +466,8 @@ let BgPageInstance = (function () {
                         break;
                     case 'close-beautify':
                         Awesome.StorageMgr.set('JS_CSS_PAGE_BEAUTIFY',0);
+                        // 记录工具使用
+                        Statistics.recordToolUsage('code-beautify-close');
                         break;
                     case 'qr-decode':
                         chrome.DynamicToolRunner({
@@ -496,8 +505,6 @@ let BgPageInstance = (function () {
                         break;
                     case 'request-monkey-start':
                         Monkey.start(request.params);
-                        // 记录工具使用
-                        Statistics.recordToolUsage('page-monkey');
                         break;
                     case 'inject-content-css':
                         _injectContentCss(sender.tab.id,request.tool,!!request.devTool);

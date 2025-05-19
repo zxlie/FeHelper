@@ -1,5 +1,6 @@
 
 import InjectTools from './inject-tools.js';
+import Statistics from './statistics.js';
 
 export default (() => {
     let start = (params) => {
@@ -73,14 +74,16 @@ export default (() => {
 
             chrome.storage.local.get(PAGE_MONKEY_LOCAL_STORAGE_KEY, (resps) => {
                 let cacheMonkeys, storageMode = false;
-                if (!resps || !resps[PAGE_MONKEY_LOCAL_STORAGE_KEY]) {
+                if ((!resps || !resps[PAGE_MONKEY_LOCAL_STORAGE_KEY]) && typeof localStorage !== 'undefined') {
                     cacheMonkeys = localStorage.getItem(PAGE_MONKEY_LOCAL_STORAGE_KEY) || '[]';
                     storageMode = true;
                 } else {
                     cacheMonkeys = resps[PAGE_MONKEY_LOCAL_STORAGE_KEY] || '[]';
                 }
 
-                params && params.url && handler(JSON.parse(cacheMonkeys));
+                if(params && params.url){
+                    handler(JSON.parse(cacheMonkeys));
+                }
 
                 // 本地存储的内容，需要全部迁移到chrome.storage.local中，以确保unlimitedStorage
                 if (storageMode) {

@@ -19,8 +19,8 @@
                             <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a><span class="title-text-wrapper-text">| 二维码{{qrEncodeMode? '生成':'解码'}}器</span>
                     </span>
                     <span class="x-switch" ref="btnSwitch" @click="trans">切换为{{!qrEncodeMode? ' 二维码生成器 ' : ' 解码/扫码 '}}模式&gt;&gt;</span>
-                    <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
-                    <a class="x-other-tools" @click="openOptionsPage()"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+                    <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+                    <span class="x-donate-link" @click="openDonateModal($event)"><a href="#" id="donateLink"><i class="nav-icon">❤</i>打赏鼓励</a></span>
                 </h3>
             </div>
         </div>

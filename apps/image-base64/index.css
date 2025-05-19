@@ -233,44 +233,6 @@ form {display: none}
     text-decoration: none;
 }
 
-.panel-title>a.x-other-tools {
-    font-size: 12px;
-    color: #666;
-    cursor: pointer;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    padding: 3px 0;
-    transition: all 0.2s ease;
-    margin-left: 15px;
-}
-
-.panel-title>a.x-other-tools .icon-plus-circle {
-    font-size: 14px;
-    margin-right: 3px;
-    color: #666;
-    transition: all 0.2s ease;
-}
-
-.panel-title>a.x-other-tools .tool-market-badge {
-    background: #f5f7fa;
-    color: #666;
-    padding: 2px 6px;
-    border-radius: 3px;
-    margin-left: 5px;
-    font-size: 12px;
-    transition: all 0.2s ease;
-}
-
-.panel-title>a.x-other-tools:hover {
-    color: #333;
-    text-decoration: none;
-}
-
-.panel-title>a.x-other-tools:hover .icon-plus-circle,
-.panel-title>a.x-other-tools:hover .tool-market-badge {
-    color: #333;
-}
 
 /* 主体布局 */
 .image-base64-layout,
@@ -415,47 +377,8 @@ form {
 }
 /* Style for the "Explore More Tools" button */
 .panel-title>a.x-other-tools {
-    margin: 0; /* Reset margin */
-    font-size: 12px; /* Slightly smaller */
-    cursor: pointer;
-    text-decoration: none;
-    -webkit-user-select: none;
-    user-select: none;
-    color: #495057; /* Grey text */
-    background-color: #f8f9fa; /* Light grey background */
-    padding: 6px 12px; /* Adjusted padding */
-    border-radius: 6px; /* Standard rounded corners */
-    border: 1px solid #dee2e6; /* Match border color */
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    white-space: nowrap;
+    top: 0;
 }
-
-.panel-title>a.x-other-tools .icon-plus-circle {
-    display: inline-block;
-    width: 14px; /* Slightly smaller icon */
-    height: 14px;
-    background: url(../static/img/plus-circle.svg) no-repeat center center;
-    background-size: contain;
-    margin-right: 4px;
-}
-
-.panel-title>a.x-other-tools .tool-market-badge {
-    display: inline-block;
-    background-color: #007bff; /* Match theme blue */
-    color: white;
-    padding: 2px 7px;
-    border-radius: 4px; /* Slightly less round */
-    margin-left: 6px;
-    font-size: 11px; /* Smaller badge text */
-    font-weight: 500;
-}
-
-.panel-title>a.x-other-tools:hover {
-    color: #212529;
-    background-color: #e9ecef;
-    border-color: #ced4da;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    transform: none; /* Remove translateY */
+.x-donate-link {
+    top: 14px;
 }
