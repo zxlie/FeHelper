@@ -269,7 +269,7 @@ new Vue({
                 this.urlContent = 'http://t.weather.sojson.com/api/weather/city/101030100';
                 this.methodContent = 'GET';
             } else {
-                this.urlContent = 'https://www.baidufe.com/test-post.php';
+                this.urlContent = 'https://chrome.fehelper.com/test/post';
                 this.methodContent = 'POST';
                 this.paramContent = 'username=postman&password=123456'
             }
@@ -277,7 +277,22 @@ new Vue({
 
         urlParams2String: function (params) {
             return params.map((param) => `${param.key}=${param.value}`).join("&")
-        }
+        },
 
+        openDonateModal: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'postman' }
+            });
+        },
+
+        openOptionsPage: function(event) {
+            event.preventDefault();
+            event.stopPropagation();    
+            chrome.runtime.openOptionsPage();
+        }
     }
 });

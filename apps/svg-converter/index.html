@@ -29,10 +29,8 @@
                         </div>
                     </div>
                     <div class="mod-head-actions">
-                        <a href="#" @click="openDonateModal" class="nav-item donate-link" v-if="typeof openDonateModal === 'function'">
-                            <i class="nav-icon">❤</i>
-                            <span>打赏鼓励</span>
-                        </a>
+                        <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
+                        <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
                     </div>
                 </div>
             </div>

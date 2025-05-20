@@ -61,7 +61,31 @@ export function setupEventListeners() {
       window.downloadPoster(exportFormat, exportQuality);
     });
   }
-  
+
+  // 打赏鼓励
+  const donateLink = document.getElementById('donate-link');
+  if (donateLink) {
+    donateLink.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      chrome.runtime.sendMessage({
+        type: 'fh-dynamic-any-thing', 
+        thing: 'open-donate-modal',
+        params: { toolName: 'poster-maker' }
+      });
+    });
+  }
+
+  // 探索更多实用工具
+  const otherTools = document.getElementById('other-tools');
+  if (otherTools) {
+    otherTools.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      chrome.runtime.openOptionsPage();
+    });
+  }
+
   // 设置高级选项事件监听器
   setupAdvancedOptions();
 }

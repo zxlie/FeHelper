@@ -547,6 +547,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+
+    // 点击模态框外部关闭
+    document.getElementById('donate-link').addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing: 'open-donate-modal',
+            params: { toolName: 'regexp' }
+        });
+        return false;
+    });
+
+    document.getElementById('other-tools').addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        chrome.runtime.openOptionsPage();
+        return false;
+    });
+
     // 复制按钮功能
     copyButtons.forEach(button => {
         button.addEventListener('click', () => {

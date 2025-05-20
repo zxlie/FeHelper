@@ -66,6 +66,20 @@ new Vue({
         now() {
             let date = new Date();
             return f0(date.getHours()) + ":" + f0(date.getMinutes()) + ":" + f0(date.getSeconds()) + " - ";
+        },
+        openDonateModal: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'websocket' }
+            });
+        },
+        openOptionsPage: function(event) {
+            event.preventDefault();
+            event.stopPropagation();    
+            chrome.runtime.openOptionsPage();
         }
     }
 
