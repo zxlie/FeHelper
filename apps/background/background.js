@@ -441,8 +441,6 @@ let BgPageInstance = (function () {
                             });
                             callback && callback(result);
                         });
-                        // 记录工具使用
-                        Statistics.recordToolUsage('request-jsonformat-options');
                         return true; // 这个返回true是非常重要的！！！要不然callback会拿不到结果
                     case 'save-jsonformat-options':
                         Awesome.StorageMgr.set(request.params).then(() => {

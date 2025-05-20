@@ -163,6 +163,21 @@ new Vue({
             this.codeType = type;
             editor.setValue(EXAMPLES[type]);
             this.changeCodeType(type);
+        },
+        openOptionsPage: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.openOptionsPage();
+        },
+
+        openDonateModal: function(event ){
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'code-compress' }
+            });
         }
     }
 });
