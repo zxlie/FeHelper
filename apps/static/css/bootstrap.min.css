@@ -293,3 +293,99 @@ html.fh-jf input[type=radio], input[type=checkbox] {
     position: relative;
     top: 2px;
 }
+
+
+
+/* 工具市场按钮样式（保持不变） */
+.panel-title>a.x-other-tools {
+    margin: 1px 0 0;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    -webkit-user-select: none;
+    user-select: none;
+    color: #333;
+    float: right;
+    background-color: #f5f8ff;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border: 1px solid #d0d9ff;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    position: relative;
+    top: -6px;
+}
+
+.panel-title>a.x-other-tools .icon-plus-circle {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background: url(../img/plus-circle.svg) no-repeat center center;
+    background-size: contain;
+    margin-right: 5px;
+}
+
+.panel-title>a.x-other-tools .tool-market-badge {
+    display: inline-block;
+    background-color: #4d89fe;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 5px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.panel-title>a.x-other-tools:hover {
+    color: #333;
+    background-color: #e6edff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+}
+
+
+/* 保持原有的顶部导航样式 */
+.x-donate-link {
+    float: right;
+    line-height: 18px;
+    color: #2563eb;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    white-space: nowrap;
+    margin-right: auto;
+    border-radius: 20px;
+    background-color: #eff6ff;
+    transition: all 0.2s ease;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
+    position: absolute;
+    right: 230px;
+    top: 8px;
+    padding: 4px 12px;
+    margin: 0 10px;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.x-donate-link:hover {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    text-decoration: none;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
+    transform: translateY(-1px);
+}
+
+.x-donate-link>a {
+    font-size: 12px;
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}
+.x-donate-link>a:hover {
+    text-decoration: underline;
+    color: #f00;
+}

@@ -290,18 +290,19 @@ new Vue({
             }
         },
 
-        openOptionsPage: function(){
+        openOptionsPage: function(event ){
+            event.preventDefault();
+            event.stopPropagation();
             if (chrome && chrome.runtime && chrome.runtime.openOptionsPage) {
                  chrome.runtime.openOptionsPage();
             } else {
                  console.error('无法打开选项页。');
-                 // Optionally, provide a fallback link or message
-                 // window.open('options.html'); // Example fallback
             }
         },
 
         openDonateModal: function(event ){
             event.preventDefault();
+            event.stopPropagation();
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
                 thing: 'open-donate-modal',

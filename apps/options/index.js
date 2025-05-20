@@ -1156,8 +1156,6 @@ new Vue({
                 const donateFrom = urlParams.get('donate_from');
                 
                 if (donateFrom) {
-                    console.log('检测到打赏来源参数:', donateFrom);
-                    
                     // 记录打赏来源
                     chrome.storage.local.set({
                         'fehelper_donate_from': donateFrom,
@@ -1194,6 +1192,15 @@ new Vue({
                         
                         // 显示打赏弹窗
                         this.showDonateModal = true;
+                    });
+
+                    // 埋点：自动触发options
+                    chrome.runtime.sendMessage({
+                        type: 'fh-dynamic-any-thing',
+                        thing: 'statistics-tool-usage',
+                        params: {
+                            tool_name: 'donate'
+                        }
                     });
                 }
             } catch (error) {

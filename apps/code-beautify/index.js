@@ -157,6 +157,19 @@ new Vue({
             this.$nextTick(() => {
                 this.format();
             });
+        },
+
+        openOptionsPage: function() {
+            chrome.runtime.openOptionsPage();
+        },
+
+        openDonateModal: function(event ){
+            event.preventDefault();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'code-beautify' }
+            });
         }
     }
 });

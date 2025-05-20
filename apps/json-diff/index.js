@@ -383,9 +383,21 @@ window.vueApp = new Vue({
         },
 
         // 打开工具市场页面
-        openOptionsPage: function() {
+        openOptionsPage: function(event){
+            event.preventDefault();
+            event.stopPropagation();
             chrome.runtime.openOptionsPage();
-        }
+        },
+
+        openDonateModal: function(event){
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'json-diff' }
+            });
+        },
     },
     mounted: function () {
         // 初始化JSON编辑器

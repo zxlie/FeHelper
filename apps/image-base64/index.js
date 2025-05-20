@@ -84,7 +84,9 @@ new Vue({
         }, false);
     },
     methods: {
-        openOptionsPage() {
+        openOptionsPage(event) {
+            event.preventDefault();
+            event.stopPropagation();
             chrome.runtime.openOptionsPage();
         },
 
@@ -214,6 +216,17 @@ new Vue({
             if (this.curType === 'base64' && this.txtBase64Input.trim().length) {
                 this.error = ('无法识别的Base64编码，请确认是正确的图片Data URI？');
             }
-        }
+        },
+
+        // 打开打赏页面
+        openDonateModal: function(event){
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'image-base64' }
+            });
+        },
     }
 });

@@ -244,7 +244,7 @@ td .x-panel .x-tips {
 }
 
 /* 保持原有的顶部导航样式 */
-.x-switch,.x-donate-link {
+.x-switch {
     font-size: 14px;
     font-weight: 500;
     color: #2563eb;
@@ -551,7 +551,7 @@ form {
 
 /* --- Top Navigation Bar --- */
 .panel-heading {
-    padding: 10px 20px; /* Increased padding for more space */
+    padding: 10px 20px 2px; /* Increased padding for more space */
     background-color: #ffffff; /* Keep white or use a very light grey like #f8f9fa */
     border-bottom: 1px solid #dee2e6; /* Lighter, softer border color */
 }
@@ -585,6 +585,8 @@ form {
 
 /* Style for the mode switch button */
 .x-switch {
+    position: relative;
+    top: -3px;
     font-size: 13px;
     color: #007bff; /* Standard blue */
     cursor: pointer;
@@ -605,52 +607,6 @@ form {
     text-decoration: none; /* Remove underline on hover */
 }
 
-/* Style for the "Explore More Tools" button */
-.panel-title>a.x-other-tools {
-    margin: 0; /* Reset margin */
-    font-size: 12px; /* Slightly smaller */
-    cursor: pointer;
-    text-decoration: none;
-    -webkit-user-select: none;
-    user-select: none;
-    color: #495057; /* Grey text */
-    background-color: #f8f9fa; /* Light grey background */
-    padding: 6px 12px; /* Adjusted padding */
-    border-radius: 6px; /* Standard rounded corners */
-    border: 1px solid #dee2e6; /* Match border color */
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    white-space: nowrap;
-}
-
-.panel-title>a.x-other-tools .icon-plus-circle {
-    display: inline-block;
-    width: 14px; /* Slightly smaller icon */
-    height: 14px;
-    background: url(../static/img/plus-circle.svg) no-repeat center center;
-    background-size: contain;
-    margin-right: 4px;
-}
-
-.panel-title>a.x-other-tools .tool-market-badge {
-    display: inline-block;
-    background-color: #007bff; /* Match theme blue */
-    color: white;
-    padding: 2px 7px;
-    border-radius: 4px; /* Slightly less round */
-    margin-left: 6px;
-    font-size: 11px; /* Smaller badge text */
-    font-weight: 500;
-}
-
-.panel-title>a.x-other-tools:hover {
-    color: #212529;
-    background-color: #e9ecef;
-    border-color: #ced4da;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    transform: none; /* Remove translateY */
-}
 .title-text-wrapper-text {
     margin-left: 10px;
     position: relative;
