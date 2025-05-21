@@ -94,7 +94,8 @@ html.fh-jf .item .kv-list {
     margin-left: 2px
 }
 html.fh-jf .item .string {
-    word-wrap: break-word
+    word-wrap: break-word;
+    white-space: pre-wrap;
 }
 
 html.fh-jf .item .string a {
@@ -459,6 +460,8 @@ html.fh-jf .fe-feedback {
     float: right;
     cursor: pointer;
     font-weight: bold;
+    position: relative;
+    top: -2px;
 }
 
 .fe-feedback a {
@@ -578,28 +581,52 @@ html.fh-jf svg:not(:root) {
     color: #333;
     float: right;
     background-color: #f5f8ff;
-    padding: 5px 10px;
+    padding: 3px 10px;
     border-radius: 15px;
     border: 1px solid #d0d9ff;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     position: relative;
-    top: -8px;
-    right: -10px;
+    top: -2px;
 }
 .fe-feedback>a.x-other-tools-us {
     display: none;
 }
-.x-toolbar>.x-donate-link {
-    margin-left: 20px;
+.fe-feedback>.x-donate-link {
+    line-height: 18px;
+    color: #2563eb;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    white-space: nowrap;
+    margin-right: auto;
+    border-radius: 20px;
+    background-color: #eff6ff;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
+    padding: 4px 12px;
+    margin: 0 10px;
+    font-size: 12px;
+    font-weight: normal;
 }
-.x-toolbar>.x-donate-link-us {
+.fe-feedback>.x-donate-link-us {
     display: none;
 }
-.x-toolbar>.x-donate-link a:hover {
-    color: #f00;
+.fe-feedback>.x-donate-link a{
+    color: #333;
+    text-decoration: none;
 }
+.fe-feedback>.x-donate-link:hover {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    text-decoration: none;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
+    transform: translateY(-1px);
+}
+
 
 .fe-feedback>a.x-other-tools .icon-plus-circle {
     display: inline-block;

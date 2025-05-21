@@ -380,12 +380,9 @@ html.fh-jf input[type=radio], input[type=checkbox] {
 }
 
 .x-donate-link>a {
-    font-size: 12px;
-    color: blue;
-    cursor: pointer;
-    text-decoration: underline;
+    color: #333;
+    text-decoration: none;
 }
 .x-donate-link>a:hover {
-    text-decoration: underline;
     color: #f00;
 }

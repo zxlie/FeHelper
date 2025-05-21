@@ -141,13 +141,13 @@ window.JsonAutoFormat = (() => {
             '    </span>' +
             '    <span class="x-fix-encoding"><span class="x-split">|</span><button class="xjf-btn" id="jsonGetCorrectCnt">乱码修正</button></span>' +
             '    <span id="optionBar"></span>' +
-            '    <span class="x-donate-link' + (isInUSA() ? ' x-donate-link-us' : '') + '"><a href="#" id="donateLink"><i class="nav-icon">❤</i>打赏鼓励</a></span>' +
             '    <span class="fe-feedback">' +
             '       <span class="x-settings"><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" width="14">' +
             '           <path fill-rule="evenodd" d="M14 8.77v-1.6l-1.94-.64-.45-1.09.88-1.84-1.13-1.13-1.81.91-1.09-.45-.69-1.92h-1.6l-.63 1.94-1.11.45-1.84-.88-1.13 1.13.91 1.81-.45 1.09L0 7.23v1.59l1.94.64.45 1.09-.88 1.84 1.13 1.13 1.81-.91 1.09.45.69 1.92h1.59l.63-1.94 1.11-.45 1.84.88 1.13-1.13-.92-1.81.47-1.09L14 8.75v.02zM7 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"></path>' +
             '       </svg>高级定制</span>' +
-            '       <a class="x-other-tools' + (isInUSA() ? ' x-other-tools-us' : '') + '" style="cursor:pointer"><i class="icon-plus-circle">+</i>探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>' +
             '       <a id="toggleBtn" title="展开或收起工具栏">隐藏&gt;&gt;</a>' +
+            '       <span class="x-donate-link' + (isInUSA() ? ' x-donate-link-us' : '') + '"><a href="#" id="donateLink"><i class="nav-icon">❤</i>&nbsp;打赏鼓励</a></span>' +
+            '       <a class="x-other-tools' + (isInUSA() ? ' x-other-tools-us' : '') + '" style="cursor:pointer"><i class="icon-plus-circle">+</i>探索 <span class="tool-market-badge">工具市场</span></a>' +
             '    </span>' +
             '</div>',
             '<div id="formattingMsg"><span class="x-loading"></span>格式化中...</div>',
@@ -590,22 +590,25 @@ window.JsonAutoFormat = (() => {
 
         // 下面校验给定字符串是否为一个合法的json
         try {
-
             // 再看看是不是jsonp的格式
-            let reg = /^([\w\.]+)\(\s*([\s\S]*)\s*\)$/gm;
-            let reTry = /^(try\s*\{\s*)?/g;
-            let reCatch = /([;\s]*\}\s*catch\s*\(\s*\S+\s*\)\s*\{([\s\S])*\})?[;\s]*$/g;
-
-            // 检测是否有try-catch包裹
-            let sourceReplaced = source.replace(reTry, function () {
-                fnTry = fnTry ? fnTry : arguments[1];
-                return '';
-            }).replace(reCatch, function () {
-                fnCatch = fnCatch ? fnCatch : arguments[1];
-                return '';
-            }).trim();
-
-            let matches = reg.exec(sourceReplaced);
+            let reg = /^([\w\.]+)\(\s*([\s\S]*)\s*\)$/m;
+            // 优化后的 try/catch 包裹处理
+            fnTry = null;
+            fnCatch = null;
+            // 处理开头
+            if (source.startsWith('try {')) {
+                fnTry = 'try {';
+                source = source.slice(5).trimStart();
+            }
+            // 处理结尾
+            let catchIdx = source.lastIndexOf('} catch');
+            if (catchIdx !== -1) {
+                // 找到最后一个 } catch，截取到末尾
+                fnCatch = source.slice(catchIdx);
+                source = source.slice(0, catchIdx).trimEnd();
+            }
+            // 只做一次正则匹配
+            let matches = reg.exec(source);
             if (matches != null && (fnTry && fnCatch || !fnTry && !fnCatch)) {
                 funcName = matches[1];
                 source = matches[2];
@@ -615,11 +618,9 @@ window.JsonAutoFormat = (() => {
                     return;
                 }
             }
-
             // 这里可能会throw exception
             jsonObj = JSON.parse(source);
         } catch (ex) {
-
             // new Function的方式，能自动给key补全双引号，但是不支持bigint，所以是下下策，放在try-catch里搞
             try {
                 jsonObj = new Function("return " + source)();
@@ -641,7 +642,6 @@ window.JsonAutoFormat = (() => {
                 }
             }
         }
-
         try {
             // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
             source = JSON.stringify(jsonObj);

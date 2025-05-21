@@ -436,7 +436,7 @@ let BgPageInstance = (function () {
                                 if (['MAX_JSON_KEYS_NUMBER', 'JSON_FORMAT_THEME'].includes(key)) {
                                     result[key] = parseInt(result[key]);
                                 } else {
-                                    result[key] = (result[key] !== 'false');
+                                    result[key] = (""+result[key] !== 'false');
                                 }
                             });
                             callback && callback(result);
