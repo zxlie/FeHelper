@@ -93,8 +93,10 @@ html.fh-jf .item .kv-list {
     border-left: 1px dashed #bbb;
     margin-left: 2px
 }
+
 html.fh-jf .item .string {
-    word-wrap: break-word
+    word-wrap: break-word;
+    white-space: pre-wrap;
 }
 
 html.fh-jf .item .string a {
