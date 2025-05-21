@@ -252,6 +252,22 @@ new Vue({
                     alert('必须接受授权，才能正常下载！');
                 }
             });
+        },
+
+        openDonateModal: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'screenshot' }
+            });
+        },
+
+        openOptionsPage: function(event) {  
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.openOptionsPage();
         }
     }
 });

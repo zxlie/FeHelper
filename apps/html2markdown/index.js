@@ -251,6 +251,22 @@ new Vue({
                 newWin.document.close();
                 newWin.close();
             }
+        },
+
+        openOptionsPage: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.openOptionsPage();
+        },
+
+        openDonateModal: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'html2markdown' }
+            });
         }
     }
 });

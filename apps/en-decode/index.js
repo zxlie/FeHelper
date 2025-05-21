@@ -121,12 +121,15 @@ new Vue({
             this.$refs.rstCode.select();
         },
 
-        openOptionsPage: function() {
+        openOptionsPage: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
             chrome.runtime.openOptionsPage();
         },
 
         openDonateModal: function(event ){
             event.preventDefault();
+            event.stopPropagation();
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
                 thing: 'open-donate-modal',

@@ -67,8 +67,7 @@ th.x-op {
     font-size: 12px;
     font-weight: normal;
     color: #f00;
-    position: relative;
-    top: 5px;
+    margin-left: 20px;
 }
 
 /* 为canvas添加样式 */

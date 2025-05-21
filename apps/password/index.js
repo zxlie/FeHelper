@@ -15,7 +15,9 @@ new Vue({
             upperLetter: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
             specialChar: '~!@#$%^&*()[{]}-_=+\|;:\'\",<.>/?`'
         },
-        resultContent: ''
+        resultContent: '',
+        showToast: false,
+        toastMsg: ''
     },
 
     methods: {
@@ -50,12 +52,36 @@ new Vue({
 
             if ('clipboard' in navigator) {
                 navigator.clipboard.writeText(this.resultContent)
+                .then(() => {
+                    this.showToastMsg('复制成功！');
+                })
                 .catch(err => {
                     console.error('复制失败: ', err);
                 });
             }else{
                 alert("您的浏览器不支持 clipboard API, 请手动复制")
             }
-        }
+        },
+        showToastMsg: function(msg) {
+            this.toastMsg = msg;
+            this.showToast = true;
+            setTimeout(() => {
+                this.showToast = false;
+            }, 1500);
+        },
+        openOptionsPage: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.openOptionsPage();
+        },
+        openDonateModal: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'password' }
+            });
+        } 
     }
 });

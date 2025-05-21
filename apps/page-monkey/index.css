@@ -14,9 +14,6 @@
 .panel-title a.x-tooltip:hover {
 	text-decoration: underline;
 }
-.x-toolbox {
-	float: right;
-}
 .x-toolbox .x-line {
 	font-size: 12px;
 	margin-left: 10px;

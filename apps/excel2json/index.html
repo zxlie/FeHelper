@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <link rel="shortcut icon" href="../static/img/favicon.ico">
     <link rel="stylesheet" href="index.css" />
+    <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
 </head>
 <body>
 
@@ -14,6 +15,9 @@
             <h3 class="panel-title">
                 <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
                     <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：Excel/CVS转JSON
+
+                <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
+                <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
             </h3>
         </div>
     </div>

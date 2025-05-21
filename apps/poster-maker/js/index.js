@@ -90,15 +90,3 @@ function setupPreviewZoom() {
   // 初始化时自动触发重置缩放
   resetZoomBtn.click();
 }
-
-/**
- * 打赏鼓励
- */
-document.getElementById('donateLink').addEventListener('click', (event  ) => {
-  event.preventDefault();
-  chrome.runtime.sendMessage({
-    type: 'fh-dynamic-any-thing',
-    thing: 'open-donate-modal',
-    params: { toolName: 'poster-maker' }
-  });
-});

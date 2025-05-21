@@ -429,6 +429,24 @@ new Vue({
                  // Return transparent or a default if the internal color is invalid
                 return 'transparent';
             }
+        },
+
+        openDonateModal: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'trans-color' }
+            });
+        },  
+
+        openOptionsPage: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.openOptionsPage();
         }
+        
+        
     }
 });

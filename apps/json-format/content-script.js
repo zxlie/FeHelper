@@ -463,7 +463,7 @@ window.JsonAutoFormat = (() => {
     let _getJsonContentFromDOM = function (dom) {
         let source = dom.textContent.trim();
 
-        if (!source) {
+        if (!source && document.body) {
             source = (document.body.textContent || '').trim()
         }
 
