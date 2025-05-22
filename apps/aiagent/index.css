@@ -206,3 +206,101 @@ h3.panel-title {
 .x-xcontent table td {
     border: 1px solid #ccc;
 }
+.x-donate-link {
+    right: 210px;
+    top: 0px;
+}
+.panel-title>a.x-other-tools {
+    top: -2px;
+}
+
+.fh-history-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: #fff;
+    border-right: 1px solid #eee;
+    z-index: 10000;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+}
+.fh-history-header {
+    padding: 18px 16px 10px 16px;
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.fh-history-close {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #888;
+    cursor: pointer;
+}
+.fh-history-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 0 12px 0;
+}
+.fh-history-date {
+    font-size: 14px;
+    color: #888;
+    margin: 10px 0 4px 18px;
+}
+.fh-history-list ul {
+    list-style: none;
+    margin: 0 0 0 8px;
+    padding: 0;
+}
+.fh-history-list li {
+    padding: 8px 18px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s;
+    font-size: 15px;
+    color: #333;
+}
+.fh-history-list li:hover {
+    background: #f5f7fa;
+}
+.fh-history-theme {
+    font-weight: 500;
+    color: #222;
+}
+.fh-main-shrink {
+    margin-left: 280px !important;
+    transition: margin-left 0.2s;
+}
+
+.fh-nav-btn {
+    display: inline-block;
+    margin-left: 18px;
+    padding: 3px 14px 3px 10px;
+    border-radius: 18px;
+    background: #f5f7fa;
+    color: #333;
+    font-size: 12px;
+    font-weight: normal;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    vertical-align: middle;
+}
+.fh-nav-btn:hover {
+    background: #e6f0ff;
+    color: #1976d2;
+    border-color: #b3d1ff;
+}
+.x-history-link .icon-clock {
+    color: #1976d2;
+}
+.x-newchat-link .icon-plus-circle {
+    color: #43a047;
+}

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html lang="zh-CN">
 <head>
-    <title>AI，请帮帮忙</title>
+    <title>AI（智能助手）</title>
     <meta charset="UTF-8">
     <link rel="shortcut icon" href="../static/img/favicon.ico">
     <link rel="stylesheet" href="index.css"/>
@@ -15,55 +15,66 @@
         <div class="panel-heading">
             <h3 class="panel-title">
                 <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
-                    <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper：</a>AI，请帮帮忙
-            </h3>
-        </div>
-    </div>
-    <div class="panel-body">
-        <div class="row mod-inputs box-prompt">
-            <form class="ui-mt-10" @submit.prevent="goChat">
-                <textarea type="text" id="prompt" ref="prompt" v-model="prompt" class="form-control" placeholder="你有什么内容想要咨询AI的？"
-                    data-key="c2stNEJUbWRxYW00eENTUXJXRnlNajFUM0JsYmtGSlVlbDJnZ2dGbjI5MVBKQVdzZnZR"></textarea>
-                <input class="btn btn-sm btn-primary btn-chat" type="button" value="发送" @click="goChat">
-            </form>
-        </div>
-        <div class="row mod-inputs box-result" ref="boxResult">
-            <div class="row box-tips" v-if="!hideDemo">
-                <div>你好，我是你的专属AI助理，不管你是要查BUG、写代码、还是要咨询什么技术问题，你都可以跟我说，我会竭尽全力帮你解决，比如你可以这样问我👇👇👇</div>
-                <ul class="x-demos clearfix">
-                    <li v-for="demo in demos" @click="sendMessage(demo)">{{demo}}</li>
-                </ul>
+                    <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper：</a>AI（智能助手）
+                    <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
+                    <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+                    <a href="#" class="x-history-link fh-nav-btn" @click="onHistoryClick($event)">
+                        <i class="icon-clock" style="margin-right:4px;font-size:18px;vertical-align:-2px;"></i>历史对话
+                    </a>
+                    <a href="#" class="x-newchat-link fh-nav-btn" @click="startNewChat($event)">
+                        <i class="icon-plus-circle" style="margin-right:4px;font-size:18px;vertical-align:-2px;"></i>开启新对话
+                    </a>
+                </h3>
             </div>
-            <div class="row box-message">
-                <table>
-                    <template v-for="msg in history">
-                        <tr class="x-from-fh">
-                            <td class="td-icon x-me"><img src="../static/img/me.png" alt="me"/></td>
-                            <td class="td-content"><b class="x-time">{{msg.sendTime}} </b><div class="x-xcontent">{{msg.message}}</div></td>
-                        </tr>
-                        <tr class="x-back-gpt">
-                            <td class="td-icon">
-                                <img src="../static/img/fe-16.png" alt="fehelper"/></td></td>
-                            <td class="td-content"><b class="x-time">{{msg.respTime}}</b>
-                                <div :id="msg.id" class="x-xcontent" v-html="msg.respContent"></div>
-                            </td>
-                        </tr>
-                    </template>
-
-                    <template v-if="respResult.id">
-                        <tr class="x-from-fh">
-                            <td class="td-icon x-me"><img src="../static/img/me.png" alt="me"/></td>
-                            <td class="td-content"><b class="x-time">{{respResult.sendTime}} </b><div class="x-xcontent">{{respResult.message}}</div></td>
-                        </tr>
-                        <tr class="x-back-gpt">
-                            <td class="td-icon">
-                                <img src="../static/img/fe-16.png" alt="fehelper"/></td>
-                            <td class="td-content"><b class="x-time">{{respResult.respTime}}</b>
-                                <div :id="respResult.id" class="x-xcontent" v-html="respResult.respContent"></div>
-                            </td>
-                        </tr>
-                    </template>
-                </table>
+        </div>
+        <div v-if="showHistoryPanel" class="fh-history-sidebar">
+            <div class="fh-history-header">
+                <span>历史对话</span>
+                <button class="fh-history-close" @click="showHistoryPanel = false">关闭</button>
+            </div>
+            <div class="fh-history-list">
+                <template v-for="(day, date) in groupedHistory">
+                    <div class="fh-history-date">{{date}}</div>
+                    <ul>
+                        <li v-for="item in day" @click="loadHistory(item)">
+                            <span class="fh-history-theme">{{item.theme || item.message}}</span>
+                        </li>
+                    </ul>
+                </template>
+            </div>
+        </div>
+        <div :class="['panel-body', showHistoryPanel ? 'fh-main-shrink' : '']">
+            <div class="row mod-inputs box-prompt">
+                <form class="ui-mt-10" @submit.prevent="goChat">
+                    <textarea type="text" id="prompt" ref="prompt" v-model="prompt" class="form-control" placeholder="你有什么内容想要咨询AI的？"
+                        data-key="c2stNEJUbWRxYW00eENTUXJXRnlNajFUM0JsYmtGSlVlbDJnZ2dGbjI5MVBKQVdzZnZR"></textarea>
+                    <input class="btn btn-sm btn-primary btn-chat" type="button" value="发送" @click="goChat">
+                </form>
+            </div>
+            <div class="row mod-inputs box-result" ref="boxResult">
+                <div class="row box-tips" v-if="!hideDemo">
+                    <div>你好，我是你的专属AI助理，不管你是要查BUG、写代码、还是要咨询什么技术问题，你都可以跟我说，我会竭尽全力帮你解决，比如你可以这样问我👇👇👇</div>
+                    <ul class="x-demos clearfix">
+                        <li v-for="demo in demos" @click="sendMessage(demo)">{{demo}}</li>
+                    </ul>
+                </div>
+                <div class="row box-message">
+                    <table>
+                        <template v-if="respResult.id">
+                            <tr class="x-from-fh">
+                                <td class="td-icon x-me"><img src="../static/img/me.png" alt="me"/></td>
+                                <td class="td-content"><b class="x-time">{{respResult.sendTime}} </b><div class="x-xcontent">{{respResult.message}}</div></td>
+                            </tr>
+                            <tr class="x-back-gpt">
+                                <td class="td-icon">
+                                    <img src="../static/img/fe-16.png" alt="fehelper"/></td>
+                                <td class="td-content"><b class="x-time">{{respResult.respTime}}</b>
+                                    <div :id="respResult.id" class="x-xcontent" v-html="respResult.respContent"></div>
+                                </td>
+                            </tr>
+                        </template>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -76,3 +87,4 @@
 <script type="module" src="index.js"></script>
 </body>
 </html>
+
