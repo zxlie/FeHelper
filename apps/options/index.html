@@ -27,7 +27,7 @@
                 <i class="nav-icon">⚙</i>
                 <span>插件设置</span>
             </a>
-            <div class="version-info">
+            <div class="version-info" v-if="versionChecked">
                 <!-- 当版本相同时显示简化信息 -->
                 <div v-if="latestVersion && !needUpdate" class="version-latest">
                     <i class="version-check-icon">✓</i>
@@ -177,36 +177,15 @@
         <!-- 推荐位和广告位 -->
         <div class="recommendation-container">
             <div class="recommendation-section hot-tools">
-                <div class="recommendation-card" @click="installTool('qr-code')">
-                    <div class="rec-icon">📱</div>
+                <div v-for="card in recommendationCards" :key="card.title"
+                     class="recommendation-card" 
+                     :class="{ 'ad-card': card.isAd }"
+                     @click="handleRecommendClick(card)">
+                    <div class="rec-icon" :class="{ 'ad-icon': card.isAd }">{{card.icon}}</div>
                     <div class="rec-content">
-                        <h4>二维码工具</h4>
-                        <p>快速生成和识别二维码，支持自定义样式</p>
-                        <span class="must-tag">必装</span>
-                    </div>
-                </div>
-                <div class="recommendation-card" @click="installTool('chart-maker')">
-                    <div class="rec-icon">📊</div>
-                    <div class="rec-content">
-                        <h4>图表制作工具</h4>
-                        <p>支持多种数据可视化图表，快速生成专业图表</p>
-                        <span class="new-tag">最新</span>
-                    </div>
-                </div>
-                <div class="recommendation-card" @click="installTool('poster-maker')">
-                    <div class="rec-icon">🖼️</div>
-                    <div class="rec-content">
-                        <h4>海报快速生成</h4>
-                        <p>快速生成和识别二维码，支持自定义样式</p>
-                        <span class="recommend-tag">推荐</span>
-                    </div>
-                </div>
-                <div class="recommendation-card ad-card">
-                    <div class="rec-icon ad-icon">🔔</div>
-                    <div class="rec-content">
-                        <h4>推广位</h4>
-                        <p>高效的开发工具套件，助力开发者提升效率</p>
-                        <span class="ad-tag">广告</span>
+                        <h4>{{card.title}}</h4>
+                        <p>{{card.desc}}</p>
+                        <span :class="card.tagClass">{{card.tag}}</span>
                     </div>
                 </div>
             </div>
@@ -280,7 +259,6 @@
             </div>
 
             <!-- 工具展示区 -->
-            <div id="fh-dashboard-panel" style="display:none;"></div>
             <div class="tools-grid">
                 <div :class="['tools-container', viewMode]">
                     <div v-for="tool in filteredTools" 

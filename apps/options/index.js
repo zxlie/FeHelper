@@ -62,8 +62,46 @@ new Vue({
         },
 
         recentCount: 0,
-        showDashboard: false, // 是否显示DashBoard
-        dashboardData: null, // DashBoard数据
+        versionChecked: false,
+        // 推荐卡片配置，后续可从服务端获取
+        recommendationCards: [
+            {
+                toolKey: 'qr-code',
+                icon: '📱',
+                title: '二维码工具',
+                desc: '快速生成和识别二维码，支持自定义样式',
+                tag: '必装',
+                tagClass: 'must-tag',
+                isAd: false
+            },
+            {
+                toolKey: 'chart-maker',
+                icon: '📊',
+                title: '图表制作工具',
+                desc: '支持多种数据可视化图表，快速生成专业图表',
+                tag: '最新',
+                tagClass: 'new-tag',
+                isAd: false
+            },
+            {
+                toolKey: 'poster-maker',
+                icon: '🖼️',
+                title: '海报快速生成',
+                desc: '快速生成和识别二维码，支持自定义样式',
+                tag: '推荐',
+                tagClass: 'recommend-tag',
+                isAd: false
+            },
+            {
+                icon: '🔔',
+                title: '推广位',
+                desc: '广告位招租，欢迎流量主联系，开放合作，流量主请到github联系',
+                tag: '广告',
+                tagClass: 'ad-tag',
+                isAd: true,
+                url: 'https://github.com/zxlie/FeHelper'
+            }
+        ],
     },
 
     async created() {
@@ -255,14 +293,15 @@ new Vue({
                 const cacheExpired = !cachedData || !cachedData.timestamp || (now - cachedData.timestamp > 24 * 60 * 60 * 1000);
                 const versionChanged = cachedData && cachedData.currentVersion !== currentVersion;
                 
-                if (cacheExpired || versionChanged) {
+                this.versionChecked = !(cacheExpired || versionChanged);
+                if (!this.versionChecked) {
                     try {
-                        console.log('开始获取最新版本信息...');
                         // 使用shields.io的JSON API获取最新版本号
                         const response = await fetch('https://img.shields.io/chrome-web-store/v/pkgccpejnmalmdinmhkkfafefagiiiad.json');
                         if (!response.ok) {
                             throw new Error(`HTTP错误：${response.status}`);
                         }
+                        this.versionChecked = true;
                         
                         const data = await response.json();
                         // 提取版本号 - shields.io返回的数据中包含版本信息
@@ -270,12 +309,10 @@ new Vue({
                         if (data && data.value) {
                             // 去掉版本号前的'v'字符（如果有）
                             latestVersion = data.value.replace(/^v/, '');
-                            console.log('获取到最新版本号:', latestVersion);
                         }
                         
                         // 比较版本号
                         const needUpdate = this.compareVersions(currentVersion, latestVersion) < 0;
-                        console.log('当前版本:', currentVersion, '最新版本:', latestVersion, '需要更新:', needUpdate);
                         
                         // 保存到本地存储中
                         await chrome.storage.local.set({
@@ -290,7 +327,6 @@ new Vue({
                         this.latestVersion = latestVersion;
                         this.needUpdate = needUpdate;
                     } catch (fetchError) {
-                        console.error('获取最新版本信息失败:', fetchError);
                         // 获取失败时不显示更新按钮
                         this.needUpdate = false;
                         
@@ -303,12 +339,10 @@ new Vue({
                     }
                 } else {
                     // 使用缓存数据
-                    console.log('使用缓存的版本信息');
                     this.latestVersion = cachedData.latestVersion || '';
                     this.needUpdate = cachedData.needUpdate || false;
                 }
             } catch (error) {
-                console.error('检查版本更新失败:', error);
                 this.needUpdate = false; // 出错时不显示更新提示
             }
         },
@@ -340,35 +374,22 @@ new Vue({
         // 打开Chrome商店页面
         openStorePage() {
             try {
-                console.log('开始请求检查更新...');
-                
                 // 使用Chrome Extension API请求检查更新
                 // Manifest V3中requestUpdateCheck返回Promise，结果是一个对象而不是数组
                 chrome.runtime.requestUpdateCheck().then(result => {
                     // 正确获取status和details，它们是result对象的属性
-                    console.log('更新检查结果:', result);
-                    const status = result.status;
-                    const details = result.details;
-                    
-                    console.log('更新检查状态:', status, '详情:', details);
-                    this.handleUpdateStatus(status, details);
+                    this.handleUpdateStatus(result.status, result.details);
                 }).catch(error => {
-                    console.error('更新检查失败:', error);
                     this.handleUpdateError(error);
                 });
             } catch (error) {
-                console.error('请求更新出错:', error);
                 this.handleUpdateError(error);
             }
         },
 
         // 处理更新状态
         handleUpdateStatus(status, details) {
-            console.log(`处理更新状态: ${status}`, details);
-            
             if (status === 'update_available') {
-                console.log('发现更新:', details);
-                
                 // 显示更新通知
                 this.showNotification({
                     title: 'FeHelper 更新',
@@ -377,7 +398,6 @@ new Vue({
                 
                 // 重新加载扩展以应用更新
                 setTimeout(() => {
-                    console.log('重新加载扩展...');
                     chrome.runtime.reload();
                 }, 1000);
             } else if (status === 'no_update') {
@@ -388,8 +408,6 @@ new Vue({
                 });
             } else {
                 // 其他情况，如更新检查失败等
-                console.log('其他更新状态:', status);
-                
                 // 备选方案：跳转到官方网站
                 chrome.tabs.create({ 
                     url: 'https://baidufe.com/fehelper'
@@ -404,8 +422,6 @@ new Vue({
 
         // 处理更新错误
         handleUpdateError(error) {
-            console.error('更新过程中出错:', error);
-            
             // 出错时跳转到官方网站
             chrome.tabs.create({ 
                 url: 'https://baidufe.com/fehelper'
@@ -420,8 +436,6 @@ new Vue({
         // 显示通知的统一方法
         showNotification(options) {
             try {
-                console.log('准备显示通知:', options);
-                
                 // 定义通知ID，方便后续关闭
                 const notificationId = 'fehelper-update-notification';
                 const simpleNotificationId = 'fehelper-simple-notification';
@@ -438,14 +452,10 @@ new Vue({
                     silent: false // 播放音效
                 };
                 
-                console.log('通知选项:', notificationOptions);
-                
                 // 首先尝试直接创建通知
                 chrome.notifications.create(notificationId, notificationOptions, (createdId) => {
                     const error = chrome.runtime.lastError;
                     if (error) {
-                        console.error('创建通知出错:', error);
-                        
                         // 通知创建失败，尝试使用alert作为备选方案
                         alert(`${options.title}: ${options.message}`);
                         
@@ -462,24 +472,16 @@ new Vue({
                             if (chrome.runtime.lastError) {
                                 console.error('简化通知创建也失败:', chrome.runtime.lastError);
                             } else {
-                                console.log('简化通知已创建，ID:', simpleId);
-                                
                                 // 3秒后自动关闭简化通知
                                 setTimeout(() => {
-                                    chrome.notifications.clear(simpleId, (wasCleared) => {
-                                        console.log('简化通知已关闭:', wasCleared);
-                                    });
+                                    chrome.notifications.clear(simpleId);
                                 }, 3000);
                             }
                         });
                     } else {
-                        console.log('通知已成功创建，ID:', createdId);
-                        
                         // 3秒后自动关闭通知
                         setTimeout(() => {
-                            chrome.notifications.clear(createdId, (wasCleared) => {
-                                console.log('通知已关闭:', wasCleared);
-                            });
+                            chrome.notifications.clear(createdId);
                         }, 3000);
                     }
                 });
@@ -487,7 +489,6 @@ new Vue({
                 // 同时使用内置UI显示消息
                 this.showInPageNotification(options);
             } catch (error) {
-                console.error('显示通知时出错:', error);
                 // 降级为alert
                 alert(`${options.title}: ${options.message}`);
             }
@@ -577,8 +578,6 @@ new Vue({
                         notificationEl.remove();
                     });
                 }, 3000);
-                
-                console.log('页内通知已显示，将在3秒后自动关闭');
             } catch (error) {
                 console.error('创建页内通知出错:', error);
             }
@@ -625,7 +624,6 @@ new Vue({
             this.searchKey = '';
             // 确保工具显示正确
             this.activeTools = { ...this.originalTools };
-            this.showDashboard = false;
         },
 
         handleSort() {
@@ -644,7 +642,6 @@ new Vue({
                 const installedTools = await Awesome.getInstalledTools();
                 return Object.keys(installedTools).length;
             } catch (error) {
-                console.error('获取已安装工具数量失败:', error);
                 // 回退到本地数据
                 return Object.values(this.originalTools).filter(tool => 
                     tool.installed || tool.systemInstalled || false
@@ -672,7 +669,6 @@ new Vue({
             await this.updateActiveTools('installed');
             // 更新已安装工具数量
             await this.updateInstalledCount();
-            this.showDashboard = false;
         },
 
         showMyFavorites() {
@@ -680,24 +676,6 @@ new Vue({
             this.currentCategory = '';
             this.searchKey = '';
             this.updateActiveTools('favorites');
-            this.showDashboard = false;
-        },
-
-        async showRecentUsed() {
-            this.currentView = 'recent';
-            this.currentCategory = '';
-            this.searchKey = '';
-            // 拉取DashBoard数据并显示
-            this.dashboardData = await Statistics.getDashboardData();
-            this.showDashboard = true;
-            // 不再更新工具列表
-        },
-
-        // 关闭DashBoard，恢复工具列表
-        closeDashboard() {
-            this.showDashboard = false;
-            this.currentView = 'all';
-            this.updateActiveTools('all');
         },
 
         // 重置工具列表到原始状态
@@ -775,8 +753,6 @@ new Vue({
                 });
                 
             } catch (error) {
-                console.error('安装工具失败:', error);
-                
                 // 显示安装失败的通知
                 this.showInPageNotification({
                     message: `安装失败：${error.message || '未知错误'}`,
@@ -824,8 +800,6 @@ new Vue({
                                 duration: 3000
                             });
                         } catch (error) {
-                            console.error('卸载工具失败:', error);
-                            
                             // 显示卸载失败的通知
                             this.showInPageNotification({
                                 message: `卸载失败：${error.message || '未知错误'}`,
@@ -914,7 +888,6 @@ new Vue({
                             )
                         );
                     } catch (error) {
-                        console.error('获取已安装工具失败:', error);
                         // 回退到本地数据
                         this.activeTools = Object.fromEntries(
                             Object.entries(this.originalTools).filter(([_, tool]) => 
@@ -1012,7 +985,6 @@ new Vue({
             try {
                 this.isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
             } catch (error) {
-                console.error('检查浏览器类型失败:', error);
                 this.isFirefox = false;
             }
         },
@@ -1099,7 +1071,6 @@ new Vue({
                             message: '设置已保存！'
                         });
                     } catch (innerError) {
-                        console.error('保存菜单设置失败:', innerError);
                         this.showNotification({
                             title: 'FeHelper 设置错误',
                             message: '保存菜单设置失败: ' + innerError.message
@@ -1107,7 +1078,6 @@ new Vue({
                     }
                 });
             } catch (error) {
-                console.error('保存设置失败:', error);
                 this.showNotification({
                     title: 'FeHelper 设置错误',
                     message: '保存设置失败: ' + error.message
@@ -1214,130 +1184,19 @@ new Vue({
             return recent.length;
         },
 
-        renderDashboard() {
-            const dashboardContainerId = 'fh-dashboard-panel';
-            let container = document.getElementById(dashboardContainerId);
-            // 只在showDashboard且currentView为recent时隐藏工具列表
-            const grid = document.querySelector('.tools-grid');
-            if (!this.showDashboard || this.currentView !== 'recent') {
-                if (container) container.style.display = 'none';
-                if (grid) grid.style.display = '';
-                return;
+        async showRecentUsed() {
+            this.currentView = 'recent';
+            this.currentCategory = '';
+            this.searchKey = '';
+            // recentUsed已在initData和getRecentUsedData中维护，activeTools会自动刷新
+        },
+
+        handleRecommendClick(card) {
+            if (card.isAd && card.url) {
+                window.open(card.url, '_blank');
+            } else if (card.toolKey) {
+                this.installTool(card.toolKey);
             }
-            if (grid) grid.style.display = 'none';
-            if (!container) {
-                container = document.createElement('div');
-                container.id = dashboardContainerId;
-                container.style = 'padding:32px; background:#fff; border-radius:8px; margin:24px; box-shadow:0 2px 12px #eee; min-width:700px;';
-                const main = document.querySelector('.market-main') || document.querySelector('.market-content');
-                if (main) main.prepend(container);
-                else document.body.appendChild(container);
-            }
-            container.style.display = 'block';
-            const data = this.dashboardData || {};
-            // 工具ID转中文名和icon
-            const toolName = (key) => (this.originalTools && this.originalTools[key] && this.originalTools[key].name) ? this.originalTools[key].name : key;
-            const toolIcon = (key) => {
-                if (toolMap[key] && toolMap[key].menuConfig && toolMap[key].menuConfig[0] && toolMap[key].menuConfig[0].icon) {
-                    return toolMap[key].menuConfig[0].icon;
-                }
-                return toolName(key).slice(0,1);
-            };
-            // 插入美观样式
-            if (!document.getElementById('fh-dashboard-style')) {
-                const style = document.createElement('style');
-                style.id = 'fh-dashboard-style';
-                style.innerHTML = `
-                .fh-dashboard-cards { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 24px;}
-                .fh-card { background: linear-gradient(135deg,#f7f9fa 60%,#e3eafc 100%); border-radius: 12px; box-shadow:0 2px 8px #f0f0f0; padding:18px 24px; min-width:120px; flex:1; text-align:center; font-size:15px;}
-                .fh-card.main { background: linear-gradient(135deg,#e3fcec 60%,#e3eafc 100%);}
-                .fh-card-num { font-size:32px; font-weight:bold; margin-bottom:4px;}
-                .fh-calendar { display:inline-block; margin-left:12px; }
-                .fh-cal-cell { display:inline-block; width:18px; height:18px; line-height:18px; text-align:center; border-radius:3px; margin:1px; background:#eee; color:#888; font-size:12px;}
-                .fh-cal-cell.used { background:#4285f4; color:#fff; font-weight:bold;}
-                .fh-dashboard-section { background:#fff; border-radius:12px; box-shadow:0 1px 4px #f0f0f0; padding:18px 24px; margin-bottom:24px;}
-                .fh-dashboard-header { margin-bottom:24px; }
-                .fh-dashboard-header h2 { font-size:22px; margin:0; }
-                .fh-tool-bar { display:inline-block; width:18px; height:18px; border-radius:3px; background:#e3eafc; margin-right:6px; vertical-align:middle; }
-                .fh-tool-bar-inner { display:inline-block; height:100%; border-radius:3px; background:#4285f4; }
-                .fh-tool-list { margin:0; padding:0; list-style:none; }
-                .fh-tool-list li { margin-bottom:10px; }
-                .fh-tool-icon { display:inline-block; width:18px; height:18px; border-radius:3px; background:#e3eafc; margin-right:6px; vertical-align:middle; text-align:center; font-size:14px; }
-                .fh-dashboard-sub { color:#888; font-size:13px; margin-bottom:8px; }
-                `;
-                document.head.appendChild(style);
-            }
-            // 30天活跃日历
-            const today = new Date();
-            let calendar = '<div class="fh-calendar">';
-            for(let i=29;i>=0;i--){
-                const d = new Date(today.getTime()-i*86400000);
-                const ds = d.toISOString().slice(0,10);
-                const used = data.allDates && data.allDates.includes(ds);
-                calendar += `<span class="fh-cal-cell${used?' used':''}" title="${ds}">${d.getDate()}</span>`;
-            }
-            calendar += '</div>';
-            // 主卡片区块
-            let html = `
-            <div class="fh-dashboard-header">
-              <h2>FeHelper 使用统计仪表盘 <span style="font-size:16px;color:#bbb;">(近30天)</span></h2>
-            </div>
-            <div class="fh-dashboard-cards">
-              <div class="fh-card main"><div class="fh-card-num">${data.totalCount||0}</div><div>总使用次数</div></div>
-              <div class="fh-card main"><div class="fh-card-num">${data.activeDays||0}</div><div>活跃天数</div></div>
-              <div class="fh-card"><div>${data.firstDate||'-'}<br>~<br>${data.lastDate||'-'}</div><div>统计区间</div></div>
-              <div class="fh-card"><div class="fh-card-num">${data.maxStreak||0}</div><div>最长连续活跃天数</div></div>
-              <div class="fh-card"><div class="fh-card-num">${data.monthCount||0}</div><div>本月使用次数</div></div>
-              <div class="fh-card"><div class="fh-card-num">${data.weekCount||0}</div><div>本周使用次数</div></div>
-              <div class="fh-card"><div class="fh-card-num">${data.avgPerDay||0}</div><div>平均每日使用</div></div>
-              <div class="fh-card"><div>${data.maxDay.date||'-'}<br><b>${data.maxDay.count||0}</b></div><div>最活跃日</div></div>
-              <div class="fh-card"><div class="fh-card-num">${data.daysSinceLast||0}</div><div>最近未使用天数</div></div>
-            </div>
-            <div class="fh-dashboard-section">
-                <div class="fh-dashboard-sub">近30天活跃日历：</div>${calendar}
-            </div>
-            <div class="fh-dashboard-section" style="display:flex;gap:32px;flex-wrap:wrap;">
-                <div style="flex:2;min-width:320px;">
-                    <div class="fh-dashboard-sub"><b>最近10天活跃趋势：</b></div>
-                    <div style="display:flex;align-items:end;height:80px;margin-top:8px;">
-                        ${
-                            (data.dailyTrend||[]).map(d=>{
-                                const max = Math.max(...(data.dailyTrend||[]).map(x=>x.count),1);
-                                return `<div title='${d.date}: ${d.count}' style='width:20px;height:${d.count/max*60}px;background:#4285f4;margin-right:4px;border-radius:2px;'></div>`;
-                            }).join('')
-                        }
-                    </div>
-                    <div style="font-size:12px;color:#888;margin-top:4px;">
-                        ${(data.dailyTrend||[]).map(d=>`<span style='display:inline-block;width:20px;text-align:center;'>${d.date.slice(5)}</span>`).join('')}
-                    </div>
-                </div>
-                <div style="flex:3;min-width:320px;">
-                    <div class="fh-dashboard-sub"><b>使用最多的工具：</b></div>
-                    <ul class="fh-tool-list">
-                        ${(data.mostUsed||[]).map(t=>{
-                            const percent = data.totalCount ? Math.round(t.count/data.totalCount*100) : 0;
-                            return `<li style='margin-bottom:12px;display:flex;align-items:center;'>
-                                <span class='fh-tool-icon'>${toolIcon(t.name)}</span>
-                                <span style='display:inline-block;width:100px;'>${toolName(t.name)}</span>
-                                <span style='display:inline-block;width:60px;color:#888;'>(x${t.count})</span>
-                                <span class='fh-tool-bar' style='width:80px;height:10px;margin:0 8px;'>
-                                    <span class='fh-tool-bar-inner' style='width:${percent*0.8}px;'></span>
-                                </span>
-                                <span style='color:#888;'>${percent}%</span>
-                            </li>`;
-                        }).join('')}
-                    </ul>
-                </div>
-            </div>
-            <div class="fh-dashboard-section">
-                <div class="fh-dashboard-sub"><b>最近10次使用的工具：</b></div>
-                <ul style="margin:8px 0 0 0;padding:0;list-style:none;">
-                    ${(data.recentDetail||[]).map(t=>`<li style='display:inline-block;margin-right:24px;'>${toolName(t.tool)} <span style='color:#888;'>(${t.date})</span></li>`).join('')}
-                </ul>
-            </div>
-            `;
-            container.innerHTML = html;
-            window.__vue__ = this;
         },
     },
 
@@ -1363,18 +1222,6 @@ new Vue({
                 }
             }
         },
-        showDashboard(val) {
-            this.renderDashboard();
-        },
-        dashboardData(val) {
-            this.renderDashboard();
-        },
-    },
-
-    mounted() {
-        this.$nextTick(() => {
-            this.renderDashboard();
-        });
     },
 });
 
