@@ -46,8 +46,9 @@
         <div :class="['panel-body', showHistoryPanel ? 'fh-main-shrink' : '']">
             <div class="row mod-inputs box-prompt">
                 <form class="ui-mt-10" @submit.prevent="goChat">
-                    <textarea type="text" id="prompt" ref="prompt" v-model="prompt" class="form-control" placeholder="你有什么内容想要咨询AI的？"
-                        data-key="c2stNEJUbWRxYW00eENTUXJXRnlNajFUM0JsYmtGSlVlbDJnZ2dGbjI5MVBKQVdzZnZR"></textarea>
+                    <textarea type="text" id="prompt" ref="prompt" v-model="prompt" class="form-control" placeholder="你有什么内容想要咨询AI的？（按Enter发送，Shift+Enter换行）"
+                        @keydown="onPromptKeydown"
+                    ></textarea>
                     <input class="btn btn-sm btn-primary btn-chat" type="button" value="发送" @click="goChat">
                 </form>
             </div>
@@ -60,10 +61,21 @@
                 </div>
                 <div class="row box-message">
                     <table>
-                        <template v-if="respResult.id">
+                        <template v-if="currentSession.length">
+                            <tr v-for="(msg, idx) in currentSession" :key="msg.id">
+                                <td class="td-icon x-me" v-if="msg.role==='user'"><img src="../static/img/me.png" alt="me"/></td>
+                                <td class="td-icon" v-if="msg.role==='assistant'"><img src="../static/img/fe-16.png" alt="fehelper"/></td>
+                                <td class="td-content">
+                                    <b class="x-time">{{msg.time}}</b>
+                                    <div class="x-xcontent x-user-content" v-if="msg.role==='user'">{{msg.content}}</div>
+                                    <div class="x-xcontent" v-if="msg.role==='assistant'" v-html="msg.content"></div>
+                                </td>
+                            </tr>
+                        </template>
+                        <template v-else-if="respResult.id">
                             <tr class="x-from-fh">
                                 <td class="td-icon x-me"><img src="../static/img/me.png" alt="me"/></td>
-                                <td class="td-content"><b class="x-time">{{respResult.sendTime}} </b><div class="x-xcontent">{{respResult.message}}</div></td>
+                                <td class="td-content x-user-content"><b class="x-time">{{respResult.sendTime}} </b><div class="x-xcontent">{{respResult.message}}</div></td>
                             </tr>
                             <tr class="x-back-gpt">
                                 <td class="td-icon">
@@ -87,4 +99,5 @@
 <script type="module" src="index.js"></script>
 </body>
 </html>
+
 

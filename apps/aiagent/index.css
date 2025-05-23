@@ -103,11 +103,17 @@ ul.x-demos li:hover {
     border:1px solid #eee;
 }
 .box-message table {
-    width:100%;
+    width: 100%;
+    table-layout: fixed;
 }
 .box-message table td{
     padding: 10px 5px;
     vertical-align: top;
+}
+.box-message .td-content {
+    word-break: break-all;
+    white-space: pre-wrap;
+    max-width: 100%;
 }
 .x-from-fh {
     border: 1px solid #eee;
@@ -303,4 +309,11 @@ h3.panel-title {
 }
 .x-newchat-link .icon-plus-circle {
     color: #43a047;
+}
+td.td-icon {
+    width: 40px;
+    text-align: center;
+}
+td.td-content .x-xcontent.x-user-content {
+    white-space: pre-wrap;
 }

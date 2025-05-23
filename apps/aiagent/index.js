@@ -12,7 +12,8 @@ new Vue({
         demos: [
             '用Js写一个冒泡排序的Demo',
             'Js里的Fetch API是怎么用的',
-            '帮我写一个单网页版的俄罗斯方块游戏'
+            '帮我写一个单网页版的俄罗斯方块游戏',
+            '我开发了一个浏览器插件，是专门为HR自动找简历的，现在请你帮我用SVG绘制一个插件的ICON，不需要问我细节，直接生成'
         ],
         initMessage: {
             id:'id-test123',
@@ -28,6 +29,7 @@ new Vue({
             respTime:'',
             respContent:''
         },
+        currentSession: [],
         history:[],
         tempId:'',
         hideDemo: false,
@@ -111,7 +113,6 @@ new Vue({
                     respTime: this.respResult.respTime,
                     respContent: this.respResult.respContent
                 });
-                this.respResult.id = '';
             }
 
             this.undergoing = true;
@@ -125,18 +126,22 @@ new Vue({
 
             // 1. 先把用户输入 push 到 messages
             this.messages.push({ role: 'user', content: prompt });
+            // 新增：用户消息push到currentSession
+            this.currentSession.push({
+                role: 'user',
+                id: 'user-' + Date.now(),
+                time: sendTime,
+                content: prompt
+            });
 
             AI.askCoderLLM(this.messages, (respJson, done) => {
                 if(done){
                     this.undergoing = false;
-                    // 2. 回复结束后，把助手回复 push 到 messages
                     if(this.respResult.id && this.respResult.respContent){
-                        // 取纯文本（去掉HTML标签）
                         const tempDiv = document.createElement('div');
                         tempDiv.innerHTML = this.respResult.respContent;
                         const plainText = tempDiv.textContent || tempDiv.innerText || '';
                         this.messages.push({ role: 'assistant', content: plainText });
-                        // === 关键：push到history ===
                         this.history.push({
                             id: this.respResult.id,
                             sendTime: this.respResult.sendTime,
@@ -144,12 +149,9 @@ new Vue({
                             respTime: this.respResult.respTime,
                             respContent: this.respResult.respContent
                         });
-                        this.respResult.id = '';
                     }
-                
                     this.$nextTick(() => {
-                        let elm = document.getElementById(this.tempId);
-                        elm && elm.querySelectorAll('pre code').forEach((block) => {
+                        document.querySelectorAll('.x-xcontent pre code').forEach((block) => {
                             hljs.highlightBlock(block);
                             insertCodeToolbar(block);
                         });
@@ -158,7 +160,15 @@ new Vue({
                     return;
                 }
                 let id = respJson.id;
-                respContent = respJson.content || '';
+                let rawContent = respJson.content || '';
+                // 检查多轮代码补全场景
+                const lastAssistantMsg = this.currentSession.slice().reverse().find(m => m.role === 'assistant');
+                const lastIsCodeBlock = lastAssistantMsg && /```\s*$/.test(lastAssistantMsg.content.trim());
+                const thisIsCodeBlock = /^```/.test(rawContent.trim());
+                if (lastIsCodeBlock && !thisIsCodeBlock) {
+                    rawContent = '```js\n' + rawContent.trim() + '\n```';
+                }
+                respContent = rawContent;
                 if(!this.validateCodeBlocks(respContent)) {
                     respContent += '\n```';
                 }
@@ -168,8 +178,19 @@ new Vue({
                     let dateTime = new Date(respJson.created * 1000);
                     let respTime = dateTime.format('yyyy/MM/dd HH:mm:ss');
                     this.respResult = { id,sendTime,message:prompt,respTime,respContent };
+                    // 新增：助手回复push到currentSession
+                    this.currentSession.push({
+                        role: 'assistant',
+                        id,
+                        time: respTime,
+                        content: respContent
+                    });
                 }else{
                     this.respResult.respContent = respContent;
+                    // 更新最后一条助手消息内容
+                    if(this.currentSession.length && this.currentSession[this.currentSession.length-1].role==='assistant'){
+                        this.currentSession[this.currentSession.length-1].content = respContent;
+                    }
                 }
                 this.$nextTick(() => this.scrollToBottom());
             });            
@@ -222,6 +243,7 @@ new Vue({
                 respTime: '',
                 respContent: ''
             };
+            this.currentSession = [];
             this.showHistoryPanel = false;
             this.$nextTick(() => {
                 this.$forceUpdate();
@@ -233,6 +255,19 @@ new Vue({
             event.preventDefault();
             event.stopPropagation();
             this.showHistoryPanel = !this.showHistoryPanel;
+        },
+
+        onPromptKeydown(e) {
+            if (e.key === 'Enter') {
+                if (e.shiftKey) {
+                    // 允许换行
+                    return;
+                } else {
+                    // 阻止默认换行，发送消息
+                    e.preventDefault();
+                    this.goChat();
+                }
+            }
         }
     }
 
@@ -285,6 +320,7 @@ function insertCodeToolbar(block) {
     let btnRun = document.createElement('button');
     btnRun.className = 'fh-btn-run';
     btnRun.style.cssText = 'padding:2px 8px;font-size:12px;cursor:pointer;';
+    let shouldAppendBtnRun = true;
     if (lang.includes('lang-javascript') || lang.includes('lang-js')) {
         btnRun.innerText = 'Console运行';
         btnRun.onclick = (e) => {
@@ -319,12 +355,44 @@ function insertCodeToolbar(block) {
             }, 1200);
             showToast('HTML文件已下载，请双击打开即可运行！');
         };
+    } else if (lang.includes('lang-xml') || lang.includes('lang-svg')) {
+        // 检查内容是否为svg
+        const codeText = block.innerText.trim();
+        if (/^<svg[\s\S]*<\/svg>$/.test(codeText)) {
+            btnRun.innerText = '点击预览';
+            btnRun.onclick = (e) => {
+                e.stopPropagation();
+                // 弹窗预览svg
+                const modal = document.createElement('div');
+                modal.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:999999;display:flex;align-items:center;justify-content:center;';
+                const inner = document.createElement('div');
+                inner.style.cssText = 'background:#fff;width:400px;height:400px;border-radius:10px;box-shadow:0 2px 16px rgba(0,0,0,0.18);position:relative;display:flex;align-items:center;justify-content:center;';
+                const closeBtn = document.createElement('button');
+                closeBtn.innerText = '×';
+                closeBtn.style.cssText = 'position:absolute;top:8px;right:12px;width:32px;height:32px;font-size:22px;line-height:28px;background:transparent;border:none;cursor:pointer;color:#888;z-index:2;';
+                closeBtn.onclick = () => document.body.removeChild(modal);
+                const img = document.createElement('img');
+                img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(codeText)));
+                img.alt = 'SVG预览';
+                img.style.cssText = 'max-width:90%;max-height:90%;display:block;border:1px solid #eee;background:#fafbfc;';
+                inner.appendChild(closeBtn);
+                inner.appendChild(img);
+                modal.appendChild(inner);
+                document.body.appendChild(modal);
+            };
+        } else {
+            btnRun.remove();
+            shouldAppendBtnRun = false;
+        }
     } else {
         btnRun.remove();
+        shouldAppendBtnRun = false;
     }
 
     toolbar.appendChild(btnCopy);
-    toolbar.appendChild(btnRun);
+    if (shouldAppendBtnRun) {
+        toolbar.appendChild(btnRun);
+    }
 
     // 让pre相对定位，插入工具栏到底部
     const pre = block.parentNode;
@@ -349,4 +417,5 @@ function showToast(msg) {
         setTimeout(() => document.body.removeChild(toast), 300);
     }, 1800);
 }
+
 
