@@ -476,63 +476,52 @@ new Vue({
             this.isProcessing = true;
             this.processingMessage = '正在处理粘贴内容...';
             this.processingProgress = 20;
-            
             if (event && event.clipboardData) {
                 // 从事件中获取剪贴板数据
                 const items = event.clipboardData.items || {};
-                let hasSvgContent = false;
-                
+                let handled = false;
                 // 处理文本内容，可能是SVG代码或URL
                 for (let i = 0; i < items.length; i++) {
                     const item = items[i];
-                    
                     if (item.type === 'text/plain') {
                         item.getAsString((text) => {
                             this.processingProgress = 40;
                             const trimmedText = text.trim();
-                            
                             // 检查是否是SVG内容
-                            if (trimmedText.startsWith('<svg') || trimmedText.startsWith('<?xml') && trimmedText.includes('<svg')) {
-                                hasSvgContent = true;
+                            if (trimmedText.startsWith('<svg') || (trimmedText.startsWith('<?xml') && trimmedText.includes('<svg'))) {
+                                handled = true;
                                 this.processSvgText(trimmedText);
                             } 
                             // 检查是否是URL
                             else if (trimmedText.startsWith('http') && 
                                     (trimmedText.toLowerCase().endsWith('.svg') || 
                                      trimmedText.toLowerCase().includes('.svg?'))) {
-                                hasSvgContent = true;
+                                handled = true;
                                 this.loadSvgFromUrl();
                             } else {
-                                this.handleError('剪贴板中没有SVG内容', 'svgUpload');
+                                this.showPasteSvgModal(svgText => this.processSvgText(svgText));
                             }
                         });
                         break;
                     }
                 }
-                
                 // 处理SVG图像文件
-                if (!hasSvgContent) {
+                if (!handled) {
                     for (let i = 0; i < items.length; i++) {
                         const item = items[i];
-                        
                         if (item.type.indexOf('image/svg+xml') !== -1) {
                             const file = item.getAsFile();
                             if (file) {
                                 this.processingProgress = 60;
-                                hasSvgContent = true;
+                                handled = true;
                                 this.uploadSvgFile({ target: { files: [file] } });
                                 break;
                             }
                         }
                     }
                 }
-                
-                // 如果没有找到SVG内容
-                if (!hasSvgContent) {
-                    this.handleError('剪贴板中没有SVG内容或无法访问剪贴板', 'svgUpload');
-                }
             } else {
-                this.handleError('无法访问剪贴板，请直接选择文件上传', 'svgUpload');
+                this.showPasteSvgModal(svgText => this.processSvgText(svgText));
             }
         },
         
@@ -1280,6 +1269,41 @@ new Vue({
             event.preventDefault();
             event.stopPropagation();
             chrome.runtime.openOptionsPage();
-        }   
+        },
+
+        showPasteSvgModal(callback) {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:999999;display:flex;align-items:center;justify-content:center;';
+            const inner = document.createElement('div');
+            inner.style.cssText = 'background:#fff;width:480px;min-height:260px;border-radius:10px;box-shadow:0 2px 16px rgba(0,0,0,0.18);position:relative;display:flex;flex-direction:column;align-items:stretch;padding:24px;';
+            const closeBtn = document.createElement('button');
+            closeBtn.innerText = '×';
+            closeBtn.style.cssText = 'position:absolute;top:8px;right:12px;width:32px;height:32px;font-size:22px;line-height:28px;background:transparent;border:none;cursor:pointer;color:#888;z-index:2;';
+            closeBtn.onclick = () => document.body.removeChild(modal);
+            const title = document.createElement('div');
+            title.innerText = '请手动粘贴SVG源代码';
+            title.style.cssText = 'font-size:18px;font-weight:bold;margin-bottom:12px;text-align:center;';
+            const textarea = document.createElement('textarea');
+            textarea.style.cssText = 'width:100%;height:120px;font-size:15px;padding:8px;margin-bottom:18px;resize:vertical;';
+            textarea.placeholder = '请在此粘贴SVG源代码...';
+            const okBtn = document.createElement('button');
+            okBtn.innerText = '确定';
+            okBtn.style.cssText = 'margin:0 auto 0 auto;display:block;padding:8px 32px;font-size:16px;background:#1976d2;color:#fff;border:none;border-radius:6px;cursor:pointer;';
+            okBtn.onclick = () => {
+                const svgText = textarea.value.trim();
+                if (!svgText) {
+                    textarea.focus();
+                    return;
+                }
+                document.body.removeChild(modal);
+                if (typeof callback === 'function') callback(svgText);
+            };
+            inner.appendChild(closeBtn);
+            inner.appendChild(title);
+            inner.appendChild(textarea);
+            inner.appendChild(okBtn);
+            modal.appendChild(inner);
+            document.body.appendChild(modal);
+        }
     }
 });

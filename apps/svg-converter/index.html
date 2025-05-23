@@ -51,7 +51,7 @@
                                                         <input type="file" accept=".svg" @change="uploadSvgFile" id="svgFile" ref="svgFile" style="display: none;">
                                                         <label for="svgFile" class="btn-upload">点击上传</label> <br/>
                                                         <a href="javascript:;" @click="loadSvgFromUrl" class="load-url">从URL加载</a>
-                                                        <a href="javascript:;" id="pasteSvg" @click="pasteSvg" class="paste-content">粘贴</a>
+                                                        <a href="javascript:;" id="pasteSvg" @click="pasteSvg" class="paste-content">粘贴SVG代码</a>
                                                     </p>
                                                 </div>
                                                 <div v-if="svgPreviewSrc">
