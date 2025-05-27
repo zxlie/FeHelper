@@ -5,7 +5,7 @@
 node_modules/
 package-lock.json
 Users/
-output/
+output-chrome/
 output-firefox/
 output-edge/
-.vscode/
+.vscode/    

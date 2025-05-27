@@ -3,24 +3,26 @@
  * @author zhaoxianlie
  */
 
-let gulp = require('gulp');
-
-let clean = require('gulp-clean');
-let copy = require('gulp-copy');
-let zip = require('gulp-zip');
-let uglifyjs = require('gulp-uglify-es').default;
-let uglifycss = require('gulp-uglifycss');
-let htmlmin = require('gulp-htmlmin');
-let jsonmin = require('gulp-jsonminify');
-let fs = require('fs');
-let through = require('through2');
-let path = require('path');
-let pretty = require('pretty-bytes');
-let shell = require('shelljs');
-let babel = require('gulp-babel');
-let assert = require('assert');
-let gulpIf = require('gulp-if');
-let imagemin = require('gulp-imagemin');
+const gulp = require('gulp');
+const clean = require('gulp-clean');
+const copy = require('gulp-copy');
+const zip = require('gulp-zip');
+const uglifyjs = require('gulp-uglify-es').default;
+const uglifycss = require('gulp-uglifycss');
+const htmlmin = require('gulp-htmlmin');
+const jsonmin = require('gulp-jsonminify');
+const fs = require('fs');
+const through = require('through2');
+const path = require('path');
+const pretty = require('pretty-bytes');
+const shell = require('shelljs');
+const babel = require('gulp-babel');
+const assert = require('assert');
+const gulpIf = require('gulp-if');
+const imagemin = require('gulp-imagemin');
+const imageminGifsicle = require('imagemin-gifsicle');
+const imageminMozjpeg = require('imagemin-mozjpeg');
+const imageminSvgo = require('imagemin-svgo');
 
 let isSilentDetect = false; // <-- 添加全局标志位
 
@@ -29,22 +31,22 @@ let isSilentDetect = false; // <-- 添加全局标志位
 
 // 清理输出目录
 function cleanOutput() {
-    return gulp.src('output', {read: false, allowEmpty: true}).pipe(clean({force: true}));
+    return gulp.src('output-chrome', {read: false, allowEmpty: true}).pipe(clean({force: true}));
 }
 
 // 复制静态资源
 function copyAssets() {
-    return gulp.src(['apps/**/*.{gif,png,jpg,jpeg,cur,ico,ttf,.woff2}', '!apps/static/screenshot/**/*']).pipe(copy('output'));
+    return gulp.src(['apps/**/*.{gif,png,jpg,jpeg,cur,ico,ttf,.woff2}', '!apps/static/screenshot/**/*']).pipe(copy('output-chrome'));
 }
 
 // 处理JSON文件
 function processJson() {
-    return gulp.src('apps/**/*.json').pipe(jsonmin()).pipe(gulp.dest('output/apps'));
+    return gulp.src('apps/**/*.json').pipe(jsonmin()).pipe(gulp.dest('output-chrome/apps'));
 }
 
 // 处理HTML文件
 function processHtml() {
-    return gulp.src('apps/**/*.html').pipe(htmlmin({collapseWhitespace: true})).pipe(gulp.dest('output/apps'));
+    return gulp.src('apps/**/*.html').pipe(htmlmin({collapseWhitespace: true})).pipe(gulp.dest('output-chrome/apps'));
 }
 
 // 合并 & 压缩 js
@@ -92,7 +94,7 @@ function processJs() {
                 ecma: 2015
             }
         })))
-        .pipe(gulp.dest('output/apps'));
+        .pipe(gulp.dest('output-chrome/apps'));
 }
 
 // 合并 & 压缩 css
@@ -116,38 +118,37 @@ function processCss() {
         })
     };
 
-    return gulp.src('apps/**/*.css').pipe(cssMerge()).pipe(uglifycss()).pipe(gulp.dest('output/apps'));
+    return gulp.src('apps/**/*.css').pipe(cssMerge()).pipe(uglifycss()).pipe(gulp.dest('output-chrome/apps'));
 }
 
 // 添加图片压缩任务
 function compressImages() {
-    return gulp.src('output/apps/**/*.{png,jpg,jpeg,gif,svg}') // 源目录应为 output
+    return gulp.src('output-chrome/apps/**/*.{png,jpg,jpeg,gif,svg}') // 源目录应为 output
         .pipe(imagemin([
-            imagemin.gifsicle({interlaced: true}),
-            imagemin.mozjpeg({quality: 75, progressive: true}),
-            imagemin.optipng({optimizationLevel: 5}),
-            imagemin.svgo({
+            imageminGifsicle({interlaced: true}),
+            imageminMozjpeg({quality: 75, progressive: true}),
+            imageminSvgo({
                 plugins: [
                     {removeViewBox: true},
                     {cleanupIDs: false}
                 ]
             })
         ]))
-        .pipe(gulp.dest('output/apps')); // 覆盖回 output
+        .pipe(gulp.dest('output-chrome/apps')); // 覆盖回 output
 }
 
 // 清理冗余文件，并且打包成zip，发布到chrome webstore
 function zipPackage(cb) {
     // 读取manifest文件
-    let pathOfMF = './output/apps/manifest.json';
+    let pathOfMF = './output-chrome/apps/manifest.json';
     let manifest = require(pathOfMF);
 
     manifest.name = manifest.name.replace('-Dev', '');
     fs.writeFileSync(pathOfMF, JSON.stringify(manifest));
 
     // ============压缩打包================================================
-    shell.exec('cd output/ && rm -rf fehelper.zip && zip -r fehelper.zip apps/ > /dev/null && cd ../');
-    let size = fs.statSync('output/fehelper.zip').size;
+    shell.exec('cd output-chrome/ && rm -rf fehelper.zip && zip -r fehelper.zip apps/ > /dev/null && cd ../');
+    let size = fs.statSync('output-chrome/fehelper.zip').size;
     size = pretty(size);
 
 
@@ -161,7 +162,7 @@ function zipPackage(cb) {
 
 // 打包ms-edge安装包
 function edgePackage(cb) {
-    shell.exec('rm -rf output-edge && cp -r output output-edge && rm -rf output-edge/fehelper.zip');
+    shell.exec('rm -rf output-edge && cp -r output-chrome output-edge && rm -rf output-edge/fehelper.zip');
 
     // 更新edge所需的配置文件
     let pathOfMF = './output-edge/apps/manifest.json';
@@ -188,7 +189,7 @@ function edgePackage(cb) {
 
 // 打包Firefox安装包
 function firefoxPackage(cb) {
-    shell.exec('rm -rf output-firefox && cp -r output output-firefox && rm -rf output-firefox/fehelper.zip');
+    shell.exec('rm -rf output-firefox && cp -r output-chrome output-firefox && rm -rf output-firefox/fehelper.zip');
 
     // 清理掉firefox里不支持的tools
     let rmTools = ['page-capture', 'color-picker', 'ajax-debugger', 'wpo', 'code-standards', 'ruler', 'remove-bg'];
@@ -236,7 +237,7 @@ function firefoxPackage(cb) {
 }
 
 function syncFiles() {
-    return gulp.src('apps/**/*').pipe(gulp.dest('output/apps'));
+    return gulp.src('apps/**/*').pipe(gulp.dest('output-chrome/apps'));
 }
 
 // 设置静默标志
@@ -285,7 +286,7 @@ function detectUnusedFiles(cb) {
             } else {
                 // 只关注静态资源文件，并排除特殊文件
                 if (/\.(js|css|png|jpg|jpeg|gif|svg)$/i.test(file) && !shouldExcludeFile(fullPath)) {
-                    const relativePath = path.relative('output/apps', fullPath);
+                    const relativePath = path.relative('output-chrome/apps', fullPath);
                     allFiles.add(relativePath);
                 }
             }
@@ -337,7 +338,7 @@ function detectUnusedFiles(cb) {
                 } else {
                     // Resolve relative paths (./, ../, or direct filename)
                     const absolutePath = path.resolve(fileDir, extractedPath);
-                    finalPathToAdd = path.relative('output/apps', absolutePath);
+                    finalPathToAdd = path.relative('output-chrome/apps', absolutePath);
                 }
                 
                 // Final check before adding
@@ -351,7 +352,7 @@ function detectUnusedFiles(cb) {
     
     // 读取manifest.json中的引用
     function processManifest() {
-        const manifestPath = 'output/apps/manifest.json';
+        const manifestPath = 'output-chrome/apps/manifest.json';
         if (fs.existsSync(manifestPath)) {
             const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
             
@@ -411,7 +412,7 @@ function detectUnusedFiles(cb) {
             <img src="chrome-extension://abcdefgh/static/icon.png">
         `;
         
-        const testFilePath = 'output/apps/test/index.html';
+        const testFilePath = 'output-chrome/apps/test/index.html';
         referencedFiles.clear();  // 清理之前的测试数据
         findReferences(testContent, testFilePath);
         
@@ -435,15 +436,15 @@ function detectUnusedFiles(cb) {
         runTests();
         
         // 执行实际检测
-        getAllFiles('output/apps');
+        getAllFiles('output-chrome/apps');
         processManifest();
         
         // 扫描所有文件内容中的引用
-        const filesToScan = fs.readdirSync('output/apps', { recursive: true })
+        const filesToScan = fs.readdirSync('output-chrome/apps', { recursive: true })
             .filter(file => !shouldExcludeFile(file));
             
         filesToScan.forEach(file => {
-            const fullPath = path.join('output/apps', file);
+            const fullPath = path.join('output-chrome/apps', file);
             if (fs.statSync(fullPath).isFile() && /\.(html|js|css|json)$/i.test(file)) {
                 const content = fs.readFileSync(fullPath, 'utf8');
                 findReferences(content, fullPath);
@@ -460,7 +461,7 @@ function detectUnusedFiles(cb) {
             unusedFiles.forEach(file => {
                 if (!isSilentDetect) console.log(file);
                 try {
-                    const fullPath = path.join('output/apps', file);
+                    const fullPath = path.join('output-chrome/apps', file);
                     if (fs.existsSync(fullPath)) {
                        totalUnusedSize += fs.statSync(fullPath).size; 
                        // 删除文件
@@ -518,7 +519,7 @@ gulp.task('default',
     gulp.series(
         cleanOutput, 
         gulp.parallel(copyAssets, processCss, processJs, processHtml, processJson), 
-        compressImages,
+        // compressImages,  // 已关闭图片压缩功能
         setSilentDetect,
         detectUnusedFiles,
         unsetSilentDetect,
