@@ -1,0 +1,38 @@
+const GlobalRecommendationCards = [
+    {
+        toolKey: 'qr-code',
+        icon: '📱',
+        title: '二维码工具',
+        desc: '快速生成和识别二维码，支持自定义样式',
+        tag: '必装',
+        tagClass: 'must-tag',
+        isAd: false
+    },
+    {
+        toolKey: 'chart-maker',
+        icon: '📊',
+        title: '图表制作工具',
+        desc: '支持多种数据可视化图表，快速生成专业图表',
+        tag: '最新',
+        tagClass: 'new-tag',
+        isAd: false
+    },
+    {
+        toolKey: 'poster-maker',
+        icon: '🖼️',
+        title: '海报快速生成',
+        desc: '快速生成和识别二维码，支持自定义样式',
+        tag: '推荐',
+        tagClass: 'recommend-tag',
+        isAd: false
+    },
+    {
+        icon: '🔔',
+        title: '推广位',
+        desc: '广告位招租，欢迎流量主联系，开放合作，流量主请到github联系',
+        tag: '广告',
+        tagClass: 'ad-tag',
+        isAd: true,
+        url: 'https://github.com/zxlie/FeHelper'
+    }
+];
