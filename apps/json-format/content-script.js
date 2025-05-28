@@ -22,7 +22,6 @@ window.JsonAutoFormat = (() => {
             script: url
         }, (scriptContent) => {
             if (!scriptContent) {
-                console.error('Failed to load script:', filename);
                 return;
             }
             
@@ -31,7 +30,6 @@ window.JsonAutoFormat = (() => {
                 try {
                     window.evalCore.getEvalInstance(window)(scriptContent);
                 } catch(e) {
-                    console.error('Failed to evaluate script using evalCore:', e);
                 }
             } else {
                 // 创建一个函数来执行脚本
@@ -41,12 +39,12 @@ window.JsonAutoFormat = (() => {
                     const executeScript = new Function(scriptContent);
                     executeScript.call(window);
                 } catch(e) {
-                    console.error('Failed to execute script:', filename, e);
                 }
             }
         });
     };
 
+    // 加载所需脚本
     __importScript('json-bigint.js');
     __importScript('format-lib.js');
     __importScript('json-abc.js');

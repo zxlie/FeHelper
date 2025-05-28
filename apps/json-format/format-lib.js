@@ -94,6 +94,9 @@ window.Formatter = (function () {
 
     let lastItemIdGiven = 0;
     let cachedJsonString = '';
+    
+    // 单例Worker实例
+    let workerInstance = null;
 
     let _initElements = function () {
 
@@ -473,6 +476,225 @@ window.Formatter = (function () {
         });
 
     };
+    
+    /**
+     * 初始化或获取Worker实例
+     * 使用单例模式确保只创建一个Worker
+     */
+    let _getWorkerInstance = function() {
+        if (workerInstance) {
+            return workerInstance;
+        }
+        
+        try {
+            // 创建内联Worker
+            // 这个版本包含基本的JSON格式化功能
+            let workerCode = `
+                // 处理主线程消息
+                self.onmessage = function(event) {
+                    // 处理设置bigint路径的消息
+                    if (event.data.type === 'SET_BIGINT_PATH') {
+                        return; // 我们不需要外部的bigint.js，内部处理即可
+                    }
+                    
+                    // 格式化JSON
+                    if (event.data.jsonString) {
+                        // 发送格式化中的消息
+                        self.postMessage(['FORMATTING']);
+                        
+                        try {
+                            let jsonObj = JSON.parse(event.data.jsonString);
+                            
+                            // 如果是简单主题，直接返回格式化的JSON
+                            if (event.data.skin && event.data.skin === 'theme-simple') {
+                                let formatted = JSON.stringify(jsonObj, null, 4);
+                                let html = '<div id="formattedJson"><pre class="rootItem">' + 
+                                    formatted.replace(/&/g, '&amp;')
+                                        .replace(/</g, '&lt;')
+                                        .replace(/>/g, '&gt;')
+                                        .replace(/"/g, '&quot;')
+                                        .replace(/'/g, '&#039;') + 
+                                    '</pre></div>';
+                                
+                                self.postMessage(['FORMATTED', html]);
+                                return;
+                            }
+                            
+                            // 默认主题 - 创建更丰富的HTML结构
+                            let html = '<div id="formattedJson">' +
+                                formatJsonToHtml(jsonObj) +
+                                '</div>';
+                            
+                            self.postMessage(['FORMATTED', html]);
+                        } catch (e) {
+                            // 处理错误情况
+                            self.postMessage(['FORMATTED', '<div id="formattedJson"><div class="error">格式化失败: ' + e.message + '</div></div>']);
+                        }
+                    }
+                };
+                
+                // HTML特殊字符格式化
+                function htmlspecialchars(str) {
+                    str = str.replace(/&/g, '&amp;');
+                    str = str.replace(/</g, '&lt;');
+                    str = str.replace(/>/g, '&gt;');
+                    str = str.replace(/"/g, '&quot;');
+                    str = str.replace(/'/g, '&#039;');
+                    return str;
+                }
+                
+                // 格式化JSON为HTML
+                function formatJsonToHtml(json) {
+                    return createNode(json).getHTML();
+                }
+                
+                // 创建节点
+                function createNode(value) {
+                    let node = {
+                        type: getType(value),
+                        value: value,
+                        children: [],
+                        
+                        getHTML: function() {
+                            switch(this.type) {
+                                case 'string':
+                                    return '<div class="item item-line"><span class="string">"' + 
+                                        htmlspecialchars(this.value) + 
+                                        '"</span></div>';
+                                case 'number':
+                                    return '<div class="item item-line"><span class="number">' + 
+                                        this.value + 
+                                        '</span></div>';
+                                case 'boolean':
+                                    return '<div class="item item-line"><span class="bool">' + 
+                                        this.value + 
+                                        '</span></div>';
+                                case 'null':
+                                    return '<div class="item item-line"><span class="null">null</span></div>';
+                                case 'object':
+                                    return this.getObjectHTML();
+                                case 'array':
+                                    return this.getArrayHTML();
+                                default:
+                                    return '';
+                            }
+                        },
+                        
+                        getObjectHTML: function() {
+                            if (!this.value || Object.keys(this.value).length === 0) {
+                                return '<div class="item item-object"><span class="brace">{</span><span class="brace">}</span></div>';
+                            }
+                            
+                            let html = '<div class="item item-object">' +
+                                '<span class="expand"></span>' +
+                                '<span class="brace">{</span>' +
+                                '<span class="ellipsis"></span>' +
+                                '<div class="kv-list">';
+                                
+                            let keys = Object.keys(this.value);
+                            keys.forEach((key, index) => {
+                                let prop = this.value[key];
+                                let childNode = createNode(prop);
+                                
+                                html += '<div class="item">' + 
+                                    '<span class="quote">"</span>' +
+                                    '<span class="key">' + htmlspecialchars(key) + '</span>' +
+                                    '<span class="quote">"</span>' +
+                                    '<span class="colon">: </span>';
+                                
+                                // 添加值
+                                if (childNode.type === 'object' || childNode.type === 'array') {
+                                    html += childNode.getHTML();
+                                } else {
+                                    html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\\/div>$/, '');
+                                }
+                                
+                                // 如果不是最后一个属性，添加逗号
+                                if (index < keys.length - 1) {
+                                    html += '<span class="comma">,</span>';
+                                }
+                                
+                                html += '</div>';
+                            });
+                            
+                            html += '</div><span class="brace">}</span></div>';
+                            return html;
+                        },
+                        
+                        getArrayHTML: function() {
+                            if (!this.value || this.value.length === 0) {
+                                return '<div class="item item-array"><span class="brace">[</span><span class="brace">]</span></div>';
+                            }
+                            
+                            let html = '<div class="item item-array">' +
+                                '<span class="expand"></span>' +
+                                '<span class="brace">[</span>' +
+                                '<span class="ellipsis"></span>' +
+                                '<div class="kv-list">';
+                                
+                            this.value.forEach((item, index) => {
+                                let childNode = createNode(item);
+                                
+                                html += '<div class="item item-block">';
+                                
+                                // 添加值
+                                if (childNode.type === 'object' || childNode.type === 'array') {
+                                    html += childNode.getHTML();
+                                } else {
+                                    html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\\/div>$/, '');
+                                }
+                                
+                                // 如果不是最后一个元素，添加逗号
+                                if (index < this.value.length - 1) {
+                                    html += '<span class="comma">,</span>';
+                                }
+                                
+                                html += '</div>';
+                            });
+                            
+                            html += '</div><span class="brace">]</span></div>';
+                            return html;
+                        }
+                    };
+                    
+                    return node;
+                }
+                
+                // 获取值类型
+                function getType(value) {
+                    if (value === null) return 'null';
+                    if (value === undefined) return 'undefined';
+                    
+                    let type = typeof value;
+                    if (type === 'object') {
+                        if (Array.isArray(value)) return 'array';
+                    }
+                    return type;
+                }
+            `;
+            
+            // 创建Blob URL并实例化Worker
+            let blob = new Blob([workerCode], {type: 'application/javascript'});
+            let workerUrl = URL.createObjectURL(blob);
+            
+            workerInstance = new Worker(workerUrl);
+            
+            // 添加错误处理
+            workerInstance.onerror = function(e) {
+                // 如果Worker出错，清空实例允许下次重试
+                workerInstance = null;
+                
+                // 避免URL内存泄漏
+                URL.revokeObjectURL(workerUrl);
+            };
+            
+            return workerInstance;
+        } catch (e) {
+            // 出现任何错误，返回null
+            workerInstance = null;
+            return null;
+        }
+    };
 
     /**
      * 执行代码格式化
@@ -483,32 +705,52 @@ window.Formatter = (function () {
         _initElements();
         jfPre.html(htmlspecialchars(cachedJsonString));
 
-        // 用webwork的方式来进行格式化，效率更高
-        let worker = new Worker(URL.createObjectURL(new Blob(["(" + JsonFormatWebWorker.toString() + ")()"], {type: 'text/javascript'})));
-        worker.onmessage = function (evt) {
-            let msg = evt.data;
-            switch (msg[0]) {
-                case 'FORMATTING' :
-                    formattingMsg.show();
-                    break;
+        // 获取Worker实例
+        let worker = _getWorkerInstance();
+        
+        if (worker) {
+            // 设置消息处理程序
+            worker.onmessage = function (evt) {
+                let msg = evt.data;
+                switch (msg[0]) {
+                    case 'FORMATTING':
+                        formattingMsg.show();
+                        break;
 
-                case 'FORMATTED' :
-                    formattingMsg.hide();
-                    jfContent.html(msg[1]);
+                    case 'FORMATTED':
+                        formattingMsg.hide();
+                        jfContent.html(msg[1]);
 
-                    _buildOptionBar();
-                    // 事件绑定
-                    _addEvents();
-                    // 支持文件下载
-                    _downloadSupport(cachedJsonString);
-
-                    break;
+                        _buildOptionBar();
+                        // 事件绑定
+                        _addEvents();
+                        // 支持文件下载
+                        _downloadSupport(cachedJsonString);
+                        break;
+                }
+            };
+            
+            // 添加bigint.js的路径信息
+            let bigintPath = '';
+            if (chrome && chrome.runtime && chrome.runtime.getURL) {
+                bigintPath = chrome.runtime.getURL('json-format/json-bigint.js');
             }
-        };
-        worker.postMessage({
-            jsonString: jsonStr,
-            skin: skin
-        });
+            
+            // 第一条消息发送bigint.js的路径
+            worker.postMessage({
+                type: 'SET_BIGINT_PATH',
+                path: bigintPath
+            });
+            
+            // 发送格式化请求
+            worker.postMessage({
+                jsonString: jsonStr,
+                skin: skin
+            });
+        } else {
+            // Worker创建失败，回退到同步方式
+            formatSync(jsonStr, skin);
+        }
     };
 
     // 同步的方式格式化
@@ -517,26 +759,32 @@ window.Formatter = (function () {
 
         _initElements();
         jfPre.html(htmlspecialchars(cachedJsonString));
-        let worker = new JsonFormatWebWorker(true);
-        worker.getFormattedHtml({
-            data: {
-                jsonString: jsonStr,
-                skin: skin
-            },
-            onFormatting: function (msg) {
-                formattingMsg.show();
-            },
-            onFormatted: function (msg) {
-                formattingMsg.hide();
-                jfContent.html(msg[1]);
-
-                _buildOptionBar();
-                // 事件绑定
-                _addEvents();
-                // 支持文件下载
-                _downloadSupport(cachedJsonString);
-            }
-        });
+        
+        // 显示格式化进度
+        formattingMsg.show();
+        
+        try {
+            // 回退方案：使用简单模式直接显示格式化的JSON
+            let formattedJson = JSON.stringify(JSON.parse(jsonStr), null, 4);
+            jfContent.html(`<div id="formattedJson"><pre class="rootItem">${htmlspecialchars(formattedJson)}</pre></div>`);
+            
+            // 隐藏进度提示
+            formattingMsg.hide();
+            
+            // 构建操作栏
+            _buildOptionBar();
+            // 事件绑定
+            _addEvents();
+            // 支持文件下载
+            _downloadSupport(cachedJsonString);
+            
+            return;
+        } catch (e) {
+            jfContent.html(`<div class="error">JSON格式化失败: ${e.message}</div>`);
+            
+            // 隐藏进度提示
+            formattingMsg.hide();
+        }
     };
 
     return {
@@ -545,339 +793,3 @@ window.Formatter = (function () {
     }
 })();
 
-
-/*============================================== web worker =========================================================*/
-
-/**
- * 用webworker的形式来进行json格式化，在应对大json的时候，效果会非常明显
- * @constructor
- */
-var JsonFormatWebWorker = function (isUnSupportWorker = false) {
-
-    // 引入big-json.js解决大数字的问题
-    let __importScript = (filename) => {
-        this.compress && fetch(filename).then(resp => resp.text()).then(jsText => eval(jsText));
-    };
-    __importScript('json-bigint.js');
-
-    // Constants
-    let
-        TYPE_STRING = 1,
-        TYPE_NUMBER = 2,
-        TYPE_OBJECT = 3,
-        TYPE_ARRAY = 4,
-        TYPE_BOOL = 5,
-        TYPE_NULL = 6;
-
-    /**
-     * HTML特殊字符格式化
-     * @param str
-     * @returns {*}
-     */
-    let htmlspecialchars = function (str) {
-        str = str.replace(/&/g, '&amp;');
-        str = str.replace(/</g, '&lt;');
-        str = str.replace(/>/g, '&gt;');
-        str = str.replace(/"/g, '&quot;');
-        str = str.replace(/'/g, '&#039;');
-        return str;
-    };
-
-    /**
-     * FH 虚拟DOM
-     * @constructor
-     */
-    let FhVDom = function () {
-
-        this._id = 'fhvd_' + (new Date * 1);
-        this.tag = '';
-        this.innerText = '';
-        this.textContent = '';
-        this.childNodes = [];
-        this.className = '';
-        this.attributes = [];
-        this.classList = [];
-        this.classList.__proto__.add = this.classList.__proto__.push;
-
-        this.createElement = tag => {
-            this.tag = tag;
-            return this;
-        };
-
-        this.setAttribute = (attr, value) => {
-            this.attributes.push([attr, value]);
-        };
-
-        this.appendChild = child => {
-            this.childNodes.push(child);
-            return this;
-        };
-
-        this.getOuterHTML = () => {
-            let outerHtml = [];
-            if (this.tag) {
-                outerHtml.push(`<${this.tag}`);
-                let clsName = (this.className || '') + ' ' + this.classList.join(' ');
-                clsName.replace(/\s/g, '').length && outerHtml.push(` class="${clsName}"`);
-                this.attributes.length && outerHtml.push(this.attributes.map(attr => ` ${attr[0]}="${attr[1]}"`).join(''));
-                outerHtml.push(`>`);
-                if (('' + this.innerText).length) {
-                    outerHtml.push(this.innerText);
-                } else if (('' + this.textContent).length) {
-                    outerHtml.push(this.textContent);
-                } else {
-                    outerHtml.push(this.childNodes.map(node => node.getOuterHTML()).join(''))
-                }
-                outerHtml.push(`</${this.tag}>`);
-            } else {
-                if (('' + this.innerText).length) {
-                    outerHtml.push(this.innerText);
-                } else if (('' + this.textContent).length) {
-                    outerHtml.push(this.textContent);
-                }
-            }
-            return outerHtml.join('');
-        };
-
-        this.cloneNode = (deep) => {
-            let newDom = FhVDom.getInstance();
-            newDom.tag = this.tag;
-            if (deep || !this.tag) {
-                newDom.innerText = this.innerText;
-                newDom.textContent = this.textContent;
-            } else {
-                newDom.innerText = '';
-                newDom.textContent = '';
-            }
-            newDom.className = this.className;
-            newDom.classList = Array.from(this.classList);
-            newDom.attributes = Array.from(this.attributes);
-            return newDom;
-        };
-    };
-
-    // 构造器
-    FhVDom.getInstance = () => new FhVDom();
-
-    function createSpanNode(innerText, className) {
-        let span = FhVDom.getInstance().createElement('span');
-        span.className = className || '';
-        span.innerText = innerText || '';
-        return span;
-    }
-
-    function createDivNode(className) {
-        let div = FhVDom.getInstance().createElement('div');
-        div.className = className || '';
-        return div;
-    }
-
-    // Create template nodes
-    let templatesObj = {
-        t_item: createDivNode('item'),
-        t_key: createSpanNode('', 'key'),
-        t_string: createSpanNode('', 'string'),
-        t_number: createSpanNode('', 'number'),
-        t_exp: createSpanNode('', 'expand'),
-
-        t_null: createSpanNode('null', 'null'),
-        t_true: createSpanNode('true', 'bool'),
-        t_false: createSpanNode('false', 'bool'),
-
-        t_oBrace: createSpanNode('{', 'brace'),
-        t_cBrace: createSpanNode('}', 'brace'),
-        t_oBracket: createSpanNode('[', 'brace'),
-        t_cBracket: createSpanNode(']', 'brace'),
-
-        t_ellipsis: createSpanNode('', 'ellipsis'),
-        t_kvList: createDivNode('kv-list'),
-
-        t_colonAndSpace: createSpanNode(':\u00A0', 'colon'),
-        t_commaText: createSpanNode(',', 'comma'),
-        t_dblqText: createSpanNode('"', 'quote')
-    };
-
-    // Core recursive DOM-building function
-    function getItemDOM(value, keyName) {
-        let type,
-            item,
-            nonZeroSize,
-            templates = templatesObj,
-            objKey,
-            keySpan,
-            valueElement;
-
-        // Establish value type
-        if (typeof value === 'string')
-            type = TYPE_STRING;
-        else if (typeof value === 'number')
-            type = TYPE_NUMBER;
-        else if (value === false || value === true)
-            type = TYPE_BOOL;
-        else if (value === null)
-            type = TYPE_NULL;
-        else if (value instanceof Array)
-            type = TYPE_ARRAY;
-        else
-            type = TYPE_OBJECT;
-
-        item = templates.t_item.cloneNode(false);
-
-        // Add an 'expander' first (if this is object/array with non-zero size)
-        if (type === TYPE_OBJECT || type === TYPE_ARRAY) {
-
-            if (typeof JSON.BigNumber === 'function' && value instanceof JSON.BigNumber) {
-                value = JSON.stringify(value);
-                type = TYPE_NUMBER;
-            } else {
-                nonZeroSize = false;
-                for (objKey in value) {
-                    if (value.hasOwnProperty(objKey)) {
-                        nonZeroSize = true;
-                        break; // no need to keep counting; only need one
-                    }
-                }
-                if (nonZeroSize)
-                    item.appendChild(templates.t_exp.cloneNode(true));
-            }
-        }
-
-        // If there's a key, add that before the value
-        if (keyName !== false) { // NB: "" is a legal keyname in JSON
-            item.classList.add(type === TYPE_OBJECT ? 'item-object' : type === TYPE_ARRAY ? 'item-array' : 'item-line');
-            keySpan = templates.t_key.cloneNode(false);
-            keySpan.textContent = JSON.stringify(keyName).slice(1, -1); // remove quotes
-            item.appendChild(templates.t_dblqText.cloneNode(true));
-            item.appendChild(keySpan);
-            item.appendChild(templates.t_dblqText.cloneNode(true));
-            item.appendChild(templates.t_colonAndSpace.cloneNode(true));
-        }
-        else {
-            item.classList.add('item-block');
-        }
-
-        let kvList, childItem;
-        switch (type) {
-            case TYPE_STRING:
-                let innerStringEl = FhVDom.getInstance().createElement('span'),
-                    escapedString = JSON.stringify(value);
-                escapedString = escapedString.substring(1, escapedString.length - 1); // remove quotes
-                let isLink = false;
-                if (/^[\w]+:\/\//.test(value)) {
-                    try {
-                        let url = new URL(value);
-                        let innerStringA = FhVDom.getInstance().createElement('A');
-                        innerStringA.setAttribute('href', url.href);
-                        innerStringA.setAttribute('target', '_blank');
-                        innerStringA.innerText = htmlspecialchars(escapedString);
-                        innerStringEl.appendChild(innerStringA);
-                        isLink = true;
-                    } catch (e) {
-                    }
-                }
-
-                if (!isLink) {
-                    innerStringEl.innerText = htmlspecialchars(escapedString);
-                }
-                valueElement = templates.t_string.cloneNode(false);
-                valueElement.appendChild(templates.t_dblqText.cloneNode(true));
-                valueElement.appendChild(innerStringEl);
-                valueElement.appendChild(templates.t_dblqText.cloneNode(true));
-                item.appendChild(valueElement);
-                break;
-
-            case TYPE_NUMBER:
-                valueElement = templates.t_number.cloneNode(false);
-                valueElement.innerText = value;
-                item.appendChild(valueElement);
-                break;
-
-            case TYPE_OBJECT:
-                // Add opening brace
-                item.appendChild(templates.t_oBrace.cloneNode(true));
-                if (nonZeroSize) {
-                    item.appendChild(templates.t_ellipsis.cloneNode(false));
-                    kvList = templates.t_kvList.cloneNode(false);
-                    let keys = Object.keys(value).filter(k => value.hasOwnProperty(k));
-                    keys.forEach((k, index) => {
-                        childItem = getItemDOM(value[k], k);
-                        if (index < keys.length - 1) {
-                            childItem.appendChild(templates.t_commaText.cloneNode(true));
-                        }
-                        kvList.appendChild(childItem);
-                    });
-                    item.appendChild(kvList);
-                }
-
-                // Add closing brace
-                item.appendChild(templates.t_cBrace.cloneNode(true));
-                break;
-
-            case TYPE_ARRAY:
-                item.appendChild(templates.t_oBracket.cloneNode(true));
-                if (nonZeroSize) {
-                    item.appendChild(templates.t_ellipsis.cloneNode(false));
-                    kvList = templates.t_kvList.cloneNode(false);
-                    for (let i = 0, length = value.length, lastIndex = length - 1; i < length; i++) {
-                        childItem = getItemDOM(value[i], false);
-                        if (i < lastIndex)
-                            childItem.appendChild(templates.t_commaText.cloneNode(true));
-                        kvList.appendChild(childItem);
-                    }
-                    item.appendChild(kvList);
-                }
-                // Add closing bracket
-                item.appendChild(templates.t_cBracket.cloneNode(true));
-                break;
-
-            case TYPE_BOOL:
-                if (value)
-                    item.appendChild(templates.t_true.cloneNode(true));
-                else
-                    item.appendChild(templates.t_false.cloneNode(true));
-                break;
-
-            case TYPE_NULL:
-                item.appendChild(templates.t_null.cloneNode(true));
-                break;
-        }
-
-        return item;
-    }
-
-    // Listen for requests from content pages wanting to set up a port
-    // isUnSupportWorker 为true时，表示不支持webworker，不需要监听消息
-    if (!isUnSupportWorker) {
-        self.onmessage = function (event) {
-            // 插件在乎的是json字符串，所以只有json字符串时才进行格式化
-            if (event.data.jsonString) {
-                self.postMessage(['FORMATTING']);
-                let rootItem;
-                if (event.data.skin && event.data.skin === 'theme-simple') {
-                    rootItem = createDivNode('rootItem');
-                    rootItem.textContent = JSON.stringify(JSON.parse(event.data.jsonString), null, 4);
-                } else {
-                    rootItem = getItemDOM(JSON.parse(event.data.jsonString), false);
-                    rootItem.classList.add('rootItem');
-                }
-                let formattedHtml = `<div id="formattedJson">${rootItem.getOuterHTML()}</div>`;
-                self.postMessage(['FORMATTED', formattedHtml]);
-            }
-        };
-    }
-
-    // 针对不支持webworker的情况，允许直接调用
-    this.getFormattedHtml = function (options) {
-        options.onFormatting && options.onFormatting(['FORMATTING']);
-        let rootItem;
-        if (options.data.skin && options.data.skin === 'theme-simple') {
-            rootItem = createDivNode('rootItem');
-            rootItem.textContent = JSON.stringify(JSON.parse(options.data.jsonString), null, 4);
-        } else {
-            rootItem = getItemDOM(JSON.parse(options.data.jsonString), false);
-            rootItem.classList.add('rootItem');
-        }
-        let formattedHtml = `<div id="formattedJson">${rootItem.getOuterHTML()}</div>`;
-        options.onFormatted && options.onFormatted(['FORMATTED', formattedHtml]);
-    };
-};

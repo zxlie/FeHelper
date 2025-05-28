@@ -36,7 +36,7 @@ function cleanOutput() {
 
 // 复制静态资源
 function copyAssets() {
-    return gulp.src(['apps/**/*.{gif,png,jpg,jpeg,cur,ico,ttf,.woff2}', '!apps/static/screenshot/**/*']).pipe(copy('output-chrome'));
+    return gulp.src(['apps/**/*.{gif,png,jpg,jpeg,cur,ico,ttf,woff2,svg}', '!apps/static/screenshot/**/*']).pipe(copy('output-chrome'));
 }
 
 // 处理JSON文件
@@ -74,20 +74,18 @@ function processJs() {
     // 定义哪些文件不需要 Babel 和 Uglify 处理
     const shouldSkipProcessing = (file) => {
         const relativePath = path.relative(path.join(process.cwd(), 'apps'), file.path);
-        // 跳过 chart-maker/lib、static/vendor 和 code-compress 下的文件
-        return relativePath.startsWith('chart-maker/lib/') 
-            || relativePath.startsWith('static/vendor/') 
-            || relativePath.startsWith('code-compress/');
-        // 或者更具体地跳过这三个文件:
-        // return relativePath === 'chart-maker/lib/xlsx.full.min.js' 
-        //     || relativePath === 'static/vendor/evalCore.min.js' 
-        //     || relativePath === 'code-compress/htmlminifier.min.js';
+        // 跳过这三个文件
+        return relativePath === 'chart-maker/lib/xlsx.full.min.js' 
+            || relativePath === 'static/vendor/evalCore.min.js' 
+            || relativePath === 'code-compress/htmlminifier.min.js';
     };
 
     return gulp.src('apps/**/*.js')
         .pipe(jsMerge())
         .pipe(gulpIf(file => !shouldSkipProcessing(file), babel({
-            presets: ['@babel/preset-env']
+            presets: [
+                ['@babel/preset-env', { modules: false }]
+            ]
         })))
         .pipe(gulpIf(file => !shouldSkipProcessing(file), uglifyjs({
             compress: {
@@ -526,3 +524,4 @@ gulp.task('default',
         zipPackage
     )
 );
+
