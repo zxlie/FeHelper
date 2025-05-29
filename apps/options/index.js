@@ -118,6 +118,9 @@ new Vue({
         // 检查版本更新
         this.checkVersionUpdate();
         
+        // 加载远程推荐卡片配置
+        this.loadRemoteRecommendationCards();
+        
         // 检查URL中是否有donate_from参数
         this.checkDonateParam();
 
@@ -1198,6 +1201,35 @@ new Vue({
                 this.installTool(card.toolKey);
             }
         },
+
+        // 加载远程推荐卡片配置
+        async loadRemoteRecommendationCards() {
+            try {
+                // 使用fetch获取远程配置
+                const response = await fetch('https://baidufe.com/fehelper/static/js/hotfix.json?v=' + Date.now());
+                if (!response.ok) {
+                    throw new Error(`获取远程配置失败: ${response.status}`);
+                }
+                
+                // 获取脚本内容
+                const scriptContent = await response.text();
+                
+                // 解析脚本内容，提取GlobalRecommendationCards变量
+                let remoteCards = null;
+                try {
+                    remoteCards = JSON.parse(scriptContent);
+                } catch (parseError) {
+                    console.error('解析远程推荐卡片配置失败:', parseError);
+                }
+                
+                // 如果成功解析到配置，则更新本地配置
+                if (remoteCards && Array.isArray(remoteCards) && remoteCards.length > 0) {
+                    this.recommendationCards = remoteCards;
+                }
+            } catch (error) {
+                console.error('获取远程推荐卡片配置失败:', error);
+            }
+        },
     },
 
     watch: {
@@ -1243,3 +1275,4 @@ window.addEventListener('scroll', () => {
 if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
     Awesome.collectAndSendClientInfo();
 } 
+
