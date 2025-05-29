@@ -36,7 +36,7 @@ function cleanOutput() {
 
 // 复制静态资源
 function copyAssets() {
-    return gulp.src(['apps/**/*.{gif,png,jpg,jpeg,cur,ico,ttf,woff2,svg}', '!apps/static/screenshot/**/*']).pipe(copy('output-chrome'));
+    return gulp.src(['apps/**/*.{gif,png,jpg,jpeg,cur,ico,ttf,woff2,svg,md,txt}', '!apps/static/screenshot/**/*']).pipe(copy('output-chrome'));
 }
 
 // 处理JSON文件
