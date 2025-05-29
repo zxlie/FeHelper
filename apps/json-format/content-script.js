@@ -92,6 +92,9 @@ window.JsonAutoFormat = (() => {
     let fnTry = null;
     let fnCatch = null;
 
+    // 工具栏是否显示
+    let showToolBar = true;
+
     // 格式化的配置
     let formatOptions = {
         JSON_FORMAT_THEME: 0,
@@ -210,11 +213,20 @@ window.JsonAutoFormat = (() => {
                 formData.MAX_JSON_KEYS_NUMBER = sPanel.find('input[name="maxlength"]').val();
                 formData.JSON_FORMAT_THEME = sPanel.find('input[name="skinId"]:checked').val();
 
+                // 同步更新当前页面的formatOptions对象
+                Object.keys(formData).forEach(key => {
+                    formatOptions[key] = formData[key];
+                });
+
                 chrome.runtime.sendMessage({
                     type: 'fh-dynamic-any-thing',
                     thing: 'save-jsonformat-options',
                     params: formData
-                }, result => sPanel.hide());
+                }, result => {
+                    sPanel.hide();
+                    // 重新应用格式化以展示最新设置
+                    _didFormat();
+                });
             });
 
             sPanel.find('input[name="alwaysShowToolbar"]').on('click', function (e) {
@@ -290,7 +302,7 @@ window.JsonAutoFormat = (() => {
     };
 
     let _initToolbar = () => {
-
+        showToolBar = formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW;
         let cspSafe = _checkContentSecurityPolicy();
         if (cspSafe) {
             // =============================排序：获取上次记录的排序方式
@@ -336,20 +348,18 @@ window.JsonAutoFormat = (() => {
             e.preventDefault();
             e.stopPropagation();
 
-            chrome.runtime.sendMessage({
-                type: 'fh-dynamic-any-thing',
-                thing: 'toggle-jsonformat-options'
-            }, show => {
-                let toolBarClassList = document.querySelector('#jfToolbar').classList;
-                if (show) {
-                    toolBarClassList.remove('t-collapse');
-                    tgBtn.html('隐藏&gt;&gt;');
-                } else {
-                    toolBarClassList.add('t-collapse');
-                    tgBtn.html('&lt;&lt;');
-                }
-                $('#jfToolbar input[name="alwaysShowToolbar"]').prop('checked', show);
-            });
+            let toolBarClassList = document.querySelector('#jfToolbar').classList;
+            showToolBar = !showToolBar;
+            if (showToolBar) {
+                toolBarClassList.remove('t-collapse');
+                tgBtn.html('隐藏&gt;&gt;');
+                formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW = true;
+            } else {
+                toolBarClassList.add('t-collapse');
+                tgBtn.html('&lt;&lt;');
+                formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW = false;
+            }
+            $('#jfToolbar input[name="alwaysShowToolbar"]').prop('checked', showToolBar);
         });
         
         $('.fe-feedback .x-other-tools').on('click', function (e) {
@@ -691,8 +701,12 @@ window.JsonAutoFormat = (() => {
 
             formatOptions.originalSource = JSON.stringify(jsonObj);
 
-            _initToolbar();
-            _didFormat();
+            // 确保从storage加载最新设置
+            _getAllOptions(options => {
+                _extendsOptions(options);
+                _initToolbar();
+                _didFormat();
+            });
         }
     };
 
@@ -726,7 +740,9 @@ window.JsonAutoFormat = (() => {
                 let intervalId = setTimeout(() => {
                     if(typeof Formatter !== 'undefined') {
                         clearInterval(intervalId);
+                        // 加载所有保存的配置
                         _extendsOptions(options);
+                        // 应用格式化
                         _format();
                     }
                 },pleaseLetJsLoaded);
@@ -739,3 +755,4 @@ window.JsonAutoFormat = (() => {
 if(location.protocol !== 'chrome-extension:') {
     window.JsonAutoFormat.format();
 }
+

@@ -967,3 +967,10 @@ html.fh-jf body.theme-default {
 .theme-vegetarian .item-line.x-selected {
     background: #f9f9f9;
 }
+.fh-jf .json-formatter-container {display: none;}
+.t-collapse .fe-feedback {
+    height: 20px;
+}
+.t-collapse .fe-feedback #toggleBtn{
+    padding-bottom: 20px;
+}
