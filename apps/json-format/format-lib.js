@@ -542,11 +542,6 @@ window.Formatter = (function () {
                 
                 // 处理主线程消息
                 self.onmessage = function(event) {
-                    // 处理设置bigint路径的消息
-                    if (event.data.type === 'SET_BIGINT_PATH') {
-                        // 现在内部支持BigInt处理
-                        return;
-                    }
                     
                     // 格式化JSON
                     if (event.data.jsonString) {
@@ -815,18 +810,6 @@ window.Formatter = (function () {
                 }
             };
             
-            // 添加bigint.js的路径信息
-            let bigintPath = '';
-            if (chrome && chrome.runtime && chrome.runtime.getURL) {
-                bigintPath = chrome.runtime.getURL('json-format/json-bigint.js');
-            }
-            
-            // 第一条消息发送bigint.js的路径
-            worker.postMessage({
-                type: 'SET_BIGINT_PATH',
-                path: bigintPath
-            });
-            
             // 发送格式化请求
             worker.postMessage({
                 jsonString: jsonStr,
@@ -877,5 +860,6 @@ window.Formatter = (function () {
         formatSync: formatSync
     }
 })();
+
 
 
