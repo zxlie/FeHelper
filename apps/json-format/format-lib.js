@@ -490,11 +490,62 @@ window.Formatter = (function () {
             // 创建内联Worker
             // 这个版本包含基本的JSON格式化功能
             let workerCode = `
+                // 创建一个处理BigInt的JSON解析器
+                const JSONBigInt = {
+                    // 自定义的parse方法，处理大数字
+                    parse: function(text) {
+                        // 先尝试预处理字符串，将可能的大整数标记出来
+                        // 以更精确的方式匹配JSON中的大整数
+                        const preparedText = this._markBigInts(text);
+                        
+                        try {
+                            // 使用标准JSON解析，同时使用reviver函数还原BigInt
+                            return JSON.parse(preparedText, this._reviver);
+                        } catch (e) {
+                            // 如果处理失败，尝试原始解析方式
+                            console.error('BigInt处理失败，回退到标准解析', e);
+                            return JSON.parse(text);
+                        }
+                    },
+                    
+                    // 将JSON字符串中的大整数标记为特殊格式
+                    _markBigInts: function(text) {
+                        // 这个正则匹配JSON中的数字，但需要避免匹配到引号内的字符串
+                        // 匹配模式: 找到数字前面是冒号或左方括号的情况（表示这是个值而不是键名）
+                        return text.replace(
+                            /([:,\\[]\\s*)(-?\\d{16,})([,\\]\\}])/g, 
+                            function(match, prefix, number, suffix) {
+                                // 将大数字转换为特殊格式的字符串
+                                return prefix + '"__BigInt__' + number + '"' + suffix;
+                            }
+                        );
+                    },
+                    
+                    // 恢复函数，将标记的BigInt字符串转回BigInt类型
+                    _reviver: function(key, value) {
+                        // 检查是否是我们标记的BigInt字符串
+                        if (typeof value === 'string' && value.startsWith('__BigInt__')) {
+                            // 提取数字部分
+                            const numStr = value.substring(10);
+                            try {
+                                // 尝试转换为BigInt
+                                return BigInt(numStr);
+                            } catch (e) {
+                                // 如果转换失败，保留原始字符串
+                                console.warn('无法转换为BigInt:', numStr);
+                                return numStr;
+                            }
+                        }
+                        return value;
+                    }
+                };
+                
                 // 处理主线程消息
                 self.onmessage = function(event) {
                     // 处理设置bigint路径的消息
                     if (event.data.type === 'SET_BIGINT_PATH') {
-                        return; // 我们不需要外部的bigint.js，内部处理即可
+                        // 现在内部支持BigInt处理
+                        return;
                     }
                     
                     // 格式化JSON
@@ -503,11 +554,34 @@ window.Formatter = (function () {
                         self.postMessage(['FORMATTING']);
                         
                         try {
-                            let jsonObj = JSON.parse(event.data.jsonString);
+                            // 先预处理JSON字符串，防止大整数丢失精度
+                            let jsonObj;
+                            
+                            try {
+                                // 尝试使用自定义的BigInt解析器
+                                jsonObj = JSONBigInt.parse(event.data.jsonString);
+                            } catch (e) {
+                                // 如果解析失败，回退到标准解析
+                                console.error('BigInt解析失败，回退到标准解析', e);
+                                jsonObj = JSON.parse(event.data.jsonString);
+                            }
                             
                             // 如果是简单主题，直接返回格式化的JSON
                             if (event.data.skin && event.data.skin === 'theme-simple') {
-                                let formatted = JSON.stringify(jsonObj, null, 4);
+                                // 处理BigInt特殊情况
+                                let formatted = JSON.stringify(jsonObj, function(key, value) {
+                                    if (typeof value === 'bigint') {
+                                        // 移除n后缀，只显示数字本身
+                                        return value.toString();
+                                    }
+                                    // 处理普通数字，避免科学计数法
+                                    if (typeof value === 'number' && value.toString().includes('e')) {
+                                        // 大数字转为字符串以避免科学计数法
+                                        return value.toLocaleString('fullwide', {useGrouping: false});
+                                    }
+                                    return value;
+                                }, 4);
+                                
                                 let html = '<div id="formattedJson"><pre class="rootItem">' + 
                                     formatted.replace(/&/g, '&amp;')
                                         .replace(/</g, '&lt;')
@@ -562,8 +636,17 @@ window.Formatter = (function () {
                                         htmlspecialchars(this.value) + 
                                         '"</span></div>';
                                 case 'number':
+                                    // 确保大数字不使用科学计数法
+                                    let numStr = typeof this.value === 'number' && this.value.toString().includes('e') 
+                                        ? this.value.toLocaleString('fullwide', {useGrouping: false})
+                                        : this.value;
                                     return '<div class="item item-line"><span class="number">' + 
-                                        this.value + 
+                                        numStr + 
+                                        '</span></div>';
+                                case 'bigint':
+                                    // 对BigInt类型特殊处理，只显示数字，不添加n后缀
+                                    return '<div class="item item-line"><span class="number">' + 
+                                        this.value.toString() + 
                                         '</span></div>';
                                 case 'boolean':
                                     return '<div class="item item-line"><span class="bool">' + 
@@ -666,6 +749,8 @@ window.Formatter = (function () {
                     if (value === undefined) return 'undefined';
                     
                     let type = typeof value;
+                    // 特别处理BigInt类型
+                    if (type === 'bigint') return 'bigint';
                     if (type === 'object') {
                         if (Array.isArray(value)) return 'array';
                     }
@@ -792,4 +877,5 @@ window.Formatter = (function () {
         formatSync: formatSync
     }
 })();
+
 
