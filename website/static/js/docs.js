@@ -267,36 +267,46 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 移动端侧边栏切换
     const sidebarToggle = document.getElementById('sidebar-toggle');
-    if (window.innerWidth <= 768) {
-        sidebarToggle.style.display = 'flex';
-        document.body.classList.add('sidebar-closed');
-        document.body.classList.remove('sidebar-open');
-    }
     
-    sidebarToggle.addEventListener('click', function() {
-        if (document.body.classList.contains('sidebar-open')) {
-            document.body.classList.remove('sidebar-open');
+    // 初始化侧边栏状态
+    function initSidebarState() {
+        if (window.innerWidth <= 768) {
             document.body.classList.add('sidebar-closed');
-            this.innerHTML = '<i class="fas fa-bars"></i>';
+            document.body.classList.remove('sidebar-open');
+            if (sidebarToggle) {
+                sidebarToggle.style.display = 'flex';
+                sidebarToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            }
         } else {
             document.body.classList.add('sidebar-open');
             document.body.classList.remove('sidebar-closed');
-            this.innerHTML = '<i class="fas fa-times"></i>';
+            if (sidebarToggle) {
+                sidebarToggle.style.display = 'none';
+            }
         }
-    });
+    }
+    
+    // 页面加载时初始化
+    initSidebarState();
+    
+    // 侧边栏切换按钮点击事件
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            if (document.body.classList.contains('sidebar-open')) {
+                document.body.classList.remove('sidebar-open');
+                document.body.classList.add('sidebar-closed');
+                this.innerHTML = '<i class="fas fa-bars"></i>';
+            } else {
+                document.body.classList.add('sidebar-open');
+                document.body.classList.remove('sidebar-closed');
+                this.innerHTML = '<i class="fas fa-times"></i>';
+            }
+        });
+    }
     
     // 监听窗口大小变化
     window.addEventListener('resize', function() {
-        if (window.innerWidth <= 768) {
-            sidebarToggle.style.display = 'flex';
-            if (!document.body.classList.contains('sidebar-open') && !document.body.classList.contains('sidebar-closed')) {
-                document.body.classList.add('sidebar-closed');
-            }
-        } else {
-            sidebarToggle.style.display = 'none';
-            document.body.classList.add('sidebar-open');
-            document.body.classList.remove('sidebar-closed');
-        }
+        initSidebarState();
     });
     
     // 返回顶部按钮
@@ -328,3 +338,4 @@ document.addEventListener('DOMContentLoaded', function() {
         navMenu.classList.toggle('active');
     });
 }); 
+

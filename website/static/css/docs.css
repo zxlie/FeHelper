@@ -1,8 +1,9 @@
 /* 文档页面专用样式 */
 .docs-container {
     display: flex;
-    min-height: calc(100vh - 70px);
-    margin-top: 70px;
+    min-height: calc(100vh - 20px);
+    margin-top: 20px;
+    position: relative;
 }
 
 .docs-sidebar {
@@ -10,9 +11,10 @@
     background-color: #f8fafc;
     border-right: 1px solid #e2e8f0;
     overflow-y: auto;
-    height: calc(100vh - 70px);
+    height: calc(100vh - 20px);
     position: fixed;
     padding: 20px 0;
+    z-index: 1;
 }
 
 .docs-content {
@@ -202,55 +204,44 @@
 @media (max-width: 768px) {
     .docs-container {
         flex-direction: column;
+        margin-top: 0;
     }
     
     .docs-sidebar {
         width: 100%;
-        height: auto;
-        position: relative;
+        max-width: 85%;
+        height: 100%;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        bottom: 0;
         padding: 15px 0;
         border-right: none;
-        border-bottom: 1px solid #e2e8f0;
+        background-color: white;
+        overflow-y: auto;
+        z-index: 99;
+        transition: transform 0.3s ease;
+        transform: translateX(-100%);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     
     .docs-content {
         margin-left: 0;
         max-width: 100%;
-        padding: 20px;
-    }
-    
-    .mobile-sidebar-toggle {
-        display: block;
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #3b82f6;
-        color: white;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        z-index: 100;
-        cursor: pointer;
+        padding: 15px;
     }
     
     .sidebar-open .docs-sidebar {
-        display: block;
-        position: fixed;
-        top: 70px;
-        left: 0;
-        width: 100%;
-        z-index: 99;
-        background-color: white;
-        height: calc(100vh - 70px);
-        overflow-y: auto;
+        transform: translateX(0);
     }
     
     .sidebar-closed .docs-sidebar {
-        display: none;
+        transform: translateX(-100%);
+    }
+    
+    .doc-header h1 {
+        font-size: 1.75rem;
     }
 }
 
@@ -293,8 +284,35 @@
     opacity: 0;
     transition: opacity 0.3s;
     z-index: 99;
+    border: none;
 }
 
 .back-to-top.visible {
     opacity: 1;
+}
+
+/* 侧边栏切换按钮 */
+.sidebar-toggle {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background-color: #3b82f6;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    z-index: 100;
+    border: none;
+}
+
+@media (max-width: 768px) {
+    .sidebar-toggle {
+        display: flex;
+    }
 } 
+
