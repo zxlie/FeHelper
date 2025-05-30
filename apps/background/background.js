@@ -593,11 +593,14 @@ let BgPageInstance = (function () {
      */
     let _checkUpdate = function () {
         setTimeout(() => {
-            chrome.runtime.requestUpdateCheck((status) => {
-                if (status === "update_available") {
-                    chrome.runtime.reload();
-                }
-            });
+            // 检查是否为 Firefox 浏览器，Firefox 不支持 requestUpdateCheck API
+            if (chrome.runtime.requestUpdateCheck && navigator.userAgent.indexOf("Firefox") === -1) {
+                chrome.runtime.requestUpdateCheck((status) => {
+                    if (status === "update_available") {
+                        chrome.runtime.reload();
+                    }
+                });
+            }
         }, 1000 * 30);
     };
 
@@ -667,3 +670,4 @@ let BgPageInstance = (function () {
 })();
 
 BgPageInstance.init();
+

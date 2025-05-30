@@ -113,7 +113,9 @@ let Awesome = (() => {
 
         // 删除所有静态文件
         chrome.storage.local.get(null, allDatas => {
-            StorageMgr.remove(Object.keys(allDatas).filter(key => String(key).startsWith(`../${toolName}/`)));
+            if (allDatas) {
+                StorageMgr.remove(Object.keys(allDatas).filter(key => String(key).startsWith(`../${toolName}/`)));
+            }
         });
 
         log(toolName + ' 卸载成功！');
@@ -124,11 +126,14 @@ let Awesome = (() => {
     /**
      * 有些工具其实已经卸载过了，但是本地还有冗余的静态文件，都需要统一清理一遍
      */
-    let gcLocalFiles = () => getAllTools().then(tools => Object.keys(tools).forEach(tool => {
-        if (!tools[tool] || !tools[tool]._devTool && !tools[tool].installed) {
-            offLoad(tool);
-        }
-    }));
+    let gcLocalFiles = () => getAllTools().then(tools => {
+        if (!tools) return;
+        Object.keys(tools).forEach(tool => {
+            if (!tools[tool] || !tools[tool]._devTool && !tools[tool].installed) {
+                offLoad(tool);
+            }
+        });
+    });
 
     let getAllTools = async () => {
 
@@ -163,8 +168,8 @@ let Awesome = (() => {
         let pSort = SortToolMgr.get();
 
         return Promise.all([pAll,pSort]).then(vs => {
-            let allTools = vs[0];
-            let sortTools = vs[1];
+            let allTools = vs[0] || {};
+            let sortTools = vs[1] || [];
 
             if (sortTools && sortTools.length) {
                 let map = {};
@@ -190,6 +195,7 @@ let Awesome = (() => {
      * @returns {Promise}
      */
     let getInstalledTools = () => getAllTools().then(tools => {
+        if (!tools) return {};
         let istTolls = {};
         Object.keys(tools).filter(tool => {
             if (tools[tool] && tools[tool].installed) {
@@ -367,3 +373,4 @@ let Awesome = (() => {
 })();
 
 export default Awesome;
+

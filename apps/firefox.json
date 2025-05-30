@@ -1,7 +1,7 @@
 {
   "name": "FeHelper(前端助手)-Dev",
   "short_name": "FeHelper",
-  "version": "2025.05.2014",
+  "version": "2025.5.2014",
   "manifest_version": 3,
   "description": "JSON自动格式化、手动格式化，支持排序、解码、下载等，更多功能可在配置页按需安装！",
   "icons": {
@@ -15,7 +15,7 @@
     "default_popup": "popup/index.html"
   },
   "background": {
-    "service_worker": "background/background.js",
+    "scripts": ["background/background.js"],
     "type": "module"
   },
   "options_ui": {
@@ -90,9 +90,8 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'self'"
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; object-src 'self'; connect-src 'self' blob:"
   },
-  "update_url": "https://clients2.google.com/service/update2/crx",
   "homepage_url": "https://www.fehelper.com"
 }
 
