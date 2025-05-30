@@ -3,7 +3,7 @@
   "short_name": "FeHelper",
   "version": "2025.5.2014",
   "manifest_version": 3,
-  "description": "JSON自动格式化、手动格式化，支持排序、解码、下载等，更多功能可在配置页按需安装！",
+  "description": "FE助手：JSON工具、代码美化、代码压缩、二维码工具、网页定制工具、便签笔记，等等",
   "icons": {
     "16": "static/img/fe-16.png",
     "48": "static/img/fe-48.png",
@@ -17,6 +17,12 @@
   "background": {
     "scripts": ["background/background.js"],
     "type": "module"
+  },
+  "browser_specific_settings": {
+      "gecko": {
+          "id": "fehelper@baidufe.com",
+          "strict_min_version": "99.0"
+      }
   },
   "options_ui": {
     "page": "options/index.html",
@@ -94,6 +100,7 @@
   },
   "homepage_url": "https://www.fehelper.com"
 }
+
 
 
 

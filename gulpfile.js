@@ -44,6 +44,32 @@ function processJson() {
     return gulp.src('apps/**/*.json').pipe(jsonmin()).pipe(gulp.dest('output-chrome/apps'));
 }
 
+// 处理Chrome的manifest文件
+function processChromeManifest(cb) {
+    
+    // 确保输出目录存在
+    if (!fs.existsSync('output-chrome/apps')) {
+        fs.mkdirSync('output-chrome/apps', { recursive: true });
+    }
+    
+    // 复制chrome.json为manifest.json
+    fs.copyFileSync('apps/chrome.json', 'output-chrome/apps/manifest.json');
+    
+    // 删除firefox.json (如果存在)
+    const firefoxJsonPath = 'output-chrome/apps/firefox.json';
+    if (fs.existsSync(firefoxJsonPath)) {
+        fs.unlinkSync(firefoxJsonPath);
+    }
+    
+    // 删除chrome.json (如果存在)
+    const chromeJsonPath = 'output-chrome/apps/chrome.json';
+    if (fs.existsSync(chromeJsonPath)) {
+        fs.unlinkSync(chromeJsonPath);
+    }
+    
+    cb();
+}
+
 // 处理HTML文件
 function processHtml() {
     return gulp.src('apps/**/*.html').pipe(htmlmin({collapseWhitespace: true})).pipe(gulp.dest('output-chrome/apps'));
@@ -185,10 +211,39 @@ function edgePackage(cb) {
     cb();
 }
 
+// 清理Firefox输出目录
+function cleanFirefoxOutput() {
+    return gulp.src('output-firefox', {read: false, allowEmpty: true}).pipe(clean({force: true}));
+}
+
+// 处理Firefox的manifest文件
+function processFirefoxManifest(cb) {
+    
+    // 确保输出目录存在
+    if (!fs.existsSync('output-firefox/apps')) {
+        fs.mkdirSync('output-firefox/apps', { recursive: true });
+    }
+    
+    // 复制firefox.json为manifest.json
+    fs.copyFileSync('apps/firefox.json', 'output-firefox/apps/manifest.json');
+    
+    // 删除firefox.json (如果存在)
+    const firefoxJsonPath = 'output-firefox/apps/firefox.json';
+    if (fs.existsSync(firefoxJsonPath)) {
+        fs.unlinkSync(firefoxJsonPath);
+    }
+    
+    cb();
+}
+
+// 复制资源到Firefox输出目录
+function copyAssetsToFirefox() {
+    return gulp.src(['apps/**/*.{gif,png,jpg,jpeg,cur,ico,ttf,woff2,svg,md,txt,html,js,css,json}', '!apps/static/screenshot/**/*', '!apps/chrome.json', '!apps/manifest.json'])
+        .pipe(copy('output-firefox'));
+}
+
 // 打包Firefox安装包
 function firefoxPackage(cb) {
-    shell.exec('rm -rf output-firefox && cp -r output-chrome output-firefox && rm -rf output-firefox/fehelper.zip');
-
     // 清理掉firefox里不支持的tools
     let rmTools = ['page-capture', 'color-picker', 'ajax-debugger', 'wpo', 'code-standards', 'ruler', 'remove-bg'];
     shell.cd('output-firefox/apps');
@@ -200,35 +255,18 @@ function firefoxPackage(cb) {
     });
     shell.cd('../../');
 
-    // 更新firefox所需的配置文件
-    let pathOfMF = './output-firefox/apps/manifest.json';
-    let manifest = require(pathOfMF);
-    manifest.description = 'FE助手：JSON工具、代码美化、代码压缩、二维码工具、网页定制工具、便签笔记，等等';
-    delete manifest.update_url;
-    manifest.browser_specific_settings = {
-        "gecko": {
-            "id": "fehelper@baidufe.com",
-            "strict_min_version": "99.0"
-        }
-    };
-    manifest.background = {
-        "scripts": [
-            "background/background.js"
-        ]
-    };
-    manifest.version = manifest.version.split('.').map(v => parseInt(v)).join('.');
-    manifest.content_scripts.splice(1,2);
-    fs.writeFileSync(pathOfMF, JSON.stringify(manifest));
-
     shell.exec('cd output-firefox/apps && zip -r ../fehelper.xpi ./ > /dev/null && cd ../../');
     let size = fs.statSync('output-firefox/fehelper.xpi').size;
     size = pretty(size);
+
+    // 读取manifest文件
+    let manifest = JSON.parse(fs.readFileSync('./output-firefox/apps/manifest.json', 'utf8'));
 
     console.log('\n\nfehelper.xpi 已打包完成！');
 
     console.log('\n\n================================================================================');
     console.log('    当前版本：', manifest.version, '\t文件大小:', size);
-    console.log('    去Chrome商店发布吧：https://addons.mozilla.org/zh-CN/developers/addon/web%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B-fehelper/versions');
+    console.log('    去Firefox商店发布吧：https://addons.mozilla.org/zh-CN/developers/addon/web%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B-fehelper/versions');
     console.log('================================================================================\n\n');
     
     cb();
@@ -503,10 +541,21 @@ gulp.task('json', processJson);
 gulp.task('html', processHtml);
 gulp.task('js', processJs);
 gulp.task('css', processCss);
+gulp.task('chromeManifest', processChromeManifest);
 gulp.task('compressImages', compressImages);
 gulp.task('zip', zipPackage);
 gulp.task('edge', edgePackage);
-gulp.task('firefox', firefoxPackage);
+gulp.task('firefoxManifest', processFirefoxManifest);
+gulp.task('cleanFirefox', cleanFirefoxOutput);
+gulp.task('copyToFirefox', copyAssetsToFirefox);
+gulp.task('firefox', 
+    gulp.series(
+        cleanFirefoxOutput,
+        copyAssetsToFirefox,
+        processFirefoxManifest,
+        firefoxPackage
+    )
+);
 gulp.task('sync', syncFiles);
 gulp.task('detect', detectUnusedFiles);
 gulp.task('setSilent', setSilentDetect);
@@ -516,7 +565,8 @@ gulp.task('unsetSilent', unsetSilentDetect);
 gulp.task('default', 
     gulp.series(
         cleanOutput, 
-        gulp.parallel(copyAssets, processCss, processJs, processHtml, processJson), 
+        gulp.parallel(copyAssets, processCss, processJs, processHtml, processJson),
+        processChromeManifest, // 新增处理Chrome manifest的步骤
         // compressImages,  // 已关闭图片压缩功能
         setSilentDetect,
         detectUnusedFiles,
@@ -524,4 +574,5 @@ gulp.task('default',
         zipPackage
     )
 );
+
 
