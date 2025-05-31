@@ -266,5 +266,18 @@ let toolMap = {
     }
 };
 
-export default toolMap;
+// 判断是否为Firefox浏览器，如果是则移除特定工具
+if (navigator.userAgent.indexOf('Firefox') !== -1) {
+    delete toolMap['color-picker'];
+    delete toolMap['postman'];
+    delete toolMap['devtools'];
+    delete toolMap['websocket'];
+    delete toolMap['page-timing'];
+    delete toolMap['grid-ruler'];
+    delete toolMap['naotu'];
+    delete toolMap['screenshot'];
+    delete toolMap['page-monkey'];
+    delete toolMap['excel2json'];
+}
 
+export default toolMap;

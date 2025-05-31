@@ -1205,15 +1205,18 @@ new Vue({
         // 加载远程推荐卡片配置
         async loadRemoteRecommendationCards() {
             try {
-                // 使用fetch获取远程配置
-                const response = await fetch('https://baidufe.com/fehelper/static/js/hotfix.json?v=' + Date.now());
-                if (!response.ok) {
-                    throw new Error(`获取远程配置失败: ${response.status}`);
+                // 通过background代理请求，解决CORS问题
+                const result = await new Promise((resolve) => {
+                    chrome.runtime.sendMessage({
+                        type: 'fh-dynamic-any-thing',
+                        thing: 'fetch-hotfix-json',
+                    }, resolve);
+                });
+                if (!result || !result.success) {
+                    throw new Error('获取远程配置失败: ' + (result && result.error ? result.error : '未知错误'));
                 }
-                
                 // 获取脚本内容
-                const scriptContent = await response.text();
-                
+                const scriptContent = result.content;
                 // 解析脚本内容，提取GlobalRecommendationCards变量
                 let remoteCards = null;
                 try {
@@ -1221,7 +1224,6 @@ new Vue({
                 } catch (parseError) {
                     console.error('解析远程推荐卡片配置失败:', parseError);
                 }
-                
                 // 如果成功解析到配置，则更新本地配置
                 if (remoteCards && Array.isArray(remoteCards) && remoteCards.length > 0) {
                     this.recommendationCards = remoteCards;

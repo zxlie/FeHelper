@@ -20,21 +20,13 @@ let Awesome = (() => {
      */
     let StorageMgr = (() => {
 
+        // 获取chrome.storage.local中的内容，返回Promise，可直接await
         let get = keyArr => {
             return new Promise((resolve, reject) => {
                 chrome.storage.local.get(keyArr, result => {
                     resolve(typeof keyArr === 'string' ? result[keyArr] : result);
                 });
             });
-        };
-
-
-        let getSync = async (keyArr) => {
-            return await (new Promise((resolve, reject) => {
-                chrome.storage.local.get(keyArr, result => {
-                    resolve(typeof keyArr === 'string' ? result[keyArr] : result);
-                });
-            }));
         };
 
         let set = (items, values) => {
@@ -59,7 +51,7 @@ let Awesome = (() => {
             });
         };
 
-        return {get, set, remove,getSync};
+        return {get, set, remove};
     })();
 
     /**
@@ -99,7 +91,7 @@ let Awesome = (() => {
     let install = (toolName, fnProgress) => {
         return new Promise((resolve, reject) => {
             // 存储html文件
-            StorageMgr.set(TOOL_NAME_TPL.replace('#TOOL-NAME#', toolName), '&nbsp;');
+            StorageMgr.set(TOOL_NAME_TPL.replace('#TOOL-NAME#', toolName), new Date().getTime());
             log(toolName + '工具html模板安装/更新成功！');
             resolve();
         });
@@ -140,7 +132,7 @@ let Awesome = (() => {
         // 获取本地开发的插件，也拼接进来
         try {
             const DEV_TOOLS_MY_TOOLS = 'DEV-TOOLS:MY-TOOLS';
-            let _tools = await StorageMgr.getSync(DEV_TOOLS_MY_TOOLS);
+            let _tools = await StorageMgr.get(DEV_TOOLS_MY_TOOLS);
             let localDevTools = JSON.parse(_tools || '{}');
             Object.keys(localDevTools).forEach(tool => {
                 toolMap[tool] = localDevTools[tool];
@@ -153,8 +145,8 @@ let Awesome = (() => {
         tools.forEach(tool => {
             promises = promises.concat([detectInstall(tool), detectInstall(tool, true)])
         });
-        let pAll = Promise.all(promises).then(values => {
-            values.forEach((v, i) => {
+        return Promise.all(promises).then(values => {
+            (values || []).forEach((v, i) => {
                 let tool = tools[Math.floor(i / 2)];
                 let key = i % 2 === 0 ? 'installed' : 'menu';
                 toolMap[tool][key] = v;
@@ -163,30 +155,8 @@ let Awesome = (() => {
                     toolMap[tool][key] = toolMap[tool][key] && toolMap[tool]._enable;
                 }
             });
+
             return toolMap;
-        });
-        let pSort = SortToolMgr.get();
-
-        return Promise.all([pAll,pSort]).then(vs => {
-            let allTools = vs[0] || {};
-            let sortTools = vs[1] || [];
-
-            if (sortTools && sortTools.length) {
-                let map = {};
-                sortTools.forEach(tool => {
-                    if(allTools[tool]) {
-                        map[tool] = allTools[tool];
-                    }
-                });
-                Object.keys(allTools).forEach(tool => {
-                    if (!map[tool]) {
-                        map[tool] = allTools[tool];
-                    }
-                });
-                return map;
-            }else{
-                return allTools;
-            }
         });
     };
 
@@ -194,16 +164,36 @@ let Awesome = (() => {
      * 检查看本地已安装过哪些工具
      * @returns {Promise}
      */
-    let getInstalledTools = () => getAllTools().then(tools => {
+    let getInstalledTools = async () => {
+        let tools = await getAllTools();
         if (!tools) return {};
         let istTolls = {};
-        Object.keys(tools).filter(tool => {
+        Object.keys(tools).forEach(tool => {
             if (tools[tool] && tools[tool].installed) {
                 istTolls[tool] = tools[tool];
             }
         });
-        return istTolls;
-    });
+
+        // 先批量获取所有时间戳
+        const toolNames = Object.keys(istTolls);
+        const timeMap = {};
+        await Promise.all(toolNames.map(async tool => {
+            let time = parseInt(await StorageMgr.get(TOOL_NAME_TPL.replace('#TOOL-NAME#', tool))) || 0;
+            timeMap[tool] = time;
+        }));
+        
+        // 用同步sort排序
+        let sortedTools = toolNames.sort((a, b) => {
+            return timeMap[a] - timeMap[b];
+        });
+
+        let sortedToolMap = {};
+        sortedTools.forEach(tool => {
+            sortedToolMap[tool] = istTolls[tool];
+        });
+        
+        return sortedToolMap;
+    };
 
     /**
      * 获取工具的content-script
@@ -257,47 +247,6 @@ let Awesome = (() => {
         }
     };
 
-    /**
-     * 远程获取的代码管理器
-     * @type {{get, set}}
-     */
-    let CodeCacheMgr = (() => {
-        const TOOLS_FROM_REMOTE = 'TOOLS_FROM_REMOTE';
-
-        let get = () => {
-            return StorageMgr.getSync(TOOLS_FROM_REMOTE);
-        };
-
-        let set = (remoteCodes) => {
-            let obj = {};
-            obj[TOOLS_FROM_REMOTE]=remoteCodes;
-            chrome.storage.local.set(obj);
-        };
-
-        return {get, set};
-    })();
-
-    /**
-     * 工具排序管理器
-     * @type {{get, set}}
-     */
-    let SortToolMgr = (() => {
-        const TOOLS_CUSTOM_SORT = 'TOOLS_CUSTOM_SORT';
-
-        let get = async () => {
-            let cache = await StorageMgr.getSync(TOOLS_CUSTOM_SORT);
-
-            return [].concat(JSON.parse(cache || '[]')).filter(t => !!t);
-        };
-
-        let set = (newSortArray) => {
-            let obj = {};
-            obj[TOOLS_CUSTOM_SORT] = JSON.stringify([].concat(newSortArray || []).filter(t => !!t));
-            chrome.storage.local.set(obj);
-        };
-
-        return {get, set};
-    })();
 
     /**
      * 采集客户端信息并发送给background
@@ -366,8 +315,6 @@ let Awesome = (() => {
         getToolTpl,
         gcLocalFiles,
         getAllTools,
-        SortToolMgr,
-        CodeCacheMgr,
         collectAndSendClientInfo
     }
 })();

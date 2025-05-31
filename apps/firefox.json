@@ -3,7 +3,7 @@
   "short_name": "FeHelper",
   "version": "2025.5.2014",
   "manifest_version": 3,
-  "description": "FE助手：JSON工具、代码美化、代码压缩、二维码工具、网页定制工具、便签笔记，等等",
+  "description": "FE助手：前端开发必备工具集，涵盖JSON格式化、代码美化与压缩、二维码生成、网页定制、便签笔记等数十种实用功能。界面现代、响应式设计，极致性能优化，国内可用，助力高效开发！",
   "icons": {
     "16": "static/img/fe-16.png",
     "48": "static/img/fe-48.png",
@@ -96,11 +96,7 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; object-src 'self'; connect-src 'self' blob:"
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; object-src 'self'; connect-src 'self' blob: https://chrome.fehelper.com https://api.siliconflow.cn https://baidufe.com https://www.baidufe.com https://img.shields.io;"
   },
   "homepage_url": "https://www.fehelper.com"
 }
-
-
-
-

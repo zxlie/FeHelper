@@ -529,6 +529,17 @@ let BgPageInstance = (function () {
                         // 埋点：自动触发json-format-auto
                         Statistics.recordToolUsage(request.params.tool_name,request.params);
                         break;
+                    case 'fetch-hotfix-json':
+                        // 代理请求 hotfix.json，解决CORS问题
+                        fetch('https://baidufe.com/fehelper/static/js/hotfix.json?v=' + Date.now())
+                            .then(response => response.text())
+                            .then(scriptContent => {
+                                callback && callback({ success: true, content: scriptContent });
+                            })
+                            .catch(error => {
+                                callback && callback({ success: false, error: error.message });
+                            });
+                        return true; // 异步响应必须返回true
                 }
                 callback && callback(request.params);
             } else {
