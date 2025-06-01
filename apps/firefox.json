@@ -20,8 +20,8 @@
   },
   "browser_specific_settings": {
       "gecko": {
-          "id": "fehelper@baidufe.com",
-          "strict_min_version": "99.0"
+          "id": "firefox@fehelper.com",
+          "strict_min_version": "109.0"
       }
   },
   "options_ui": {
@@ -70,9 +70,7 @@
             "background/tools.js",
 
             "code-beautify/beautify.js",
-            "code-beautify/beautify-css.js",
-
-            "page-timing/timing.js"
+            "code-beautify/beautify-css.js"
         ],
         "matches": ["<all_urls>"]
       }

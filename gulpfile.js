@@ -138,7 +138,7 @@ function zipPackage(outputRoot = 'output-chrome', cb) {
     if (outputRoot === 'output-firefox') {
         pkgName = 'fehelper.xpi';
     }
-    shell.exec(`cd ${outputRoot}/ && rm -rf ${pkgName} && zip -r ${pkgName} apps/ > /dev/null && cd ../`);
+    shell.exec(`cd ${outputRoot}/apps && rm -rf ../${pkgName} && zip -r ../${pkgName} ./* > /dev/null && cd ../../`);
     let size = fs.statSync(`${outputRoot}/${pkgName}`).size;
     size = pretty(size);
     console.log('\n\n================================================================================');
@@ -350,7 +350,6 @@ function firefoxPreprocess(cb) {
         const toolDir = path.join(destDir, tool);
         if (fs.existsSync(toolDir)) {
             shell.exec(`rm -rf ${toolDir}`);
-            console.log(`已删除不支持的工具: ${tool}`);
         }
     });
     cb();
