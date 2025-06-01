@@ -1574,4 +1574,23 @@ body {
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+.old-version-link {
+    background: #f3f4f6;
+    color: #6b7280 !important;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-weight: 500;
+    font-size: 15px;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    margin-left: 8px;
+    box-shadow: none;
+    display: inline-block;
+}
+.old-version-link:hover {
+    border-color: #9ca3af;
+    color: #4b5563 !important;
+    background: #f3f4f6;
 } 
