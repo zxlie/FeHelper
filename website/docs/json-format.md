@@ -4,6 +4,11 @@
 
 JSON格式化工具是FeHelper提供的一个强大的JSON数据处理工具，它能够帮助开发者快速格式化、美化、压缩和验证JSON数据。该工具支持多种JSON处理功能，包括自动格式化、手动格式化、乱码解码、排序、BigInt处理等，是Web开发中不可或缺的辅助工具。
 
+
+![popup](static/screenshot/json-format.png)
+
+![popup](static/screenshot/json-format-auto.png)
+
 ## 主要功能
 
 ### 1. 基础格式化功能

@@ -417,21 +417,22 @@ window.JsonAutoFormat = (() => {
 
                 // 格式化
                 try {
-                    Formatter.format(source, theme);
+                    await Formatter.format(source, theme);
                 } catch (e) {
-                    Formatter.formatSync(source, theme)
+                    await Formatter.formatSync(source, theme)
                 }
-                $('#jfToolbar').fadeIn(500);
+                $('#jfToolbar').show();
             })();
         } else {
-            // 格式化
-            try {
-                Formatter.format(source, theme);
-            } catch (e) {
-                Formatter.formatSync(source, theme)
-            }
-
-            $('#jfToolbar').fadeIn(500);
+            (async () => {
+                // 格式化
+                try {
+                    await Formatter.format(source, theme);
+                } catch (e) {
+                    await Formatter.formatSync(source, theme)
+                }
+                $('#jfToolbar').show();
+            })();
         }
 
 
@@ -753,6 +754,8 @@ window.JsonAutoFormat = (() => {
 
 
 if(location.protocol !== 'chrome-extension:') {
-    window.JsonAutoFormat.format();
+    (async () => {
+        await window.JsonAutoFormat.format();
+    })();
 }
 

@@ -64,9 +64,7 @@
             "background/tools.js",
 
             "code-beautify/beautify.js",
-            "code-beautify/beautify-css.js",
-
-            "page-timing/timing.js"
+            "code-beautify/beautify-css.js"
         ],
         "matches": ["<all_urls>"]
       }

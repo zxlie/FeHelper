@@ -478,23 +478,31 @@ window.Formatter = (function () {
     };
     
     /**
-     * 初始化或获取Worker实例
-     * 使用单例模式确保只创建一个Worker
+     * 初始化或获取Worker实例（异步，兼容Chrome/Edge/Firefox）
+     * @returns {Promise<Worker|null>}
      */
-    let _getWorkerInstance = function() {
+    let _getWorkerInstance = async function() {
         if (workerInstance) {
             return workerInstance;
         }
-        
+        let workerUrl = chrome.runtime.getURL('json-format/json-worker.js');
+        // 判断是否为Firefox
+        const isFirefox = typeof InstallTrigger !== 'undefined' || navigator.userAgent.includes('Firefox');
         try {
-            // 统一使用扩展内的脚本文件创建Worker
-            let workerUrl = chrome.runtime.getURL('json-format/json-worker.js');
-            workerInstance = new Worker(workerUrl);
-            
-            return workerInstance;
+            if (isFirefox) {
+                workerInstance = new Worker(workerUrl);
+                return workerInstance;
+            } else {
+                // Chrome/Edge用fetch+Blob方式
+                const resp = await fetch(workerUrl);
+                const workerScript = await resp.text();
+                const blob = new Blob([workerScript], { type: 'application/javascript' });
+                const blobUrl = URL.createObjectURL(blob);
+                workerInstance = new Worker(blobUrl);
+                return workerInstance;
+            }
         } catch (e) {
             console.error('创建Worker失败:', e);
-            // 出现任何错误，返回null
             workerInstance = null;
             return null;
         }
@@ -502,17 +510,17 @@ window.Formatter = (function () {
 
     /**
      * 执行代码格式化
+     * 支持异步worker
      */
-    let format = function (jsonStr, skin) {
+    let format = async function (jsonStr, skin) {
         cachedJsonString = JSON.stringify(JSON.parse(jsonStr), null, 4);
 
         _initElements();
         jfPre.html(htmlspecialchars(cachedJsonString));
 
         try {
-            // 获取Worker实例
-            let worker = _getWorkerInstance();
-            
+            // 获取Worker实例（异步）
+            let worker = await _getWorkerInstance();
             if (worker) {
                 // 设置消息处理程序
                 worker.onmessage = function (evt) {
@@ -521,11 +529,9 @@ window.Formatter = (function () {
                         case 'FORMATTING':
                             formattingMsg.show();
                             break;
-
                         case 'FORMATTED':
                             formattingMsg.hide();
                             jfContent.html(msg[1]);
-
                             _buildOptionBar();
                             // 事件绑定
                             _addEvents();
@@ -534,7 +540,6 @@ window.Formatter = (function () {
                             break;
                     }
                 };
-                
                 // 发送格式化请求
                 worker.postMessage({
                     jsonString: jsonStr,

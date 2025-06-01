@@ -172,10 +172,12 @@ new Vue({
                         (async () => {
                             let txt = await JsonEnDecode.urlDecodeByFetch(source);
                             source = JsonEnDecode.uniDecode(txt);
-                            Formatter.format(source);
+                            await Formatter.format(source);
                         })();
                     } else {
-                        Formatter.format(source);
+                        (async () => {
+                            await Formatter.format(source);
+                        })();
                     }
 
                     this.placeHolder = '';
