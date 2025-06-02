@@ -15,36 +15,36 @@ FeHelper（前端助手）是一个Chrome浏览器扩展，包含了前端开发
 ## 特性
 
 FeHelper提供了众多实用工具，包括但不限于：
-- [JSON格式化工具](/fehelper/docs/json-format.md) - JSON数据的美化、格式化、压缩、转义等
-- [代码美化工具](/fehelper/docs/code-beautify.md) - 美化HTML、CSS、JS等代码
-- [代码压缩工具](/fehelper/docs/code-compress.md) - 压缩HTML、CSS、JS等代码
-- [二维码生成器](/fehelper/docs/qr-code.md) - 将文本或URL转换为二维码
-- [页面性能检测](/fehelper/docs/page-timing.md) - 分析网页加载性能
-- [网页截图工具](/fehelper/docs/screenshot.md) - 网页滚动截屏
-- [字符串编解码](/fehelper/docs/en-decode.md) - 各种编码/解码工具
-- [正则表达式测试](/fehelper/docs/regexp.md) - 正则表达式在线测试
-- [时间转换工具](/fehelper/docs/timestamp.md) - 时间戳与日期的相互转换
-- [图片Base64编码](/fehelper/docs/image-base64.md) - 图片与Base64编码相互转换
-- [JSON对比工具](/fehelper/docs/json-diff.md) - 比较两个JSON数据的差异
-- [颜色拾取器](/fehelper/docs/color-picker.md) - 从网页上拾取颜色
-- [Postman接口调试](/fehelper/docs/postman.md) - 接口调试工具
-- [Websocket调试](/fehelper/docs/websocket.md) - Websocket连接测试工具
-- [便签笔记](/fehelper/docs/sticky-notes.md) - 简单的便签记事本
-- [网格尺](/fehelper/docs/grid-ruler.md) - 页面尺寸测量工具
-- [SVG转换器](/fehelper/docs/svg-converter.md) - SVG与其他格式的转换
-- [Excel转JSON](/fehelper/docs/excel2json.md) - Excel文件与JSON数据转换
-- [HTML转Markdown](/fehelper/docs/html2markdown.md) - HTML代码转Markdown格式
-- [色值转换器](/fehelper/docs/trans-color.md) - 不同颜色表示法之间的转换
-- [进制转换器](/fehelper/docs/trans-radix.md) - 数字的进制转换
-- [密码生成器](/fehelper/docs/password.md) - 随机密码生成工具
-- [Crontab解析](/fehelper/docs/crontab.md) - Cron表达式解析与测试
-- [思维导图](/fehelper/docs/naotu.md) - 在线思维导图工具
-- [海报制作](/fehelper/docs/poster-maker.md) - 简易海报制作工具
-- [图表制作](/fehelper/docs/chart-maker.md) - 数据可视化图表制作
-- [贷款计算器](/fehelper/docs/loan-rate.md) - 贷款利率与还款计算
-- [页面定制](/fehelper/docs/page-monkey.md) - 自定义网页样式和功能
-- [开发者工具](/fehelper/docs/devtools.md) - 网页调试与检查工具
-- [AI助手](/fehelper/docs/aiagent.md) - 智能AI助手功能
+- [JSON格式化工具](/docs/json-format.md) - JSON数据的美化、格式化、压缩、转义等
+- [代码美化工具](/docs/code-beautify.md) - 美化HTML、CSS、JS等代码
+- [代码压缩工具](/docs/code-compress.md) - 压缩HTML、CSS、JS等代码
+- [二维码生成器](/docs/qr-code.md) - 将文本或URL转换为二维码
+- [页面性能检测](/docs/page-timing.md) - 分析网页加载性能
+- [网页截图工具](/docs/screenshot.md) - 网页滚动截屏
+- [字符串编解码](/docs/en-decode.md) - 各种编码/解码工具
+- [正则表达式测试](/docs/regexp.md) - 正则表达式在线测试
+- [时间转换工具](/docs/timestamp.md) - 时间戳与日期的相互转换
+- [图片Base64编码](/docs/image-base64.md) - 图片与Base64编码相互转换
+- [JSON对比工具](/docs/json-diff.md) - 比较两个JSON数据的差异
+- [颜色拾取器](/docs/color-picker.md) - 从网页上拾取颜色
+- [Postman接口调试](/docs/postman.md) - 接口调试工具
+- [Websocket调试](/docs/websocket.md) - Websocket连接测试工具
+- [便签笔记](/docs/sticky-notes.md) - 简单的便签记事本
+- [网格尺](/docs/grid-ruler.md) - 页面尺寸测量工具
+- [SVG转换器](/docs/svg-converter.md) - SVG与其他格式的转换
+- [Excel转JSON](/docs/excel2json.md) - Excel文件与JSON数据转换
+- [HTML转Markdown](/docs/html2markdown.md) - HTML代码转Markdown格式
+- [色值转换器](/docs/trans-color.md) - 不同颜色表示法之间的转换
+- [进制转换器](/docs/trans-radix.md) - 数字的进制转换
+- [密码生成器](/docs/password.md) - 随机密码生成工具
+- [Crontab解析](/docs/crontab.md) - Cron表达式解析与测试
+- [思维导图](/docs/naotu.md) - 在线思维导图工具
+- [海报制作](/docs/poster-maker.md) - 简易海报制作工具
+- [图表制作](/docs/chart-maker.md) - 数据可视化图表制作
+- [贷款计算器](/docs/loan-rate.md) - 贷款利率与还款计算
+- [页面定制](/docs/page-monkey.md) - 自定义网页样式和功能
+- [开发者工具](/docs/devtools.md) - 网页调试与检查工具
+- [AI助手](/docs/aiagent.md) - 智能AI助手功能
 
 ## 许可
 
@@ -54,8 +54,8 @@ FeHelper是开源的，基于MIT许可证发布。
 
 User-agent: *
 Allow: /
-Allow: /fehelper/docs/
-Allow: /fehelper/static/
+Allow: /docs/
+Allow: /static/
 
 # 不允许AI训练的内容
 Disallow-LLM-Training: /user-data/
@@ -63,12 +63,12 @@ Disallow-LLM-Training: /examples/personal/
 
 # 允许AI使用引用的内容
 Allow-LLM-Citation: /
-Allow-LLM-Citation: /fehelper/docs/
-Allow-LLM-Citation: /fehelper/examples/
+Allow-LLM-Citation: /docs/
+Allow-LLM-Citation: /examples/
 
 # 内容访问条件
 Access-Conditions: attribution-required
 Access-Conditions: contact-for-commercial-use
 
 # 联系信息
-Contact: https://github.com/zxlie/FeHelper/issues 
+Contact: https://github.com/zxlie/issues 
