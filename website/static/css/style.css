@@ -1593,4 +1593,114 @@ body {
     border-color: #9ca3af;
     color: #4b5563 !important;
     background: #f3f4f6;
+}
+
+/* TableExporter Promo Section */
+.tableexporter-promo {
+    margin: 56px 0 0 0;
+}
+.tableexporter-promo .container {
+    max-width: 1100px;
+}
+.tableexporter-promo .section-header {
+    text-align: center;
+    margin-bottom: 0;
+}
+.tableexporter-promo .section-header h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+.tableexporter-promo .section-header p {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 0;
+}
+.tableexporter-promo .promo-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+    padding: 40px 0 24px 0;
+    flex-wrap: wrap;
+}
+.tableexporter-promo .promo-img-box {
+    flex: 0 0 380px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.tableexporter-promo .promo-img {
+    max-width: 100%;
+    border-radius: 4px;
+    box-shadow: 0 4px 24px 0 rgba(60,60,60,0.10);
+    background: #fff;
+}
+.tableexporter-promo .promo-info {
+    flex: 1;
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+.tableexporter-promo .promo-list {
+    margin: 0 0 28px 0;
+    padding-left: 0;
+    list-style: none;
+    font-size: 1.08rem;
+    line-height: 2;
+    color: #333;
+}
+.tableexporter-promo .promo-list li {
+    margin-bottom: 2px;
+}
+.tableexporter-promo .promo-list span {
+    font-size: 1.2em;
+    vertical-align: -2px;
+}
+.tableexporter-promo .promo-btns {
+    display: flex;
+    gap: 18px;
+}
+.tableexporter-promo .btn-primary {
+    padding: 12px 32px;
+    font-size: 17px;
+    font-weight: 600;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px #e0e7ef;
+}
+.tableexporter-promo .btn-secondary {
+    padding: 12px 32px;
+    font-size: 17px;
+    font-weight: 600;
+    border-radius: 8px;
+}
+@media (max-width: 900px) {
+    .tableexporter-promo .promo-content {
+        gap: 24px;
+        padding: 24px 0 12px 0;
+    }
+    .tableexporter-promo .promo-img {
+        width: 90vw;
+        max-width: 340px;
+    }
+}
+@media (max-width: 600px) {
+    .tableexporter-promo .section-header h2 {
+        font-size: 1.3rem;
+    }
+    .tableexporter-promo .promo-img {
+        width: 98vw;
+        max-width: 98vw;
+    }
+    .tableexporter-promo .promo-info {
+        min-width: 0;
+    }
+    .tableexporter-promo .btn-primary,
+    .tableexporter-promo .btn-secondary {
+        padding: 10px 12px;
+        font-size: 15px;
+    }
 } 
+
