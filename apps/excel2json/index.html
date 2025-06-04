@@ -1,83 +1,56 @@
 <!DOCTYPE HTML>
 <html lang="zh-CN">
 <head>
-    <title>Excel/CVS转JSON</title>
+    <title>Excel/CSV 转 JSON 工具 - FeHelper</title>
     <meta charset="UTF-8">
-    <link rel="shortcut icon" href="../static/img/favicon.ico">
     <link rel="stylesheet" href="index.css" />
-    <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
 </head>
 <body>
-
-<div class="wrapper" id="pageContainer">
-    <div class="panel panel-default" style="margin-bottom: 0px;">
-        <div class="panel-heading">
-            <h3 class="panel-title">
-                <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
-                    <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：Excel/CVS转JSON
-
-                <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
-                <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
-            </h3>
+    <div class="wrapper" id="excel2jsonContainer">
+        <div class="main-navbar">
+            <div class="navbar-brand">
+                <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="brand-link">
+                    <img src="../static/img/fe-16.png" alt="fehelper"/>
+                    <span class="brand-text">FeHelper</span>
+                    <span class="brand-subtitle">Excel/CSV 转 JSON</span>
+                </a>
+            </div>
+            <div class="navbar-actions panel-title">
+                <a href="#" class="x-donate-link"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
+                <a class="x-other-tools"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+            </div>
         </div>
-    </div>
-    <div class="panel-body mod-endecode">
-        <div id='base'>
-            <div id='header'>
-
-                <div id='settings'>
-                    <h3>输入配置</h3>
-                    <form id='settingsForm'>
-                        <div><label><input class="settingsElement" type="checkbox" name="" value="" id="headersProvidedCB" checked/>首行为标题</label>
-                        （<span class="settingsGroup">表头转换：
-                            <label><input class="settingsElement" type="radio" name="headerModifications" value="downcase" id='headersDowncase'/>小写&nbsp;&nbsp;</label>
-                            <label><input class="settingsElement" type="radio" name="headerModifications" id='headersUpcase' value="upcase"/> 大写&nbsp;&nbsp;</label>
-                            <label><input class="settingsElement" type="radio" name="headerModifications" id='headersNoTransform' value="none" checked/> 无</label>
-                        </span>）</div>
-
-                        <div>字段分隔符：
-                            <label><input class="settingsElement" type="radio" name="delimiter" id='delimiterAuto' value="auto" checked/>自动&nbsp;&nbsp;</label>
-                            <label><input class="settingsElement" type="radio" name="delimiter" id='delimiterComma' value="comma"/>逗号&nbsp;&nbsp;</label>
-                            <label><input class="settingsElement" type="radio" name="delimiter" id='delimiterTab' value="tab"/>Tab键</label>
-                        </div>
-                        <div>数字分隔符：
-                            <label><input class="settingsElement" type="radio" name="decimal" id='decimalDot' value="dot" checked/>点&nbsp;&nbsp;</label>
-                            <label><input class="settingsElement" type="radio" name="decimal" id='decimalComma' value="comma"/>逗号</label>
-                        </div>
-                    </form>
-
-                    <h3 style="margin-top:40px">输出配置</h3>
-                    <form id="outSettingsForm">
-                        <div>
-                            <label><input class="settingsElement" type="checkbox" name="some_name" value="" id="includeWhiteSpaceCB" checked/>格式调整</label>
-                            （缩进：
-                            <label><input class="settingsElement" type="radio" name="indentType" value="tabs" id='includeWhiteSpaceTabs'/>tab键&nbsp;&nbsp;</label>
-                            <label><input class="settingsElement" type="radio" name="indentType" value="spaces" id='includeWhiteSpaceSpaces' checked/>空格</label>）
-                        </div>
-
-                        <div class="settingsGroup">
-                            <div>
+        <div class="main-container">
+            <div class="panel panel-default">
+                <div class="panel-body excel2json-flex-panel">
+                    <!-- 左侧输入区 -->
+                    <div class="input-zone">
+                        <div class="input-ops">
+                            <div class="input-ops-row">
+                                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;"/>
+                                <a href="#" class="btn btn-secondary example-btn btn-file-input" data-example="simple">选择Excel/CSV文件</a>
+                                <a href="#" class="link-btn" data-example="simple">示例：简单表格</a>
+                                <a href="#" class="link-btn" data-example="user">示例：用户信息</a>
+                                <a href="#" class="link-btn" data-example="score">示例：成绩单</a>
+                                <button id="convertBtn" class="btn btn-primary convert-btn"><i class="fas fa-sync-alt"></i> 转换为 JSON</button>
                             </div>
-                            <div><label>XML节点定义：</label>（仅针对XML结果有效）
-                                <div><label>根节点：<input class="settingsElement form-control" type="text" name="indentType" value="root" id='root'/></label></div>
-                                <div><label>子节点：<input class="settingsElement form-control" type="text" name="indentType" value="row" id='child'/></label></div>
-                            </div>
+                            <span id="errorMsg" class="error-msg"></span>
                         </div>
-                    </form>
+                        <textarea id="pasteInput" placeholder="可直接粘贴表格内容（支持CSV格式）" rows="18" class="input-textarea"></textarea>
+                    </div>
+                    <!-- 右侧输出区 -->
+                    <div class="output-zone">
+                        <div class="output-header output-header-block">
+                            <button id="copyBtn" class="btn btn-outline copy-btn"><i class="fas fa-copy"></i> 复制</button>
+                        </div>
+                        <textarea id="jsonOutput" readonly rows="18" class="output-textarea"></textarea>
+                    </div>
                 </div>
             </div>
-
-            <div id='converter' class=''></div>
         </div>
     </div>
-</div>
-
-<script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
-<script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
-<script type="text/javascript" src="CSVParser.js"></script>
-<script type="text/javascript" src="DataGridRenderer.js"></script>
-<script type="text/javascript" src="converter.js"></script>
-<script type="text/javascript" src="index.js"></script>
-
+    <!-- xlsx.full.min.js 复用 chart-maker/lib 目录下的文件 -->
+    <script src="../chart-maker/lib/xlsx.full.min.js"></script>
+    <script src="index.js" type="module"></script>
 </body>
-</html>
+</html> 
