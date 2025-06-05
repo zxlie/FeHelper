@@ -632,8 +632,47 @@
         </div>
     </footer>
 
+    <!-- 微信JSSDK集成：微信好友/朋友圈分享 -->
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+    <script>
+    (function() {
+      var url = location.href.split('#')[0];
+      fetch('https://chrome.fehelper.com/api/wechat-signature?url=' + encodeURIComponent(url))
+        .then(function(res) { return res.json(); })
+        .then(function(cfg) {
+          wx.config({
+            debug: false,
+            appId: cfg.appId,
+            timestamp: cfg.timestamp,
+            nonceStr: cfg.nonceStr,
+            signature: cfg.signature,
+            jsApiList: [
+              'updateAppMessageShareData',
+              'updateTimelineShareData'
+            ]
+          });
+          wx.ready(function () {
+            // 分享给好友
+            wx.updateAppMessageShareData({
+              title: 'FeHelper - 职场人的超级助手',
+              desc: '全新升级！30+实用工具，支持Chrome/Edge/Firefox，开源免费，前端/数据/办公必备！',
+              link: url,
+              imgUrl: 'https://fehelper.baidufe.com/static/img/fe-128.png'
+            });
+            // 分享到朋友圈
+            wx.updateTimelineShareData({
+              title: 'FeHelper - 职场人的超级助手：全新升级！30+实用工具，开源免费，前端/数据/办公必备！',
+              link: url,
+              imgUrl: 'https://fehelper.baidufe.com/static/img/fe-128.png'
+            });
+          });
+        });
+    })();
+    </script>
+
     <script src="static/js/script.js"></script>
 </body>
 </html> 
+
 
 
