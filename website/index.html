@@ -642,10 +642,10 @@
         .then(function(cfg) {
           wx.config({
             debug: false,
-            appId: cfg.appId,
-            timestamp: cfg.timestamp,
-            nonceStr: cfg.nonceStr,
-            signature: cfg.signature,
+            appId: cfg.data.appId,
+            timestamp: cfg.data.timestamp,
+            nonceStr: cfg.data.nonceStr,
+            signature: cfg.data.signature,
             jsApiList: [
               'updateAppMessageShareData',
               'updateTimelineShareData'
