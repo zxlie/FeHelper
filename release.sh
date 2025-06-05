@@ -30,22 +30,19 @@ if [ -d "$TARGET_DIR" ]; then
     
     echo "✅ 备份已创建: $BACKUP_PATH"
     
-    # 删除现有目录
-    echo "🗑️  删除现有目录..."
-    rm -rf "$TARGET_DIR"
 else
     echo "ℹ️  目标目录不存在，跳过备份步骤"
+    # 2. 创建目标目录
+    echo "📁 创建目标目录..."
+    mkdir -p "$TARGET_DIR"
 fi
 
-# 2. 检查 website 目录是否存在
+# 3. 检查 website 目录是否存在
 if [ ! -d "$SOURCE_DIR" ]; then
     echo "❌ 错误: website 目录不存在!"
     exit 1
 fi
 
-# 3. 创建目标目录
-echo "📁 创建目标目录..."
-mkdir -p "$TARGET_DIR"
 
 # 4. 拷贝 website 下所有内容到目标目录
 echo "📤 拷贝 website 下所有内容到目标目录..."
@@ -58,3 +55,4 @@ echo "📍 部署位置: $TARGET_DIR"
 echo ""
 echo "📋 部署文件列表:"
 ls -la "$TARGET_DIR" 
+
