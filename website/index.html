@@ -644,6 +644,9 @@
     <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
     <script>
     (function() {
+      // 判断是否在微信内置浏览器
+      var ua = window.navigator.userAgent.toLowerCase();
+      if (!/micromessenger/.test(ua)) return;
       var url = location.href.split('#')[0];
       fetch('https://chrome.fehelper.com/api/wechat-signature?url=' + encodeURIComponent(url))
         .then(function(res) { return res.json(); })
