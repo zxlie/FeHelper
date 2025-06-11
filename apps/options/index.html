@@ -226,13 +226,13 @@
                 <div class="sidebar-section">
                     <h4>工具分类</h4>
                     <ul class="category-list">
-                        <li :class="{active: currentCategory === ''}" 
+                        <li :class="{active: currentCategory === '' && currentView === 'all'}" 
                             @click="handleCategoryChange('')">
                             全部分类
                             <span class="count">({{Object.keys(originalTools).length}})</span>
                         </li>
                         <li v-for="category in categories" 
-                            :class="{active: currentCategory === category.key}"
+                            :class="{active: currentCategory === category.key && currentView === 'all'}"
                             @click="handleCategoryChange(category.key)">
                             {{category.name}}
                             <span class="count">({{getCategoryCount(category.key)}})</span>
@@ -242,15 +242,15 @@
                 <div class="sidebar-section">
                     <h4>我的工具</h4>
                     <ul class="my-tools">
-                        <li @click="showMyInstalled">
+                        <li :class="{active: currentView === 'installed'}" @click="showMyInstalled">
                             已安装
                             <span class="count">({{installedCount}})</span>
                         </li>
-                        <li @click="showMyFavorites">
+                        <li :class="{active: currentView === 'favorites'}" @click="showMyFavorites">
                             我的收藏
                             <span class="count">({{getFavoritesCount()}})</span>
                         </li>
-                        <li @click="showRecentUsed">
+                        <li :class="{active: currentView === 'recent'}" @click="showRecentUsed">
                             最近使用
                             <span class="count">({{recentCount}})</span>
                         </li>
@@ -303,3 +303,4 @@
 
 </body>
 </html> 
+

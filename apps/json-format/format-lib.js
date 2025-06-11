@@ -248,13 +248,31 @@ window.Formatter = (function () {
 
         } while (curEl.length && !curEl.hasClass('rootItem'));
 
-        let path = keys.join('#@#').replace(/#@#\[/g, '[').replace(/#@#/g, '.');
+        // 过滤掉空值和无效的key，避免产生多余的点号
+        let validKeys = keys.filter(key => key && key.trim() !== '');
+        
+        // 构建路径：正确处理对象属性和数组索引的连接
+        let path = '';
+        for (let i = 0; i < validKeys.length; i++) {
+            let key = validKeys[i];
+            if (key.startsWith('[') && key.endsWith(']')) {
+                // 数组索引，直接拼接（前面永远不需要点号）
+                path += key;
+            } else {
+                // 对象属性
+                if (i > 0) {
+                    // 对象属性前面需要点号（数组索引后面的属性也需要点号）
+                    path += '.';
+                }
+                path += key;
+            }
+        }
 
         let jfPath = $('#jsonPath');
         if (!jfPath.length) {
             jfPath = $('<span id="jsonPath"/>').prependTo(jfStatusBar);
         }
-        jfPath.html('当前节点：JSON.' + path);
+        jfPath.html('当前节点：$.' + path);
     };
 
     // 给某个节点增加操作项
@@ -475,6 +493,51 @@ window.Formatter = (function () {
             }
         });
 
+        // 行悬停效果：只高亮当前直接悬停的item，避免嵌套冒泡
+        let currentHoverElement = null;
+        
+        $('#jfContent .item').bind('mouseenter', function (e) {
+            // 只处理视觉效果，不触发任何其他逻辑
+            
+            // 清除之前的悬停样式
+            if (currentHoverElement) {
+                currentHoverElement.removeClass('fh-hover');
+            }
+            
+            // 添加当前悬停样式
+            let el = $(this);
+            el.addClass('fh-hover');
+            currentHoverElement = el;
+            
+            // 严格阻止事件冒泡和默认行为
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            e.preventDefault();
+        });
+        
+        $('#jfContent .item').bind('mouseleave', function (e) {
+            // 只处理视觉效果，不触发任何其他逻辑
+            let el = $(this);
+            el.removeClass('fh-hover');
+            
+            // 如果当前移除的元素是记录的悬停元素，清空记录
+            if (currentHoverElement && currentHoverElement[0] === el[0]) {
+                currentHoverElement = null;
+            }
+            
+            // 严格阻止事件冒泡和默认行为
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        });
+        
+        // 为整个jfContent区域添加鼠标离开事件，确保彻底清除悬停样式
+        $('#jfContent').bind('mouseleave', function (e) {
+            if (currentHoverElement) {
+                currentHoverElement.removeClass('fh-hover');
+                currentHoverElement = null;
+            }
+        });
+
     };
     
     /**
@@ -595,6 +658,7 @@ window.Formatter = (function () {
         formatSync: formatSync
     }
 })();
+
 
 
 

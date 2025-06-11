@@ -220,7 +220,8 @@ body{
     background: #f0f0f0;
 }
 
-.category-list li.active {
+.category-list li.active,
+.my-tools li.active {
     background: #e6f7ff;
     color: #1890ff;
 }
@@ -476,6 +477,11 @@ body{
 }
 
 [data-theme='dark'] .category-list li.active {
+    background: #177ddc;
+    color: #fff;
+}
+
+[data-theme='dark'] .my-tools li.active {
     background: #177ddc;
     color: #fff;
 }
@@ -1669,3 +1675,4 @@ body{
 .dark-mode .navbar-actions .settings-link .nav-icon {
     color: #fff;
 }
+

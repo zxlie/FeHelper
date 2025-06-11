@@ -120,6 +120,22 @@ function htmlspecialchars(str) {
     return str;
 }
 
+// 格式化字符串值，如果是URL则转换为链接
+function formatStringValue(str) {
+    // URL正则表达式，匹配 http/https/ftp 协议的URL
+    const urlRegex = /^(https?:\/\/|ftp:\/\/)[^\s<>"'\\]+$/i;
+    
+    if (urlRegex.test(str)) {
+        // 如果是URL，转换为链接
+        const escapedUrl = htmlspecialchars(str);
+        return '<a href="' + escapedUrl + '" target="_blank" rel="noopener noreferrer">' + htmlspecialchars(str) + '</a>';
+    } else {
+        // 直接显示解析后的字符串内容，不需要重新转义
+        // 这样可以保持用户原始输入的意图
+        return htmlspecialchars(str);
+    }
+}
+
 // 格式化JSON为HTML
 function formatJsonToHtml(json) {
     return createNode(json).getHTML();
@@ -136,7 +152,7 @@ function createNode(value) {
             switch(this.type) {
                 case 'string':
                     return '<div class="item item-line"><span class="string">"' + 
-                        htmlspecialchars(this.value) + 
+                        formatStringValue(this.value) + 
                         '"</span></div>';
                 case 'number':
                     // 确保大数字不使用科学计数法
@@ -182,15 +198,22 @@ function createNode(value) {
                 let prop = this.value[key];
                 let childNode = createNode(prop);
                 
-                html += '<div class="item">' + 
-                    '<span class="quote">"</span>' +
+                html += '<div class="item">';
+                
+                // 如果值是对象或数组，在key前面添加展开按钮
+                if (childNode.type === 'object' || childNode.type === 'array') {
+                    html += '<span class="expand"></span>';
+                }
+                
+                html += '<span class="quote">"</span>' +
                     '<span class="key">' + htmlspecialchars(key) + '</span>' +
                     '<span class="quote">"</span>' +
                     '<span class="colon">: </span>';
                 
                 // 添加值
                 if (childNode.type === 'object' || childNode.type === 'array') {
-                    html += childNode.getHTML();
+                    // 对于对象和数组，将开始大括号/方括号放在同一行，但不包含展开按钮
+                    html += childNode.getInlineHTMLWithoutExpand();
                 } else {
                     html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
                 }
@@ -223,9 +246,10 @@ function createNode(value) {
                 
                 html += '<div class="item item-block">';
                 
-                // 添加值
+                // 如果数组元素是对象或数组，在前面添加展开按钮
                 if (childNode.type === 'object' || childNode.type === 'array') {
-                    html += childNode.getHTML();
+                    html += '<span class="expand"></span>';
+                    html += childNode.getInlineHTMLWithoutExpand();
                 } else {
                     html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
                 }
@@ -239,6 +263,190 @@ function createNode(value) {
             });
             
             html += '</div><span class="brace">]</span></div>';
+            return html;
+        },
+        
+        // 新增内联HTML方法，用于在同一行显示开始大括号/方括号
+        getInlineHTML: function() {
+            switch(this.type) {
+                case 'object':
+                    return this.getInlineObjectHTML();
+                case 'array':
+                    return this.getInlineArrayHTML();
+                default:
+                    return this.getHTML();
+            }
+        },
+        
+        // 新增不包含展开按钮的内联HTML方法
+        getInlineHTMLWithoutExpand: function() {
+            switch(this.type) {
+                case 'object':
+                    return this.getInlineObjectHTMLWithoutExpand();
+                case 'array':
+                    return this.getInlineArrayHTMLWithoutExpand();
+                default:
+                    return this.getHTML();
+            }
+        },
+        
+        getInlineObjectHTML: function() {
+            if (!this.value || Object.keys(this.value).length === 0) {
+                return '<span class="brace">{</span><span class="brace">}</span>';
+            }
+            
+            let html = '<span class="brace">{</span>' +
+                '<span class="expand"></span>' +
+                '<span class="ellipsis"></span>' +
+                '<div class="kv-list">';
+                
+            let keys = Object.keys(this.value);
+            keys.forEach((key, index) => {
+                let prop = this.value[key];
+                let childNode = createNode(prop);
+                
+                html += '<div class="item">';
+                
+                // 如果值是对象或数组，在key前面添加展开按钮
+                if (childNode.type === 'object' || childNode.type === 'array') {
+                    html += '<span class="expand"></span>';
+                }
+                
+                html += '<span class="quote">"</span>' +
+                    '<span class="key">' + htmlspecialchars(key) + '</span>' +
+                    '<span class="quote">"</span>' +
+                    '<span class="colon">: </span>';
+                
+                // 添加值
+                if (childNode.type === 'object' || childNode.type === 'array') {
+                    html += childNode.getInlineHTMLWithoutExpand();
+                } else {
+                    html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
+                }
+                
+                // 如果不是最后一个属性，添加逗号
+                if (index < keys.length - 1) {
+                    html += '<span class="comma">,</span>';
+                }
+                
+                html += '</div>';
+            });
+            
+            html += '</div><span class="brace">}</span>';
+            return html;
+        },
+        
+        getInlineArrayHTML: function() {
+            if (!this.value || this.value.length === 0) {
+                return '<span class="brace">[</span><span class="brace">]</span>';
+            }
+            
+            let html = '<span class="brace">[</span>' +
+                '<span class="expand"></span>' +
+                '<span class="ellipsis"></span>' +
+                '<div class="kv-list">';
+                
+            this.value.forEach((item, index) => {
+                let childNode = createNode(item);
+                
+                html += '<div class="item item-block">';
+                
+                // 如果数组元素是对象或数组，在前面添加展开按钮
+                if (childNode.type === 'object' || childNode.type === 'array') {
+                    html += '<span class="expand"></span>';
+                    html += childNode.getInlineHTMLWithoutExpand();
+                } else {
+                    html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
+                }
+                
+                // 如果不是最后一个元素，添加逗号
+                if (index < this.value.length - 1) {
+                    html += '<span class="comma">,</span>';
+                }
+                
+                html += '</div>';
+            });
+            
+            html += '</div><span class="brace">]</span>';
+            return html;
+        },
+        
+        getInlineObjectHTMLWithoutExpand: function() {
+            if (!this.value || Object.keys(this.value).length === 0) {
+                return '<span class="brace">{</span><span class="brace">}</span>';
+            }
+            
+            let html = '<span class="brace">{</span>' +
+                '<span class="ellipsis"></span>' +
+                '<div class="kv-list">';
+                
+            let keys = Object.keys(this.value);
+            keys.forEach((key, index) => {
+                let prop = this.value[key];
+                let childNode = createNode(prop);
+                
+                html += '<div class="item">';
+                
+                // 如果值是对象或数组，在key前面添加展开按钮
+                if (childNode.type === 'object' || childNode.type === 'array') {
+                    html += '<span class="expand"></span>';
+                }
+                
+                html += '<span class="quote">"</span>' +
+                    '<span class="key">' + htmlspecialchars(key) + '</span>' +
+                    '<span class="quote">"</span>' +
+                    '<span class="colon">: </span>';
+                
+                // 添加值
+                if (childNode.type === 'object' || childNode.type === 'array') {
+                    html += childNode.getInlineHTMLWithoutExpand();
+                } else {
+                    html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
+                }
+                
+                // 如果不是最后一个属性，添加逗号
+                if (index < keys.length - 1) {
+                    html += '<span class="comma">,</span>';
+                }
+                
+                html += '</div>';
+            });
+            
+            html += '</div><span class="brace">}</span>';
+            return html;
+        },
+        
+        getInlineArrayHTMLWithoutExpand: function() {
+            if (!this.value || this.value.length === 0) {
+                return '<span class="brace">[</span><span class="brace">]</span>';
+            }
+            
+            let html = '<span class="brace">[</span>' +
+                '<span class="ellipsis"></span>' +
+                '<div class="kv-list">';
+                
+            this.value.forEach((item, index) => {
+                let childNode = createNode(item);
+                
+                html += '<div class="item item-block">';
+                
+                // 如果数组元素是对象或数组，在前面添加展开按钮
+                if (childNode.type === 'object' || childNode.type === 'array') {
+                    html += '<span class="expand"></span>';
+                    html += childNode.getInlineHTMLWithoutExpand();
+                } else {
+                    html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
+                }
+                
+                // 如果不是最后一个元素，添加逗号
+                if (index < this.value.length - 1) {
+                    html += '<span class="comma">,</span>';
+                }
+                
+                html += '</div>';
+            });
+            
+            html += '</div><span class="brace">]</span>';
             return html;
         }
     };
@@ -259,3 +467,4 @@ function getType(value) {
     }
     return type;
 } 
+

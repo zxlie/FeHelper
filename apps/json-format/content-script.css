@@ -87,6 +87,32 @@ html.fh-jf .item {
     padding-bottom: 1px;
 }
 
+/* 行悬停效果 - 使用JavaScript控制的类 */
+html.fh-jf .item.fh-hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 2px;
+}
+
+/* 深色主题悬停效果 */
+html.fh-jf .theme-dark .item.fh-hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* VS Code主题悬停效果 */
+html.fh-jf .theme-vscode .item.fh-hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* GitHub主题悬停效果 */
+html.fh-jf .theme-github .item.fh-hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Light主题悬停效果 */
+html.fh-jf .theme-light .item.fh-hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
 html.fh-jf .item .kv-list {
     display: block;
     padding-left: 24px;
@@ -113,15 +139,38 @@ html.fh-jf .item .brace {
 html.fh-jf .item .expand {
     width: 20px;
     height: 18px;
-    display: block;
+    display: inline-block;
     position: absolute;
-    left: -2px;
-    top: 4px;
+    left: -20px;
+    top: 2px;
     z-index: 5;
     opacity: 0.35;
     -webkit-user-select: none;
     cursor: pointer;
 }
+
+/* 当展开按钮在key前面时 */
+html.fh-jf .item > .expand:first-child {
+    position: absolute;
+    left: 4px;
+    top: 2px;
+}
+
+/* 根级对象和数组的展开按钮 */
+html.fh-jf .item-object > .expand:first-child,
+html.fh-jf .item-array > .expand:first-child {
+    position: absolute;
+    left: 4px;
+    top: 2px;
+}
+
+/* 数组块元素的展开按钮 */
+html.fh-jf .item-block > .expand:first-child {
+    position: absolute;
+    left: 4px;
+    top: 2px;
+}
+
 
 html.fh-jf .item .expand:after {
     content: "\25bc";
@@ -163,10 +212,16 @@ html.fh-jf .item.collapsed .item {
 
 html.fh-jf .item.collapsed > .expand {
     -webkit-transform: rotate(-90deg);
-    top: -1px
+    top: -4px;
+    left: -2px;
 }
 html.fh-jf .remove-quote .quote {
     display: none;
+}
+
+/* 展开按钮在key前面时不影响后续元素 */
+html.fh-jf .item > .expand:first-child + .quote {
+    margin-left: 0;
 }
 /*================json format style end===================*/
 
@@ -277,7 +332,7 @@ html.fh-jf  body {
     margin: 0;
 }
 
-html..fh-jf body {
+html.fh-jf body {
     padding: 0 8px;
 }
 
@@ -774,105 +829,121 @@ html.fh-jf body.theme-default {
 .theme-dark {
     background:#000;
 }
-.theme-dark .x-toolbar {
+html.fh-jf .theme-dark .x-toolbar {
     background: -webkit-linear-gradient(#222,#222,#111);
     border: 1px solid #333;
     border-bottom-color: #363636;
     color:#ddd;
 }
-.theme-dark .x-toolbar .x-a-title {
+html.fh-jf .theme-dark .x-toolbar .x-a-title {
     color:#48b;
 }
-.theme-dark .xjf-btn {
+html.fh-jf .theme-dark .xjf-btn {
     background:-webkit-linear-gradient(#222,#222,#111);
     border:1px solid #444;
     color:#ddd;
 }
-.theme-dark .xjf-btn:hover {
+html.fh-jf .theme-dark .xjf-btn:hover {
     background:-webkit-linear-gradient(#333,#333,#222);
 }
-.theme-dark #statusBar {
+html.fh-jf .theme-dark #statusBar {
     background: #333;
     color: #ddd;
     border-top: 1px solid #555;
 }
-.theme-dark .boxOpt {
+html.fh-jf .theme-dark .boxOpt {
     background: -webkit-linear-gradient(#222,#222,#111);
     border: 1px solid #333;
 }
-.theme-dark .boxOpt a:hover {
+html.fh-jf .theme-dark .boxOpt a:hover {
     color:#eee;
 }
-.theme-dark .mod-setting-panel {
+html.fh-jf .theme-dark .mod-setting-panel {
     background: #222;
     color: #fff;
     border-color: #444;
     box-shadow: 1px 1px #111;
 }
-.theme-dark .mod-setting-panel li:hover {
+html.fh-jf .theme-dark .mod-setting-panel li:hover {
     color:#ff0;
 }
-.theme-dark .mod-setting-panel input[name="maxlength"] {
+html.fh-jf .theme-dark .mod-setting-panel input[name="maxlength"] {
     background: #000;
     border: 1px solid #555;
     color: #fff;
 }
 
-.theme-dark .item .key {
+html.fh-jf .theme-dark .item .key {
     color: #fff;
 }
 
-.theme-dark .item .kv-list {
+html.fh-jf .theme-dark .item .kv-list {
     border-left: 1px dashed #222;
 }
-.theme-dark .item .string {
+html.fh-jf .theme-dark .item .string {
     color: #0f0;
 }
 
-.theme-dark .item .string a {
+html.fh-jf .theme-dark .item .string a {
     color: #369ad6;
     text-decoration: underline;
 }
 
-.theme-dark .item .string a:hover {
+html.fh-jf .theme-dark .item .string a:hover {
     color: #b00;
 }
-.theme-dark .item .brace,
-.theme-dark .item .colon,
-.theme-dark .item .comma{
+html.fh-jf .theme-dark .item .brace,
+html.fh-jf .theme-dark .item .colon,
+html.fh-jf .theme-dark .item .comma{
     color:#eaeaea;
 }
 
-.theme-dark .item .bool,
-.theme-dark .item .null,
-.theme-dark .item .number {
+html.fh-jf .theme-dark .item .bool,
+html.fh-jf .theme-dark .item .null,
+html.fh-jf .theme-dark .item .number {
     font-weight: bold;
     color: #f00
 }
-.theme-dark .item .item-object:hover > span,
-.theme-dark .item .item-array:hover > span,
-.theme-dark .item .item-block:hover > span{
+html.fh-jf .theme-dark .item .item-object:hover > span,
+html.fh-jf .theme-dark .item .item-array:hover > span,
+html.fh-jf .theme-dark .item .item-block:hover > span{
     font-weight: bold;
     color: orange;
 }
 
-.theme-dark .item .item-line:hover,
-.theme-dark .item-line.x-selected {
+html.fh-jf .theme-dark .item .item-line:hover,
+html.fh-jf .theme-dark .item-line.x-selected {
     background: #111;
 }
 
-.theme-dark .item .item-line:hover span ,
-.theme-dark .item.x-selected>span {
+html.fh-jf .theme-dark .item .item-line:hover span ,
+html.fh-jf .theme-dark .item.x-selected>span {
     font-weight: bolder;
     background: #444;
 }
-.theme-dark .item .quote {
+html.fh-jf .theme-dark .item .quote {
     color:#eaeaea;
 }
-.theme-dark .item .expand {
+html.fh-jf .theme-dark .item .expand {
     color:#fff;
 }
+html.fh-jf .theme-dark .x-donate-link {
+    background-color: #222;
+    border: 1px solid #444;
+    color: #ddd;
+}
+html.fh-jf .theme-dark .x-donate-link:hover {
+    background-color: #333;
+}
 
+html.fh-jf .theme-dark .x-donate-link a {
+    color: #ddd;
+}
+html.fh-jf .theme-dark .x-other-tools {
+    background-color: #222;
+    border: 1px solid #444;
+    color: #ddd;
+}
 
 /*================ 皮肤：theme-vscode ===================*/
 .theme-vscode .item .key {
@@ -974,3 +1045,4 @@ html.fh-jf body.theme-default {
 .t-collapse .fe-feedback #toggleBtn{
     padding-bottom: 20px;
 }
+

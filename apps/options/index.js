@@ -1191,7 +1191,10 @@ new Vue({
             this.currentView = 'recent';
             this.currentCategory = '';
             this.searchKey = '';
-            // recentUsed已在initData和getRecentUsedData中维护，activeTools会自动刷新
+            // 重新获取最近使用的工具数据
+            this.recentUsed = await Statistics.getRecentUsedTools(10);
+            this.recentCount = this.recentUsed.length;
+            // activeTools会通过currentView的watcher自动更新
         },
 
         handleRecommendClick(card) {
@@ -1277,4 +1280,5 @@ window.addEventListener('scroll', () => {
 if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
     Awesome.collectAndSendClientInfo();
 } 
+
 
