@@ -41,8 +41,31 @@ new Vue({
         // 获取当前ctx的version
         this.manifest = chrome.runtime.getManifest();
 
-        Awesome.getInstalledTools().then(tools => {
-            this.fhTools = tools;
+        Awesome.getInstalledTools().then(async (tools) => {
+            // 获取用户自定义的工具排序
+            const customOrder = await chrome.storage.local.get('tool_custom_order');
+            const savedOrder = customOrder.tool_custom_order ? JSON.parse(customOrder.tool_custom_order) : null;
+            
+            // 如果有自定义排序，重新排列工具
+            if (savedOrder && Array.isArray(savedOrder)) {
+                const orderedTools = {};
+                const unorderedTools = { ...tools };
+                
+                // 按照保存的顺序添加工具
+                savedOrder.forEach(toolKey => {
+                    if (unorderedTools[toolKey]) {
+                        orderedTools[toolKey] = unorderedTools[toolKey];
+                        delete unorderedTools[toolKey];
+                    }
+                });
+                
+                // 添加新安装的工具（不在保存的顺序中的）
+                Object.assign(orderedTools, unorderedTools);
+                
+                this.fhTools = orderedTools;
+            } else {
+                this.fhTools = tools;
+            }
         });
 
         // 自动开关灯
@@ -142,4 +165,5 @@ new Vue({
         }
     }
 });
+
 

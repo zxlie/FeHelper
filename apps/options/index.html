@@ -73,6 +73,34 @@
                         </div>
                     </div>
 
+                    <!-- FH工具排序 -->
+                    <div class="settings-section">
+                        <h4># FH工具排序 <span class="x-tips">（自定义已安装工具在弹窗中的显示顺序）</span></h4>
+                        <div class="tool-sort-container">
+                            <div class="sort-tips">拖拽下方工具条目来调整顺序，调整后的顺序将在弹窗中生效：</div>
+                            <div class="sortable-list" id="sortableList">
+                                <div v-for="(tool, index) in sortableTools" 
+                                     :key="tool.key" 
+                                     class="sortable-item"
+                                     :data-tool-key="tool.key"
+                                     draggable="true"
+                                     @dragstart="handleDragStart($event, index)"
+                                     @dragover="handleDragOver($event)"
+                                     @drop="handleDrop($event, index)"
+                                     @dragend="handleDragEnd">
+                                    <div class="drag-handle">⋮⋮</div>
+                                    <div class="tool-icon">{{tool.icon}}</div>
+                                    <div class="tool-name">{{tool.name}}</div>
+                                    <div class="tool-desc">{{tool.tips}}</div>
+                                </div>
+                            </div>
+                            <div class="sort-actions">
+                                <button class="btn btn-info btn-sm" @click="resetToolOrder">重置为默认顺序</button>
+                                <button class="btn btn-success btn-sm" @click="saveToolOrder">保存排序</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- FH基本配置 -->
                     <div class="settings-section">
                         <h4># FH基本配置 <span class="x-tips">（插件的一些基础配置，可以在这里统一操作）</span></h4>
@@ -303,4 +331,5 @@
 
 </body>
 </html> 
+
 

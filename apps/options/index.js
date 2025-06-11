@@ -61,8 +61,13 @@ new Vue({
             data: null
         },
 
+        // 工具排序相关
+        sortableTools: [], // 可排序的工具列表
+        draggedIndex: -1, // 拖拽的工具索引
+
         recentCount: 0,
         versionChecked: false,
+        
         // 推荐卡片配置，后续可从服务端获取
         recommendationCards: [
             {
@@ -993,8 +998,10 @@ new Vue({
         },
         
         // 显示设置模态框
-        showSettings() {
+        async showSettings() {
             this.showSettingsModal = true;
+            // 加载可排序的工具列表
+            await this.loadSortableTools();
         },
 
         // 关闭设置模态框
@@ -1235,6 +1242,149 @@ new Vue({
                 console.error('获取远程推荐卡片配置失败:', error);
             }
         },
+
+        // 工具排序相关方法
+        async loadSortableTools() {
+            try {
+                const installedTools = await Awesome.getInstalledTools();
+                
+                // 从存储中加载自定义排序
+                const customOrder = await chrome.storage.local.get('tool_custom_order');
+                const savedOrder = customOrder.tool_custom_order ? JSON.parse(customOrder.tool_custom_order) : null;
+                
+                // 转换为可排序的数组格式
+                let toolsArray = Object.entries(installedTools).map(([key, tool]) => ({
+                    key,
+                    name: tool.name,
+                    tips: tool.tips,
+                    icon: tool.icon || (tool.menuConfig && tool.menuConfig[0] ? tool.menuConfig[0].icon : '🔧')
+                }));
+                
+                // 如果有保存的自定义排序，按照该顺序排列
+                if (savedOrder && Array.isArray(savedOrder)) {
+                    const orderedTools = [];
+                    const unorderedTools = [...toolsArray];
+                    
+                    // 按照保存的顺序添加工具
+                    savedOrder.forEach(toolKey => {
+                        const toolIndex = unorderedTools.findIndex(t => t.key === toolKey);
+                        if (toolIndex !== -1) {
+                            orderedTools.push(unorderedTools.splice(toolIndex, 1)[0]);
+                        }
+                    });
+                    
+                    // 添加新安装的工具（不在保存的顺序中的）
+                    orderedTools.push(...unorderedTools);
+                    toolsArray = orderedTools;
+                }
+                
+                this.sortableTools = toolsArray;
+            } catch (error) {
+                console.error('加载可排序工具失败:', error);
+            }
+        },
+
+        // 拖拽开始
+        handleDragStart(event, index) {
+            this.draggedIndex = index;
+            event.target.classList.add('dragging');
+            event.dataTransfer.setData('text/plain', index);
+        },
+
+        // 拖拽经过
+        handleDragOver(event) {
+            event.preventDefault();
+            // 移除所有 drag-over 类
+            document.querySelectorAll('.sortable-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+            // 添加到当前元素
+            event.currentTarget.classList.add('drag-over');
+        },
+
+        // 放置
+        handleDrop(event, dropIndex) {
+            event.preventDefault();
+            
+            if (this.draggedIndex === -1 || this.draggedIndex === dropIndex) {
+                return;
+            }
+
+            // 重新排列数组
+            const draggedItem = this.sortableTools[this.draggedIndex];
+            const newTools = [...this.sortableTools];
+            
+            // 移除被拖拽的项目
+            newTools.splice(this.draggedIndex, 1);
+            
+            // 在新位置插入
+            if (dropIndex > this.draggedIndex) {
+                newTools.splice(dropIndex - 1, 0, draggedItem);
+            } else {
+                newTools.splice(dropIndex, 0, draggedItem);
+            }
+            
+            this.sortableTools = newTools;
+            
+            // 清理样式
+            this.cleanupDragStyles();
+        },
+
+        // 拖拽结束
+        handleDragEnd(event) {
+            this.cleanupDragStyles();
+            this.draggedIndex = -1;
+        },
+
+        // 清理拖拽样式
+        cleanupDragStyles() {
+            document.querySelectorAll('.sortable-item').forEach(item => {
+                item.classList.remove('dragging', 'drag-over');
+            });
+        },
+
+        // 重置工具顺序为默认
+        async resetToolOrder() {
+            try {
+                // 移除保存的自定义排序
+                await chrome.storage.local.remove('tool_custom_order');
+                
+                // 重新加载工具列表（会使用默认顺序）
+                await this.loadSortableTools();
+                
+                this.showInPageNotification({
+                    message: '工具顺序已重置为默认排序',
+                    type: 'success'
+                });
+            } catch (error) {
+                console.error('重置工具顺序失败:', error);
+                this.showInPageNotification({
+                    message: '重置失败，请重试',
+                    type: 'error'
+                });
+            }
+        },
+
+        // 保存工具排序
+        async saveToolOrder() {
+            try {
+                const toolOrder = this.sortableTools.map(tool => tool.key);
+                await chrome.storage.local.set({
+                    tool_custom_order: JSON.stringify(toolOrder)
+                });
+                
+                this.showInPageNotification({
+                    message: '工具排序已保存！弹窗中的工具将按此顺序显示',
+                    type: 'success'
+                });
+            } catch (error) {
+                console.error('保存工具排序失败:', error);
+                this.showInPageNotification({
+                    message: '保存失败，请重试',
+                    type: 'error'
+                });
+            }
+        }
     },
 
     watch: {
@@ -1280,5 +1430,6 @@ window.addEventListener('scroll', () => {
 if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
     Awesome.collectAndSendClientInfo();
 } 
+
 
 
