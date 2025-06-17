@@ -23,8 +23,24 @@
             <section class="regex-visual-debugger">
                 <h2>正则表达式可视化调试</h2>
                 <div class="visual-debugger-form">
+                    <select id="visualRegexPreset">
+                        <option value="">自定义/选择常用正则</option>
+                        <!-- 动态插入所有内置正则 -->
+                    </select>
                     <input type="text" id="visualRegex" placeholder="请输入正则表达式，如：^\\d{3}-\\d{8}$" />
-                    <input type="text" id="visualFlags" placeholder="标志（可选，如：gim）" maxlength="5" />
+                    <div class="visual-flags-group">
+                        <label class="flag-btn" title="g：全局匹配（查找所有匹配项）">
+                            <input type="checkbox" value="g" /> g
+                        </label>
+                        <label class="flag-btn" title="i：忽略大小写">
+                            <input type="checkbox" value="i" /> i
+                        </label>
+                        <label class="flag-btn" title="m：多行模式（^$作用于每行）">
+                            <input type="checkbox" value="m" /> m
+                        </label>
+                        <span class="flag-desc">常用标志：g=全局 i=忽略大小写 m=多行</span>
+                    </div>
+                    <input type="text" id="visualFlags" placeholder="标志（可选，如：gim）" maxlength="5" style="display:none;" />
                 </div>
                 <textarea id="visualTestText" rows="4" placeholder="请输入要测试的文本"></textarea>
                 <div class="visual-debugger-actions">

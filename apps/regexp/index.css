@@ -565,3 +565,57 @@ pre {
     padding: 0 3px;
     font-weight: normal;
 }
+
+.visual-debugger-form select#visualRegexPreset {
+    min-width: 180px;
+    max-width: 260px;
+    padding: 0.5rem 0.8rem;
+    border: 1.5px solid #3498db;
+    border-radius: 4px;
+    font-size: 1rem;
+    background: #f8f9fa;
+    transition: border-color 0.2s;
+    margin-right: 0.5rem;
+}
+.visual-debugger-form select#visualRegexPreset:focus {
+    border-color: #2563eb;
+    background: #fff;
+}
+
+.visual-flags-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 0.5rem;
+}
+.flag-btn {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border: 1.5px solid #3498db;
+    border-radius: 4px;
+    padding: 0.2rem 0.7rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    margin-right: 0.2rem;
+    user-select: none;
+    position: relative;
+}
+.flag-btn input[type="checkbox"] {
+    margin-right: 3px;
+}
+.flag-btn:hover {
+    background: #e6f0fa;
+    border-color: #2563eb;
+}
+.flag-btn input[type="checkbox"]:checked + span,
+.flag-btn input[type="checkbox"]:checked {
+    font-weight: bold;
+    color: #2563eb;
+}
+.flag-desc {
+    color: #888;
+    font-size: 0.92em;
+    margin-left: 0.5rem;
+}

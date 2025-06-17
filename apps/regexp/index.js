@@ -678,12 +678,58 @@ function highlightMatchesV2(text, regex) {
 
 document.addEventListener('DOMContentLoaded', function() {
     // 可视化调试相关
+    const visualRegexPreset = document.getElementById('visualRegexPreset');
     const visualRegexInput = document.getElementById('visualRegex');
     const visualFlagsInput = document.getElementById('visualFlags');
     const visualTestText = document.getElementById('visualTestText');
     const visualTestBtn = document.getElementById('visualTestBtn');
     const visualResult = document.getElementById('visualResult');
     const visualErrorMsg = document.getElementById('visualErrorMsg');
+
+    // 动态填充下拉框
+    if (visualRegexPreset) {
+        for (const key in regexDatabase) {
+            if (regexDatabase[key].patterns && regexDatabase[key].patterns.javascript) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = regexDatabase[key].title;
+                option.setAttribute('data-regex', regexDatabase[key].patterns.javascript);
+                visualRegexPreset.appendChild(option);
+            }
+        }
+        // 标志按钮组与隐藏input联动
+        const flagCheckboxes = document.querySelectorAll('.visual-flags-group input[type="checkbox"]');
+        function updateFlagsInputFromCheckbox() {
+            let flags = '';
+            flagCheckboxes.forEach(cb => { if (cb.checked) flags += cb.value; });
+            visualFlagsInput.value = flags;
+            doVisualTest();
+        }
+        flagCheckboxes.forEach(cb => {
+            cb.addEventListener('change', updateFlagsInputFromCheckbox);
+        });
+        // input变化时同步按钮状态（如选择内置正则时）
+        function updateCheckboxFromFlagsInput() {
+            const flags = visualFlagsInput.value;
+            flagCheckboxes.forEach(cb => { cb.checked = flags.includes(cb.value); });
+        }
+        // 修改下拉选择逻辑，选择后同步按钮状态
+        visualRegexPreset.addEventListener('change', function() {
+            const selectedKey = this.value;
+            if (!selectedKey) return;
+            const patternRaw = regexDatabase[selectedKey].patterns.javascript;
+            const match = patternRaw.match(/^\/(.*)\/(\w*)$/);
+            if (match) {
+                visualRegexInput.value = match[1];
+                visualFlagsInput.value = match[2];
+            } else {
+                visualRegexInput.value = patternRaw;
+                visualFlagsInput.value = '';
+            }
+            updateCheckboxFromFlagsInput();
+            if (typeof doVisualTest === 'function') doVisualTest();
+        });
+    }
 
     function doVisualTest() {
         let pattern = visualRegexInput.value.trim();
@@ -701,6 +747,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!pattern) {
             visualErrorMsg.textContent = '请输入正则表达式';
             visualErrorMsg.style.visibility = 'visible';
+            return;
+        }
+        // 新增：如果测试文本为空，直接返回，不做匹配
+        if (!testText) {
+            visualResult.innerHTML = '';
+            visualErrorMsg.textContent = '';
+            visualErrorMsg.style.visibility = 'hidden';
             return;
         }
         let regex;
@@ -738,4 +791,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // textarea内容变化时自动调试
     visualTestText.addEventListener('input', doVisualTest);
+
+    // 页面加载时同步一次
+    updateCheckboxFromFlagsInput();
 });
