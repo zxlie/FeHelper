@@ -32,7 +32,6 @@
                                 <a href="#" class="link-btn" data-example="simple">示例：简单表格</a>
                                 <a href="#" class="link-btn" data-example="user">示例：用户信息</a>
                                 <a href="#" class="link-btn" data-example="score">示例：成绩单</a>
-                                <button id="convertBtn" class="btn btn-primary convert-btn"><i class="fas fa-sync-alt"></i> 转换为 JSON</button>
                             </div>
                             <span id="errorMsg" class="error-msg"></span>
                         </div>
@@ -42,6 +41,10 @@
                     <div class="output-zone">
                         <div class="output-header output-header-block">
                             <button id="copyBtn" class="btn btn-outline copy-btn"><i class="fas fa-copy"></i> 复制</button>
+                            <span class="btn-group">
+                                <button id="convertBtn" class="btn btn-primary convert-btn"><i class="fas fa-sync-alt"></i> 转换为 JSON</button>
+                                <button id="convertSqlBtn" class="btn btn-warning convert-btn"><i class="fas fa-database"></i> 转换为SQL Insert</button>
+                            </span>
                         </div>
                         <textarea id="jsonOutput" readonly rows="18" class="output-textarea"></textarea>
                     </div>

@@ -20,6 +20,14 @@ function showError(msg) {
     errorMsg.textContent = msg;
 }
 
+// 自动识别数字类型
+function parseValue(val) {
+    if (/^-?\d+(\.\d+)?$/.test(val)) {
+        return Number(val);
+    }
+    return val;
+}
+
 // 解析CSV文本为JSON
 function csvToJson(csv) {
     const lines = csv.split(/\r?\n/).filter(line => line.trim() !== '');
@@ -29,7 +37,22 @@ function csvToJson(csv) {
         const values = line.split(',');
         const obj = {};
         headers.forEach((h, i) => {
-            obj[h.trim()] = (values[i] || '').trim();
+            obj[h.trim()] = parseValue((values[i] || '').trim());
+        });
+        return obj;
+    });
+}
+
+// 解析TSV文本为JSON
+function tsvToJson(tsv) {
+    const lines = tsv.split(/\r?\n/).filter(line => line.trim() !== '');
+    if (lines.length < 2) return [];
+    const headers = lines[0].split('\t');
+    return lines.slice(1).map(line => {
+        const values = line.split('\t');
+        const obj = {};
+        headers.forEach((h, i) => {
+            obj[h.trim()] = parseValue((values[i] || '').trim());
         });
         return obj;
     });
@@ -89,16 +112,42 @@ convertBtn.addEventListener('click', function () {
         showError('请上传文件或粘贴表格数据！');
         return;
     }
-    // 判断是否为CSV格式
-    if (text.includes(',') && text.includes('\n')) {
+    // 优先判断是否为TSV格式（多列Tab分隔）
+    if (text.includes('\t') && text.includes('\n')) {
+        try {
+            const json = tsvToJson(text);
+            jsonOutput.value = JSON.stringify(json, null, 2);
+        } catch (err) {
+            showError('粘贴内容（TSV）解析失败，请检查格式！');
+        }
+    } else if (text.includes(',') && text.includes('\n')) {
+        // CSV格式
         try {
             const json = csvToJson(text);
             jsonOutput.value = JSON.stringify(json, null, 2);
         } catch (err) {
-            showError('粘贴内容解析失败，请检查格式！');
+            showError('粘贴内容（CSV）解析失败，请检查格式！');
+        }
+    } else if (!text.includes(',') && !text.includes('\t') && text.includes('\n')) {
+        // 处理单列多行的情况
+        try {
+            const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+            if (lines.length < 2) {
+                showError('内容格式不正确，至少需要表头和一行数据！');
+                return;
+            }
+            const header = lines[0].trim();
+            const json = lines.slice(1).map(line => {
+                const obj = {};
+                obj[header] = parseValue(line.trim());
+                return obj;
+            });
+            jsonOutput.value = JSON.stringify(json, null, 2);
+        } catch (err) {
+            showError('单列内容解析失败，请检查格式！');
         }
     } else {
-        showError('仅支持CSV格式的粘贴内容！');
+        showError('仅支持CSV、TSV或单列表格的粘贴内容！');
     }
 });
 
@@ -109,7 +158,7 @@ const EXAMPLES = {
     score: `学号,姓名,数学,语文,英语\n1001,王小明,90,88,92\n1002,李小红,85,91,87\n1003,张大伟,78,80,85`
 };
 
-// 绑定“选择文件”a标签点击事件，触发文件选择
+// 绑定"选择文件"a标签点击事件，触发文件选择
 const fileSelectLink = document.querySelector('.btn-file-input');
 if (fileSelectLink) {
     fileSelectLink.addEventListener('click', function(e) {
@@ -184,5 +233,80 @@ if (toolMarketBtn) {
         e.preventDefault();
         e.stopPropagation();
         chrome.runtime.openOptionsPage();
+    });
+}
+
+// SQL Insert语句生成函数
+function jsonToSqlInsert(jsonArr, tableName = 'my_table') {
+    if (!Array.isArray(jsonArr) || jsonArr.length === 0) return '';
+    const keys = Object.keys(jsonArr[0]);
+    // 多行合并为一条Insert
+    const values = jsonArr.map(row =>
+        '(' + keys.map(k => {
+            const v = row[k];
+            if (typeof v === 'number') {
+                return v;
+            } else {
+                return `'${String(v).replace(/'/g, "''")}'`;
+            }
+        }).join(', ') + ')'
+    ).join(',\n');
+    return `INSERT INTO ${tableName} (${keys.join(', ')}) VALUES\n${values};`;
+}
+
+// 绑定SQL转换按钮
+const convertSqlBtn = document.getElementById('convertSqlBtn');
+if (convertSqlBtn) {
+    convertSqlBtn.addEventListener('click', function () {
+        clearError();
+        const text = pasteInput.value.trim();
+        if (!text) {
+            showError('请上传文件或粘贴表格数据！');
+            return;
+        }
+        let json = [];
+        // 优先TSV
+        if (text.includes('\t') && text.includes('\n')) {
+            try {
+                json = tsvToJson(text);
+            } catch (err) {
+                showError('粘贴内容（TSV）解析失败，请检查格式！');
+                return;
+            }
+        } else if (text.includes(',') && text.includes('\n')) {
+            try {
+                json = csvToJson(text);
+            } catch (err) {
+                showError('粘贴内容（CSV）解析失败，请检查格式！');
+                return;
+            }
+        } else if (!text.includes(',') && !text.includes('\t') && text.includes('\n')) {
+            try {
+                const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+                if (lines.length < 2) {
+                    showError('内容格式不正确，至少需要表头和一行数据！');
+                    return;
+                }
+                const header = lines[0].trim();
+                json = lines.slice(1).map(line => {
+                    const obj = {};
+                    obj[header] = parseValue(line.trim());
+                    return obj;
+                });
+            } catch (err) {
+                showError('单列内容解析失败，请检查格式！');
+                return;
+            }
+        } else {
+            showError('仅支持CSV、TSV或单列表格的粘贴内容！');
+            return;
+        }
+        if (!json.length) {
+            showError('没有可用数据生成SQL！');
+            return;
+        }
+        // 默认表名my_table，可后续扩展让用户自定义
+        const sql = jsonToSqlInsert(json, 'your_table_name');
+        jsonOutput.value = sql;
     });
 }   
