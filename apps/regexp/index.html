@@ -18,6 +18,22 @@
         </header>
 
         <main class="container">
+            
+            <!-- 正则可视化调试区域 -->
+            <section class="regex-visual-debugger">
+                <h2>正则表达式可视化调试</h2>
+                <div class="visual-debugger-form">
+                    <input type="text" id="visualRegex" placeholder="请输入正则表达式，如：^\\d{3}-\\d{8}$" />
+                    <input type="text" id="visualFlags" placeholder="标志（可选，如：gim）" maxlength="5" />
+                </div>
+                <textarea id="visualTestText" rows="4" placeholder="请输入要测试的文本"></textarea>
+                <div class="visual-debugger-actions">
+                    <button id="visualTestBtn">测试匹配</button>
+                    <span id="visualErrorMsg" class="visual-error-msg"></span>
+                </div>
+                <div id="visualResult" class="visual-result"></div>
+            </section>
+            
             <div class="search-container">
                 <div class="search-box">
                     <input type="text" id="regexSearch" placeholder="搜索正则表达式..." />

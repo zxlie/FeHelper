@@ -140,6 +140,7 @@ window.Formatter = (function () {
         str = str.replace(/>/g, '&gt;');
         str = str.replace(/"/g, '&quot;');
         str = str.replace(/'/g, '&#039;');
+        str = str.replace(/\\/g, '&#92;');
         return str;
     };
 

@@ -73,12 +73,12 @@ const regexDatabase = {
     },
     'url': {
         title: 'URL验证',
-        description: '验证URL地址的合法性，支持http、https协议',
+        description: '验证URL地址的合法性，支持http、https协议，可选端口、路径、参数、锚点，支持localhost和IP地址',
         patterns: {
-            javascript: '/^(https?:\\/\\/)?([\\da-z.-]+)\\.([a-z.]{2,6})([\\/\\w .-]*)*\\/?$/',
-            python: 'r"^(https?:\\/\\/)?([\\da-z.-]+)\\.([a-z.]{2,6})([\\/\\w .-]*)*\\/?$"',
-            php: '/^(https?:\\/\\/)?([\\da-z.-]+)\\.([a-z.]{2,6})([\\/\\w .-]*)*\\/?$/',
-            java: '^(https?:\\/\\/)?([\\da-z.-]+)\\.([a-z.]{2,6})([\\/\\w .-]*)*\\/?$'
+            javascript: '/^(https?:\\/\\/)?((([\\w-]+\\.)+[\\w-]+|localhost|\\d{1,3}(?:\\.\\d{1,3}){3}))(\\:\\d{1,5})?(\\/[^\\s?#]*)?(\\?[^\\s#]*)?(#[^\\s]*)?$/i',
+            python: 'r"^(https?:\/\/)?((([\w-]+\.)+[\w-]+|localhost|\d{1,3}(?:\.\d{1,3}){3}))(\:\d{1,5})?(\/[^s?#]*)?(\?[^s#]*)?(#[^s]*)?$"',
+            php: '/^(https?:\\/\\/)?((([\\w-]+\\.)+[\\w-]+|localhost|\\d{1,3}(?:\\.\\d{1,3}){3}))(\\:\\d{1,5})?(\\/[^\\s?#]*)?(\\?[^\\s#]*)?(#[^\\s]*)?$/i',
+            java: '^(https?:\\/\\/)?((([\\w-]+\\.)+[\\w-]+|localhost|\\d{1,3}(?:\\.\\d{1,3}){3}))(\\:\\d{1,5})?(\\/[^\\s?#]*)?(\\?[^\\s#]*)?(#[^\\s]*)?$'
         }
     },
     'idcard': {
@@ -627,4 +627,115 @@ document.addEventListener('DOMContentLoaded', function() {
             searchInput.dispatchEvent(new Event('input'));
         }
     });
+});
+
+// 正则可视化调试区域逻辑（升级版）
+function parsePatternAndFlags(input) {
+    // 自动识别 /pattern/flags 或 pattern
+    const match = input.match(/^\s*\/(.*)\/(\w*)\s*$/);
+    if (match) {
+        return { pattern: match[1], flags: match[2] };
+    }
+    return { pattern: input, flags: '' };
+}
+
+function highlightMatchesV2(text, regex) {
+    if (!text) return '';
+    let lastIndex = 0;
+    let result = '';
+    let match;
+    let hasMatch = false;
+    regex.lastIndex = 0;
+    let count = 0;
+    while ((match = regex.exec(text)) !== null) {
+        hasMatch = true;
+        count++;
+        // 防止死循环
+        if (match[0] === '') {
+            result += text.slice(lastIndex);
+            break;
+        }
+        result += text.slice(lastIndex, match.index);
+        // 高亮主匹配内容
+        let main = '<span class="visual-match">' + match[0] + '</span>';
+        // 如果有分组，显示分组高亮
+        if (match.length > 1) {
+            let groupHtml = '';
+            for (let i = 1; i < match.length; i++) {
+                if (typeof match[i] === 'string') {
+                    groupHtml += `<span class="visual-group">$${i}: ${match[i]}</span> `;
+                }
+            }
+            main += '<span class="visual-group-list">' + groupHtml.trim() + '</span>';
+        }
+        result += main;
+        lastIndex = match.index + match[0].length;
+        if (!regex.global) break;
+    }
+    result += text.slice(lastIndex);
+    return { html: hasMatch ? result : text, count };
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 可视化调试相关
+    const visualRegexInput = document.getElementById('visualRegex');
+    const visualFlagsInput = document.getElementById('visualFlags');
+    const visualTestText = document.getElementById('visualTestText');
+    const visualTestBtn = document.getElementById('visualTestBtn');
+    const visualResult = document.getElementById('visualResult');
+    const visualErrorMsg = document.getElementById('visualErrorMsg');
+
+    function doVisualTest() {
+        let pattern = visualRegexInput.value.trim();
+        let flags = visualFlagsInput.value.trim();
+        // 自动识别 /pattern/flags
+        if (pattern.startsWith('/') && pattern.lastIndexOf('/') > 0) {
+            const parsed = parsePatternAndFlags(pattern);
+            pattern = parsed.pattern;
+            if (!flags) flags = parsed.flags;
+        }
+        const testText = visualTestText.value;
+        visualErrorMsg.textContent = '';
+        visualErrorMsg.style.visibility = 'hidden';
+        visualResult.innerHTML = '';
+        if (!pattern) {
+            visualErrorMsg.textContent = '请输入正则表达式';
+            visualErrorMsg.style.visibility = 'visible';
+            return;
+        }
+        let regex;
+        try {
+            regex = new RegExp(pattern, flags);
+        } catch (e) {
+            visualErrorMsg.textContent = '正则表达式有误：' + e.message;
+            visualErrorMsg.style.visibility = 'visible';
+            return;
+        }
+        // 匹配并高亮
+        const { html, count } = highlightMatchesV2(testText, regex);
+        visualResult.innerHTML = html;
+        // 匹配次数提示
+        if (pattern && testText) {
+            const tip = document.createElement('div');
+            tip.style.margin = '8px 0 0 0';
+            tip.style.color = '#2563eb';
+            tip.style.fontSize = '0.98rem';
+            tip.textContent = `共匹配 ${count} 处`;
+            visualResult.appendChild(tip);
+        }
+    }
+
+    visualTestBtn.addEventListener('click', doVisualTest);
+    // 支持回车快捷测试
+    [visualRegexInput, visualFlagsInput, visualTestText].forEach(el => {
+        el.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && (el !== visualTestText || e.ctrlKey || e.metaKey)) {
+                doVisualTest();
+                e.preventDefault();
+            }
+        });
+    });
+
+    // textarea内容变化时自动调试
+    visualTestText.addEventListener('input', doVisualTest);
 });

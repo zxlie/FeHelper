@@ -37,6 +37,8 @@
                 <span class="x-split">|</span>
                 <input type="checkbox" v-model="overrideJson" id="jsonOvrd" @click="setCache"><label for="jsonOvrd">节点编辑</label>
                 <span class="x-split">|</span>
+                <input type="checkbox" v-model="autoUnpackJsonString" id="autoUnpackJsonString" @click="autoUnpackJsonStringFn"><label for="autoUnpackJsonString">支持嵌套解析</label>
+                <span class="x-split">|</span>
                 <span class="x-sort">
                     <span class="x-stitle">排序：</span>
                     <label for="sort_null">默认</label>

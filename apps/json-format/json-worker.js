@@ -151,9 +151,15 @@ function createNode(value) {
         getHTML: function() {
             switch(this.type) {
                 case 'string':
-                    return '<div class="item item-line"><span class="string">"' + 
-                        formatStringValue(this.value) + 
-                        '"</span></div>';
+                    // 判断原始字符串是否为URL
+                    if (isUrl(this.value)) {
+                        // 用JSON.stringify保证转义符显示，内容包裹在<a>里
+                        return '<div class="item item-line"><span class="string"><a href="' 
+                            + htmlspecialchars(this.value) + '" target="_blank" rel="noopener noreferrer">' 
+                            + htmlspecialchars(JSON.stringify(this.value)) + '</a></span></div>';
+                    } else {
+                        return '<div class="item item-line"><span class="string">' + formatStringValue(JSON.stringify(this.value)) + '</span></div>';
+                    }
                 case 'number':
                     // 确保大数字不使用科学计数法
                     let numStr = typeof this.value === 'number' && this.value.toString().includes('e') 
@@ -466,5 +472,10 @@ function getType(value) {
         if (Array.isArray(value)) return 'array';
     }
     return type;
+}
+
+function isUrl(str) {
+    const urlRegex = /^(https?:\/\/|ftp:\/\/)[^\s<>"'\\]+$/i;
+    return urlRegex.test(str);
 } 
 

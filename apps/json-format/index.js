@@ -24,7 +24,8 @@ new Vue({
         autoDecode: false,
         fireChange: true,
         overrideJson: false,
-        isInUSAFlag: false
+        isInUSAFlag: false,
+        autoUnpackJsonString: false
     },
     mounted: function () {
         // 自动开关灯控制
@@ -151,6 +152,12 @@ new Vue({
                 jsonObj = JSON.parse(source);
             }catch(e){
                 // 这里什么动作都不需要做，这种情况下转换失败的，肯定是Value被污染了，抛弃即可
+            }
+
+            // 新增：自动解包嵌套JSON字符串
+            if (this.autoUnpackJsonString && jsonObj != null && typeof jsonObj === 'object') {
+                jsonObj = deepParseJSONStrings(jsonObj);
+                source = JSON.stringify(jsonObj);
             }
 
             // 是json格式，可以进行JSON自动格式化
@@ -322,7 +329,40 @@ new Vue({
             this.$nextTick(() => {
                 this.format();
             })
+        },
+
+        autoUnpackJsonStringFn: function () {
+            this.$nextTick(() => {
+                localStorage.setItem('jsonformat:auto-unpack-json-string', this.autoUnpackJsonString);
+                this.format();
+            });
         }
     }
 });
+
+// 新增：递归解包嵌套JSON字符串的函数
+function deepParseJSONStrings(obj) {
+    if (Array.isArray(obj)) {
+        return obj.map(deepParseJSONStrings);
+    } else if (typeof obj === 'object' && obj !== null) {
+        const newObj = {};
+        for (const key in obj) {
+            if (!obj.hasOwnProperty(key)) continue;
+            const val = obj[key];
+            if (typeof val === 'string') {
+                try {
+                    const parsed = JSON.parse(val);
+                    // 只递归对象或数组
+                    if (typeof parsed === 'object' && parsed !== null) {
+                        newObj[key] = deepParseJSONStrings(parsed);
+                        continue;
+                    }
+                } catch (e) {}
+            }
+            newObj[key] = deepParseJSONStrings(val);
+        }
+        return newObj;
+    }
+    return obj;
+}
 
