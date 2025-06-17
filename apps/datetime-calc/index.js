@@ -961,16 +961,28 @@ var TimestampApp = {
         }
         
         try {
-            var parsed = TimeUtils.parseTimeInput(timeValue);
-            var fromDate = new Date(parsed.timestamp);
-            
+            // 1. 解析为UTC时间戳
+            var utcTimestamp = getUTCTimestampFromLocal(timeValue, fromTimezone);
+
+            // 2. 用Intl.DateTimeFormat格式化为目标时区的本地时间
+            var dt = new Date(utcTimestamp);
+            var fmt = new Intl.DateTimeFormat('zh-CN', {
+                timeZone: toTimezone,
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit',
+                hour12: false
+            });
+            var parts = fmt.formatToParts(dt);
+            var get = t => parts.find(p => p.type === t).value;
+            var targetStr = `${get('year')}-${get('month')}-${get('day')} ${get('hour')}:${get('minute')}:${get('second')}`;
+
             var html = '<div class="result-item">';
             html += '<strong>时区转换结果：</strong><br>';
             html += '原时间：' + timeValue + ' (' + fromTimezone + ')<br>';
             html += '目标时区：' + toTimezone + '<br>';
-            html += '转换结果：' + TimeUtils.formatDate(fromDate, 'YYYY-MM-DD HH:mm:ss') + '<br>';
+            html += '转换结果：' + targetStr + '<br>';
             html += '</div>';
-            
+
             DOMUtils.setHTML(resultsDiv, html);
         } catch (error) {
             DOMUtils.setHTML(resultsDiv, '<div class="text-danger">错误：' + error.message + '</div>');
@@ -1033,9 +1045,81 @@ var TimestampApp = {
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
     TimestampApp.init();
+    // 打赏按钮点击事件
+    var donateBtn = document.querySelector('.x-donate-link');
+    if (donateBtn) {
+        donateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'datetime-calc' }
+            });
+        });
+    }
+    // 更多工具按钮点击事件
+    var moreToolsBtn = document.querySelector('.x-other-tools');
+    if (moreToolsBtn) {
+        moreToolsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            chrome.runtime.openOptionsPage();
+        });
+    }
 });
 
 // 全局暴露主要对象（用于调试）
 window.TimestampApp = TimestampApp;
 window.AppState = AppState;
-window.TimeUtils = TimeUtils; 
+window.TimeUtils = TimeUtils;
+
+// === 新增：更准确的原生JS IANA时区转换辅助函数 ===
+function getUTCTimestampFromLocal(timeStr, tz) {
+    // 只支持 yyyy-MM-dd HH:mm:ss
+    var m = timeStr.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})$/);
+    if (!m) throw new Error('请输入格式为 yyyy-MM-dd HH:mm:ss 的时间');
+    var y = Number(m[1]), mon = Number(m[2]), d = Number(m[3]), h = Number(m[4]), min = Number(m[5]), s = Number(m[6]);
+    // 构造一个"源时区"下的本地时间的UTC时间戳
+    // 1. 先用Date.UTC得到UTC时间戳
+    var utcGuess = Date.UTC(y, mon - 1, d, h, min, s);
+    // 2. 用Intl.DateTimeFormat格式化utcGuess为源时区的本地时间
+    var fmt = new Intl.DateTimeFormat('en-US', {
+        timeZone: tz,
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+    });
+    var parts = fmt.formatToParts(new Date(utcGuess));
+    var get = t => parts.find(p => p.type === t).value;
+    var localStr = `${get('year')}-${get('month')}-${get('day')} ${get('hour')}:${get('minute')}:${get('second')}`;
+    // 3. 计算本地时间和输入时间的差值（毫秒）
+    var input = Date.UTC(y, mon - 1, d, h, min, s);
+    var local = Date.UTC(
+        Number(get('year')),
+        Number(get('month')) - 1,
+        Number(get('day')),
+        Number(get('hour')),
+        Number(get('minute')),
+        Number(get('second'))
+    );
+    var diff = input - local;
+    // 4. 用utcGuess + diff 得到正确的UTC时间戳
+    return utcGuess + diff;
+}
+
+// 事件委托：解析结果区域点击复制
+(function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        var parseResultsModule = document.querySelector('.parse-results-module');
+        if (parseResultsModule) {
+            parseResultsModule.addEventListener('click', function(e) {
+                var target = e.target;
+                if (target.classList.contains('result-value')) {
+                    var text = target.textContent;
+                    TimestampApp.copyToClipboard(text);
+                }
+            });
+        }
+    });
+})(); 

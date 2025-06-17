@@ -540,7 +540,7 @@ window.JsonAutoFormat = (() => {
         }
 
         // 如果是 HTML 页面，也要看一下内容是不是明显就是个JSON，如果不是，则也不进行 json 格式化
-        if (document.contentType === 'text/html') {
+        if (document.contentType === 'text/html' && document.body) {
             // 使用 DOMParser 解析 HTML
             const parser = new DOMParser();
             const doc = parser.parseFromString(document.body.outerHTML, "text/html");

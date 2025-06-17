@@ -263,6 +263,15 @@ let toolMap = {
             icon: '🖼️',
             text: '海报快速生成'
         }]
+    },
+    'datetime-calc': {
+        name: '时间戳计算器',
+        tips: '支持多种时间格式解析、批量转换、时区转换、数据库格式生成等高级时间处理功能',
+        menuConfig: [{
+            icon: '⏱️',
+            text: '时间戳计算器',
+            contexts: ['page', 'selection', 'editable']
+        }]
     }
 };
 

@@ -73,3 +73,40 @@ thead th {
     font-size: 14px;
     border-bottom: 1px solid #aaa;
 }
+
+/* 顶部升级提示样式 */
+#fh-timestamp-upgrade-tip {
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2000000;
+    background: linear-gradient(90deg,#ff2d55 0%,#ff9800 100%);
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    padding: 18px 10px 18px 10px;
+    box-shadow: 0 4px 16px rgba(255,45,85,0.18),0 1.5px 0 #fff;
+    letter-spacing: 1px;
+}
+.fh-tip-link {
+    color: #fff;
+    text-decoration: underline;
+    font-size: 22px;
+    font-weight: 900;
+    display: inline-block;
+    margin-left: 8px;
+    animation: fh-tip-blink 1s infinite alternate;
+}
+@keyframes fh-tip-blink {
+    0% { color: #fff; text-shadow: 0 0 8px #fff, 0 0 16px #ff9800; }
+    100% { color: #ffeb3b; text-shadow: 0 0 16px #ff2d55, 0 0 32px #ff9800; }
+}
+body {
+    padding-top: 70px !important;
+}
+
+.panel-no-margin-bottom {
+    margin-bottom: 0 !important;
+}

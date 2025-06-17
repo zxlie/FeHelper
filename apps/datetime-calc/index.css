@@ -6,39 +6,13 @@
     background: #f8f9fa;
 }
 
-/* 顶部导航栏样式 */
-.panel-heading {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    color: white;
-}
 
-.panel-heading .panel-title {
-    color: white;
-    font-size: 18px;
-    font-weight: 600;
-}
-
-.panel-heading .panel-title a {
-    color: white;
-    text-decoration: none;
-}
-
-.panel-heading .panel-title a:hover {
-    color: #e3f2fd;
-}
-
-.x-donate-area {
-    float: right;
-    margin-top: -5px;
-}
 
 /* 标签页容器样式 */
 .tab-container {
     background: white;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     border-radius: 0 0 8px 8px;
-    overflow: hidden;
 }
 
 /* 标签页导航样式 */
@@ -792,28 +766,23 @@
 
 /* 时区选择器优化布局 */
 .timezone-selectors {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    align-items: end;
+    display: flex;
+    gap: 12px;
+    width: 100%;
 }
 
-/* 时区转换模块特殊宽度设置 */
-.timezone-input-group .time-input-section .form-control {
-    width: 100% !important;
-}
-
-.timezone-selectors select.form-control {
-    width: 50% !important;
-    min-width: 180px;
-}
-
-.from-timezone,
-.to-timezone {
+.timezone-selectors .from-timezone,
+.timezone-selectors .to-timezone {
+    flex: 1 1 0;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    align-items: flex-start;
+}
+
+.timezone-selectors .form-control {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 /* 时区选择器容器样式 */
@@ -832,9 +801,19 @@
 
 /* 数据库输入组网格布局 */
 .db-input-group {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.db-input-group .time-db-input,
+.db-input-group .db-type-selector {
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.db-input-group .form-control {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* 表单标签统一样式 */
@@ -896,7 +875,7 @@
     background-color: #ffffff;
     width: 100%;
     box-sizing: border-box;
-    min-height: 44px;
+    min-height: 50px;
 }
 
 /* input输入框统一100%宽度 */
@@ -962,12 +941,13 @@
 
 /* 时区和数据库特殊布局优化 */
 .timezone-input-group .time-input-section {
-    margin-bottom: 5px;
+    width: 100%;
+    margin-bottom: 12px;
 }
 
-.db-input-group .time-db-input,
-.db-input-group .db-type-selector {
-    margin-bottom: 5px;
+.timezone-input-group .form-control {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* 单行布局：基准时间 + 操作 + 数量 + 单位 */
@@ -1128,7 +1108,7 @@
 }
 
 .result-stats {
-    margin-bottom: 15px;
+    color: #495057;
 }
 
 .result-stats .badge {
@@ -1486,41 +1466,46 @@
 }
 
 .timezone-input-group {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.time-input-section {
-    flex: 2;
-    min-width: 200px;
+.timezone-input-group .time-input-section {
+    width: 100%;
+    margin-bottom: 12px;
 }
 
-.timezone-time-input {
-    border-radius: 8px;
-    border: 2px solid #cbd5e0;
+.timezone-input-group .form-control {
+    width: 100%;
+    box-sizing: border-box;
 }
 
+/* 并排布局，两个select各占50% */
 .timezone-selectors {
     display: flex;
-    gap: 10px;
-    align-items: center;
-    flex: 3;
+    gap: 12px;
+    width: 100%;
 }
 
-.from-timezone, .to-timezone {
+.timezone-selectors .from-timezone,
+.timezone-selectors .to-timezone {
+    flex: 1 1 0;
+    min-width: 0;
     display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
+    flex-direction: column;
 }
 
-.timezone-label {
-    color: #4a5568;
-    font-weight: 500;
-    min-width: 30px;
+.timezone-selectors .form-control {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.timezone-selectors .form-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 5px;
 }
 
 .timezone-arrow {

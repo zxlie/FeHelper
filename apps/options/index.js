@@ -110,6 +110,17 @@ new Vue({
     },
 
     async created() {
+        // 1. 读取URL中的query参数并赋值给searchKey
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = urlParams.get('query');
+            if (query) {
+                this.searchKey = query;
+            }
+        } catch (e) {
+            // 忽略异常
+        }
+        // 2. 初始化数据
         await this.initData();
         this.recentCount = (await Statistics.getRecentUsedTools(10)).length;
         // 初始化后更新已安装工具数量
