@@ -539,6 +539,87 @@ window.Formatter = (function () {
             }
         });
 
+        // 图片预览功能：针对所有data-is-link=1的a标签
+        let $imgPreview = null;
+        // 加载缓存
+        function getImgCache() {
+            try {
+                return JSON.parse(sessionStorage.getItem('fehelper-img-preview-cache') || '{}');
+            } catch (e) { return {}; }
+        }
+        function setImgCache(url, isImg) {
+            let cache = getImgCache();
+            cache[url] = isImg;
+            sessionStorage.setItem('fehelper-img-preview-cache', JSON.stringify(cache));
+        }
+        $('#jfContent').on('mouseenter', 'a[data-is-link="1"]', function(e) {
+            const url = $(this).attr('data-link-url');
+            if (!url) return;
+            let cache = getImgCache();
+            if (cache.hasOwnProperty(url)) {
+                if (cache[url]) {
+                    if (!$imgPreview || !$imgPreview.length) {
+                        $imgPreview = $('#fh-img-preview');
+                        if (!$imgPreview.length) {
+                            $imgPreview = $('<div id="fh-img-preview" style="position:fixed;z-index:999999;border:1px solid #ccc;background:#fff;padding:4px;box-shadow:0 2px 8px #0002;pointer-events:none;"><img style="max-width:300px;max-height:200px;display:block;"></div>').appendTo('body');
+                        }
+                    }
+                    $imgPreview.find('img').attr('src', url);
+                    $imgPreview.show();
+                    $(document).on('mousemove.fhimg', function(ev) {
+                        $imgPreview.css({
+                            left: ev.pageX + 20 + 'px',
+                            top: ev.pageY + 20 + 'px'
+                        });
+                    });
+                    $imgPreview.css({
+                        left: e.pageX + 20 + 'px',
+                        top: e.pageY + 20 + 'px'
+                    });
+                }
+                return;
+            }
+            // 创建图片对象尝试加载
+            const img = new window.Image();
+            img.src = url;
+            img.onload = function() {
+                // 保证页面上只存在一个浮窗节点
+                if (!$imgPreview || !$imgPreview.length) {
+                    $imgPreview = $('#fh-img-preview');
+                    if (!$imgPreview.length) {
+                        $imgPreview = $('<div id="fh-img-preview" style="position:fixed;z-index:999999;border:1px solid #ccc;background:#fff;padding:4px;box-shadow:0 2px 8px #0002;pointer-events:none;"><img style="max-width:300px;max-height:200px;display:block;"></div>').appendTo('body');
+                    }
+                }
+                $imgPreview.find('img').attr('src', url);
+                $imgPreview.show();
+                $(document).on('mousemove.fhimg', function(ev) {
+                    $imgPreview.css({
+                        left: ev.pageX + 20 + 'px',
+                        top: ev.pageY + 20 + 'px'
+                    });
+                });
+                $imgPreview.css({
+                    left: e.pageX + 20 + 'px',
+                    top: e.pageY + 20 + 'px'
+                });
+            };
+            img.onerror = function() {
+                setImgCache(url, false);
+            };
+        }).on('mouseleave', 'a[data-is-link="1"]', function(e) {
+            if ($imgPreview) $imgPreview.hide();
+            $(document).off('mousemove.fhimg');
+        });
+
+        // 新增：全局监听，防止浮窗残留
+        $(document).on('mousemove.fhimgcheck', function(ev) {
+            let $target = $(ev.target).closest('a[data-is-link="1"]');
+            if ($target.length === 0) {
+                if ($imgPreview) $imgPreview.hide();
+                $(document).off('mousemove.fhimg');
+            }
+        });
+
     };
     
     /**

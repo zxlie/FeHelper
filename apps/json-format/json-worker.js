@@ -128,7 +128,7 @@ function formatStringValue(str) {
     if (urlRegex.test(str)) {
         // 如果是URL，转换为链接
         const escapedUrl = htmlspecialchars(str);
-        return '<a href="' + escapedUrl + '" target="_blank" rel="noopener noreferrer">' + htmlspecialchars(str) + '</a>';
+        return '<a href="' + escapedUrl + '" target="_blank" rel="noopener noreferrer" data-is-link="1" data-link-url="' + escapedUrl + '">' + htmlspecialchars(str) + '</a>';
     } else {
         // 直接显示解析后的字符串内容，不需要重新转义
         // 这样可以保持用户原始输入的意图
@@ -154,8 +154,8 @@ function createNode(value) {
                     // 判断原始字符串是否为URL
                     if (isUrl(this.value)) {
                         // 用JSON.stringify保证转义符显示，内容包裹在<a>里
-                        return '<div class="item item-line"><span class="string"><a href="' 
-                            + htmlspecialchars(this.value) + '" target="_blank" rel="noopener noreferrer">' 
+                        return '<div class="item item-line"><span class="string"><a href="'
+                            + htmlspecialchars(this.value) + '" target="_blank" rel="noopener noreferrer" data-is-link="1" data-link-url="' + htmlspecialchars(this.value) + '">' 
                             + htmlspecialchars(JSON.stringify(this.value)) + '</a></span></div>';
                     } else {
                         return '<div class="item item-line"><span class="string">' + formatStringValue(JSON.stringify(this.value)) + '</span></div>';
