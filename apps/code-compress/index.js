@@ -68,7 +68,33 @@ new Vue({
         },
 
         jsCompress(js) {
-            let result = UglifyJs3.compress(js);
+            // 判断是否为合法JSON，如果是则加t=前缀后用UglifyJS压缩，压缩后去掉t=前缀
+            let isJSON = false;
+            let jsonStr = js.trim();
+            let result;
+            try {
+                if ((jsonStr.startsWith('{') || jsonStr.startsWith('[')) && (jsonStr.endsWith('}') || jsonStr.endsWith(']'))) {
+                    JSON.parse(jsonStr);
+                    isJSON = true;
+                }
+            } catch (e) {
+                isJSON = false;
+            }
+            if (isJSON) {
+                // 加t=前缀
+                let jsWithPrefix = 't=' + jsonStr;
+                result = UglifyJs3.compress(jsWithPrefix);
+                this.hasError = !!result.error;
+                if (!this.hasError && result.out.startsWith('t=')) {
+                    this.resultContent = result.out.substring(2); // 去掉t=
+                } else {
+                    this.resultContent = result.out || result.error;
+                }
+                !this.hasError && this.buildCompressInfo(this.sourceContent, this.resultContent);
+                return;
+            }
+            // 原有JS压缩逻辑
+            result = UglifyJs3.compress(js);
             this.hasError = !!result.error;
             this.resultContent = result.out || result.error;
             !this.hasError && this.buildCompressInfo(this.sourceContent, this.resultContent);
