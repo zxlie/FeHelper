@@ -558,12 +558,7 @@ window.Formatter = (function () {
             let cache = getImgCache();
             if (cache.hasOwnProperty(url)) {
                 if (cache[url]) {
-                    if (!$imgPreview || !$imgPreview.length) {
-                        $imgPreview = $('#fh-img-preview');
-                        if (!$imgPreview.length) {
-                            $imgPreview = $('<div id="fh-img-preview" style="position:fixed;z-index:999999;border:1px solid #ccc;background:#fff;padding:4px;box-shadow:0 2px 8px #0002;pointer-events:none;"><img style="max-width:300px;max-height:200px;display:block;"></div>').appendTo('body');
-                        }
-                    }
+                    $imgPreview = getOrCreateImgPreview();
                     $imgPreview.find('img').attr('src', url);
                     $imgPreview.show();
                     $(document).on('mousemove.fhimg', function(ev) {
@@ -583,13 +578,8 @@ window.Formatter = (function () {
             const img = new window.Image();
             img.src = url;
             img.onload = function() {
-                // 保证页面上只存在一个浮窗节点
-                if (!$imgPreview || !$imgPreview.length) {
-                    $imgPreview = $('#fh-img-preview');
-                    if (!$imgPreview.length) {
-                        $imgPreview = $('<div id="fh-img-preview" style="position:fixed;z-index:999999;border:1px solid #ccc;background:#fff;padding:4px;box-shadow:0 2px 8px #0002;pointer-events:none;"><img style="max-width:300px;max-height:200px;display:block;"></div>').appendTo('body');
-                    }
-                }
+                setImgCache(url, true);
+                $imgPreview = getOrCreateImgPreview();
                 $imgPreview.find('img').attr('src', url);
                 $imgPreview.show();
                 $(document).on('mousemove.fhimg', function(ev) {
@@ -734,6 +724,15 @@ window.Formatter = (function () {
             formattingMsg.hide();
         }
     };
+
+    // 工具函数：获取或创建唯一图片预览浮窗节点
+    function getOrCreateImgPreview() {
+        let $img = $('#fh-img-preview');
+        if (!$img.length) {
+            $img = $('<div id="fh-img-preview" style="position:absolute;z-index:999999;border:1px solid #ccc;background:#fff;padding:4px;box-shadow:0 2px 8px #0002;pointer-events:none;"><img style="max-width:300px;max-height:200px;display:block;"></div>').appendTo('body');
+        }
+        return $img;
+    }
 
     return {
         format: format,

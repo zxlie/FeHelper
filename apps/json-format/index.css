@@ -175,6 +175,8 @@ html.fh-jf .x-toolbar.x-inpage {
 
 #fh-img-preview {
   display: none;
+  position: absolute !important;
+  z-index: 2147483647 !important;
   pointer-events: none;
   border-radius: 4px;
   background: #fff;
