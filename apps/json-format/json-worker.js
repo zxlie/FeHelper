@@ -203,32 +203,27 @@ function createNode(value) {
             keys.forEach((key, index) => {
                 let prop = this.value[key];
                 let childNode = createNode(prop);
-                
-                html += '<div class="item">';
-                
+                // 判断子节点是否为对象或数组，决定是否加item-block
+                let itemClass = (childNode.type === 'object' || childNode.type === 'array') ? 'item item-block' : 'item';
+                html += '<div class="' + itemClass + '">';
                 // 如果值是对象或数组，在key前面添加展开按钮
                 if (childNode.type === 'object' || childNode.type === 'array') {
                     html += '<span class="expand"></span>';
                 }
-                
                 html += '<span class="quote">"</span>' +
                     '<span class="key">' + htmlspecialchars(key) + '</span>' +
                     '<span class="quote">"</span>' +
                     '<span class="colon">: </span>';
-                
                 // 添加值
                 if (childNode.type === 'object' || childNode.type === 'array') {
-                    // 对于对象和数组，将开始大括号/方括号放在同一行，但不包含展开按钮
                     html += childNode.getInlineHTMLWithoutExpand();
                 } else {
                     html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
                 }
-                
                 // 如果不是最后一个属性，添加逗号
                 if (index < keys.length - 1) {
                     html += '<span class="comma">,</span>';
                 }
-                
                 html += '</div>';
             });
             
@@ -300,44 +295,34 @@ function createNode(value) {
             if (!this.value || Object.keys(this.value).length === 0) {
                 return '<span class="brace">{</span><span class="brace">}</span>';
             }
-            
             let html = '<span class="brace">{</span>' +
                 '<span class="expand"></span>' +
                 '<span class="ellipsis"></span>' +
                 '<div class="kv-list">';
-                
             let keys = Object.keys(this.value);
             keys.forEach((key, index) => {
                 let prop = this.value[key];
                 let childNode = createNode(prop);
-                
-                html += '<div class="item">';
-                
-                // 如果值是对象或数组，在key前面添加展开按钮
+                // 判断子节点是否为对象或数组，决定是否加item-block
+                let itemClass = (childNode.type === 'object' || childNode.type === 'array') ? 'item item-block' : 'item';
+                html += '<div class="' + itemClass + '">';
                 if (childNode.type === 'object' || childNode.type === 'array') {
                     html += '<span class="expand"></span>';
                 }
-                
                 html += '<span class="quote">"</span>' +
                     '<span class="key">' + htmlspecialchars(key) + '</span>' +
                     '<span class="quote">"</span>' +
                     '<span class="colon">: </span>';
-                
-                // 添加值
                 if (childNode.type === 'object' || childNode.type === 'array') {
                     html += childNode.getInlineHTMLWithoutExpand();
                 } else {
                     html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
                 }
-                
-                // 如果不是最后一个属性，添加逗号
                 if (index < keys.length - 1) {
                     html += '<span class="comma">,</span>';
                 }
-                
                 html += '</div>';
             });
-            
             html += '</div><span class="brace">}</span>';
             return html;
         },
@@ -381,43 +366,33 @@ function createNode(value) {
             if (!this.value || Object.keys(this.value).length === 0) {
                 return '<span class="brace">{</span><span class="brace">}</span>';
             }
-            
             let html = '<span class="brace">{</span>' +
                 '<span class="ellipsis"></span>' +
                 '<div class="kv-list">';
-                
             let keys = Object.keys(this.value);
             keys.forEach((key, index) => {
                 let prop = this.value[key];
                 let childNode = createNode(prop);
-                
-                html += '<div class="item">';
-                
-                // 如果值是对象或数组，在key前面添加展开按钮
+                // 判断子节点是否为对象或数组，决定是否加item-block
+                let itemClass = (childNode.type === 'object' || childNode.type === 'array') ? 'item item-block' : 'item';
+                html += '<div class="' + itemClass + '">';
                 if (childNode.type === 'object' || childNode.type === 'array') {
                     html += '<span class="expand"></span>';
                 }
-                
                 html += '<span class="quote">"</span>' +
                     '<span class="key">' + htmlspecialchars(key) + '</span>' +
                     '<span class="quote">"</span>' +
                     '<span class="colon">: </span>';
-                
-                // 添加值
                 if (childNode.type === 'object' || childNode.type === 'array') {
                     html += childNode.getInlineHTMLWithoutExpand();
                 } else {
                     html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
                 }
-                
-                // 如果不是最后一个属性，添加逗号
                 if (index < keys.length - 1) {
                     html += '<span class="comma">,</span>';
                 }
-                
                 html += '</div>';
             });
-            
             html += '</div><span class="brace">}</span>';
             return html;
         },

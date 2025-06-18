@@ -366,30 +366,28 @@ window.Formatter = (function () {
 
 
     /**
-     * 折叠所有
+     * 递归折叠所有层级的对象和数组节点
      * @param elements
      */
     function collapse(elements) {
-        let el;
-
-        $.each(elements, function (i) {
-            el = $(this);
+        elements.each(function () {
+            var el = $(this);
             if (el.children('.kv-list').length) {
                 el.addClass('collapsed');
 
+                // 只给没有id的节点分配唯一id，并生成注释
                 if (!el.attr('id')) {
                     el.attr('id', 'item' + (++lastItemIdGiven));
-
                     let count = el.children('.kv-list').eq(0).children().length;
-                    // Generate comment text eg "4 items"
                     let comment = count + (count === 1 ? ' item' : ' items');
-                    // Add CSS that targets it
                     jfStyleEl[0].insertAdjacentHTML(
                         'beforeend',
                         '\n#item' + lastItemIdGiven + '.collapsed:after{color: #aaa; content:" // ' + comment + '"}'
                     );
                 }
 
+                // 递归对子节点继续折叠，确保所有嵌套层级都被处理
+                collapse(el.children('.kv-list').children('.item-object, .item-block'));
             }
         });
     }
@@ -436,9 +434,11 @@ window.Formatter = (function () {
 
             if (buttonCollapseAll.text() === '折叠所有') {
                 buttonCollapseAll.text('展开所有');
-                collapse($('.item-object,.item-block'));
+                // 递归折叠所有层级的对象和数组，确保所有内容都被折叠
+                collapse($('#jfContent .item-object, #jfContent .item-block'));
             } else {
                 buttonCollapseAll.text('折叠所有');
+                // 展开所有内容
                 $('.item-object,.item-block').removeClass('collapsed');
             }
             jfStatusBar && jfStatusBar.hide();
