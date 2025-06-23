@@ -34,112 +34,154 @@ new Vue({
     el: '#pageContainer',
     data: {
         manifest: {},
-        fhTools: {}
+        fhTools: {},
+        isLoading: true
     },
 
     created: function () {
         // 获取当前ctx的version
         this.manifest = chrome.runtime.getManifest();
-
-        Awesome.getInstalledTools().then(async (tools) => {
-            // 获取用户自定义的工具排序
-            const customOrder = await chrome.storage.local.get('tool_custom_order');
-            const savedOrder = customOrder.tool_custom_order ? JSON.parse(customOrder.tool_custom_order) : null;
-            
-            // 如果有自定义排序，重新排列工具
-            if (savedOrder && Array.isArray(savedOrder)) {
-                const orderedTools = {};
-                const unorderedTools = { ...tools };
-                
-                // 按照保存的顺序添加工具
-                savedOrder.forEach(toolKey => {
-                    if (unorderedTools[toolKey]) {
-                        orderedTools[toolKey] = unorderedTools[toolKey];
-                        delete unorderedTools[toolKey];
-                    }
-                });
-                
-                // 添加新安装的工具（不在保存的顺序中的）
-                Object.assign(orderedTools, unorderedTools);
-                
-                this.fhTools = orderedTools;
-            } else {
-                this.fhTools = tools;
-            }
-        });
-
-        // 自动开关灯
-        DarkModeMgr.turnLightAuto();
-
-        // 记录工具使用
-        // 埋点：自动触发json-format-auto
-        chrome.runtime.sendMessage({
-            type: 'fh-dynamic-any-thing',
-            thing: 'statistics-tool-usage',
-            params: {
-                tool_name: 'popup'
-            }
-        });
+        
+        // 立即开始加载工具列表，不阻塞页面渲染
+        this.loadTools();
     },
 
     mounted: function () {
-        // 整个popup窗口支持上线选择
-        document.body.addEventListener('keydown', e => {
-            let keyCode = e.keyCode || e.which;
-            if (![38, 40, 13].includes(keyCode)) {
-                return false;
-            }
-            let ul = document.querySelector('#pageContainer ul');
-            let hovered = ul.querySelector('li.x-hovered');
-            let next, prev;
-            if (hovered) {
-                hovered.classList.remove('x-hovered');
-                next = hovered.nextElementSibling;
-                prev = hovered.previousElementSibling;
-            }
-            if (!next) {
-                next = ul.querySelector('li:first-child');
-            }
-            if (!prev) {
-                prev = ul.querySelector('li:last-child');
-            }
+        // 页面DOM渲染完成后，执行非关键操作
+        this.$nextTick(() => {
+            // 延迟执行非关键操作，避免阻塞UI渲染
+            setTimeout(() => {
+                // 自动开关灯
+                if (typeof DarkModeMgr !== 'undefined') {
+                    DarkModeMgr.turnLightAuto();
+                }
 
-            switch (keyCode) {
-                case 38: // 方向键：↑
-                    prev.classList.add('x-hovered');
-                    break;
-                case 40: // 方向键：↓
-                    next.classList.add('x-hovered');
-                    break;
-                case 13: // 回车键：选择
-                    hovered.click();
-            }
+                // 记录工具使用（非关键操作）
+                this.recordUsage();
 
-        }, false);
-
-        // 查找截图按钮并绑定事件
-        const screenshotButtons = Array.from(document.querySelectorAll('a[data-tool="screenshot"], button[data-tool="screenshot"]'));
-        
-        screenshotButtons.forEach(button => {
-            // 移除原有的点击事件
-            const oldClick = button.onclick;
-            button.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                triggerScreenshot();
-                return false;
-            };
+                // 页面加载后自动采集（非关键操作）
+                if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
+                    Awesome.collectAndSendClientInfo();
+                }
+            }, 50); // 延迟50ms执行，让UI先渲染
         });
 
-        // 页面加载后自动采集
-        if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
-            Awesome.collectAndSendClientInfo();
-        }
+        // 整个popup窗口支持上下键选择
+        this.setupKeyboardNavigation();
+        
+        // 查找截图按钮并绑定事件
+        this.setupScreenshotButton();
     },
 
     methods: {
+        async loadTools() {
+            try {
+                const tools = await Awesome.getInstalledTools();
+                
+                // 获取用户自定义的工具排序
+                const customOrder = await chrome.storage.local.get('tool_custom_order');
+                const savedOrder = customOrder.tool_custom_order ? JSON.parse(customOrder.tool_custom_order) : null;
+                
+                // 如果有自定义排序，重新排列工具
+                if (savedOrder && Array.isArray(savedOrder)) {
+                    const orderedTools = {};
+                    const unorderedTools = { ...tools };
+                    
+                    // 按照保存的顺序添加工具
+                    savedOrder.forEach(toolKey => {
+                        if (unorderedTools[toolKey]) {
+                            orderedTools[toolKey] = unorderedTools[toolKey];
+                            delete unorderedTools[toolKey];
+                        }
+                    });
+                    
+                    // 添加新安装的工具（不在保存的顺序中的）
+                    Object.assign(orderedTools, unorderedTools);
+                    
+                    this.fhTools = orderedTools;
+                } else {
+                    this.fhTools = tools;
+                }
+                
+                this.isLoading = false;
+            } catch (error) {
+                console.error('加载工具列表失败:', error);
+                this.isLoading = false;
+                // 即使加载失败，也不应该让popup完全无法使用
+                this.fhTools = {};
+            }
+        },
+
+        recordUsage() {
+            try {
+                // 埋点：自动触发popup统计
+                chrome.runtime.sendMessage({
+                    type: 'fh-dynamic-any-thing',
+                    thing: 'statistics-tool-usage',
+                    params: {
+                        tool_name: 'popup'
+                    }
+                });
+            } catch (error) {
+                // 忽略统计错误，不影响主功能
+                console.warn('统计记录失败:', error);
+            }
+        },
+
+        setupKeyboardNavigation() {
+            document.body.addEventListener('keydown', e => {
+                let keyCode = e.keyCode || e.which;
+                if (![38, 40, 13].includes(keyCode)) {
+                    return false;
+                }
+                let ul = document.querySelector('#pageContainer ul');
+                if (!ul) return false;
+                
+                let hovered = ul.querySelector('li.x-hovered');
+                let next, prev;
+                if (hovered) {
+                    hovered.classList.remove('x-hovered');
+                    next = hovered.nextElementSibling;
+                    prev = hovered.previousElementSibling;
+                }
+                if (!next) {
+                    next = ul.querySelector('li:first-child');
+                }
+                if (!prev) {
+                    prev = ul.querySelector('li:last-child');
+                }
+
+                switch (keyCode) {
+                    case 38: // 方向键：↑
+                        if (prev) prev.classList.add('x-hovered');
+                        break;
+                    case 40: // 方向键：↓
+                        if (next) next.classList.add('x-hovered');
+                        break;
+                    case 13: // 回车键：选择
+                        if (hovered) hovered.click();
+                }
+            }, false);
+        },
+
+        setupScreenshotButton() {
+            // 查找截图按钮并绑定事件
+            const screenshotButtons = Array.from(document.querySelectorAll('a[data-tool="screenshot"], button[data-tool="screenshot"]'));
+            
+            screenshotButtons.forEach(button => {
+                // 移除原有的点击事件
+                button.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    triggerScreenshot();
+                    return false;
+                };
+            });
+        },
 
         runHelper: async function (toolName) {
+            if (!toolName || !this.fhTools[toolName]) return;
+            
             let request = {
                 type: MSG_TYPE.OPEN_DYNAMIC_TOOL,
                 page: toolName,
@@ -150,7 +192,7 @@ new Vue({
                 request.query = `tool=${toolName}`;
             }
             chrome.runtime.sendMessage(request);
-            !!this.fhTools[toolName].noPage && setTimeout(window.close,200);
+            !!this.fhTools[toolName].noPage && setTimeout(window.close, 200);
         },
 
         openOptionsPage: () => {

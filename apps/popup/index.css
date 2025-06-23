@@ -171,3 +171,73 @@ svg:not(:root) {
 {
     float: right;
 }
+
+/* 加载状态样式 */
+.fe-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    min-height: 60px;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(67, 97, 238, 0.1);
+    border-left: 2px solid #4361ee;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 8px;
+}
+
+.loading-text {
+    color: #666;
+    font-size: 12px;
+    text-align: center;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 无工具状态样式 */
+.fe-no-tools {
+    padding: 20px;
+    text-align: center;
+}
+
+.no-tools-message p {
+    color: #666;
+    font-size: 12px;
+    margin: 0 0 12px 0;
+}
+
+.install-tools-btn {
+    background: #4361ee;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.install-tools-btn:hover {
+    background: #3651d4;
+    transform: translateY(-1px);
+}
+
+/* 暗色模式适配 */
+html[dark-mode="on"] .loading-text,
+html[dark-mode="on"] .no-tools-message p {
+    color: #ccc;
+}
+
+html[dark-mode="on"] .loading-spinner {
+    border-color: rgba(255, 255, 255, 0.1);
+    border-left-color: #4361ee;
+}

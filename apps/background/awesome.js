@@ -161,38 +161,80 @@ let Awesome = (() => {
     };
 
     /**
-     * 检查看本地已安装过哪些工具
+     * 检查看本地已安装过哪些工具 - 性能优化版本
      * @returns {Promise}
      */
     let getInstalledTools = async () => {
-        let tools = await getAllTools();
-        if (!tools) return {};
-        let istTolls = {};
-        Object.keys(tools).forEach(tool => {
-            if (tools[tool] && tools[tool].installed) {
-                istTolls[tool] = tools[tool];
+        try {
+            // 一次性获取所有存储数据，避免多次访问
+            const allStorageData = await new Promise((resolve, reject) => {
+                chrome.storage.local.get(null, result => {
+                    resolve(result || {});
+                });
+            });
+
+            // 获取本地开发的插件
+            const DEV_TOOLS_MY_TOOLS = 'DEV-TOOLS:MY-TOOLS';
+            let localDevTools = {};
+            try {
+                localDevTools = JSON.parse(allStorageData[DEV_TOOLS_MY_TOOLS] || '{}');
+                Object.keys(localDevTools).forEach(tool => {
+                    toolMap[tool] = localDevTools[tool];
+                });
+            } catch (e) {
+                // 忽略解析错误
             }
-        });
 
-        // 先批量获取所有时间戳
-        const toolNames = Object.keys(istTolls);
-        const timeMap = {};
-        await Promise.all(toolNames.map(async tool => {
-            let time = parseInt(await StorageMgr.get(TOOL_NAME_TPL.replace('#TOOL-NAME#', tool))) || 0;
-            timeMap[tool] = time;
-        }));
-        
-        // 用同步sort排序
-        let sortedTools = toolNames.sort((a, b) => {
-            return timeMap[a] - timeMap[b];
-        });
+            let installedTools = {};
+            
+            // 遍历所有工具，从存储数据中检查安装状态
+            Object.keys(toolMap).forEach(toolName => {
+                const toolKey = TOOL_NAME_TPL.replace('#TOOL-NAME#', toolName);
+                const menuKey = TOOL_MENU_TPL.replace('#TOOL-NAME#', toolName);
+                
+                // 检查工具是否已安装
+                let toolInstalled = !!allStorageData[toolKey];
+                // 系统预置的功能，是强制 installed 状态的
+                if (toolMap[toolName] && toolMap[toolName].systemInstalled) {
+                    toolInstalled = true;
+                }
+                
+                // 检查菜单状态
+                let menuInstalled = String(allStorageData[menuKey]) === '1';
+                
+                // 本地工具，还需要看是否处于开启状态
+                if (toolMap[toolName].hasOwnProperty('_devTool')) {
+                    toolInstalled = toolInstalled && toolMap[toolName]._enable;
+                    menuInstalled = menuInstalled && toolMap[toolName]._enable;
+                }
+                
+                // 只收集已安装的工具
+                if (toolInstalled) {
+                    installedTools[toolName] = {
+                        ...toolMap[toolName],
+                        installed: true,
+                        menu: menuInstalled,
+                        installTime: parseInt(allStorageData[toolKey]) || 0
+                    };
+                }
+            });
 
-        let sortedToolMap = {};
-        sortedTools.forEach(tool => {
-            sortedToolMap[tool] = istTolls[tool];
-        });
-        
-        return sortedToolMap;
+            // 按安装时间排序
+            const sortedToolNames = Object.keys(installedTools).sort((a, b) => {
+                return installedTools[a].installTime - installedTools[b].installTime;
+            });
+
+            let sortedToolMap = {};
+            sortedToolNames.forEach(toolName => {
+                sortedToolMap[toolName] = installedTools[toolName];
+            });
+            
+            return sortedToolMap;
+        } catch (error) {
+            console.error('getInstalledTools error:', error);
+            // 发生错误时返回空对象，避免popup完全无法加载
+            return {};
+        }
     };
 
     /**

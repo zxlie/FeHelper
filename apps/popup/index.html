@@ -10,13 +10,29 @@
     <body>
         <div id="pageContainer" class="fe-whole-page">
             <div class="fe-function-title">FeHelper<span>({{manifest.version}})</span></div>
-            <ul class="fe-function-list">
+            
+            <!-- 加载状态 -->
+            <div v-if="isLoading" class="fe-loading">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">加载工具列表中...</div>
+            </div>
+            
+            <!-- 工具列表 -->
+            <ul v-else class="fe-function-list">
                 <li v-for="tool in Object.keys(fhTools)" :class="'-x-' + tool" @click="runHelper(tool)" v-if="fhTools[tool].installed">
                     <b>{{ fhTools[tool].icon || fhTools[tool].menuConfig[0].icon}}</b>{{fhTools[tool].name}}
                 </li>
             </ul>
+            
+            <!-- 如果没有工具 -->
+            <div v-if="!isLoading && Object.keys(fhTools).length === 0" class="fe-no-tools">
+                <div class="no-tools-message">
+                    <p>暂无已安装的工具</p>
+                    <button @click="openOptionsPage()" class="install-tools-btn">去安装工具</button>
+                </div>
+            </div>
+            
             <div class="fe-feedback">
-
                 <a href="https://github.com/zxlie/FeHelper/issues" @click="openUrl($event)" target="_blank" tabindex="-1" class="x-github" title="提交意见反馈">
                     <svg version="1.1" width="14" height="14" viewBox="0 0 426.667 426.667" style="enable-background:new 0 0 426.667 426.667;" xml:space="preserve">
                         <path d="M384,0H42.667C19.093,0,0.213,19.093,0.213,42.667L0,426.667l85.333-85.333H384c23.573,0,42.667-19.093,42.667-42.667v-256C426.667,19.093,407.573,0,384,0z M234.667,256H192v-42.667h42.667V256z M234.667,170.667H192V85.333h42.667V170.667z"/>
