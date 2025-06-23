@@ -480,8 +480,49 @@ html.fh-jf .hide-status-bar #statusBar {
     height:0;
     opacity: 0;
 }
+/* JSON Path 语言选择器容器 */
+#jsonPathContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* 语言选择下拉框样式 */
+#jsonPathLangSelector {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 2px 5px;
+    font-size: 11px;
+    color: #333;
+    outline: none;
+    cursor: pointer;
+    min-width: 80px;
+}
+
+#jsonPathLangSelector:hover {
+    border-color: #999;
+}
+
+#jsonPathLangSelector:focus {
+    border-color: #0066cc;
+    box-shadow: 0 0 3px rgba(0, 102, 204, 0.3);
+}
+
+/* JSON路径显示样式优化 */
 #jsonPath {
     cursor: default;
+    font-family: 'Courier New', 'Consolas', 'Monaco', monospace;
+    background: #f8f8f8;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid #e0e0e0;
+    font-size: 11px;
+    word-break: break-all;
+    max-width: calc(100vw - 200px);
+    overflow-x: auto;
+    white-space: nowrap;
 }
 
 html.fh-jf .boxOpt {
@@ -851,6 +892,27 @@ html.fh-jf .theme-dark #statusBar {
     color: #ddd;
     border-top: 1px solid #555;
 }
+
+/* 深色主题的JSON路径组件适配 */
+html.fh-jf .theme-dark #jsonPathLangSelector {
+    background: #333;
+    border-color: #555;
+    color: #ccc;
+}
+
+html.fh-jf .theme-dark #jsonPathLangSelector:hover {
+    border-color: #777;
+}
+
+html.fh-jf .theme-dark #jsonPathLangSelector:focus {
+    border-color: #0066cc;
+}
+
+html.fh-jf .theme-dark #jsonPath {
+    background: #2a2a2a;
+    border-color: #444;
+    color: #ccc;
+}
 html.fh-jf .theme-dark .boxOpt {
     background: -webkit-linear-gradient(#222,#222,#111);
     border: 1px solid #333;
@@ -946,6 +1008,19 @@ html.fh-jf .theme-dark .x-other-tools {
 }
 
 /*================ 皮肤：theme-vscode ===================*/
+/* VSCode主题的JSON路径组件适配 */
+.theme-vscode #jsonPathLangSelector {
+    background: #f8f8f8;
+    border-color: #ccc;
+    color: #333;
+}
+
+.theme-vscode #jsonPath {
+    background: #f8f8f8;
+    border-color: #ddd;
+    color: #333;
+}
+
 .theme-vscode .item .key {
     color: #f00;
 }
@@ -989,6 +1064,19 @@ html.fh-jf .theme-dark .x-other-tools {
 
 
 /*================ 皮肤：theme-github ===================*/
+/* GitHub主题的JSON路径组件适配 */
+.theme-github #jsonPathLangSelector {
+    background: #fff;
+    border-color: #d1d5da;
+    color: #24292e;
+}
+
+.theme-github #jsonPath {
+    background: #f6f8fa;
+    border-color: #d1d5da;
+    color: #24292e;
+}
+
 .theme-github {
     background: #f8f8f8;
 }

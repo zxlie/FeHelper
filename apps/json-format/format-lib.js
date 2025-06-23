@@ -294,27 +294,216 @@ window.Formatter = (function () {
         // 过滤掉空值和无效的key
         let validKeys = keys.filter(key => key && key.trim() !== '');
         
-        // 构建路径
-        let path = '';
-        for (let i = 0; i < validKeys.length; i++) {
-            let key = validKeys[i];
-            if (key.startsWith('[') && key.endsWith(']')) {
-                // 数组索引，直接拼接
-                path += key;
-            } else {
-                // 对象属性
-                if (i > 0) {
-                    path += '.';
-                }
-                path += key;
-            }
+        // 创建或获取语言选择器和路径显示区域
+        let jfPathContainer = $('#jsonPathContainer');
+        if (!jfPathContainer.length) {
+            jfPathContainer = $('<div id="jsonPathContainer"/>').prependTo(jfStatusBar);
+            
+            // 创建语言选择下拉框
+            let langSelector = $('<select id="jsonPathLangSelector" title="选择编程语言格式">' +
+                '<option value="javascript">JavaScript</option>' +
+                '<option value="php">PHP</option>' +
+                '<option value="python">Python</option>' +
+                '<option value="java">Java</option>' +
+                '<option value="csharp">C#</option>' +
+                '<option value="golang">Go</option>' +
+                '<option value="ruby">Ruby</option>' +
+                '<option value="swift">Swift</option>' +
+                '</select>').appendTo(jfPathContainer);
+            
+            // 创建路径显示区域
+            let jfPath = $('<span id="jsonPath"/>').appendTo(jfPathContainer);
+            
+            // 绑定语言切换事件
+            langSelector.on('change', function() {
+                // 保存选择的语言到本地存储
+                localStorage.setItem('fehelper_json_path_lang', $(this).val());
+                // 从容器中获取当前保存的keys，而不是使用闭包中的validKeys
+                let currentKeys = jfPathContainer.data('currentKeys') || [];
+                _updateJsonPath(currentKeys, $(this).val());
+            });
+            
+            // 从本地存储恢复语言选择
+            let savedLang = localStorage.getItem('fehelper_json_path_lang') || 'javascript';
+            langSelector.val(savedLang);
+        }
+        
+        // 保存当前的keys到容器的data属性中，供语言切换时使用
+        jfPathContainer.data('currentKeys', validKeys);
+        
+        // 获取当前选择的语言
+        let selectedLang = $('#jsonPathLangSelector').val() || 'javascript';
+        _updateJsonPath(validKeys, selectedLang);
+    };
+
+    // 根据不同编程语言格式化JSON路径
+    let _updateJsonPath = function(keys, language) {
+        let path = _formatJsonPath(keys, language);
+        $('#jsonPath').html('当前节点：' + path);
+    };
+
+    // 格式化JSON路径为不同编程语言格式
+    let _formatJsonPath = function(keys, language) {
+        if (!keys.length) {
+            return _getLanguageRoot(language);
         }
 
-        let jfPath = $('#jsonPath');
-        if (!jfPath.length) {
-            jfPath = $('<span id="jsonPath"/>').prependTo(jfStatusBar);
+        let path = '';
+        
+        switch (language) {
+            case 'javascript':
+                path = '$';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        path += key;
+                    } else {
+                        // 对象属性
+                        if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key)) {
+                            // 有效的标识符，使用点语法
+                            path += '.' + key;
+                        } else {
+                            // 包含特殊字符，使用方括号语法
+                            path += '["' + key.replace(/"/g, '\\"') + '"]';
+                        }
+                    }
+                }
+                break;
+                
+            case 'php':
+                path = '$data';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        path += key;
+                    } else {
+                        // 对象属性
+                        path += '["' + key.replace(/"/g, '\\"') + '"]';
+                    }
+                }
+                break;
+                
+            case 'python':
+                path = 'data';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        path += key;
+                    } else {
+                        // 对象属性
+                        if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key) && !/^(and|as|assert|break|class|continue|def|del|elif|else|except|exec|finally|for|from|global|if|import|in|is|lambda|not|or|pass|print|raise|return|try|while|with|yield)$/.test(key)) {
+                            // 有效的标识符且不是关键字，可以使用点语法
+                            path += '.' + key;
+                        } else {
+                            // 使用方括号语法
+                            path += '["' + key.replace(/"/g, '\\"') + '"]';
+                        }
+                    }
+                }
+                break;
+                
+            case 'java':
+                path = 'jsonObject';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        let index = key.slice(1, -1);
+                        path += '.get(' + index + ')';
+                    } else {
+                        // 对象属性
+                        path += '.get("' + key.replace(/"/g, '\\"') + '")';
+                    }
+                }
+                break;
+                
+            case 'csharp':
+                path = 'jsonObject';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        path += key;
+                    } else {
+                        // 对象属性
+                        path += '["' + key.replace(/"/g, '\\"') + '"]';
+                    }
+                }
+                break;
+                
+            case 'golang':
+                path = 'data';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        let index = key.slice(1, -1);
+                        path += '.(' + index + ')';
+                    } else {
+                        // 对象属性
+                        path += '["' + key.replace(/"/g, '\\"') + '"]';
+                    }
+                }
+                break;
+                
+            case 'ruby':
+                path = 'data';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        path += key;
+                    } else {
+                        // 对象属性
+                        if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key)) {
+                            // 可以使用符号访问
+                            path += '[:"' + key + '"]';
+                        } else {
+                            // 字符串键
+                            path += '["' + key.replace(/"/g, '\\"') + '"]';
+                        }
+                    }
+                }
+                break;
+                
+            case 'swift':
+                path = 'jsonObject';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        path += key;
+                    } else {
+                        // 对象属性
+                        path += '["' + key.replace(/"/g, '\\"') + '"]';
+                    }
+                }
+                break;
+                
+            default:
+                // 默认使用JavaScript格式
+                return _formatJsonPath(keys, 'javascript');
         }
-        jfPath.html('当前节点：$.' + path);
+        
+        return path;
+    };
+
+    // 获取不同语言的根对象表示
+    let _getLanguageRoot = function(language) {
+        switch (language) {
+            case 'javascript': return '$';
+            case 'php': return '$data';
+            case 'python': return 'data';
+            case 'java': return 'jsonObject';
+            case 'csharp': return 'jsonObject';
+            case 'golang': return 'data';
+            case 'ruby': return 'data';
+            case 'swift': return 'jsonObject';
+            default: return '$';
+        }
     };
 
     // 给某个节点增加操作项
