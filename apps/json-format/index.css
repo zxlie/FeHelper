@@ -190,3 +190,384 @@ html.fh-jf .x-toolbar.x-inpage {
   max-height: 200px;
   display: block;
 }
+
+/* JSONPath查询样式 */
+.x-jsonpath {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* JSONPath查询结果区域样式 */
+.jsonpath-results-section {
+    margin-top: 15px;
+}
+
+.xjf-input {
+    padding: 3px 8px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 12px;
+    width: 250px;
+    background: white;
+    color: #333;
+}
+
+.xjf-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.xjf-btn-examples {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+}
+
+.xjf-btn-examples:hover {
+    background-color: #5a6268 !important;
+    border-color: #545b62 !important;
+}
+
+/* JSONPath模态框样式 */
+.jsonpath-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.jsonpath-modal-content {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 85%;
+    max-height: 80%;
+    min-width: 800px;
+    display: flex;
+    flex-direction: column;
+}
+
+.jsonpath-modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+    gap: 15px;
+}
+
+.jsonpath-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+    flex-shrink: 0;
+}
+
+.jsonpath-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    max-width: 600px;
+}
+
+.jsonpath-header-input {
+    flex: 1;
+    min-width: 300px;
+    padding: 6px 10px !important;
+    font-size: 13px !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    background: white !important;
+    color: #333 !important;
+}
+
+.jsonpath-header-input:focus {
+    outline: none !important;
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
+}
+
+.jsonpath-header-btn {
+    flex-shrink: 0;
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+    white-space: nowrap;
+}
+
+.jsonpath-modal-close {
+    font-size: 24px;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 0 5px;
+    user-select: none;
+}
+
+.jsonpath-modal-close:hover {
+    color: #dc3545;
+}
+
+.jsonpath-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.jsonpath-query-info {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.jsonpath-query-info code {
+    background: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    color: #495057;
+}
+
+.jsonpath-result-count {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.jsonpath-result-actions {
+    margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+/* 复制按钮状态样式 */
+.xjf-btn-copying {
+    background: #ffc107 !important;
+    border-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+.xjf-btn-success {
+    background: #28a745 !important;
+    border-color: #28a745 !important;
+    color: #ffffff !important;
+}
+
+.xjf-btn-error {
+    background: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+.xjf-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.jsonpath-results {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.jsonpath-result-item {
+    border-bottom: 1px solid #dee2e6;
+    padding: 10px;
+}
+
+.jsonpath-result-item:last-child {
+    border-bottom: none;
+}
+
+.jsonpath-result-path {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #495057;
+}
+
+.jsonpath-result-path code {
+    background: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    color: #6f42c1;
+}
+
+.jsonpath-result-value {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 3px;
+    padding: 10px;
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.jsonpath-no-results, .jsonpath-error {
+    text-align: center;
+    padding: 30px;
+    color: #6c757d;
+}
+
+.jsonpath-error .error-msg {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* JSONPath示例样式 */
+.jsonpath-examples {
+    display: grid;
+    gap: 10px;
+}
+
+.jsonpath-example-item {
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.jsonpath-example-item:hover {
+    background-color: #f8f9fa;
+    border-color: #007bff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.jsonpath-example-path {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #6f42c1;
+    margin-bottom: 5px;
+}
+
+.jsonpath-example-desc {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* 深色主题适配 */
+body.theme-dark .xjf-input {
+    background: #3c3c3c;
+    border-color: #555;
+    color: #d4d4d4;
+}
+
+body.theme-dark .xjf-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+body.theme-dark .jsonpath-modal-content {
+    background: #2d2d30;
+    color: #d4d4d4;
+}
+
+body.theme-dark .jsonpath-modal-header {
+    background-color: #383838;
+    border-color: #444;
+}
+
+body.theme-dark .jsonpath-modal-header h3 {
+    color: #d4d4d4;
+}
+
+body.theme-dark .jsonpath-header-input {
+    background: #3c3c3c !important;
+    border-color: #555 !important;
+    color: #d4d4d4 !important;
+}
+
+body.theme-dark .jsonpath-header-input:focus {
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
+}
+
+body.theme-dark .jsonpath-query-info {
+    background-color: #383838;
+    border-color: #444;
+}
+
+body.theme-dark .jsonpath-query-info code {
+    background: #444;
+    color: #d4d4d4;
+}
+
+body.theme-dark .jsonpath-results {
+    border-color: #444;
+}
+
+body.theme-dark .jsonpath-result-item {
+    border-color: #444;
+}
+
+body.theme-dark .jsonpath-result-path {
+    color: #d4d4d4;
+}
+
+body.theme-dark .jsonpath-result-path code {
+    background: #444;
+    color: #dcc5ff;
+}
+
+body.theme-dark .jsonpath-result-value {
+    background: #383838;
+    border-color: #444;
+    color: #d4d4d4;
+}
+
+body.theme-dark .jsonpath-example-item {
+    border-color: #444;
+    background: #383838;
+}
+
+body.theme-dark .jsonpath-example-item:hover {
+    background-color: #444;
+    border-color: #007bff;
+}
+
+body.theme-dark .jsonpath-example-path {
+    color: #dcc5ff;
+}
+
+body.theme-dark .jsonpath-example-desc {
+    color: #888;
+}
+
+
+
+/* 深色主题下的复制按钮状态样式 */
+body.theme-dark .xjf-btn-copying {
+    background: #ffc107 !important;
+    border-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+body.theme-dark .xjf-btn-success {
+    background: #198754 !important;
+    border-color: #198754 !important;
+    color: #ffffff !important;
+}
+
+body.theme-dark .xjf-btn-error {
+    background: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #ffffff !important;
+}

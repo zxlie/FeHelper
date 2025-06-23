@@ -25,7 +25,26 @@ new Vue({
         fireChange: true,
         overrideJson: false,
         isInUSAFlag: false,
-        autoUnpackJsonString: false
+        autoUnpackJsonString: false,
+        // JSONPath查询相关
+        jsonPathQuery: '',
+        showJsonPathModal: false,
+        showJsonPathExamplesModal: false,
+        jsonPathResults: [],
+        jsonPathError: '',
+        copyButtonState: 'normal', // normal, copying, success, error
+        jsonPathExamples: [
+            { path: '$', description: '根对象' },
+            { path: '$.data', description: '获取data属性' },
+            { path: '$.data.*', description: '获取data下的所有属性' },
+            { path: '$.data[0]', description: '获取data数组的第一个元素' },
+            { path: '$.data[*]', description: '获取data数组的所有元素' },
+            { path: '$.data[?(@.name)]', description: '获取data数组中有name属性的元素' },
+            { path: '$..name', description: '递归查找所有name属性' },
+            { path: '$.data[0:3]', description: '获取data数组的前3个元素' },
+            { path: '$.data[-1]', description: '获取data数组的最后一个元素' },
+            { path: '$.*.price', description: '获取所有子对象的price属性' }
+        ]
     },
     mounted: function () {
         // 自动开关灯控制
@@ -336,6 +355,337 @@ new Vue({
                 localStorage.setItem('jsonformat:auto-unpack-json-string', this.autoUnpackJsonString);
                 this.format();
             });
+        },
+
+        // JSONPath查询功能
+        executeJsonPath: function() {
+            this.jsonPathError = '';
+            this.jsonPathResults = [];
+
+            if (!this.jsonPathQuery.trim()) {
+                this.jsonPathError = '请输入JSONPath查询表达式';
+                return;
+            }
+
+            let source = this.jsonFormattedSource || editor.getValue();
+            if (!source.trim()) {
+                this.jsonPathError = '请先输入JSON数据';
+                return;
+            }
+
+            try {
+                let jsonObj = JSON.parse(source);
+                this.jsonPathResults = this.queryJsonPath(jsonObj, this.jsonPathQuery.trim());
+                this.showJsonPathModal = true;
+            } catch (error) {
+                this.jsonPathError = 'JSON格式错误：' + error.message;
+                this.showJsonPathModal = true;
+            }
+        },
+
+        // JSONPath查询引擎
+        queryJsonPath: function(obj, path) {
+            let results = [];
+            
+            try {
+                // 简化的JSONPath解析器
+                if (path === '$') {
+                    results.push({ path: '$', value: obj });
+                    return results;
+                }
+
+                // 移除开头的$
+                if (path.startsWith('$.')) {
+                    path = path.substring(2);
+                } else if (path.startsWith('$')) {
+                    path = path.substring(1);
+                }
+
+                // 执行查询
+                this.evaluateJsonPath(obj, path, '$', results);
+                
+            } catch (error) {
+                throw new Error('JSONPath表达式错误：' + error.message);
+            }
+
+            return results;
+        },
+
+        // 递归评估JSONPath
+        evaluateJsonPath: function(current, path, currentPath, results) {
+            if (!path) {
+                results.push({ path: currentPath, value: current });
+                return;
+            }
+
+            // 处理递归搜索 ..
+            if (path.startsWith('..')) {
+                let remainPath = path.substring(2);
+                this.recursiveSearch(current, remainPath, currentPath, results);
+                return;
+            }
+
+            // 解析下一个路径片段
+            let match;
+            
+            // 处理数组索引 [index] 或 [*] 或 [start:end]
+            if ((match = path.match(/^\[([^\]]+)\](.*)$/))) {
+                let indexExpr = match[1];
+                let remainPath = match[2];
+                
+                if (!Array.isArray(current)) {
+                    return;
+                }
+
+                if (indexExpr === '*') {
+                    // 通配符：所有元素
+                    current.forEach((item, index) => {
+                        this.evaluateJsonPath(item, remainPath, currentPath + '[' + index + ']', results);
+                    });
+                } else if (indexExpr.includes(':')) {
+                    // 数组切片 [start:end]
+                    let [start, end] = indexExpr.split(':').map(s => s.trim() === '' ? undefined : parseInt(s));
+                    let sliced = current.slice(start, end);
+                    sliced.forEach((item, index) => {
+                        let actualIndex = (start || 0) + index;
+                        this.evaluateJsonPath(item, remainPath, currentPath + '[' + actualIndex + ']', results);
+                    });
+                } else if (indexExpr.startsWith('?(')) {
+                    // 过滤表达式 [?(@.prop)]
+                    current.forEach((item, index) => {
+                        if (this.evaluateFilter(item, indexExpr)) {
+                            this.evaluateJsonPath(item, remainPath, currentPath + '[' + index + ']', results);
+                        }
+                    });
+                } else {
+                    // 具体索引
+                    let index = parseInt(indexExpr);
+                    if (index < 0) {
+                        index = current.length + index; // 负索引
+                    }
+                    if (index >= 0 && index < current.length) {
+                        this.evaluateJsonPath(current[index], remainPath, currentPath + '[' + index + ']', results);
+                    }
+                }
+                return;
+            }
+
+            // 处理属性访问 .property 或直接属性名
+            if ((match = path.match(/^\.?([^.\[]+)(.*)$/))) {
+                let prop = match[1];
+                let remainPath = match[2];
+                
+                if (prop === '*') {
+                    // 通配符：所有属性
+                    if (typeof current === 'object' && current !== null) {
+                        Object.keys(current).forEach(key => {
+                            this.evaluateJsonPath(current[key], remainPath, currentPath + '.' + key, results);
+                        });
+                    }
+                } else {
+                    // 具体属性
+                    if (typeof current === 'object' && current !== null && current.hasOwnProperty(prop)) {
+                        this.evaluateJsonPath(current[prop], remainPath, currentPath + '.' + prop, results);
+                    }
+                }
+                return;
+            }
+
+            // 处理方括号属性访问 ['property']
+            if ((match = path.match(/^\['([^']+)'\](.*)$/))) {
+                let prop = match[1];
+                let remainPath = match[2];
+                
+                if (typeof current === 'object' && current !== null && current.hasOwnProperty(prop)) {
+                    this.evaluateJsonPath(current[prop], remainPath, currentPath + "['" + prop + "']", results);
+                }
+                return;
+            }
+
+            // 如果没有特殊符号，当作属性名处理
+            if (typeof current === 'object' && current !== null && current.hasOwnProperty(path)) {
+                results.push({ path: currentPath + '.' + path, value: current[path] });
+            }
+        },
+
+        // 递归搜索
+        recursiveSearch: function(current, targetProp, currentPath, results) {
+            if (typeof current === 'object' && current !== null) {
+                // 检查当前对象的属性
+                if (current.hasOwnProperty(targetProp)) {
+                    results.push({ path: currentPath + '..' + targetProp, value: current[targetProp] });
+                }
+                
+                // 递归搜索子对象
+                Object.keys(current).forEach(key => {
+                    if (Array.isArray(current[key])) {
+                        current[key].forEach((item, index) => {
+                            this.recursiveSearch(item, targetProp, currentPath + '.' + key + '[' + index + ']', results);
+                        });
+                    } else if (typeof current[key] === 'object' && current[key] !== null) {
+                        this.recursiveSearch(current[key], targetProp, currentPath + '.' + key, results);
+                    }
+                });
+            }
+        },
+
+        // 简单的过滤器评估
+        evaluateFilter: function(item, filterExpr) {
+            // 简化的过滤器实现，只支持基本的属性存在性检查
+            // 如 ?(@.name) 检查是否有name属性
+            let match = filterExpr.match(/^\?\(@\.(\w+)\)$/);
+            if (match) {
+                let prop = match[1];
+                return typeof item === 'object' && item !== null && item.hasOwnProperty(prop);
+            }
+            
+            // 支持简单的比较 ?(@.age > 18)
+            match = filterExpr.match(/^\?\(@\.(\w+)\s*([><=!]+)\s*(.+)\)$/);
+            if (match) {
+                let prop = match[1];
+                let operator = match[2];
+                let value = match[3];
+                
+                if (typeof item === 'object' && item !== null && item.hasOwnProperty(prop)) {
+                    let itemValue = item[prop];
+                    let compareValue = isNaN(value) ? value.replace(/['"]/g, '') : parseFloat(value);
+                    
+                    switch (operator) {
+                        case '>': return itemValue > compareValue;
+                        case '<': return itemValue < compareValue;
+                        case '>=': return itemValue >= compareValue;
+                        case '<=': return itemValue <= compareValue;
+                        case '==': return itemValue == compareValue;
+                        case '!=': return itemValue != compareValue;
+                    }
+                }
+            }
+            
+            return false;
+        },
+
+        // 显示JSONPath示例
+        showJsonPathExamples: function() {
+            this.showJsonPathExamplesModal = true;
+        },
+
+        // 使用JSONPath示例
+        useJsonPathExample: function(path) {
+            this.jsonPathQuery = path;
+            this.closeJsonPathExamplesModal();
+        },
+
+        // 打开JSONPath查询模态框
+        openJsonPathModal: function() {
+            this.showJsonPathModal = true;
+            // 清空之前的查询结果
+            this.jsonPathResults = [];
+            this.jsonPathError = '';
+            this.copyButtonState = 'normal';
+        },
+
+        // 关闭JSONPath结果模态框
+        closeJsonPathModal: function() {
+            this.showJsonPathModal = false;
+            this.copyButtonState = 'normal'; // 重置复制按钮状态
+        },
+
+        // 关闭JSONPath示例模态框
+        closeJsonPathExamplesModal: function() {
+            this.showJsonPathExamplesModal = false;
+        },
+
+        // 格式化JSONPath查询结果
+        formatJsonPathResult: function(value) {
+            if (typeof value === 'object') {
+                return JSON.stringify(value, null, 2);
+            }
+            return String(value);
+        },
+
+        // 复制JSONPath查询结果
+        copyJsonPathResults: function() {
+            let resultText = this.jsonPathResults.map(result => {
+                return `路径: ${result.path}\n值: ${this.formatJsonPathResult(result.value)}`;
+            }).join('\n\n');
+            
+            // 设置复制状态
+            this.copyButtonState = 'copying';
+            
+            navigator.clipboard.writeText(resultText).then(() => {
+                this.copyButtonState = 'success';
+                setTimeout(() => {
+                    this.copyButtonState = 'normal';
+                }, 2000);
+            }).catch(() => {
+                // 兼容旧浏览器
+                try {
+                    let textArea = document.createElement('textarea');
+                    textArea.value = resultText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    this.copyButtonState = 'success';
+                    setTimeout(() => {
+                        this.copyButtonState = 'normal';
+                    }, 2000);
+                } catch (error) {
+                    this.copyButtonState = 'error';
+                    setTimeout(() => {
+                        this.copyButtonState = 'normal';
+                    }, 2000);
+                }
+            });
+        },
+
+        // 下载JSONPath查询结果
+        downloadJsonPathResults: function() {
+            let resultText = this.jsonPathResults.map(result => {
+                return `路径: ${result.path}\n值: ${this.formatJsonPathResult(result.value)}`;
+            }).join('\n\n');
+            
+            // 基于JSONPath生成文件名
+            let filename = this.generateFilenameFromPath(this.jsonPathQuery);
+            
+            let blob = new Blob([resultText], { type: 'text/plain;charset=utf-8' });
+            let url = window.URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = filename + '.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        },
+
+        // 根据JSONPath生成文件名
+        generateFilenameFromPath: function(path) {
+            if (!path || path === '$') {
+                return 'jsonpath_root';
+            }
+            
+            // 移除开头的$和.
+            let cleanPath = path.replace(/^\$\.?/, '');
+            
+            // 替换特殊字符为下划线，保留数字、字母、点号、中划线
+            let filename = cleanPath
+                .replace(/[\[\]]/g, '_')  // 方括号替换为下划线
+                .replace(/[^\w\u4e00-\u9fa5.-]/g, '_')  // 特殊字符替换为下划线，保留中文
+                .replace(/_{2,}/g, '_')   // 多个连续下划线合并为一个
+                .replace(/^_|_$/g, '');   // 移除开头和结尾的下划线
+            
+            // 如果处理后为空，使用默认名称
+            if (!filename) {
+                return 'jsonpath_query';
+            }
+            
+            // 限制文件名长度
+            if (filename.length > 50) {
+                filename = filename.substring(0, 50) + '_truncated';
+            }
+            
+            return 'jsonpath_' + filename;
         }
     }
 });
