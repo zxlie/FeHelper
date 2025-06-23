@@ -61,6 +61,9 @@
                             <div class="radio ui-d-ib ui-mr-20">
                                 <label><input type="radio" name="codeType" value="html2js" v-model="selectedType" @click="convert()">HTML转JS</label>
                             </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="gzipEncode" v-model="selectedType" @click="convert()">Gzip压缩</label>
+                            </div>
                         </td>
                     </tr>
                     <tr>
@@ -92,6 +95,9 @@
                             </div>
                             <div class="radio ui-d-ib ui-mr-20">
                                 <label><input type="radio" name="codeType" value="cookieDecode" v-model="selectedType" @click="convert()">Cookie格式化</label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="gzipDecode" v-model="selectedType" @click="convert()">Gzip解压</label>
                             </div>
                         </td>
                     </tr>

@@ -33,80 +33,100 @@ new Vue({
         this.$refs.srcText.focus();
     },
     methods: {
-        convert: function () {
-            this.$nextTick(() => {
+        convert: async function () {
+            this.$nextTick(async () => {
                 this.urlResult = null;
 
-                if (this.selectedType === 'uniEncode') {
+                try {
+                    if (this.selectedType === 'uniEncode') {
 
-                    this.resultContent = EncodeUtils.uniEncode(this.sourceContent);
-                } else if (this.selectedType === 'uniDecode') {
+                        this.resultContent = EncodeUtils.uniEncode(this.sourceContent);
+                    } else if (this.selectedType === 'uniDecode') {
 
-                    this.resultContent = EncodeUtils.uniDecode(this.sourceContent.replace(/\\U/g, '\\u'));
-                } else if (this.selectedType === 'utf8Encode') {
+                        this.resultContent = EncodeUtils.uniDecode(this.sourceContent.replace(/\\U/g, '\\u'));
+                    } else if (this.selectedType === 'utf8Encode') {
 
-                    this.resultContent = encodeURIComponent(this.sourceContent);
-                } else if (this.selectedType === 'utf8Decode') {
+                        this.resultContent = encodeURIComponent(this.sourceContent);
+                    } else if (this.selectedType === 'utf8Decode') {
 
-                    this.resultContent = decodeURIComponent(this.sourceContent);
-                } else if (this.selectedType === 'utf16Encode') {
+                        this.resultContent = decodeURIComponent(this.sourceContent);
+                    } else if (this.selectedType === 'utf16Encode') {
 
-                    this.resultContent = EncodeUtils.utf8to16(encodeURIComponent(this.sourceContent));
-                } else if (this.selectedType === 'utf16Decode') {
+                        this.resultContent = EncodeUtils.utf8to16(encodeURIComponent(this.sourceContent));
+                    } else if (this.selectedType === 'utf16Decode') {
 
-                    this.resultContent = decodeURIComponent(EncodeUtils.utf16to8(this.sourceContent));
-                } else if (this.selectedType === 'base64Encode') {
+                        this.resultContent = decodeURIComponent(EncodeUtils.utf16to8(this.sourceContent));
+                    } else if (this.selectedType === 'base64Encode') {
 
-                    this.resultContent = EncodeUtils.base64Encode(EncodeUtils.utf8Encode(this.sourceContent));
-                } else if (this.selectedType === 'base64Decode') {
+                        this.resultContent = EncodeUtils.base64Encode(EncodeUtils.utf8Encode(this.sourceContent));
+                    } else if (this.selectedType === 'base64Decode') {
 
-                    this.resultContent = EncodeUtils.utf8Decode(EncodeUtils.base64Decode(this.sourceContent));
-                } else if (this.selectedType === 'md5Encode') {
+                        this.resultContent = EncodeUtils.utf8Decode(EncodeUtils.base64Decode(this.sourceContent));
+                    } else if (this.selectedType === 'md5Encode') {
 
-                    this.resultContent = EncodeUtils.md5(this.sourceContent);
-                } else if (this.selectedType === 'hexEncode') {
+                        this.resultContent = EncodeUtils.md5(this.sourceContent);
+                    } else if (this.selectedType === 'hexEncode') {
 
-                    this.resultContent = EncodeUtils.hexEncode(this.sourceContent);
-                } else if (this.selectedType === 'hexDecode') {
+                        this.resultContent = EncodeUtils.hexEncode(this.sourceContent);
+                    } else if (this.selectedType === 'hexDecode') {
 
-                    this.resultContent = EncodeUtils.hexDecode(this.sourceContent);
-                } else if (this.selectedType === 'html2js') {
+                        this.resultContent = EncodeUtils.hexDecode(this.sourceContent);
+                    } else if (this.selectedType === 'html2js') {
 
-                    this.resultContent = EncodeUtils.html2js(this.sourceContent);
-                } else if (this.selectedType === 'sha1Encode') {
+                        this.resultContent = EncodeUtils.html2js(this.sourceContent);
+                    } else if (this.selectedType === 'sha1Encode') {
 
-                    this.resultContent = EncodeUtils.sha1Encode(this.sourceContent);
-                } else if (this.selectedType === 'htmlEntityEncode') {
+                        this.resultContent = EncodeUtils.sha1Encode(this.sourceContent);
+                    } else if (this.selectedType === 'htmlEntityEncode') {
 
-                    this.resultContent = he.encode(this.sourceContent, {
-                        'useNamedReferences': true,
-                        'allowUnsafeSymbols': true
-                    });
-                } else if (this.selectedType === 'htmlEntityFullEncode') {
+                        this.resultContent = he.encode(this.sourceContent, {
+                            'useNamedReferences': true,
+                            'allowUnsafeSymbols': true
+                        });
+                    } else if (this.selectedType === 'htmlEntityFullEncode') {
 
-                    this.resultContent = he.encode(this.sourceContent, {
-                        'encodeEverything': true,
-                        'useNamedReferences': true,
-                        'allowUnsafeSymbols': true
-                    });
-                } else if (this.selectedType === 'htmlEntityDecode') {
+                        this.resultContent = he.encode(this.sourceContent, {
+                            'encodeEverything': true,
+                            'useNamedReferences': true,
+                            'allowUnsafeSymbols': true
+                        });
+                    } else if (this.selectedType === 'htmlEntityDecode') {
 
-                    this.resultContent = he.decode(this.sourceContent, {
-                        'isAttributeValue': false
-                    });
-                } else if (this.selectedType === 'urlParamsDecode') {
-                    let res = EncodeUtils.urlParamsDecode(this.sourceContent);
-                    if (res.error) {
-                        this.resultContent = res.error;
-                    } else {
-                        this.urlResult = res;
+                        this.resultContent = he.decode(this.sourceContent, {
+                            'isAttributeValue': false
+                        });
+                    } else if (this.selectedType === 'urlParamsDecode') {
+                        let res = EncodeUtils.urlParamsDecode(this.sourceContent);
+                        if (res.error) {
+                            this.resultContent = res.error;
+                        } else {
+                            this.urlResult = res;
+                        }
+                    } else if(this.selectedType === 'jwtDecode') {
+                        let {header,payload,sign} = EncodeUtils.jwtDecode(this.sourceContent);
+                        this.resultContent = `Header: ${header}\n\nPayload: ${payload}\n\nSign: ${sign}`;
+                    } else if(this.selectedType === 'cookieDecode') {
+                        let ckJson = EncodeUtils.formatCookieStringToJson(this.sourceContent);
+                        this.resultContent = JSON.stringify(ckJson,null,4);
+                    } else if (this.selectedType === 'gzipEncode') {
+                        // gzip压缩
+                        if (!this.sourceContent.trim()) {
+                            this.resultContent = '请输入需要压缩的文本内容';
+                            return;
+                        }
+                        this.resultContent = '正在压缩...';
+                        this.resultContent = await EncodeUtils.gzipEncode(this.sourceContent);
+                    } else if (this.selectedType === 'gzipDecode') {
+                        // gzip解压缩
+                        if (!this.sourceContent.trim()) {
+                            this.resultContent = '请输入需要解压缩的Base64编码数据';
+                            return;
+                        }
+                        this.resultContent = '正在解压缩...';
+                        this.resultContent = await EncodeUtils.gzipDecode(this.sourceContent);
                     }
-                } else if(this.selectedType === 'jwtDecode') {
-                    let {header,payload,sign} = EncodeUtils.jwtDecode(this.sourceContent);
-                    this.resultContent = `Header: ${header}\n\nPayload: ${payload}\n\nSign: ${sign}`;
-                } else if(this.selectedType === 'cookieDecode') {
-                    let ckJson = EncodeUtils.formatCookieStringToJson(this.sourceContent);
-                    this.resultContent = JSON.stringify(ckJson,null,4);
+                } catch (error) {
+                    this.resultContent = '操作失败: ' + error.message;
                 }
                 this.$forceUpdate();
             });
