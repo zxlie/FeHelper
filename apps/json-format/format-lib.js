@@ -230,39 +230,80 @@ window.Formatter = (function () {
     // 添加json路径
     let _showJsonPath = function (curEl) {
         let keys = [];
-        do {
-            if (curEl.hasClass('item-block')) {
-                if (!curEl.hasClass('rootItem')) {
-                    keys.unshift('[' + curEl.prevAll('.item').length + ']');
-                } else {
-                    break;
+        let current = curEl;
+        
+        // 处理当前节点
+        if (current.hasClass('item') && !current.hasClass('rootItem')) {
+            if (current.hasClass('item-array-element')) {
+                // 这是数组元素，使用data-array-index属性
+                let index = current.attr('data-array-index');
+                if (index !== undefined) {
+                    keys.unshift('[' + index + ']');
                 }
             } else {
-                keys.unshift(curEl.find('>.key').text());
+                // 这是对象属性，获取key
+                let keyText = current.find('>.key').text();
+                if (keyText) {
+                    keys.unshift(keyText);
+                }
             }
-
-            if (curEl.parent().hasClass('rootItem') || curEl.parent().parent().hasClass('rootItem')) {
-                break;
+        }
+        
+        // 向上遍历所有祖先节点
+        current.parents('.item').each(function() {
+            let $this = $(this);
+            
+            // 跳过根节点
+            if ($this.hasClass('rootItem')) {
+                return false; // 终止遍历
             }
+            
+            if ($this.hasClass('item-array-element')) {
+                // 这是数组元素，使用data-array-index属性
+                let index = $this.attr('data-array-index');
+                if (index !== undefined) {
+                    keys.unshift('[' + index + ']');
+                }
+            } else if ($this.hasClass('item-object') || $this.hasClass('item-array')) {
+                // 这是容器节点，寻找它的key
+                let $container = $this.parent().parent(); // 跳过 .kv-list
+                if ($container.length && !$container.hasClass('rootItem')) {
+                    if ($container.hasClass('item-array-element')) {
+                        // 容器本身是数组元素
+                        let index = $container.attr('data-array-index');
+                        if (index !== undefined) {
+                            keys.unshift('[' + index + ']');
+                        }
+                    } else {
+                        // 容器是对象属性
+                        let keyText = $container.find('>.key').text();
+                        if (keyText) {
+                            keys.unshift(keyText);
+                        }
+                    }
+                }
+            } else {
+                // 普通item节点，获取key
+                let keyText = $this.find('>.key').text();
+                if (keyText) {
+                    keys.unshift(keyText);
+                }
+            }
+        });
 
-            curEl = curEl.parent().parent();
-
-        } while (curEl.length && !curEl.hasClass('rootItem'));
-
-        // 过滤掉空值和无效的key，避免产生多余的点号
+        // 过滤掉空值和无效的key
         let validKeys = keys.filter(key => key && key.trim() !== '');
         
-        // 构建路径：正确处理对象属性和数组索引的连接
+        // 构建路径
         let path = '';
         for (let i = 0; i < validKeys.length; i++) {
             let key = validKeys[i];
             if (key.startsWith('[') && key.endsWith(']')) {
-                // 数组索引，直接拼接（前面永远不需要点号）
+                // 数组索引，直接拼接
                 path += key;
             } else {
                 // 对象属性
                 if (i > 0) {
-                    // 对象属性前面需要点号（数组索引后面的属性也需要点号）
                     path += '.';
                 }
                 path += key;
@@ -739,8 +780,3 @@ window.Formatter = (function () {
         formatSync: formatSync
     }
 })();
-
-
-
-
-

@@ -240,12 +240,12 @@ function createNode(value) {
                 '<span class="expand"></span>' +
                 '<span class="brace">[</span>' +
                 '<span class="ellipsis"></span>' +
-                '<div class="kv-list">';
+                '<div class="kv-list item-array-container">';
                 
             this.value.forEach((item, index) => {
                 let childNode = createNode(item);
                 
-                html += '<div class="item item-block">';
+                html += '<div class="item item-block item-array-element" data-array-index="' + index + '">';
                 
                 // 如果数组元素是对象或数组，在前面添加展开按钮
                 if (childNode.type === 'object' || childNode.type === 'array') {
@@ -335,12 +335,12 @@ function createNode(value) {
             let html = '<span class="brace">[</span>' +
                 '<span class="expand"></span>' +
                 '<span class="ellipsis"></span>' +
-                '<div class="kv-list">';
+                '<div class="kv-list item-array-container">';
                 
             this.value.forEach((item, index) => {
                 let childNode = createNode(item);
                 
-                html += '<div class="item item-block">';
+                html += '<div class="item item-block item-array-element" data-array-index="' + index + '">';
                 
                 // 如果数组元素是对象或数组，在前面添加展开按钮
                 if (childNode.type === 'object' || childNode.type === 'array') {
@@ -404,14 +404,14 @@ function createNode(value) {
             
             let html = '<span class="brace">[</span>' +
                 '<span class="ellipsis"></span>' +
-                '<div class="kv-list">';
+                '<div class="kv-list item-array-container">';
                 
             this.value.forEach((item, index) => {
                 let childNode = createNode(item);
                 
-                html += '<div class="item item-block">';
+                html += '<div class="item item-block item-array-element" data-array-index="' + index + '">';
                 
-                // 如果数组元素是对象或数组，在前面添加展开按钮
+                // 确保所有类型的数组元素都能正确处理
                 if (childNode.type === 'object' || childNode.type === 'array') {
                     html += '<span class="expand"></span>';
                     html += childNode.getInlineHTMLWithoutExpand();
