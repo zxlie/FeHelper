@@ -1,7 +1,7 @@
 {
   "name": "FeHelper(前端助手)-Dev",
   "short_name": "FeHelper",
-  "version": "2025.6.2023",
+  "version": "2025.6.2024",
   "manifest_version": 3,
   "description": "JSON自动格式化、手动格式化，支持排序、解码、下载等，更多功能可在配置页按需安装！",
   "icons": {
