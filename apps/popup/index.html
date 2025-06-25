@@ -8,7 +8,7 @@
 		<script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
     </head>
     <body>
-        <div id="pageContainer" class="fe-whole-page">
+        <div id="pageContainer" class="fe-whole-page" :class="getLayoutClasses()">
             <div class="fe-function-title">FeHelper<span>({{manifest.version}})</span></div>
             
             <!-- 加载状态 -->
@@ -18,14 +18,14 @@
             </div>
             
             <!-- 工具列表 -->
-            <ul v-else class="fe-function-list">
+            <ul v-else-if="installedToolsCount > 0" class="fe-function-list" :class="{'few-tools': installedToolsCount <= 3}">
                 <li v-for="tool in Object.keys(fhTools)" :class="'-x-' + tool" @click="runHelper(tool)" v-if="fhTools[tool].installed">
                     <b>{{ fhTools[tool].icon || fhTools[tool].menuConfig[0].icon}}</b>{{fhTools[tool].name}}
                 </li>
             </ul>
             
             <!-- 如果没有工具 -->
-            <div v-if="!isLoading && Object.keys(fhTools).length === 0" class="fe-no-tools">
+            <div v-else-if="!isLoading" class="fe-no-tools">
                 <div class="no-tools-message">
                     <p>暂无已安装的工具</p>
                     <button @click="openOptionsPage()" class="install-tools-btn">去安装工具</button>

@@ -38,6 +38,13 @@ new Vue({
         isLoading: true
     },
 
+    computed: {
+        // 计算已安装的工具数量
+        installedToolsCount() {
+            return Object.values(this.fhTools).filter(tool => tool.installed).length;
+        }
+    },
+
     created: function () {
         // 获取当前ctx的version
         this.manifest = chrome.runtime.getManifest();
@@ -74,6 +81,19 @@ new Vue({
     },
 
     methods: {
+        getLayoutClasses() {
+            const installedCount = this.installedToolsCount;
+            const classes = [];
+            
+            if (installedCount <= 1) {
+                classes.push('very-few-tools');
+            } else if (installedCount <= 3) {
+                classes.push('few-tools');
+            }
+            
+            return classes;
+        },
+
         async loadTools() {
             try {
                 const tools = await Awesome.getInstalledTools();
@@ -104,11 +124,21 @@ new Vue({
                 }
                 
                 this.isLoading = false;
+                
+                // 根据工具数量添加相应的CSS类来优化显示
+                this.$nextTick(() => {
+                    this.updateLayoutClasses();
+                });
             } catch (error) {
                 console.error('加载工具列表失败:', error);
                 this.isLoading = false;
                 // 即使加载失败，也不应该让popup完全无法使用
                 this.fhTools = {};
+                
+                // 加载失败时也需要更新布局类
+                this.$nextTick(() => {
+                    this.updateLayoutClasses();
+                });
             }
         },
 
@@ -204,6 +234,27 @@ new Vue({
             // 获取后台页面，返回window对象
             chrome.tabs.create({url: event.currentTarget.href});
             return false;
+        },
+
+        updateLayoutClasses() {
+            const container = document.getElementById('pageContainer');
+            if (!container) return;
+            
+            const installedCount = this.installedToolsCount;
+            
+            // 移除所有布局相关的类
+            container.classList.remove('few-tools', 'very-few-tools');
+            
+            // 根据工具数量添加相应的类
+            if (installedCount <= 1) {
+                container.classList.add('very-few-tools');
+                console.log('Popup布局：应用very-few-tools类 (工具数量:', installedCount, ')');
+            } else if (installedCount <= 3) {
+                container.classList.add('few-tools');
+                console.log('Popup布局：应用few-tools类 (工具数量:', installedCount, ')');
+            } else {
+                console.log('Popup布局：使用默认布局 (工具数量:', installedCount, ')');
+            }
         }
     }
 });

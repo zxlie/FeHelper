@@ -6,11 +6,17 @@ html, body {
 
 .fe-whole-page {
     width: 152px;
+    min-height: 120px; /* 设置最小高度，确保工具很少时不会过于矮小 */
+    max-height: 600px; /* 设置最大高度，避免工具太多时popup过高 */
     font-size: 14px;
     user-select: none;
     padding: 0;
     margin: 0;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* 确保内容不会溢出 */
+    transition: min-height 0.2s ease-out; /* 添加平滑过渡效果 */
 }
 
 .fe-hide {
@@ -39,13 +45,17 @@ ul.fe-function-list {
     list-style: none;
     width: 100%;
     margin: 0;
+    flex: 1; /* 自动占用剩余空间 */
+    min-height: 40px; /* 确保即使没有工具时也有基本高度 */
+    overflow-y: auto; /* 当工具太多时允许滚动 */
+    max-height: 500px; /* 设置最大高度 */
 }
 
 ul.fe-function-list li {
     padding: 2px 10px 2px 38px;
     cursor: pointer;
     color: #4a4c6d;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1), height 0.2s ease-out, margin 0.2s ease-out;
     display: block;
     align-items: center;
     height: 28px;
@@ -118,10 +128,11 @@ ul.fe-function-list li i {
     font-size: 13px;
     border-top: 1px solid rgba(67, 97, 238, 0.08);
     padding: 8px 16px;
-    margin-top: 0px;
+    margin-top: auto; /* 自动推到底部 */
     background: linear-gradient(to right, rgba(67, 97, 238, 0.05), rgba(67, 97, 238, 0.05));
     color: var(--text-color);
     opacity: 0.9;
+    flex-shrink: 0; /* 防止被压缩 */
 }
 
 .fe-feedback a {
@@ -180,6 +191,7 @@ svg:not(:root) {
     justify-content: center;
     padding: 20px;
     min-height: 60px;
+    flex: 1; /* 占用剩余空间 */
 }
 
 .loading-spinner {
@@ -207,6 +219,10 @@ svg:not(:root) {
 .fe-no-tools {
     padding: 20px;
     text-align: center;
+    flex: 1; /* 占用剩余空间 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .no-tools-message p {
@@ -240,4 +256,75 @@ html[dark-mode="on"] .no-tools-message p {
 html[dark-mode="on"] .loading-spinner {
     border-color: rgba(255, 255, 255, 0.1);
     border-left-color: #4361ee;
+}
+
+/* 工具数量少时的优化样式 */
+.fe-whole-page.few-tools {
+    min-height: 140px; /* 当工具数量少于等于3个时，增加最小高度 */
+}
+
+.fe-whole-page.very-few-tools {
+    min-height: 110px; /* 当只有1个工具时，适度减少高度 */
+}
+
+/* 当工具列表为空时，确保有合适的间距 */
+.fe-function-list:empty {
+    min-height: 20px;
+}
+
+/* 优化工具数量少时的间距 */
+.fe-function-list li:only-child {
+    margin: 4px 0; /* 只有一个工具时增加上下间距 */
+}
+
+.fe-function-list li:first-child:nth-last-child(2),
+.fe-function-list li:first-child:nth-last-child(2) ~ li {
+    margin: 3px 0; /* 只有两个工具时的间距 */
+}
+
+.fe-function-list li:first-child:nth-last-child(3),
+.fe-function-list li:first-child:nth-last-child(3) ~ li {
+    margin: 2px 0; /* 只有三个工具时的间距 */
+}
+
+/* 工具数量少时的类样式 */
+.fe-function-list.few-tools {
+    padding: 4px 0; /* 增加上下内边距 */
+}
+
+.fe-function-list.few-tools li {
+    height: 32px; /* 稍微增加高度 */
+    line-height: 32px;
+    margin: 3px 0; /* 增加间距 */
+}
+
+.fe-function-list.few-tools li > b {
+    top: 6px; /* 调整图标位置 */
+}
+
+/* 当只有极少工具时的特殊优化 */
+.very-few-tools .fe-function-list {
+    padding: 6px 0;
+}
+
+.very-few-tools .fe-function-list li {
+    height: 34px;
+    line-height: 34px;
+    margin: 4px 0;
+}
+
+.very-few-tools .fe-function-list li > b {
+    top: 7px;
+}
+
+/* 注释：.fe-feedback的margin-top: auto样式已在主样式定义中设置 */
+
+/* 当没有工具时，优化无工具提示的显示 */
+.fe-no-tools .no-tools-message {
+    text-align: center;
+}
+
+/* 优化加载状态的显示 */
+.fe-loading {
+    justify-content: center;
 }
