@@ -89,10 +89,10 @@ new Vue({
                 isAd: false
             },
             {
-                toolKey: 'poster-maker',
-                icon: '🖼️',
-                title: '海报快速生成',
-                desc: '快速生成和识别二维码，支持自定义样式',
+                toolKey: 'mock-data',
+                icon: '🎲',
+                title: '数据Mock工具',
+                desc: '快速生成各种测试数据，支持快速模板一键生成',
                 tag: '推荐',
                 tagClass: 'recommend-tag',
                 isAd: false

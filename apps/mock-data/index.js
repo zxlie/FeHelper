@@ -463,7 +463,12 @@ new Vue({
                 this.activeTab = 'technical';
             }
             
-            this.showMessage(`已加载 ${template.name}`, 'success');
+            // 自动生成数据
+            this.$nextTick(() => {
+                this.generateData();
+            });
+            
+            this.showMessage(`已加载 ${template.name} 并生成数据`, 'success');
         },
         
 

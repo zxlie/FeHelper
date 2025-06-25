@@ -194,11 +194,11 @@ let toolMap = {
         }]
     },
     'mock-data': {
-        name: 'Mock数据生成',
+        name: '数据Mock工具',
         tips: '快速生成各种测试数据，支持个人信息、商业数据、技术数据等多种类型，可自定义字段和输出格式',
         menuConfig: [{
             icon: '⟡',
-            text: 'Mock数据生成'
+            text: '数据Mock工具'
         }]
     },
     'color-picker': {

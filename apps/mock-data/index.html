@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8"/>
-    <title>Mock数据生成器</title>
+    <title>数据Mock工具 - FeHelper</title>
     <link rel="stylesheet" href="index.css"/>
     <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
@@ -16,7 +16,7 @@
                 <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="brand-link">
                     <img src="../static/img/fe-16.png" alt="fehelper"/> 
                     <span class="brand-text">FeHelper</span>
-                    <span class="brand-subtitle">Mock数据生成器</span>
+                    <span class="brand-subtitle">数据Mock工具</span>
                 </a>
             </div>
             <div class="navbar-actions">
@@ -33,177 +33,196 @@
         </div>
 
         <div class="panel panel-default">
-            <!-- 主要内容 -->
+            <!-- 主要内容 - 左右布局 -->
             <div class="panel-body" v-cloak>
-                <!-- 数据类型选择区域 -->
-                <div class="data-type-section">
-                    <h4>选择数据类型</h4>
-                    <div class="data-type-tabs">
-                        <button class="data-tab" 
-                                :class="{ active: activeTab === 'personal' }"
-                                @click="activeTab = 'personal'">
-                            个人信息
-                        </button>
-                        <button class="data-tab" 
-                                :class="{ active: activeTab === 'business' }"
-                                @click="activeTab = 'business'">
-                            商业数据
-                        </button>
-                        <button class="data-tab" 
-                                :class="{ active: activeTab === 'technical' }"
-                                @click="activeTab = 'technical'">
-                            技术数据
-                        </button>
-                        <button class="data-tab" 
-                                :class="{ active: activeTab === 'custom' }"
-                                @click="activeTab = 'custom'">
-                            自定义数据
-                        </button>
-                    </div>
-                </div>
+                <div class="main-content-layout">
+                    <!-- 左侧配置操作区 -->
+                    <div class="config-section">
+                        <!-- 快速模板 -->
+                        <div class="template-section template-top">
+                            <h4>快速模板</h4>
+                            <div class="template-buttons">
+                                <button @click="loadTemplate('user')" class="btn btn-template">用户信息</button>
+                                <button @click="loadTemplate('employee')" class="btn btn-template">员工信息</button>
+                                <button @click="loadTemplate('product')" class="btn btn-template">商品信息</button>
+                                <button @click="loadTemplate('order')" class="btn btn-template">订单信息</button>
+                                <button @click="loadTemplate('api')" class="btn btn-template">API测试数据</button>
+                            </div>
+                        </div>
 
-                <!-- 个人信息数据 -->
-                <div v-show="activeTab === 'personal'" class="data-content">
-                    <div class="field-group">
-                        <h5>基本信息</h5>
-                        <div class="field-row">
-                            <label><input type="checkbox" v-model="selectedFields.name"> 姓名</label>
-                            <label><input type="checkbox" v-model="selectedFields.email"> 邮箱</label>
-                            <label><input type="checkbox" v-model="selectedFields.phone"> 手机号</label>
-                            <label><input type="checkbox" v-model="selectedFields.idCard"> 身份证号</label>
+                        <!-- 操作按钮 -->
+                        <div class="action-buttons action-buttons-top">
+                            <button @click="generateData" class="btn btn-success">生成数据</button>
+                            <button @click="selectAll" class="btn btn-info">全选</button>
+                            <button @click="clearAll" class="btn btn-warning">清空</button>
                         </div>
-                        <div class="field-row">
-                            <label><input type="checkbox" v-model="selectedFields.gender"> 性别</label>
-                            <label><input type="checkbox" v-model="selectedFields.age"> 年龄</label>
-                            <label><input type="checkbox" v-model="selectedFields.birthday"> 生日</label>
-                            <label><input type="checkbox" v-model="selectedFields.address"> 地址</label>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- 商业数据 -->
-                <div v-show="activeTab === 'business'" class="data-content">
-                    <div class="field-group">
-                        <h5>商业信息</h5>
-                        <div class="field-row">
-                            <label><input type="checkbox" v-model="selectedFields.company"> 公司名称</label>
-                            <label><input type="checkbox" v-model="selectedFields.department"> 部门</label>
-                            <label><input type="checkbox" v-model="selectedFields.position"> 职位</label>
-                            <label><input type="checkbox" v-model="selectedFields.salary"> 薪资</label>
+                        <!-- 数据类型选择区域 -->
+                        <div class="data-type-section">
+                            <h4>选择数据类型</h4>
+                            <div class="data-type-tabs">
+                                <button class="data-tab" 
+                                        :class="{ active: activeTab === 'personal' }"
+                                        @click="activeTab = 'personal'">
+                                    个人信息
+                                </button>
+                                <button class="data-tab" 
+                                        :class="{ active: activeTab === 'business' }"
+                                        @click="activeTab = 'business'">
+                                    商业数据
+                                </button>
+                                <button class="data-tab" 
+                                        :class="{ active: activeTab === 'technical' }"
+                                        @click="activeTab = 'technical'">
+                                    技术数据
+                                </button>
+                                <button class="data-tab" 
+                                        :class="{ active: activeTab === 'custom' }"
+                                        @click="activeTab = 'custom'">
+                                    自定义数据
+                                </button>
+                            </div>
                         </div>
-                        <div class="field-row">
-                            <label><input type="checkbox" v-model="selectedFields.bankCard"> 银行卡号</label>
-                            <label><input type="checkbox" v-model="selectedFields.creditCard"> 信用卡号</label>
-                            <label><input type="checkbox" v-model="selectedFields.price"> 价格</label>
-                            <label><input type="checkbox" v-model="selectedFields.currency"> 货币</label>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- 技术数据 -->
-                <div v-show="activeTab === 'technical'" class="data-content">
-                    <div class="field-group">
-                        <h5>技术信息</h5>
-                        <div class="field-row">
-                            <label><input type="checkbox" v-model="selectedFields.uuid"> UUID</label>
-                            <label><input type="checkbox" v-model="selectedFields.ip"> IP地址</label>
-                            <label><input type="checkbox" v-model="selectedFields.mac"> MAC地址</label>
-                            <label><input type="checkbox" v-model="selectedFields.userAgent"> User Agent</label>
+                        <!-- 个人信息数据 -->
+                        <div v-show="activeTab === 'personal'" class="data-content">
+                            <div class="field-group">
+                                <h5>基本信息</h5>
+                                <div class="field-row">
+                                    <label><input type="checkbox" v-model="selectedFields.name"> 姓名</label>
+                                    <label><input type="checkbox" v-model="selectedFields.email"> 邮箱</label>
+                                    <label><input type="checkbox" v-model="selectedFields.phone"> 手机号</label>
+                                    <label><input type="checkbox" v-model="selectedFields.idCard"> 身份证号</label>
+                                </div>
+                                <div class="field-row">
+                                    <label><input type="checkbox" v-model="selectedFields.gender"> 性别</label>
+                                    <label><input type="checkbox" v-model="selectedFields.age"> 年龄</label>
+                                    <label><input type="checkbox" v-model="selectedFields.birthday"> 生日</label>
+                                    <label><input type="checkbox" v-model="selectedFields.address"> 地址</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="field-row">
-                            <label><input type="checkbox" v-model="selectedFields.url"> URL</label>
-                            <label><input type="checkbox" v-model="selectedFields.domain"> 域名</label>
-                            <label><input type="checkbox" v-model="selectedFields.password"> 密码</label>
-                            <label><input type="checkbox" v-model="selectedFields.token"> Token</label>
-                        </div>
-                        <div class="field-row">
-                            <label><input type="checkbox" v-model="selectedFields.color"> 颜色值</label>
-                            <label><input type="checkbox" v-model="selectedFields.timestamp"> 时间戳</label>
-                            <label><input type="checkbox" v-model="selectedFields.filename"> 文件名</label>
-                            <label><input type="checkbox" v-model="selectedFields.mimeType"> MIME类型</label>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- 自定义数据 -->
-                <div v-show="activeTab === 'custom'" class="data-content">
-                    <div class="field-group">
-                        <h5>自定义规则</h5>
-                        <div class="custom-input">
-                            <label>字段名称：</label>
-                            <input type="text" v-model="customField.name" placeholder="请输入字段名">
+                        <!-- 商业数据 -->
+                        <div v-show="activeTab === 'business'" class="data-content">
+                            <div class="field-group">
+                                <h5>商业信息</h5>
+                                <div class="field-row">
+                                    <label><input type="checkbox" v-model="selectedFields.company"> 公司名称</label>
+                                    <label><input type="checkbox" v-model="selectedFields.department"> 部门</label>
+                                    <label><input type="checkbox" v-model="selectedFields.position"> 职位</label>
+                                    <label><input type="checkbox" v-model="selectedFields.salary"> 薪资</label>
+                                </div>
+                                <div class="field-row">
+                                    <label><input type="checkbox" v-model="selectedFields.bankCard"> 银行卡号</label>
+                                    <label><input type="checkbox" v-model="selectedFields.creditCard"> 信用卡号</label>
+                                    <label><input type="checkbox" v-model="selectedFields.price"> 价格</label>
+                                    <label><input type="checkbox" v-model="selectedFields.currency"> 货币</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="custom-input">
-                            <label>数据类型：</label>
-                            <select v-model="customField.type">
-                                <option value="string">字符串</option>
-                                <option value="number">数字</option>
-                                <option value="boolean">布尔值</option>
-                                <option value="date">日期</option>
-                                <option value="array">数组</option>
-                            </select>
+
+                        <!-- 技术数据 -->
+                        <div v-show="activeTab === 'technical'" class="data-content">
+                            <div class="field-group">
+                                <h5>技术信息</h5>
+                                <div class="field-row">
+                                    <label><input type="checkbox" v-model="selectedFields.uuid"> UUID</label>
+                                    <label><input type="checkbox" v-model="selectedFields.ip"> IP地址</label>
+                                    <label><input type="checkbox" v-model="selectedFields.mac"> MAC地址</label>
+                                    <label><input type="checkbox" v-model="selectedFields.userAgent"> User Agent</label>
+                                </div>
+                                <div class="field-row">
+                                    <label><input type="checkbox" v-model="selectedFields.url"> URL</label>
+                                    <label><input type="checkbox" v-model="selectedFields.domain"> 域名</label>
+                                    <label><input type="checkbox" v-model="selectedFields.password"> 密码</label>
+                                    <label><input type="checkbox" v-model="selectedFields.token"> Token</label>
+                                </div>
+                                <div class="field-row">
+                                    <label><input type="checkbox" v-model="selectedFields.color"> 颜色值</label>
+                                    <label><input type="checkbox" v-model="selectedFields.timestamp"> 时间戳</label>
+                                    <label><input type="checkbox" v-model="selectedFields.filename"> 文件名</label>
+                                    <label><input type="checkbox" v-model="selectedFields.mimeType"> MIME类型</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="custom-input">
-                            <label>生成规则：</label>
-                            <input type="text" v-model="customField.rule" placeholder="如：长度10-20的随机字符串">
+
+                        <!-- 自定义数据 -->
+                        <div v-show="activeTab === 'custom'" class="data-content">
+                            <div class="field-group">
+                                <h5>自定义规则</h5>
+                                <div class="custom-input">
+                                    <label>字段名称：</label>
+                                    <input type="text" v-model="customField.name" placeholder="请输入字段名">
+                                </div>
+                                <div class="custom-input">
+                                    <label>数据类型：</label>
+                                    <select v-model="customField.type">
+                                        <option value="string">字符串</option>
+                                        <option value="number">数字</option>
+                                        <option value="boolean">布尔值</option>
+                                        <option value="date">日期</option>
+                                        <option value="array">数组</option>
+                                    </select>
+                                </div>
+                                <div class="custom-input">
+                                    <label>生成规则：</label>
+                                    <input type="text" v-model="customField.rule" placeholder="如：长度10-20的随机字符串">
+                                </div>
+                                <button @click="addCustomField" class="btn btn-primary">添加字段</button>
+                            </div>
+                            
+                            <div v-if="customFields.length > 0" class="custom-fields-list">
+                                <h5>已添加字段</h5>
+                                <div v-for="(field, index) in customFields" :key="index" class="custom-field-item">
+                                    <span>{{ field.name }} ({{ field.type }})</span>
+                                    <button @click="removeCustomField(index)" class="btn-remove">删除</button>
+                                </div>
+                            </div>
                         </div>
-                        <button @click="addCustomField" class="btn btn-primary">添加字段</button>
-                    </div>
-                    
-                    <div v-if="customFields.length > 0" class="custom-fields-list">
-                        <h5>已添加字段</h5>
-                        <div v-for="(field, index) in customFields" :key="index" class="custom-field-item">
-                            <span>{{ field.name }} ({{ field.type }})</span>
-                            <button @click="removeCustomField(index)" class="btn-remove">删除</button>
+
+                        <!-- 生成配置 -->
+                        <div class="generate-config">
+                            <div class="config-row">
+                                <label>生成数量：</label>
+                                <input type="number" v-model="generateCount" min="1" max="1000" value="10">
+                            </div>
+                            <div class="config-row">
+                                <label>输出格式：</label>
+                                <select v-model="outputFormat">
+                                    <option value="json">JSON</option>
+                                    <option value="csv">CSV</option>
+                                    <option value="sql">SQL INSERT</option>
+                                    <option value="xml">XML</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 生成配置 -->
-                <div class="generate-config">
-                    <div class="config-row">
-                        <label>生成数量：</label>
-                        <input type="number" v-model="generateCount" min="1" max="1000" value="10">
-                        
-                        <label style="margin-left: 20px;">输出格式：</label>
-                        <select v-model="outputFormat">
-                            <option value="json">JSON</option>
-                            <option value="csv">CSV</option>
-                            <option value="sql">SQL INSERT</option>
-                            <option value="xml">XML</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- 操作按钮 -->
-                <div class="action-buttons">
-                    <button @click="generateData" class="btn btn-success">生成数据</button>
-                    <button @click="selectAll" class="btn btn-info">全选</button>
-                    <button @click="clearAll" class="btn btn-warning">清空</button>
-                    <button @click="copyResult" class="btn btn-primary" :disabled="!generatedData">复制结果</button>
-                    <button @click="downloadData" class="btn btn-secondary" :disabled="!generatedData">下载文件</button>
-                </div>
-
-                <!-- 结果显示区域 -->
-                <div v-if="generatedData" class="result-section">
-                    <div class="result-header">
-                        <h4>生成结果 ({{ generateCount }} 条)</h4>
-                        <span class="data-size">数据大小: {{ dataSize }}</span>
-                    </div>
-                    <div class="result-content">
-                        <pre>{{ generatedData }}</pre>
-                    </div>
-                </div>
-
-                <!-- 预设模板 -->
-                <div class="template-section">
-                    <h4>快速模板</h4>
-                    <div class="template-buttons">
-                        <button @click="loadTemplate('user')" class="btn btn-template">用户信息</button>
-                        <button @click="loadTemplate('employee')" class="btn btn-template">员工信息</button>
-                        <button @click="loadTemplate('product')" class="btn btn-template">商品信息</button>
-                        <button @click="loadTemplate('order')" class="btn btn-template">订单信息</button>
-                        <button @click="loadTemplate('api')" class="btn btn-template">API测试数据</button>
+                    <!-- 右侧结果展示区 -->
+                    <div class="result-section">
+                        <div class="result-panel">
+                            <div class="result-header">
+                                <h4 v-if="generatedData">生成结果 ({{ generateCount }} 条)</h4>
+                                <h4 v-else>数据结果</h4>
+                                <div class="result-actions">
+                                    <span class="data-size" v-if="generatedData">{{ dataSize }}</span>
+                                    <span class="data-size" v-else>等待生成</span>
+                                    <button @click="copyResult" class="btn btn-primary btn-sm" :disabled="!generatedData">复制结果</button>
+                                    <button @click="downloadData" class="btn btn-secondary btn-sm" :disabled="!generatedData">下载文件</button>
+                                </div>
+                            </div>
+                            <div class="result-content">
+                                <div v-if="!generatedData" class="empty-result">
+                                    <div class="empty-icon">📊</div>
+                                    <div class="empty-text">
+                                        <h5>暂无生成结果</h5>
+                                        <p>请选择数据字段并点击"生成数据"按钮</p>
+                                    </div>
+                                </div>
+                                <pre v-else>{{ generatedData }}</pre>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

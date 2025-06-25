@@ -1,4 +1,3 @@
-
 body {
     margin: 0;
     padding: 0;
@@ -264,15 +263,156 @@ body {
     padding: 20px;
 }
 
-/* 数据类型选择区域 */
+/* 主要内容布局 */
+.main-content-layout {
+    display: flex;
+    gap: 20px;
+    height: calc(100vh - 120px);
+    min-height: 600px;
+}
+
+/* 左侧配置区域 */
+.config-section {
+    flex: 0 0 500px;
+    min-width: 480px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* 配置区域滚动条样式 */
+.config-section::-webkit-scrollbar {
+    width: 6px;
+}
+
+.config-section::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.config-section::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.config-section::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* 右侧结果区域 */
+.result-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.result-panel {
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.result-header {
+    background: linear-gradient(135deg, #ddd 0%, #eee 100%);
+    color: #000;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: none;
+}
+
+.result-header h4 {
+    margin: 0;
+    color: #000;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.result-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.data-size {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+.result-content {
+    flex: 1;
+    overflow: auto;
+    background: white;
+}
+
+.result-content pre {
+    margin: 0;
+    padding: 20px;
+    background: #282c34;
+    color: #abb2bf;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* 空结果状态 */
+.empty-result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #6c757d;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    opacity: 0.7;
+}
+
+.empty-text h5 {
+    margin: 0 0 10px 0;
+    color: #495057;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.empty-text p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* 数据类型选择区域 - 紧凑样式 */
 .data-type-section {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .data-type-section h4 {
-    margin: 0 0 15px 0;
+    margin: 0 0 10px 0;
     color: #333;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
 }
 
@@ -281,19 +421,19 @@ body {
     gap: 2px;
     background: #f1f3f4;
     border-radius: 6px;
-    padding: 4px;
+    padding: 3px;
 }
 
 .data-tab {
     flex: 1;
-    padding: 10px 16px;
+    padding: 8px 12px;
     border: none;
     background: transparent;
     color: #666;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
 }
 
@@ -308,34 +448,34 @@ body {
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
-/* 数据内容区域 */
+/* 数据内容区域 - 紧凑样式 */
 .data-content {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .field-group h5 {
-    margin: 0 0 15px 0;
+    margin: 0 0 10px 0;
     color: #444;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    border-bottom: 2px solid #e9ecef;
-    padding-bottom: 8px;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 6px;
 }
 
 .field-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
-    margin-bottom: 15px;
+    gap: 12px;
+    margin-bottom: 12px;
 }
 
 .field-row label {
     display: flex;
     align-items: center;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     color: #555;
-    min-width: 120px;
+    min-width: 110px;
     transition: color 0.3s ease;
 }
 
@@ -344,23 +484,23 @@ body {
 }
 
 .field-row input[type="checkbox"] {
-    margin-right: 8px;
-    width: 16px;
-    height: 16px;
+    margin-right: 6px;
+    width: 14px;
+    height: 14px;
     cursor: pointer;
 }
 
-/* 自定义数据区域 */
+/* 自定义数据区域 - 紧凑样式 */
 .custom-input {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
-    gap: 10px;
+    margin-bottom: 10px;
+    gap: 8px;
 }
 
 .custom-input label {
-    min-width: 100px;
-    font-size: 14px;
+    min-width: 80px;
+    font-size: 13px;
     color: #555;
     font-weight: 500;
 }
@@ -368,10 +508,10 @@ body {
 .custom-input input,
 .custom-input select {
     flex: 1;
-    padding: 8px 12px;
+    padding: 6px 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 13px;
     transition: border-color 0.3s ease;
 }
 
@@ -383,8 +523,8 @@ body {
 }
 
 .custom-fields-list {
-    margin-top: 20px;
-    padding: 15px;
+    margin-top: 15px;
+    padding: 12px;
     background: #f8f9fa;
     border-radius: 6px;
 }
@@ -393,8 +533,9 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
+    padding: 6px 0;
     border-bottom: 1px solid #e9ecef;
+    font-size: 13px;
 }
 
 .custom-field-item:last-child {
@@ -416,50 +557,146 @@ body {
     background: #c82333;
 }
 
-/* 生成配置 */
+/* 生成配置 - 紧凑样式 */
 .generate-config {
-    margin-bottom: 25px;
-    padding: 15px;
+    margin-bottom: 20px;
+    padding: 12px;
     background: #f8f9fa;
     border-radius: 6px;
     border-left: 4px solid #667eea;
 }
 
-.config-row {
+.generate-config .config-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.generate-config .config-row:last-child {
+    margin-bottom: 0;
+}
+
+/* 操作按钮 - 紧凑样式 */
+.action-buttons {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
 }
 
-.config-row label {
+.action-buttons .btn {
+    flex: 1;
+    min-width: 70px;
+    padding: 4px 14px;
+    font-size: 13px;
+}
+
+/* 快速模板区域 - 顶部样式 */
+.template-section.template-top {
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-top: 0;
+    border-top: none;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.template-section.template-top h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* 顶部操作按钮 - 特殊样式 */
+.action-buttons-top {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e9ecef;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.action-buttons-top .btn {
+    flex: 1;
+    min-width: 90px;
+    padding: 10px 16px;
     font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.action-buttons-top .btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.action-buttons-top .btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.action-buttons-top .btn-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+}
+
+.action-buttons-top .btn-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(23, 162, 184, 0.4);
+}
+
+.action-buttons-top .btn-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.action-buttons-top .btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+}
+
+.template-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 6px;
+}
+
+.template-buttons .btn-template {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-width: 80px;
+    margin-bottom: 0;
+}
+
+/* 基础配置样式 - 紧凑调整 */
+.config-row label {
+    font-size: 13px;
     color: #555;
     font-weight: 500;
+    min-width: 70px;
 }
 
 .config-row input,
 .config-row select {
-    padding: 6px 10px;
+    padding: 5px 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 13px;
+    flex: 1;
+    min-width: 100px;
 }
 
-/* 按钮样式 */
-.action-buttons {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-}
-
+/* 按钮基础样式调整 */
 .btn {
-    padding: 10px 20px;
+    padding: 8px 16px;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     transition: all 0.3s ease;
     text-decoration: none;
@@ -469,8 +706,12 @@ body {
 }
 
 .btn:disabled {
-    opacity: 0.6;
+    opacity: 0.4;
     cursor: not-allowed;
+    background: #6c757d !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .btn-success {
@@ -541,106 +782,112 @@ body {
     transform: translateY(-1px);
 }
 
-/* 结果显示区域 */
-.result-section {
-    margin-top: 25px;
-    border: 1px solid #e9ecef;
-    border-radius: 6px;
-    overflow: hidden;
+/* 移除原有的模板区域样式 */
+.template-section:not(.template-top) {
+    display: none;
 }
 
-.result-header {
-    background: #f8f9fa;
-    padding: 12px 16px;
-    border-bottom: 1px solid #e9ecef;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* 响应式调整 */
+@media (max-width: 1200px) {
+    .config-section {
+        flex: 0 0 400px;
+        min-width: 360px;
+    }
 }
 
-.result-header h4 {
-    margin: 0;
-    color: #333;
-    font-size: 16px;
-}
-
-.data-size {
-    color: #666;
-    font-size: 12px;
-    background: #e9ecef;
-    padding: 4px 8px;
-    border-radius: 12px;
-}
-
-.result-content {
-    max-height: 400px;
-    overflow: auto;
-    background: #f8f9fa;
-}
-
-.result-content pre {
-    margin: 0;
-    padding: 16px;
-    background: #282c34;
-    color: #abb2bf;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 13px;
-    line-height: 1.5;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-/* 模板区域 */
-.template-section {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 2px solid #e9ecef;
-}
-
-.template-section h4 {
-    margin: 0 0 15px 0;
-    color: #333;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.template-buttons {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-    .wrapper {
-        padding: 10px;
+@media (max-width: 1024px) {
+    .main-content-layout {
+        flex-direction: column;
+        height: auto;
+        gap: 15px;
     }
     
+    .config-section {
+        flex: none;
+        width: 100%;
+        max-height: none;
+        overflow-y: visible;
+        padding-right: 0;
+    }
+    
+    .result-section {
+        flex: none;
+        min-height: 400px;
+    }
+    
+    .result-panel {
+        height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
     .panel-body {
         padding: 15px;
     }
     
+    .main-content-layout {
+        gap: 10px;
+    }
+    
     .data-type-tabs {
         flex-direction: column;
+        gap: 2px;
+    }
+    
+    .data-tab {
+        width: 100%;
     }
     
     .field-row {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
     }
     
-    .action-buttons {
+    .field-row label {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .action-buttons,
+    .action-buttons-top {
         flex-direction: column;
     }
     
-    .btn {
+    .action-buttons .btn,
+    .action-buttons-top .btn {
         width: 100%;
+        flex: none;
+    }
+    
+    .template-buttons {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+    
+    .template-buttons .btn-template {
+        width: 100%;
+    }
+    
+    .result-actions {
+        flex-direction: column;
+        gap: 5px;
+        align-items: flex-end;
     }
     
     .config-row {
         flex-direction: column;
         align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .config-row label {
+        min-width: auto;
+    }
+    
+    .config-row input,
+    .config-row select {
+        width: 100%;
+        min-width: auto;
     }
 }
 
@@ -783,5 +1030,66 @@ body {
         background: #667eea;
         color: white;
         border-color: #667eea;
+    }
+    
+    .config-section::-webkit-scrollbar-track {
+        background: #3d3d3d;
+    }
+    
+    .config-section::-webkit-scrollbar-thumb {
+        background: #666;
+    }
+    
+    .config-section::-webkit-scrollbar-thumb:hover {
+        background: #777;
+    }
+    
+    .result-panel {
+        background: #2d2d2d;
+        border-color: #555;
+    }
+    
+    .result-header {
+        background: linear-gradient(135deg, #5a619d 0%, #6f5aab 100%);
+    }
+    
+    .empty-result {
+        color: #ccc;
+    }
+    
+    .empty-text h5 {
+        color: #e0e0e0;
+    }
+    
+    .empty-text p {
+        color: #aaa;
+    }
+    
+    .config-row label {
+        color: #ccc;
+    }
+    
+    .template-section.template-top h4 {
+        color: #e0e0e0;
+    }
+    
+    .template-section.template-top {
+        border-bottom-color: #555;
+    }
+    
+    .action-buttons-top {
+        border-bottom-color: #555;
+    }
+    
+    .action-buttons-top .btn-success {
+        background: linear-gradient(135deg, #1e7e34 0%, #17a2b8 100%);
+    }
+    
+    .action-buttons-top .btn-info {
+        background: linear-gradient(135deg, #138496 0%, #5a6fd8 100%);
+    }
+    
+    .action-buttons-top .btn-warning {
+        background: linear-gradient(135deg, #e0a800 0%, #dc3545 100%);
     }
 } 
