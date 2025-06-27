@@ -105,6 +105,7 @@
                         了解更多
                     </a>
                 </div>
+
             </div>
             <div class="hero-visual">
                 <div class="browser-mockup">
@@ -138,6 +139,81 @@
                                 <span>AI类工具</span>
                             </div>
                         </div>
+                        
+                        <!-- 微信小程序推广区域 -->
+                        <div class="wechat-miniprogram-section" style="margin-top: 30px; padding: 24px; background: linear-gradient(135deg, rgba(7, 193, 96, 0.1), rgba(0, 174, 66, 0.05)); border-radius: 16px; border: 2px solid rgba(7, 193, 96, 0.2); position: relative; overflow: hidden;">
+                            <style>
+                                .wechat-miniprogram-section::before {
+                                    content: '';
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    right: 0;
+                                    bottom: 0;
+                                    background: linear-gradient(135deg, rgba(7, 193, 96, 0.03), rgba(0, 174, 66, 0.01));
+                                    border-radius: 14px;
+                                }
+                                .wechat-miniprogram-section > * {
+                                    position: relative;
+                                    z-index: 2;
+                                }
+                                @media (max-width: 1024px) {
+                                    .wechat-miniprogram-section {
+                                        margin-top: 20px !important;
+                                        padding: 20px !important;
+                                    }
+                                    .wechat-miniprogram-section .main-flex {
+                                        flex-direction: column !important;
+                                        align-items: center !important;
+                                        gap: 16px !important;
+                                    }
+                                    .wechat-miniprogram-section .qr-section {
+                                        order: -1 !important;
+                                    }
+                                    .wechat-miniprogram-section .qr-section img {
+                                        width: 100px !important;
+                                        height: 100px !important;
+                                    }
+                                }
+                            </style>
+                            
+                            <div class="main-flex" style="display: flex; align-items: flex-start; gap: 20px;">
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                                        <div style="background: linear-gradient(135deg, #07c160, #00ae42); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; box-shadow: 0 4px 15px rgba(7, 193, 96, 0.4);">
+                                            <i class="fab fa-weixin" style="color: white; font-size: 18px;"></i>
+                                        </div>
+                                        <div>
+                                            <h3 style="color: #1a1a1a; margin: 0; font-size: 17px; font-weight: 600; display: flex; align-items: center;">
+                                                🎉 微信小程序版
+                                                <span style="background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; font-size: 10px; padding: 3px 7px; border-radius: 10px; margin-left: 8px; font-weight: 500; box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);">NEW</span>
+                                            </h3>
+                                            <p style="color: #666; margin: 4px 0 0 0; font-size: 13px;">扫码即用，无需安装</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                        <span style="background: rgba(7, 193, 96, 0.12); color: #00ae42; padding: 5px 10px; border-radius: 14px; font-size: 11px; display: flex; align-items: center; font-weight: 600; border: 1px solid rgba(7, 193, 96, 0.2);">
+                                            <i class="fas fa-check" style="margin-right: 5px; font-size: 10px;"></i>
+                                            无需安装
+                                        </span>
+                                        <span style="background: rgba(7, 193, 96, 0.12); color: #00ae42; padding: 5px 10px; border-radius: 14px; font-size: 11px; display: flex; align-items: center; font-weight: 600; border: 1px solid rgba(7, 193, 96, 0.2);">
+                                            <i class="fas fa-mobile-alt" style="margin-right: 5px; font-size: 10px;"></i>
+                                            扫码即用
+                                        </span>
+                                        <span style="background: rgba(7, 193, 96, 0.12); color: #00ae42; padding: 5px 10px; border-radius: 14px; font-size: 11px; display: flex; align-items: center; font-weight: 600; border: 1px solid rgba(7, 193, 96, 0.2);">
+                                            <i class="fas fa-tools" style="margin-right: 5px; font-size: 10px;"></i>
+                                            核心功能
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="qr-section" style="text-align: center; flex-shrink: 0;">
+                                    <img src="static/img/fh-wx-xcx.jpg" alt="FeHelper微信小程序码" style="width: 110px; height: 110px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); background: white; padding: 6px; border: 2px solid rgba(7, 193, 96, 0.1);">
+                                    <p style="color: #666; margin: 8px 0 0 0; font-size: 12px; font-weight: 500;">微信扫码使用</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -153,15 +229,15 @@
         </div>
         <div class="preview-images">
           <div class="preview-item">
-            <img src="static/img/options.png" alt="FeHelper主界面" />
-            <div class="preview-caption">插件主界面</div>
+            <img src="static/screenshot/options.png" alt="FeHelper主界面" />
+            <div class="preview-caption">插件配置页</div>
           </div>
           <div class="preview-item">
-            <img src="static/img/jsonformat.png" alt="JSON美化工具界面" />
+            <img src="static/screenshot/json-format.png" alt="JSON美化工具界面" />
             <div class="preview-caption">JSON美化工具</div>
           </div>
           <div class="preview-item">
-            <img src="static/img/qrcode.png" alt="二维码工具界面" />
+            <img src="static/screenshot/qr-code.png" alt="二维码工具界面" />
             <div class="preview-caption">二维码工具</div>
           </div>
         </div>
