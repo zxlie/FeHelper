@@ -1246,9 +1246,23 @@ new Vue({
                 } catch (parseError) {
                     console.error('解析远程推荐卡片配置失败:', parseError);
                 }
+                
                 // 如果成功解析到配置，则更新本地配置
                 if (remoteCards && Array.isArray(remoteCards) && remoteCards.length > 0) {
-                    this.recommendationCards = remoteCards;
+                    remoteCards.forEach((card, idx) => {
+                        if (
+                            card &&
+                            card.toolKey &&
+                            this.originalTools &&
+                            !this.originalTools.hasOwnProperty(card.toolKey)
+                        ) {
+                            // toolKey 不存在于本地工具，跳过赋值，保留本地默认
+                            return;
+                        }
+                        // 没有 toolKey 字段，或者 toolKey 存在于本地工具，直接覆盖
+                        this.recommendationCards[idx] = card;
+                    });
+                    this.$forceUpdate();
                 }
             } catch (error) {
                 console.error('获取远程推荐卡片配置失败:', error);
