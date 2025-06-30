@@ -242,12 +242,37 @@ let BgPageInstance = (function () {
      * @param callback
      */
     let browserActionClickedHandler = function (request, sender, callback) {
-        chrome.DynamicToolRunner({
-            tool: MSG_TYPE.JSON_FORMAT
+        // 获取当前唯一安装的工具并直接打开
+        Awesome.getInstalledTools().then(tools => {
+            const installedTools = Object.keys(tools).filter(tool => tools[tool].installed);
+            if (installedTools.length === 1) {
+                const singleTool = installedTools[0];
+                chrome.DynamicToolRunner({
+                    tool: singleTool,
+                    noPage: !!tools[singleTool].noPage
+                });
+                
+                // 记录工具使用
+                Statistics.recordToolUsage(singleTool);
+            } else {
+                // 备用方案：如果检测失败，打开JSON格式化工具
+                chrome.DynamicToolRunner({
+                    tool: MSG_TYPE.JSON_FORMAT
+                });
+                
+                // 记录工具使用
+                Statistics.recordToolUsage(MSG_TYPE.JSON_FORMAT);
+            }
+        }).catch(error => {
+            console.error('获取工具列表失败，使用默认工具:', error);
+            // 出错时的备用方案
+            chrome.DynamicToolRunner({
+                tool: MSG_TYPE.JSON_FORMAT
+            });
+            
+            // 记录工具使用
+            Statistics.recordToolUsage(MSG_TYPE.JSON_FORMAT);
         });
-        
-        // 记录工具使用
-        Statistics.recordToolUsage(MSG_TYPE.JSON_FORMAT);
     };
 
     /**
@@ -259,20 +284,41 @@ let BgPageInstance = (function () {
      */
     let _updateBrowserAction = function (action, showTips, menuOnly) {
         if (!menuOnly) {
-            // 如果有安装过工具，则显示Popup模式
-            Awesome.getInstalledTools().then(tools => {
-                if (Object.keys(tools).length > 1) {
+            // 对于卸载操作，添加一个小延迟确保存储操作完成
+            const delay = action === 'offload' ? 100 : 0;
+            
+            setTimeout(() => {
+                // 如果有安装过工具，则显示Popup模式
+                Awesome.getInstalledTools().then(tools => {
+                // 计算已安装的工具数量
+                const installedTools = Object.keys(tools).filter(tool => tools[tool].installed);
+                const installedCount = installedTools.length;
+                
+                if (installedCount > 1) {
+                    // 多个工具：显示popup
                     chrome.action.setPopup({ popup: '/popup/index.html' });
-                } else {
-                    // 删除popup page
+                    // 移除点击监听器（如果存在）
+                    if (chrome.action.onClicked.hasListener(browserActionClickedHandler)) {
+                        chrome.action.onClicked.removeListener(browserActionClickedHandler);
+                    }
+                } else if (installedCount === 1) {
+                    // 只有一个工具：直接打开工具，不显示popup
                     chrome.action.setPopup({ popup: '' });
-
-                    // 否则点击图标，直接打开页面
+                    
+                    // 添加点击监听器
                     if (!chrome.action.onClicked.hasListener(browserActionClickedHandler)) {
                         chrome.action.onClicked.addListener(browserActionClickedHandler);
                     }
+                } else {
+                    // 没有安装任何工具：显示popup（让用户去安装工具）
+                    chrome.action.setPopup({ popup: '/popup/index.html' });
+                    // 移除点击监听器（如果存在）
+                    if (chrome.action.onClicked.hasListener(browserActionClickedHandler)) {
+                        chrome.action.onClicked.removeListener(browserActionClickedHandler);
+                    }
                 }
-            });
+                });
+            }, delay);
 
             if (action === 'offload') {
                 _animateTips('-1');

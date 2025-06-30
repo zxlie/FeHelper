@@ -1,13 +1,11 @@
 html, body {
-    height: 100%;
     margin: 0;
     padding: 0;
 }
 
 .fe-whole-page {
     width: 152px;
-    min-height: 120px; /* 设置最小高度，确保工具很少时不会过于矮小 */
-    max-height: 600px; /* 设置最大高度，避免工具太多时popup过高 */
+    min-height: 140px;
     font-size: 14px;
     user-select: none;
     padding: 0;
@@ -15,8 +13,8 @@ html, body {
     position: relative;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* 确保内容不会溢出 */
-    transition: min-height 0.2s ease-out; /* 添加平滑过渡效果 */
+    overflow: hidden;
+    transition: min-height 0.2s ease-out;
 }
 
 .fe-hide {
@@ -32,6 +30,7 @@ html, body {
     background: linear-gradient(to right, #f8f9ff, #f0f2ff);
     font-size: 12px;
     letter-spacing: 0.5px;
+    flex-shrink: 0; /* 防止被压缩 */
 }
 
 .fe-function-title span {
@@ -45,10 +44,43 @@ ul.fe-function-list {
     list-style: none;
     width: 100%;
     margin: 0;
-    flex: 1; /* 自动占用剩余空间 */
-    min-height: 40px; /* 确保即使没有工具时也有基本高度 */
-    overflow-y: auto; /* 当工具太多时允许滚动 */
-    max-height: 500px; /* 设置最大高度 */
+    flex: 1;
+    min-height: 40px;
+    overflow-y: auto; /* 允许垂直滚动 */
+    overflow-x: hidden; /* 隐藏水平滚动 */
+    max-height: 500px; /* 不再限制最大高度 */
+    display: flex;
+    flex-direction: column-reverse;
+    scrollbar-width: thin; /* Firefox 下的滚动条样式 */
+    scrollbar-color: rgba(67, 97, 238, 0.3) transparent;
+}
+
+/* 自定义滚动条样式 - Webkit内核浏览器 */
+ul.fe-function-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+ul.fe-function-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+ul.fe-function-list::-webkit-scrollbar-thumb {
+    background: rgba(67, 97, 238, 0.3);
+    border-radius: 3px;
+    transition: background 0.2s ease;
+}
+
+ul.fe-function-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(67, 97, 238, 0.5);
+}
+
+/* 暗黑模式下的滚动条 */
+html[dark-mode="on"] ul.fe-function-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+html[dark-mode="on"] ul.fe-function-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
 }
 
 ul.fe-function-list li {
@@ -58,13 +90,14 @@ ul.fe-function-list li {
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1), height 0.2s ease-out, margin 0.2s ease-out;
     display: block;
     align-items: center;
-    height: 28px;
+    height: 28px; /* 默认高度 */
     border-radius: 6px;
     margin: 2px 0;
     border-bottom: 1px solid rgba(67, 97, 238, 0.05);
     text-align: justify;
     position: relative;
     line-height: 28px;
+    flex-shrink: 0; /* 防止被压缩 */
 }
 
 ul.fe-function-list li:last-child {
@@ -128,11 +161,14 @@ ul.fe-function-list li i {
     font-size: 13px;
     border-top: 1px solid rgba(67, 97, 238, 0.08);
     padding: 8px 16px;
-    margin-top: auto; /* 自动推到底部 */
     background: linear-gradient(to right, rgba(67, 97, 238, 0.05), rgba(67, 97, 238, 0.05));
     color: var(--text-color);
     opacity: 0.9;
     flex-shrink: 0; /* 防止被压缩 */
+    position: relative; /* 改为相对定位 */
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: auto; /* 确保在容器底部 */
 }
 
 .fe-feedback a {
@@ -191,7 +227,7 @@ svg:not(:root) {
     justify-content: center;
     padding: 20px;
     min-height: 60px;
-    flex: 1; /* 占用剩余空间 */
+    flex: 1;
 }
 
 .loading-spinner {
@@ -219,7 +255,7 @@ svg:not(:root) {
 .fe-no-tools {
     padding: 20px;
     text-align: center;
-    flex: 1; /* 占用剩余空间 */
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -258,48 +294,21 @@ html[dark-mode="on"] .loading-spinner {
     border-left-color: #4361ee;
 }
 
-/* 工具数量少时的优化样式 */
-.fe-whole-page.few-tools {
-    min-height: 140px; /* 当工具数量少于等于3个时，增加最小高度 */
-}
 
-.fe-whole-page.very-few-tools {
-    min-height: 110px; /* 当只有1个工具时，适度减少高度 */
-}
-
-/* 当工具列表为空时，确保有合适的间距 */
+/* 工具列表为空时的基本样式 */
 .fe-function-list:empty {
     min-height: 20px;
 }
 
-/* 优化工具数量少时的间距 */
+/* 1个工具时的优化 */
 .fe-function-list li:only-child {
-    margin: 4px 0; /* 只有一个工具时增加上下间距 */
-}
-
-.fe-function-list li:first-child:nth-last-child(2),
-.fe-function-list li:first-child:nth-last-child(2) ~ li {
-    margin: 3px 0; /* 只有两个工具时的间距 */
-}
-
-.fe-function-list li:first-child:nth-last-child(3),
-.fe-function-list li:first-child:nth-last-child(3) ~ li {
-    margin: 2px 0; /* 只有三个工具时的间距 */
-}
-
-/* 工具数量少时的类样式 */
-.fe-function-list.few-tools {
-    padding: 4px 0; /* 增加上下内边距 */
-}
-
-.fe-function-list.few-tools li {
-    height: 32px; /* 稍微增加高度 */
+    margin: 4px 0;
+    height: 32px;
     line-height: 32px;
-    margin: 3px 0; /* 增加间距 */
 }
 
-.fe-function-list.few-tools li > b {
-    top: 6px; /* 调整图标位置 */
+.fe-function-list li:only-child > b {
+    top: 6px;
 }
 
 /* 当只有极少工具时的特殊优化 */
@@ -313,11 +322,6 @@ html[dark-mode="on"] .loading-spinner {
     margin: 4px 0;
 }
 
-.very-few-tools .fe-function-list li > b {
-    top: 7px;
-}
-
-/* 注释：.fe-feedback的margin-top: auto样式已在主样式定义中设置 */
 
 /* 当没有工具时，优化无工具提示的显示 */
 .fe-no-tools .no-tools-message {
@@ -327,4 +331,7 @@ html[dark-mode="on"] .loading-spinner {
 /* 优化加载状态的显示 */
 .fe-loading {
     justify-content: center;
+    align-items: center;
+    display: flex;
+    height: 120px;
 }

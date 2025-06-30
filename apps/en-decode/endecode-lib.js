@@ -172,6 +172,18 @@ let EncodeUtils = (() => {
      * @return {String} 源码
      */
     let _base64Decode = function (str) {
+        // 首先进行URL解码处理，将%XX格式的字符转换回原始字符
+        try {
+            // 使用decodeURIComponent进行URL解码
+            str = decodeURIComponent(str);
+        } catch (e) {
+            // 如果decodeURIComponent失败，尝试手动替换常见的URL编码字符
+            str = str.replace(/%2B/g, '+')
+                    .replace(/%2F/g, '/')
+                    .replace(/%3D/g, '=')
+                    .replace(/%20/g, ' ');
+        }
+        
         let c1, c2, c3, c4;
         let i, len, out;
         len = str.length;

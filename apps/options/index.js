@@ -790,15 +790,16 @@ new Vue({
                     message: `确定要卸载"${this.originalTools[toolKey].name}"工具吗？`,
                     callback: async (key) => {
                         try {
+                            // 先调用Awesome.offLoad卸载工具（确保存储数据先被删除）
+                            await Awesome.offLoad(key);
+                            
+                            // 再发送消息给background更新browser action
                             await chrome.runtime.sendMessage({
                                 type: MSG_TYPE.DYNAMIC_TOOL_INSTALL_OR_OFFLOAD,
                                 toolName: key,
                                 action: 'offload',
                                 showTips: true
                             });
-                            
-                            // 调用Awesome.offLoad卸载工具
-                            await Awesome.offLoad(key);
                             
                             // 更新原始数据和当前活动数据
                             this.originalTools[key].installed = false;
