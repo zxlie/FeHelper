@@ -172,6 +172,15 @@ let EncodeUtils = (() => {
      * @return {String} 源码
      */
     let _base64Decode = function (str) {
+          // 检测是否包含URL编码的字符，如果有则先进行URL解码
+        if (str.includes("%")) {
+          try {
+            str = decodeURIComponent(str);
+          } catch (e) {
+            // 如果URL解码失败，继续使用原字符串
+            console.warn("URL解码失败，使用原字符串:", e.message);
+          }
+        }
         let c1, c2, c3, c4;
         let i, len, out;
         len = str.length;
