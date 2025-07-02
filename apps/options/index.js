@@ -1065,6 +1065,19 @@ new Vue({
                     opts[key] = this.selectedOpts.includes(key).toString();
                 });
                 
+                // 先保存工具排序（如果用户有修改）
+                if (this.sortableTools && this.sortableTools.length > 0) {
+                    try {
+                        const toolOrder = this.sortableTools.map(tool => tool.key);
+                        await chrome.storage.local.set({
+                            tool_custom_order: JSON.stringify(toolOrder)
+                        });
+                    } catch (sortError) {
+                        console.warn('保存工具排序时出现错误:', sortError);
+                        // 工具排序保存失败不应该阻止设置保存
+                    }
+                }
+                
                 // 保存设置 - 直接传递对象，settings.js已增加对对象类型的支持
                 Settings.setOptions(opts, async () => {
                     try {
@@ -1090,7 +1103,7 @@ new Vue({
                         // 显示提示
                         this.showNotification({
                             title: 'FeHelper 设置',
-                            message: '设置已保存！'
+                            message: '设置和工具排序已保存！'
                         });
                     } catch (innerError) {
                         this.showNotification({

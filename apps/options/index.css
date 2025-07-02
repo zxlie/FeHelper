@@ -958,10 +958,12 @@ body{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 15px;
+    padding: 8px 15px; /* 减少垂直内边距 */
     background: linear-gradient(to right, #2c3e50, #4ca1af);
     color: #fff;
     position: relative;
+    min-height: 48px; /* 限制最小高度 */
+    max-height: 60px; /* 限制最大高度 */
 }
 
 .navbar-brand {
@@ -1022,6 +1024,21 @@ body{
     gap: 15px;
 }
 
+/* 版本信息区域 - 统一样式 */
+.version-info {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(0, 0, 0, 0.15);
+    padding: 6px 12px;
+    border-radius: 6px;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-height: 36px; /* 限制最大高度，保持导航栏紧凑 */
+    overflow: hidden;
+}
+
 .nav-item {
     position: relative;
     transition: all 0.3s ease;
@@ -1031,12 +1048,14 @@ body{
     justify-content: center;
     color: #fff;
     text-decoration: none;
-    padding: 8px 15px;
-    border-radius: 6px;
-    font-size: 14px;
+    padding: 6px 12px; /* 减少内边距 */
+    border-radius: 5px;
+    font-size: 13px; /* 稍微减小字体 */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-    min-width: 100px;
+    min-width: 90px; /* 减少最小宽度 */
     text-align: center;
+    height: 32px; /* 固定高度 */
+    box-sizing: border-box;
 }
 
 .nav-item:hover {
@@ -1167,7 +1186,26 @@ body{
     }
     
     .version-info {
-        padding: 6px 10px;
+        padding: 4px 8px;
+        font-size: 10px;
+        gap: 4px;
+        max-height: 28px;
+    }
+    
+    .version-details {
+        gap: 3px;
+    }
+    
+    .current-version,
+    .latest-version-text {
+        font-size: 9px;
+        padding: 1px 3px;
+    }
+    
+    .update-btn {
+        font-size: 9px;
+        padding: 2px 6px;
+        height: 16px;
     }
     
     /* 搜索和筛选区域响应式 */
@@ -1222,7 +1260,36 @@ body{
     }
     
     .version-info {
-        padding: 4px 8px;
+        padding: 3px 6px;
+        font-size: 10px;
+        gap: 4px;
+        max-height: 24px;
+    }
+    
+    .version-latest {
+        font-size: 10px;
+        gap: 3px;
+    }
+    
+    .version-number {
+        font-size: 9px;
+        padding: 1px 2px;
+    }
+    
+    .version-details {
+        gap: 3px;
+    }
+    
+    .current-version,
+    .latest-version-text {
+        font-size: 9px;
+        padding: 1px 3px;
+    }
+    
+    .update-btn {
+        font-size: 9px;
+        padding: 2px 6px;
+        height: 16px;
     }
     
     .donate-link span,
@@ -1262,47 +1329,51 @@ body{
     color: white;
 }
 
-/* 版本号与更新提示 */
+/* 版本号与更新提示 - 优化为水平紧凑布局 */
 .version-details {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap; /* 在必要时换行 */
 }
 
 .version-label {
-    font-size: 12px;
+    font-size: 10px;
     color: rgba(255,255,255,0.7);
-    margin-bottom: 3px;
+    white-space: nowrap; /* 防止换行 */
+    margin: 0; /* 移除边距 */
 }
 
 .current-version {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 500;
     color: #fff;
-    padding: 2px 6px;
-    background-color: rgba(24, 144, 255, 0.4);
-    border-radius: 4px;
-    letter-spacing: 0.5px;
+    padding: 1px 4px;
+    background-color: rgba(24, 144, 255, 0.5);
+    border-radius: 3px;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
 }
 
 .latest-version-text {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 500;
     color: #fff;
-    padding: 2px 6px;
-    background-color: rgba(82, 196, 26, 0.4);
-    border-radius: 4px;
-    letter-spacing: 0.5px;
+    padding: 1px 4px;
+    background-color: rgba(82, 196, 26, 0.5);
+    border-radius: 3px;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
 }
 
 .latest-version-container {
-    height: 20px;
+    height: 18px;
     display: flex;
     align-items: center;
 }
 
 .latest-version-img {
-    height: 20px;
+    height: 18px;
     transition: transform 0.2s ease;
     cursor: pointer;
 }
@@ -1315,14 +1386,18 @@ body{
     background-color: #ff6b6b;
     color: white;
     border: none;
-    padding: 5px 12px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 500;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
     animation: pulse 1.5s infinite;
     transition: background-color 0.3s;
+    white-space: nowrap;
+    height: 20px; /* 固定高度 */
+    display: flex;
+    align-items: center;
 }
 
 .update-btn:hover {
@@ -1366,16 +1441,18 @@ body{
 .version-latest {
     display: flex;
     align-items: center;
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 500;
     color: #fff;
-    gap: 8px;
+    gap: 6px;
+    white-space: nowrap;
 }
 
 .version-check-icon {
     color: #52c41a;
-    font-size: 16px;
+    font-size: 14px;
     text-shadow: 0 0 5px rgba(82, 196, 26, 0.5);
+    flex-shrink: 0;
 }
 
 .dark-mode .version-latest {
@@ -1388,12 +1465,13 @@ body{
 
 .version-number {
     background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-    padding: 2px 6px;
-    margin-left: 4px;
-    font-weight: 200;
+    border-radius: 3px;
+    padding: 1px 4px;
+    margin-left: 2px;
+    font-weight: 400;
     color: #fff;
-    font-size: 14px;
+    font-size: 11px;
+    white-space: nowrap;
 }
 
 .dark-mode .version-number {

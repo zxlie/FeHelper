@@ -77,7 +77,9 @@
                     <div class="settings-section">
                         <h4># FH工具排序 <span class="x-tips">（自定义已安装工具在弹窗中的显示顺序）</span></h4>
                         <div class="tool-sort-container">
-                            <div class="sort-tips">拖拽下方工具条目来调整顺序，调整后的顺序将在弹窗中生效：</div>
+                            <div class="sort-tips">拖拽下方工具条目来调整顺序，调整后的顺序将在弹窗中生效。<br/>
+                                <span style="color: #52c41a; font-size: 11px;">💡 提示：点击底部"保存"按钮会同时保存工具排序和插件设置</span>
+                            </div>
                             <div class="sortable-list" id="sortableList">
                                 <div v-for="(tool, index) in sortableTools" 
                                      :key="tool.key" 

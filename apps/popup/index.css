@@ -49,8 +49,7 @@ ul.fe-function-list {
     overflow-y: auto; /* 允许垂直滚动 */
     overflow-x: hidden; /* 隐藏水平滚动 */
     max-height: 500px; /* 不再限制最大高度 */
-    display: flex;
-    flex-direction: column-reverse;
+    display: inline-table;
     scrollbar-width: thin; /* Firefox 下的滚动条样式 */
     scrollbar-color: rgba(67, 97, 238, 0.3) transparent;
 }
@@ -87,17 +86,19 @@ ul.fe-function-list li {
     padding: 2px 10px 2px 38px;
     cursor: pointer;
     color: #4a4c6d;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1), height 0.2s ease-out, margin 0.2s ease-out;
+    /* 只对安全的属性进行过渡，避免布局变化 */
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
     display: block;
     align-items: center;
-    height: 28px; /* 默认高度 */
+    height: 28px; /* 固定高度，不变化 */
     border-radius: 6px;
-    margin: 2px 0;
+    margin: 2px 0; /* 固定边距，不变化 */
     border-bottom: 1px solid rgba(67, 97, 238, 0.05);
     text-align: justify;
     position: relative;
-    line-height: 28px;
+    line-height: 28px; /* 固定行高，不变化 */
     flex-shrink: 0; /* 防止被压缩 */
+    box-sizing: border-box; /* 确保padding不影响总宽度 */
 }
 
 ul.fe-function-list li:last-child {
@@ -109,7 +110,8 @@ ul.fe-function-list li:hover {
     color: #000;
     background: rgba(67, 97, 238, 0.08);
     box-shadow: 0 2px 6px rgba(67, 97, 238, 0.08);
-    font-weight: 600;
+    /* 保持字体粗细不变，避免文字宽度变化导致布局抖动 */
+    font-weight: 500;
 }
 
 ul.fe-function-list li > span {
@@ -127,7 +129,8 @@ ul.fe-function-list li:after {
 ul.fe-function-list li > b {
     width: 20px;
     height: 20px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* 只对transform进行过渡，避免其他属性变化影响布局 */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -140,6 +143,8 @@ ul.fe-function-list li > b {
     position: absolute;
     left: 10px;
     top: 6px;
+    /* 确保图标的变换不影响文档流 */
+    transform-origin: center center;
 }
 
 /* 暗黑模式适配 */
@@ -148,6 +153,7 @@ ul.fe-function-list li > b {
 }
 
 ul.fe-function-list li:hover > b {
+    transform: rotate(360deg);
     -webkit-transform: rotate(360deg);
 }
 
