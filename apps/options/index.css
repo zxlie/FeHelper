@@ -1930,4 +1930,38 @@ body{
     color: #888;
 }
 
+/* 突出显示修复按钮 */
+.highlight-bugfix {
+    background: linear-gradient(90deg, #ff9800 0%, #ffc107 100%);
+    color: #fff !important;
+    border-radius: 6px;
+    font-weight: bold;
+    margin-left: 10px;
+    padding: 0 16px;
+    box-shadow: 0 2px 8px rgba(255,152,0,0.10);
+    display: flex;
+    align-items: center;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: 1px solid #ff9800;
+    height: 32px;
+}
+
+.highlight-bugfix:hover {
+    background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
+    color: #fff;
+    transform: scale(1.06);
+    box-shadow: 0 4px 16px rgba(255,152,0,0.18);
+    text-decoration: none;
+}
+
+.bugfix-emoji {
+    font-size: 20px;
+    margin-right: 6px;
+}
+
+.bugfix-text {
+    font-size: 15px;
+    letter-spacing: 1px;
+}
+
 

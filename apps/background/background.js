@@ -586,6 +586,26 @@ let BgPageInstance = (function () {
                                 callback && callback({ success: false, error: error.message });
                             });
                         return true; // 异步响应必须返回true
+                    case 'fetch-fehelper-patchs':
+                        fetch('https://www.baidufe.com/fehelper-old/fh-patchs/fehelper-crx.json?t=' + Date.now())
+                            .then(resp => resp.json())
+                            .then(data => {
+                                const patchs = data.patchs || data;
+                                chrome.storage.local.set({ FH_PATCH_HOTFIX: patchs }, () => {
+                                    callback && callback({ success: true });
+                                });
+                            })
+                            .catch(e => {
+                                callback && callback({ success: false, error: e.message });
+                            });
+                        return true;
+                    case 'fh-get-tool-patch':
+                        if (request.toolName) {
+                            getToolPatch(request.toolName).then(patch => {
+                                callback && callback(patch);
+                            });
+                        }
+                        return true;
                 }
                 callback && callback(request.params);
             } else {
@@ -598,9 +618,7 @@ let BgPageInstance = (function () {
 
         // 每开一个窗口，都向内容脚本注入一个js，绑定tabId
         chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-
             if (String(changeInfo.status).toLowerCase() === "complete") {
-
                 if(/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))){
                     InjectTools.inject(tabId, { js: `window.__FH_TAB_ID__=${tabId};` });
                     _injectContentScripts(tabId);
@@ -719,6 +737,21 @@ let BgPageInstance = (function () {
             FH_CLIENT_INFO = request.data;
         }
     });
+
+    // 获取指定工具的补丁（css/js），返回Promise
+    function getToolPatch(toolName) {
+        return new Promise(resolve => {
+            chrome.storage.local.get('FH_PATCH_HOTFIX', result => {
+                const patchs = result.FH_PATCH_HOTFIX;
+                if (patchs && patchs[toolName]) {
+                    const { css, js } = patchs[toolName];
+                    resolve({ css, js });
+                } else {
+                    resolve({ css: '', js: '' });
+                }
+            });
+        });
+    }
 
     return {
         pageCapture: _captureVisibleTab,

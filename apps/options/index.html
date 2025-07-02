@@ -27,6 +27,10 @@
                 <i class="nav-icon">⚙</i>
                 <span>插件设置</span>
             </a>
+            <a href="#" @click="autoFixBugs" class="nav-item bugfix-link highlight-bugfix" title="一键修复插件Bug，应用官方补丁">
+                <span class="bugfix-emoji">🛠️</span>
+                <span class="bugfix-text">一键修复Bug</span>
+            </a>
             <div class="version-info" v-if="versionChecked">
                 <!-- 当版本相同时显示简化信息 -->
                 <div v-if="latestVersion && !needUpdate" class="version-latest">

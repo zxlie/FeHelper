@@ -140,6 +140,9 @@ new Vue({
         // 检查URL中是否有donate_from参数
         this.checkDonateParam();
 
+        // 页面加载时自动获取并注入options页面的补丁
+        this.loadPatchHotfix();
+
         // 埋点：自动触发options
         chrome.runtime.sendMessage({
             type: 'fh-dynamic-any-thing',
@@ -1423,6 +1426,52 @@ new Vue({
                     type: 'error'
                 });
             }
+        },
+
+        async autoFixBugs() {
+            this.showNotification({ message: '正在拉取修复补丁，请稍候...' });
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'fetch-fehelper-patchs'
+            }, (resp) => {
+                if (!resp || !resp.success) {
+                    this.showNotification({ message: '补丁拉取失败，请稍后重试！', type: 'error' });
+                    return;
+                }
+                this.showNotification({
+                    message: '当前FeHelper插件中的已知Bug都已修复，你可以去验证了。',
+                    type: 'success',
+                    duration: 5000
+                });
+                // 当前页面的bug立即更新
+                this.loadPatchHotfix();
+            });
+        },
+
+        loadPatchHotfix() {
+            // 页面加载时自动获取并注入options页面的补丁
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'fh-get-tool-patch',
+                toolName: 'options'
+            }, patch => {
+                if (patch) {
+                    if (patch.css) {
+                        const style = document.createElement('style');
+                        style.textContent = patch.css;
+                        document.head.appendChild(style);
+                    }
+                    if (patch.js) {
+                        try {
+                            if (window.evalCore && window.evalCore.getEvalInstance) {
+                                window.evalCore.getEvalInstance(window)(patch.js);
+                            }
+                        } catch (e) {
+                            console.error('options补丁JS执行失败', e);
+                        }
+                    }
+                }
+            });
         }
     },
 
