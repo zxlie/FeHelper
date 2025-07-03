@@ -716,6 +716,26 @@ new Vue({
             }
             
             return 'jsonpath_' + filename;
+        },
+
+        jumpToMockDataTool: function(event) {
+            event.preventDefault();
+            // 1. 先判断mock-data工具是否已安装
+            // 方案：直接读取chrome.storage.local，判断DYNAMIC_TOOL:mock-data是否存在
+            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+                chrome.storage.local.get('DYNAMIC_TOOL:mock-data', result => {
+                    if (result && result['DYNAMIC_TOOL:mock-data']) {
+                        // 已安装，直接打开mock-data工具
+                        window.open('/mock-data/index.html', '_blank');
+                    } else {
+                        // 未安装，跳转到原href
+                        window.open('/options/index.html?query=数据Mock工具', '_blank');
+                    }
+                });
+            } else {
+                // 兜底：如果无法访问chrome.storage，直接跳原href
+                window.open('/options/index.html?query=数据Mock工具', '_blank');
+            }
         }
     }
 });
