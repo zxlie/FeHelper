@@ -770,8 +770,10 @@ let BgPageInstance = (function () {
             return;
         }
 
-        chrome.storage.local.get('FH_PATCH_HOTFIX', result => {
-            const patchs = result.FH_PATCH_HOTFIX;
+        let version = String(chrome.runtime.getManifest().version).split('.').map(n => parseInt(n)).join('.');
+        const storageKey = `FH_PATCH_HOTFIX_${version}`;
+        chrome.storage.local.get(storageKey, result => {
+            const patchs = result[storageKey];
             if (patchs && patchs[toolName]) {
                 const { css, js } = patchs[toolName];
                 callback && callback({ css, js });
@@ -856,7 +858,9 @@ let BgPageInstance = (function () {
                         })
                         .then(data => {
                             const patchs = data.patchs || data;
-                            chrome.storage.local.set({ FH_PATCH_HOTFIX: patchs }, () => {
+                            const storageData = {};
+                            storageData[`FH_PATCH_HOTFIX_${version}`] = patchs;
+                            chrome.storage.local.set(storageData, () => {
                                 console.log(`[FeHelper] 成功获取版本 v${version} 的热修复补丁`);
                                 callback && callback({ success: true, version });
                             });
