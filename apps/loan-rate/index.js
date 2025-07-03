@@ -30,6 +30,8 @@ new Vue({
     mounted: function () {
         // 进制转换的初始化
         this.paybackConvert();
+
+        this.loadPatchHotfix();
     },
 
     methods: {
@@ -332,7 +334,34 @@ new Vue({
             event.preventDefault();
             event.stopPropagation();
             chrome.runtime.openOptionsPage();
-        }
+        },
+
+
+        loadPatchHotfix() {
+            // 页面加载时自动获取并注入页面的补丁
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'fh-get-tool-patch',
+                toolName: 'loan-rate'
+            }, patch => {
+                if (patch) {
+                    if (patch.css) {
+                        const style = document.createElement('style');
+                        style.textContent = patch.css;
+                        document.head.appendChild(style);
+                    }
+                    if (patch.js) {
+                        try {
+                            if (window.evalCore && window.evalCore.getEvalInstance) {
+                                window.evalCore.getEvalInstance(window)(patch.js);
+                            }
+                        } catch (e) {
+                            console.error('loan-rate补丁JS执行失败', e);
+                        }
+                    }
+                }
+            });
+        },
         
         
     }

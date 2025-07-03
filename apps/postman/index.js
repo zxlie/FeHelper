@@ -53,8 +53,36 @@ new Vue({
 
     mounted: function () {
         this.$refs.url.focus();
+        this.loadPatchHotfix();
     },
     methods: {
+
+        loadPatchHotfix() {
+            // 页面加载时自动获取并注入页面的补丁
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'fh-get-tool-patch',
+                toolName: 'postman'
+            }, patch => {
+                if (patch) {
+                    if (patch.css) {
+                        const style = document.createElement('style');
+                        style.textContent = patch.css;
+                        document.head.appendChild(style);
+                    }
+                    if (patch.js) {
+                        try {
+                            if (window.evalCore && window.evalCore.getEvalInstance) {
+                                window.evalCore.getEvalInstance(window)(patch.js);
+                            }
+                        } catch (e) {
+                            console.error('postman补丁JS执行失败', e);
+                        }
+                    }
+                }
+            });
+        },
+
         postman: function () {
             this.$nextTick(() => {
                 this.sendRequest(this.urlContent, this.methodContent, this.paramContent);

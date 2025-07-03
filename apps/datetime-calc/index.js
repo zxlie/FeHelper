@@ -1042,6 +1042,32 @@ var TimestampApp = {
     }
 };
 
+function loadPatchHotfix() {
+    // 页面加载时自动获取并注入页面的补丁
+    chrome.runtime.sendMessage({
+        type: 'fh-dynamic-any-thing',
+        thing: 'fh-get-tool-patch',
+        toolName: 'datetime-calc'
+    }, patch => {
+        if (patch) {
+            if (patch.css) {
+                const style = document.createElement('style');
+                style.textContent = patch.css;
+                document.head.appendChild(style);
+            }
+            if (patch.js) {
+                try {
+                    if (window.evalCore && window.evalCore.getEvalInstance) {
+                        window.evalCore.getEvalInstance(window)(patch.js);
+                    }
+                } catch (e) {
+                    console.error('datetime-calc补丁JS执行失败', e);
+                }
+            }
+        }
+    });
+}
+
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
     TimestampApp.init();
@@ -1067,6 +1093,7 @@ document.addEventListener('DOMContentLoaded', function() {
             chrome.runtime.openOptionsPage();
         });
     }
+    loadPatchHotfix();
 });
 
 // 全局暴露主要对象（用于调试）

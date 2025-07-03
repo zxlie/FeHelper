@@ -36,9 +36,37 @@ new Vue({
 
         //输入框聚焦
         this.$refs.codeSource.focus();
+        this.loadPatchHotfix();
     },
 
     methods: {
+
+        loadPatchHotfix() {
+            // 页面加载时自动获取并注入页面的补丁
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'fh-get-tool-patch',
+                toolName: 'code-beautify'
+            }, patch => {
+                if (patch) {
+                    if (patch.css) {
+                        const style = document.createElement('style');
+                        style.textContent = patch.css;
+                        document.head.appendChild(style);
+                    }
+                    if (patch.js) {
+                        try {
+                            if (window.evalCore && window.evalCore.getEvalInstance) {
+                                window.evalCore.getEvalInstance(window)(patch.js);
+                            }
+                        } catch (e) {
+                            console.error('code-beautify补丁JS执行失败', e);
+                        }
+                    }
+                }
+            });
+        },
+
         format: function () {
             if (!this.sourceContent.trim()) {
                 return this.toast('内容为空，不需要美化处理！', 'warning');

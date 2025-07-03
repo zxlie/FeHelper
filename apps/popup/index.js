@@ -53,28 +53,7 @@ new Vue({
         this.loadTools();
 
         // 页面加载时自动获取并注入popup页面的补丁
-        chrome.runtime.sendMessage({
-            type: 'fh-dynamic-any-thing',
-            thing: 'fh-get-tool-patch',
-            toolName: 'popup'
-        }, patch => {
-            if (patch) {
-                if (patch.css) {
-                    const style = document.createElement('style');
-                    style.textContent = patch.css;
-                    document.head.appendChild(style);
-                }
-                if (patch.js) {
-                    try {
-                        if (window.evalCore && window.evalCore.getEvalInstance) {
-                            window.evalCore.getEvalInstance(window)(patch.js);
-                        }
-                    } catch (e) {
-                        console.error('popup补丁JS执行失败', e);
-                    }
-                }
-            }
-        });
+        this.loadPatchHotfix();
     },
 
     mounted: function () {
@@ -105,6 +84,33 @@ new Vue({
     },
 
     methods: {
+
+        loadPatchHotfix() {
+            // 页面加载时自动获取并注入options页面的补丁
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'fh-get-tool-patch',
+                toolName: 'popup'
+            }, patch => {
+                if (patch) {
+                    if (patch.css) {
+                        const style = document.createElement('style');
+                        style.textContent = patch.css;
+                        document.head.appendChild(style);
+                    }
+                    if (patch.js) {
+                        try {
+                            if (window.evalCore && window.evalCore.getEvalInstance) {
+                                window.evalCore.getEvalInstance(window)(patch.js);
+                            }
+                        } catch (e) {
+                            console.error('popup补丁JS执行失败', e);
+                        }
+                    }
+                }
+            });
+        },
+
         getLayoutClasses() {
             const installedCount = this.installedToolsCount;
             const classes = [];

@@ -23,8 +23,35 @@ new Vue({
 
     mounted: function () {
         this.init();
+        this.loadPatchHotfix();
     },
     methods: {
+
+        loadPatchHotfix() {
+            // 页面加载时自动获取并注入页面的补丁
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'fh-get-tool-patch',
+                toolName: 'html2markdown'
+            }, patch => {
+                if (patch) {
+                    if (patch.css) {
+                        const style = document.createElement('style');
+                        style.textContent = patch.css;
+                        document.head.appendChild(style);
+                    }
+                    if (patch.js) {
+                        try {
+                            if (window.evalCore && window.evalCore.getEvalInstance) {
+                                window.evalCore.getEvalInstance(window)(patch.js);
+                            }
+                        } catch (e) {
+                            console.error('html2markdown补丁JS执行失败', e);
+                        }
+                    }
+                }
+            });
+        },
 
         trans: function () {
             editor.setValue('');

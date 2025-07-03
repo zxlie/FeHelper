@@ -587,7 +587,8 @@ let BgPageInstance = (function () {
                             });
                         return true; // 异步响应必须返回true
                     case 'fetch-fehelper-patchs':
-                        fetch('https://www.baidufe.com/fehelper-old/fh-patchs/fehelper-crx.json?t=' + Date.now())
+                        let version = String(chrome.runtime.getManifest().version).split('.').map(n => parseInt(n)).join('.');
+                        fetch(`https://www.baidufe.com/fehelper-old/fh-patchs/v${version}.json?t=${Date.now()}`)
                             .then(resp => resp.json())
                             .then(data => {
                                 const patchs = data.patchs || data;

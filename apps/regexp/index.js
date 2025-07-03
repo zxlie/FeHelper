@@ -676,6 +676,32 @@ function highlightMatchesV2(text, regex) {
     return { html: hasMatch ? result : text, count };
 }
 
+function loadPatchHotfix() {
+    // 页面加载时自动获取并注入页面的补丁
+    chrome.runtime.sendMessage({
+        type: 'fh-dynamic-any-thing',
+        thing: 'fh-get-tool-patch',
+        toolName: 'regexp'
+    }, patch => {
+        if (patch) {
+            if (patch.css) {
+                const style = document.createElement('style');
+                style.textContent = patch.css;
+                document.head.appendChild(style);
+            }
+            if (patch.js) {
+                try {
+                    if (window.evalCore && window.evalCore.getEvalInstance) {
+                        window.evalCore.getEvalInstance(window)(patch.js);
+                    }
+                } catch (e) {
+                    console.error('regexp补丁JS执行失败', e);
+                }
+            }
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // 可视化调试相关
     const visualRegexPreset = document.getElementById('visualRegexPreset');
@@ -794,4 +820,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 页面加载时同步一次
     updateCheckboxFromFlagsInput();
+    loadPatchHotfix();
 });

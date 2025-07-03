@@ -70,8 +70,36 @@ new Vue({
                 this.history = JSON.parse(local);
             } catch(e) {}
         }
+        this.loadPatchHotfix();
     },
     methods: {
+
+        loadPatchHotfix() {
+            // 页面加载时自动获取并注入页面的补丁
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'fh-get-tool-patch',
+                toolName: 'aiagent'
+            }, patch => {
+                if (patch) {
+                    if (patch.css) {
+                        const style = document.createElement('style');
+                        style.textContent = patch.css;
+                        document.head.appendChild(style);
+                    }
+                    if (patch.js) {
+                        try {
+                            if (window.evalCore && window.evalCore.getEvalInstance) {
+                                window.evalCore.getEvalInstance(window)(patch.js);
+                            }
+                        } catch (e) {
+                            console.error('aiagent补丁JS执行失败', e);
+                        }
+                    }
+                }
+            });
+        },
+
         // 这个代码，主要用来判断大模型返回的内容是不是包含完整的代码块
         validateCodeBlocks(content) {
             let backticksCount = 0;
