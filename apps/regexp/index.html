@@ -5,149 +5,101 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>正则表达式工具 - FeHelper</title>
         <link rel="stylesheet" href="index.css">
+        <script type="text/javascript" src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
         <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     </head>
     <body>
-        <header class="header">
-            <div class="logo panel-title">
-                <img src="../../static/img/fe-48.png" alt="FeHelper Logo" width="24" height="24">
-                <h3>FeHelper | 正则表达式速查</h3>
-                <span class="subtitle">支持 JavaScript / Python / PHP / Java 等语言的正则速查</span>
-                <a href="#" class="x-donate-link" id="donate-link"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
-                <a class="x-other-tools" id="other-tools"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+        <div class="panel panel-default" style="margin-bottom: 0px;">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                        <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：正则表达式工具
+                        <a class="x-other-tools" id="btnOtherTools"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+                        <span class="x-donate-link" id="donateLink"><a href="#" id="donateLink"><i class="nav-icon">❤</i>&nbsp;打赏鼓励</a></span>
+                </h3>
             </div>
-        </header>
+        </div>
 
         <main class="container">
-            
-            <!-- 正则可视化调试区域 -->
-            <section class="regex-visual-debugger">
-                <h2>正则表达式可视化调试</h2>
-                <div class="visual-debugger-form">
-                    <select id="visualRegexPreset">
-                        <option value="">自定义/选择常用正则</option>
-                        <!-- 动态插入所有内置正则 -->
-                    </select>
-                    <input type="text" id="visualRegex" placeholder="请输入正则表达式，如：^\\d{3}-\\d{8}$" />
-                    <div class="visual-flags-group">
-                        <label class="flag-btn" title="g：全局匹配（查找所有匹配项）">
-                            <input type="checkbox" value="g" /> g
-                        </label>
-                        <label class="flag-btn" title="i：忽略大小写">
-                            <input type="checkbox" value="i" /> i
-                        </label>
-                        <label class="flag-btn" title="m：多行模式（^$作用于每行）">
-                            <input type="checkbox" value="m" /> m
-                        </label>
-                        <span class="flag-desc">常用标志：g=全局 i=忽略大小写 m=多行</span>
-                    </div>
-                    <input type="text" id="visualFlags" placeholder="标志（可选，如：gim）" maxlength="5" style="display:none;" />
+            <!-- Tab 切换区域 -->
+            <div class="tab-container">
+                <div class="tab-header">
+                    <button class="tab-btn active" data-tab="new-version">新版 - 正则速查</button>
+                    <button class="tab-btn" data-tab="old-version">旧版 - 正则测试</button>
                 </div>
-                <textarea id="visualTestText" rows="4" placeholder="请输入要测试的文本"></textarea>
-                <div class="visual-debugger-actions">
-                    <button id="visualTestBtn">测试匹配</button>
-                    <span id="visualErrorMsg" class="visual-error-msg"></span>
+                
+                <!-- 新版内容 -->
+                <div class="tab-content active" id="new-version">
+                    <!-- 正则可视化调试区域 -->
+                    <section class="regex-visual-debugger">
+                        <h2>正则表达式可视化调试</h2>
+                        <div class="visual-debugger-form">
+                            <select id="visualRegexPreset">
+                                <option value="">自定义/选择常用正则</option>
+                                <!-- 动态插入所有内置正则 -->
+                            </select>
+                            <input type="text" id="visualRegex" placeholder="请输入正则表达式，如：^\\d{3}-\\d{8}$" />
+                            <div class="visual-flags-group">
+                                <label class="flag-btn" title="g：全局匹配（查找所有匹配项）">
+                                    <input type="checkbox" value="g" /> g
+                                </label>
+                                <label class="flag-btn" title="i：忽略大小写">
+                                    <input type="checkbox" value="i" /> i
+                                </label>
+                                <label class="flag-btn" title="m：多行模式（^$作用于每行）">
+                                    <input type="checkbox" value="m" /> m
+                                </label>
+                                <span class="flag-desc">常用标志：g=全局 i=忽略大小写 m=多行</span>
+                            </div>
+                            <input type="text" id="visualFlags" placeholder="标志（可选，如：gim）" maxlength="5" style="display:none;" />
+                        </div>
+                        <textarea id="visualTestText" rows="4" placeholder="请输入要测试的文本"></textarea>
+                        <div class="visual-debugger-actions">
+                            <button id="visualTestBtn">测试匹配</button>
+                            <span id="visualErrorMsg" class="visual-error-msg"></span>
+                        </div>
+                        <div id="visualResult" class="visual-result"></div>
+                    </section>
+                    
+                    <div class="search-container">
+                        <div class="search-box">
+                            <input type="text" id="regexSearch" placeholder="输入关键词，搜索正则表达式..." />
+                            <span class="search-icon">🔍</span>
+                        </div>
+                    </div>
+                    
+                    <div id="regexCategoryContainer"></div>
                 </div>
-                <div id="visualResult" class="visual-result"></div>
-            </section>
-            
-            <div class="search-container">
-                <div class="search-box">
-                    <input type="text" id="regexSearch" placeholder="搜索正则表达式..." />
-                    <span class="search-icon">🔍</span>
+
+                <!-- 旧版内容 -->
+                <div class="tab-content" id="old-version">
+                    <div class="wrapper" id="pageContainer">
+                        <div class="panel-body mod-regexp">
+                            <div class="ui-po-r ui-mb-20">
+                                <h3 class="panel-subtitle">正则表达式</h3>
+                                <span class="pannel-select reg-list">
+                                    <select class="form-control reglist_select" id="regList">
+                                        <option value="">-- 常用正则表达式 --</option>
+                                    </select>
+                                </span>
+                            </div>
+                            <textarea class="reg_reg_input form-control" id="regText" placeholder="输入正则表达式，如：/[0-9A-Z].*?/igm" rows="1" tabindex="10"></textarea>
+                            <a class="reg_link" href="https://chrome.fehelper.com/blog/detail.html?id=eb10deb92f2c05ca32cf" target="_blank" tabindex="30">Javascript正则表达式语法</a>
+
+                            <div id="src" class="ui-mt-20">
+                                <h3 class="panel-subtitle">文本内容</h3>
+                                <div id="srcWrapper">
+                                    <pre class="reg_pre" id="srcBackground"></pre>
+                                    <textarea class="reg_textarea" id="srcCode" placeholder="输入待匹配的文本" contenteditable="true"></textarea>
+                                </div>
+                            </div>
+                            <div id="rst" class="">
+                                <h3 class="panel-subtitle">匹配结果&nbsp;&nbsp;<span id="rstCount"></span></h3>
+                                <div id="rstCode"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="regex-categories">
-                <!-- 验证类 -->
-                <section class="category">
-                    <h2>验证类</h2>
-                    <div class="regex-list">
-                        <div class="regex-item" data-regex-id="email">邮箱验证</div>
-                        <div class="regex-item" data-regex-id="phone">手机号验证</div>
-                        <div class="regex-item" data-regex-id="tel">固定电话验证</div>
-                        <div class="regex-item" data-regex-id="url">URL验证</div>
-                        <div class="regex-item" data-regex-id="idcard">身份证验证</div>
-                        <div class="regex-item" data-regex-id="ipv4">IPv4地址验证</div>
-                        <div class="regex-item" data-regex-id="date">日期验证</div>
-                        <div class="regex-item" data-regex-id="number">数字验证</div>
-                        <div class="regex-item" data-regex-id="number-n-digits">n位数字验证</div>
-                        <div class="regex-item" data-regex-id="number-min-n-digits">至少n位数字验证</div>
-                        <div class="regex-item" data-regex-id="number-range-digits">数字位数范围验证</div>
-                        <div class="regex-item" data-regex-id="decimal">小数验证</div>
-                        <div class="regex-item" data-regex-id="integer">整数验证</div>
-                        <div class="regex-item" data-regex-id="chinese-name">中文姓名验证</div>
-                        <div class="regex-item" data-regex-id="english-name">英文姓名验证</div>
-                        <div class="regex-item" data-regex-id="username">用户名验证</div>
-                        <div class="regex-item" data-regex-id="password-strong">强密码验证</div>
-                        <div class="regex-item" data-regex-id="mac-address">MAC地址验证</div>
-                        <div class="regex-item" data-regex-id="hex-color">16进制颜色验证</div>
-                        <div class="regex-item" data-regex-id="version-number">版本号验证</div>
-                    </div>
-                </section>
-
-                <!-- 提取类 -->
-                <section class="category">
-                    <h2>提取类</h2>
-                    <div class="regex-list">
-                        <div class="regex-item" data-regex-id="html-tag">HTML标签提取</div>
-                        <div class="regex-item" data-regex-id="img-url">图片URL提取</div>
-                        <div class="regex-item" data-regex-id="chinese">中文字符提取</div>
-                        <div class="regex-item" data-regex-id="numbers">数字提取</div>
-                        <div class="regex-item" data-regex-id="email-extract">邮箱地址提取</div>
-                        <div class="regex-item" data-regex-id="link-extract">链接提取</div>
-                        <div class="regex-item" data-regex-id="color-hex">颜色值提取</div>
-                        <div class="regex-item" data-regex-id="ip-extract">IP地址提取</div>
-                    </div>
-                </section>
-
-                <!-- 替换类 -->
-                <section class="category">
-                    <h2>替换类</h2>
-                    <div class="regex-list">
-                        <div class="regex-item" data-regex-id="trim">去除首尾空格</div>
-                        <div class="regex-item" data-regex-id="remove-html">去除HTML标签</div>
-                        <div class="regex-item" data-regex-id="camelcase">驼峰命名转换</div>
-                        <div class="regex-item" data-regex-id="remove-script">去除Script标签</div>
-                        <div class="regex-item" data-regex-id="remove-space">去除多余空格</div>
-                        <div class="regex-item" data-regex-id="remove-comment">去除注释</div>
-                    </div>
-                </section>
-
-                <!-- 格式化类 -->
-                <section class="category">
-                    <h2>格式化类</h2>
-                    <div class="regex-list">
-                        <div class="regex-item" data-regex-id="money">金额格式化</div>
-                        <div class="regex-item" data-regex-id="phone-format">手机号格式化</div>
-                        <div class="regex-item" data-regex-id="date-format">日期格式化</div>
-                        <div class="regex-item" data-regex-id="card-format">银行卡格式化</div>
-                        <div class="regex-item" data-regex-id="idcard-format">身份证格式化</div>
-                    </div>
-                </section>
-
-                <!-- 特殊字符类 -->
-                <section class="category">
-                    <h2>特殊字符类</h2>
-                    <div class="regex-list">
-                        <div class="regex-item" data-regex-id="emoji">Emoji表情</div>
-                        <div class="regex-item" data-regex-id="special-char">特殊字符</div>
-                        <div class="regex-item" data-regex-id="unicode">Unicode字符</div>
-                        <div class="regex-item" data-regex-id="invisible-char">不可见字符</div>
-                    </div>
-                </section>
-
-                <!-- 编程相关 -->
-                <section class="category">
-                    <h2>编程相关</h2>
-                    <div class="regex-list">
-                        <div class="regex-item" data-regex-id="variable">变量命名</div>
-                        <div class="regex-item" data-regex-id="function">函数声明</div>
-                        <div class="regex-item" data-regex-id="json">JSON格式</div>
-                        <div class="regex-item" data-regex-id="xml">XML标签</div>
-                        <div class="regex-item" data-regex-id="css">CSS选择器</div>
-                    </div>
-                </section>
             </div>
         </main>
 

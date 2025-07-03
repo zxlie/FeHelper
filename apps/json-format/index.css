@@ -11,6 +11,10 @@ html,body {
     height:100%;
 }
 
+.v-cloak{
+    display: none;
+}
+
 .wp-json {
     width:auto;
 }
