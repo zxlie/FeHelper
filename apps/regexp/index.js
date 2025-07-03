@@ -1369,17 +1369,40 @@ function initTabSwitching() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
+    // 先移除所有active类，防止多个高亮
+    tabBtns.forEach(btn => btn.classList.remove('active'));
+    tabContents.forEach(content => content.classList.remove('active'));
+
+    // 新增：页面加载时恢复上次选中的Tab
+    let lastTab = localStorage.getItem('fh-regexp-last-tab');
+    let found = false;
+    if (lastTab) {
+        tabBtns.forEach(btn => {
+            if (btn.getAttribute('data-tab') === lastTab) {
+                btn.classList.add('active');
+                const tabContent = document.getElementById(lastTab);
+                if (tabContent) tabContent.classList.add('active');
+                found = true;
+            }
+        });
+    }
+    // 如果没有记录或找不到，默认激活第一个
+    if (!found && tabBtns.length > 0 && tabContents.length > 0) {
+        tabBtns[0].classList.add('active');
+        tabContents[0].classList.add('active');
+    }
+
     tabBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             const targetTab = this.getAttribute('data-tab');
-            
             // 移除所有active类
             tabBtns.forEach(b => b.classList.remove('active'));
             tabContents.forEach(c => c.classList.remove('active'));
-            
             // 添加active类到当前选中的
             this.classList.add('active');
             document.getElementById(targetTab).classList.add('active');
+            // 新增：切换Tab时保存当前Tab到localStorage
+            localStorage.setItem('fh-regexp-last-tab', targetTab);
         });
     });
 }
