@@ -752,8 +752,19 @@ function deepParseJSONStrings(obj) {
             if (typeof val === 'string') {
                 try {
                     const parsed = JSON.parse(val);
-                    // 只递归对象或数组
-                    if (typeof parsed === 'object' && parsed !== null) {
+                    // 只递归对象或数组，且排除BigInt结构（如{s,e,c}）和纯数字
+                    if (
+                        typeof parsed === 'object' &&
+                        parsed !== null &&
+                        (Array.isArray(parsed) || Object.prototype.toString.call(parsed) === '[object Object]') &&
+                        !(
+                            parsed &&
+                            typeof parsed.s === 'number' &&
+                            typeof parsed.e === 'number' &&
+                            Array.isArray(parsed.c) &&
+                            Object.keys(parsed).length === 3
+                        )
+                    ) {
                         newObj[key] = deepParseJSONStrings(parsed);
                         continue;
                     }

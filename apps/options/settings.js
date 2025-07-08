@@ -14,7 +14,8 @@ export default (() => {
         'FORBID_OPEN_IN_NEW_TAB': false,
         'AUTO_DARK_MODE': false,
         'ALWAYS_DARK_MODE': false,
-        'CONTENT_SCRIPT_ALLOW_ALL_FRAMES': false
+        'CONTENT_SCRIPT_ALLOW_ALL_FRAMES': false,
+        'FORBID_STATISTICS': false
     };
 
     /**

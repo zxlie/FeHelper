@@ -142,6 +142,11 @@
                                 <label for="JSON_PAGE_FORMAT">开启JSON自动美化功能（页面自动检测并格式化，你可在JSON自动美化后进行工具高级定制，包括皮肤等）</label> <br/>
                             </div>
 
+                            <div class="st-item">
+                                <input type="checkbox" value="FORBID_STATISTICS" id="FORBID_STATISTICS" v-model="selectedOpts"/>
+                                <label for="FORBID_STATISTICS">禁止插件做访问统计<span class="x-tips">（勾选后，插件将不会向服务器上报任何统计数据）</span></label> <br/>
+                            </div>
+
                             <div class="st-item" v-if="!isFirefox">
                                 <input type="checkbox" value="AUTO_DARK_MODE" id="AUTO_DARK_MODE" v-model="selectedOpts"/>
                                 <label for="AUTO_DARK_MODE">自动开启夜间模式（<span class="x-tips">眼睛保卫战，晚上<b><i>19:00~06:00</i></b>使用工具的时候自动开启夜间模式）</span></label>

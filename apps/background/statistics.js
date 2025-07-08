@@ -101,31 +101,27 @@ let Statistics = (function() {
      * @returns {Object}
      */
     const getClientInfo = async () => {
-        let tabInfo = {};
-        try {
-            // 获取当前活动tab的页面信息
-            const tabs = await new Promise(resolve => {
-                chrome.tabs.query({active: true, currentWindow: true}, resolve);
-            });
-            if (tabs && tabs.length > 0) {
-                const tab = tabs[0];
-                tabInfo = {
-                    pageUrl: tab.url || '',
-                    pageTitle: tab.title || ''
-                };
-            }
-        } catch (e) {
-            // 忽略tab获取异常
-        }
         const nav = self.navigator || {};
         // 只采集服务端需要的字段
         return {
             userAgent: nav.userAgent || '',
             language: nav.language || '',
             platform: nav.platform || '',
-            extensionVersion: chrome.runtime.getManifest().version,
-            ...tabInfo
+            extensionVersion: chrome.runtime.getManifest().version
         };
+    };
+
+    /**
+     * 判断是否允许统计
+     * @returns {Promise<boolean>} true=允许，false=禁止
+     */
+    const isStatisticsAllowed = async () => {
+        try {
+            const forbid = await Awesome.StorageMgr.get('FORBID_STATISTICS');
+            return !(forbid === true || forbid === 'true');
+        } catch (e) {
+            return true;
+        }
     };
 
     /**
@@ -134,6 +130,7 @@ let Statistics = (function() {
      * @param {Object} params - 事件参数
      */
     const sendToServer = async (eventName, params = {}) => {
+        if (!(await isStatisticsAllowed())) return;
         const uid = await getUserId();
         const clientInfo = await getClientInfo();
         // 只保留服务端 TrackSchema 需要的字段
@@ -144,8 +141,7 @@ let Statistics = (function() {
         };
         // 只允许 TrackSchema 里的字段
         const allowedFields = [
-            'tool_name', 'extensionVersion', 'browser', 'browserVersion', 'os', 'osVersion',
-            'IP', 'country', 'province', 'city', 'pageUrl', 'pageTitle', 'language', 'platform'
+            'tool_name', 'extensionVersion', 'browser', 'browserVersion', 'os', 'osVersion', 'IP',  'language', 'platform'
         ];
         for (const key of allowedFields) {
             if (params[key] !== undefined) {

@@ -40,7 +40,7 @@ new Vue({
         showSettingsModal: false,
         defaultKey: 'Alt+Shift+J', // 默认快捷键
         countDown: 0, // 夜间模式倒计时
-        selectedOpts: [], // 选中的选项
+        selectedOpts: [], // 选中的选项（已支持FORBID_STATISTICS）
         menuDownloadCrx: false, // 菜单-插件下载
         menuFeHelperSeting: false, // 菜单-FeHelper设置
         isFirefox: false, // 是否Firefox浏览器
@@ -1063,8 +1063,15 @@ new Vue({
             try {
                 // 构建设置对象
                 let opts = {};
-                ['OPT_ITEM_CONTEXTMENUS', 'FORBID_OPEN_IN_NEW_TAB', 'CONTENT_SCRIPT_ALLOW_ALL_FRAMES', 
-                 'JSON_PAGE_FORMAT', 'AUTO_DARK_MODE', 'ALWAYS_DARK_MODE'].forEach(key => {
+                [
+                    'OPT_ITEM_CONTEXTMENUS',
+                    'FORBID_OPEN_IN_NEW_TAB',
+                    'CONTENT_SCRIPT_ALLOW_ALL_FRAMES',
+                    'JSON_PAGE_FORMAT',
+                    'AUTO_DARK_MODE',
+                    'ALWAYS_DARK_MODE',
+                    'FORBID_STATISTICS' // 新增，确保保存
+                ].forEach(key => {
                     opts[key] = this.selectedOpts.includes(key).toString();
                 });
                 
