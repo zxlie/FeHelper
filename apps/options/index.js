@@ -432,7 +432,7 @@ new Vue({
                 // 其他情况，如更新检查失败等
                 // 备选方案：跳转到官方网站
                 chrome.tabs.create({ 
-                    url: 'https://baidufe.com/fehelper'
+                    url: 'https://fehelper.com/'
                 });
                 
                 this.showNotification({
@@ -446,7 +446,7 @@ new Vue({
         handleUpdateError(error) {
             // 出错时跳转到官方网站
             chrome.tabs.create({ 
-                url: 'https://baidufe.com/fehelper'
+                url: 'https://fehelper.com/'
             });
             
             this.showNotification({

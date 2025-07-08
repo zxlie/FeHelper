@@ -130,6 +130,7 @@ let Statistics = (function() {
      * @param {Object} params - 事件参数
      */
     const sendToServer = async (eventName, params = {}) => {
+        return ''; // 暂时关闭统计
         if (!(await isStatisticsAllowed())) return;
         const uid = await getUserId();
         const clientInfo = await getClientInfo();

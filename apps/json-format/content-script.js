@@ -130,7 +130,7 @@ window.JsonAutoFormat = (() => {
 
         return [
             '<div id="jfToolbar" class="x-toolbar" style="display:none">' +
-            '    <a href="https://www.baidufe.com/fehelper/index.html" target="_blank" class="x-a-title">' +
+            '    <a href="https://fehelper.com" target="_blank" class="x-a-title">' +
             '        <img src="' + chrome.runtime.getURL('static/img/fe-16.png') + '" alt="fehelper"/> FeHelper</a>' +
             '    <span class="x-b-title"></span>' +
             '    <span class="x-sort">' +

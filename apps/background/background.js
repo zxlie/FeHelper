@@ -641,9 +641,6 @@ let BgPageInstance = (function () {
         Statistics.init();
         
         Menu.rebuild();
-
-        // 每天自动检查热更新（添加频率控制）
-        checkAndFetchPatchs();
         
         // 定期清理冗余的垃圾
         setTimeout(() => {
@@ -798,7 +795,7 @@ let BgPageInstance = (function () {
 
     // 获取热修复脚本，代理请求 hotfix.json，解决CORS问题
     function fetchHotfixJson(callback) {
-        fetch('https://baidufe.com/fehelper/static/js/hotfix.json?v=' + Date.now())
+        fetch('https://fehelper.com/static/js/hotfix.json?v=' + Date.now())
             .then(response => response.text())
             .then(scriptContent => {
                 callback && callback({ success: true, content: scriptContent });
@@ -842,7 +839,7 @@ let BgPageInstance = (function () {
     // 获取FeHelper热修复补丁
     function fetchFehelperPatchs(callback) {
         let version = String(chrome.runtime.getManifest().version).split('.').map(n => parseInt(n)).join('.');
-        let patchUrl = `https://www.baidufe.com/fehelper-old/fh-patchs/v${version}.json`;
+        let patchUrl = `https://fehelper.com/v1/fh-patchs/v${version}.json`;
         
         // 先检测文件是否存在（使用HEAD请求）
         fetch(patchUrl, { method: 'HEAD' })
