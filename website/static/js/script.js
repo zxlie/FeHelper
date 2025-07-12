@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initToolTabs();
     initScrollAnimations();
     initParallaxEffects();
-    fetchGitHubStats();
+    // fetchGitHubStats(); // 已移除，无实际用途
     initSmoothScrolling();
     initPreviewImageModal();
 });
@@ -161,51 +161,6 @@ function initParallaxEffects() {
             browserMockup.style.transform = `perspective(1000px) rotateY(-5deg) rotateX(5deg) translateY(${scrolled * 0.1}px)`;
         }
     });
-}
-
-// Fetch GitHub stats
-async function fetchGitHubStats() {
-    // Set real data as default values
-    const defaultStars = 5300;
-    const defaultForks = 1300;
-    
-    const starsElement = document.getElementById('github-stars');
-    const forksElement = document.getElementById('github-forks');
-    
-    // Set default values first
-    if (starsElement) {
-        starsElement.textContent = formatNumber(defaultStars);
-    }
-    if (forksElement) {
-        forksElement.textContent = formatNumber(defaultForks);
-    }
-    
-    try {
-        const response = await fetch('https://api.github.com/repos/zxlie/FeHelper');
-        const data = await response.json();
-        
-        // Update with real data if API succeeds
-        if (starsElement && data.stargazers_count) {
-            starsElement.textContent = formatNumber(data.stargazers_count);
-            animateCounter(starsElement.parentElement);
-        }
-        
-        if (forksElement && data.forks_count) {
-            forksElement.textContent = formatNumber(data.forks_count);
-            animateCounter(forksElement.parentElement);
-        }
-    } catch (error) {
-        console.log('GitHub API request failed, using default values:', error.message);
-        // Default values are already set
-    }
-}
-
-// Format numbers (e.g., 1234 -> 1.2K+)
-function formatNumber(num) {
-    if (num >= 1000) {
-        return (num / 1000).toFixed(1) + 'K';
-    }
-    return num.toString();
 }
 
 // Smooth scrolling
