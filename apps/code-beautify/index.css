@@ -1,9 +1,0 @@
-@import url("../static/vendor/prism/prism.css");
-@import url("../static/css/bootstrap.min.css");
-
-#codeSource {
-    height: 150px;
-}
-#btnFormat {
-    outline: none;
-}
