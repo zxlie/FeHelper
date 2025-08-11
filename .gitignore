@@ -1,9 +1,0 @@
-# 工程文件
-.idea
-.DS_Store
-node_modules/
-package-lock.json
-Users/
-output/apps/
-output-firefox/apps/
-output-edge/apps/
