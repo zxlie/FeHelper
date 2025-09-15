@@ -39,6 +39,9 @@
                 <div class="checkbox">
                     <label>密码长度：<input class="form-control" type="number" min="0" v-model="length" @click="convert()"></label>
                 </div>
+                <div class="checkbox">
+                    <label>生成数量：<input class="form-control" type="number" min="1" v-model="count" @change="convert()"></label>
+                </div>
 
                 <div class="checkbox no-border">
                     <input id="btnCopy" class="btn btn-warning" type="button" value="复制" @click="copyResult()" v-show="resultContent.length > 0">

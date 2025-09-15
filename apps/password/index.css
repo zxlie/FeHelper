@@ -2,8 +2,9 @@
 
 #rstCode {
     min-height: 80px;
+    max-height: 300px;
     width:530px;
-    resize: none;
+    resize: vertical;
     margin: 15px;
 }
 .row .checkbox {
