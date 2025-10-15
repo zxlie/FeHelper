@@ -1,30 +1,419 @@
 @import url("../static/css/bootstrap.min.css");
 
+.wrapper {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.panel-heading h3 {
+    font-weight: 600;
+}
+
+.panel-body {
+    padding-top: 20px;
+}
+
+.row {
+    margin-bottom: 15px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.row.x-tips {
+    font-size: 13px;
+    color: #6c757d;
+    font-style: normal;
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 4px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.row h4 {
+    font-size: 18px;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 8px;
+    margin: 25px 0 0;
+    font-weight: 500;
+    width: 100%;
+}
+
 .col-input {
-    display: inline-block;
-    width: 220px;
+    flex: 1;
+    max-width: 250px;
+    margin-right: 10px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    padding: 8px 12px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
-label {
-    margin-right: 0;
+
+.col-input:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
+
+.input-group label {
+    margin-right: 8px;
+    font-weight: 500;
+    width: 40px;
+    text-align: right;
+    color: #495057;
+    flex-shrink: 0;
+}
+
+.input-group label[for^="from"] {
+    /* Style for primary input labels if needed */
+}
+
+.input-group label:not([for]) {
+    width: auto;
+    margin-left: 5px;
+    margin-right: 5px;
+    text-align: left;
+    font-weight: normal;
+}
+
+.input-group label[for$="_placeholder"],
+.input-group span.col-input,
+.input-group .transparent-bg {
+    visibility: hidden;
+}
+
+.input-group .transparent-bg {
+     background: repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 10px 10px;
+     visibility: visible;
+     opacity: 0.5;
+}
+
 .demo-color {
     display: inline-block;
-    width: 60px;
-    height: 24px;
-    border: 1px solid #000;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #adb5bd;
+    border-radius: 4px;
+    vertical-align: middle;
+    flex-shrink: 0;
     margin-left: 5px;
 }
+
 .x-xlabel {
-    margin-left: 80px;
+    margin-left: 10px;
+    width: auto;
+    text-align: left;
 }
-.row.x-tips {
-    font-size: 14px;
-    color: #aaa;
-    font-style: italic;
+
+.spacer {
+    width: 20px;
+    flex-shrink: 0;
 }
-.panel-body h4 {
-    font-size: 16px;
-    border-bottom: 1px solid #dfdfdf;
-    padding-bottom: 5px;
-    margin: 30px 0 20px;
+
+.btn-copy {
+    padding: 4px 8px;
+    font-size: 12px;
+    margin-left: 5px;
+    cursor: pointer;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    color: #495057;
+    line-height: 1;
+    height: 30px;
+    flex-shrink: 0;
+}
+
+.btn-copy:hover {
+    background-color: #e2e6ea;
+    border-color: #adb5bd;
+}
+
+.btn-copy:active {
+    background-color: #d6dade;
+}
+
+.alpha-slider-row {
+    display: flex;
+    align-items: center;
+    margin-top: 25px;
+}
+
+.alpha-slider-row label {
+    width: auto;
+    margin-right: 15px;
+    flex-shrink: 0;
+    text-align: left;
+}
+
+.alpha-slider {
+    flex-grow: 1;
+    cursor: pointer;
+    height: 8px;
+    background: linear-gradient(to right, transparent, #6c757d);
+    border-radius: 4px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    border: 1px solid #ced4da;
+}
+
+.alpha-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+.alpha-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+.alpha-value {
+    margin-left: 15px;
+    font-weight: 500;
+    color: #495057;
+    min-width: 40px;
+    text-align: right;
+}
+
+.ui-mt-20 h4 {
+    margin-top: 40px;
+}
+
+input[readonly] {
+    background-color: #e9ecef;
+    cursor: default;
+}
+
+::placeholder {
+  color: #adb5bd;
+  opacity: 1;
+}
+
+:-ms-input-placeholder {
+ color: #adb5bd;
+}
+
+::-ms-input-placeholder {
+ color: #adb5bd;
+}
+
+/* Global Alpha Slider Styles (at the top) */
+.global-alpha-slider {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.global-alpha-slider label {
+    width: auto;
+    margin-right: 15px;
+    flex-shrink: 0;
+    text-align: left;
+}
+
+.global-alpha-slider input {
+    flex-grow: 1;
+    cursor: pointer;
+    height: 8px;
+    background: linear-gradient(to right, transparent, #6c757d);
+    border-radius: 4px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    border: 1px solid #ced4da;
+}
+
+.global-alpha-slider input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+.global-alpha-slider input::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+.global-alpha-slider .alpha-value {
+    margin-left: 15px;
+    font-weight: 500;
+    color: #495057;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* Modules Grid Layout */
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive: 1 or 2 columns */
+    gap: 25px; /* Increased gap */
+}
+
+.color-module {
+    border: 1px solid #dee2e6; /* Slightly darker border */
+    border-radius: 8px; /* More rounded corners */
+    padding: 20px; /* Increased padding */
+    background-color: #ffffff; /* Ensure white background */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.06); /* Enhanced shadow */
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.color-module:hover {
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+}
+
+.color-module h4 {
+    font-size: 15px; /* Slightly smaller */
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 18px; /* Increased margin */
+    padding-bottom: 10px; /* Increased padding */
+    border-bottom: 1px solid #e9ecef;
+    color: #343a40;
+}
+
+.color-module h5 {
+    font-size: 13px; /* Slightly smaller */
+    font-weight: 500;
+    margin-top: 25px; /* Increased margin */
+    margin-bottom: 12px; /* Increased margin */
+    color: #495057;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Input/Output group styling within modules */
+.color-module .input-group,
+.color-module .output-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px; /* Increased margin */
+    margin-top: 0;
+}
+
+.color-module .primary-input {
+    margin-bottom: 15px; /* More space after primary input */
+}
+
+.color-module .output-group:last-child {
+    margin-bottom: 0;
+}
+
+.color-module label {
+    width: 40px; /* Adjusted width */
+    margin-right: 8px; /* Adjusted margin */
+    font-size: 13px;
+    color: #6c757d;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.color-module .primary-input label[for] {
+    font-weight: 600;
+    color: #343a40;
+}
+
+/* Special label for preview in primary input */
+.color-module .primary-input label:not([for]) {
+     width: auto;
+     margin-left: 8px; /* Adjusted margin */
+     margin-right: 8px; /* Adjusted margin */
+     text-align: left;
+     font-weight: normal;
+     color: #6c757d;
+}
+
+.color-module .col-input, /* Primary input */
+.color-module .col-output /* Output inputs */
+{
+    flex-grow: 1;
+    margin-right: 8px; /* Adjusted margin */
+    font-size: 13px;
+    padding: 8px 12px; /* Adjusted padding */
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+}
+
+/* Style Primary Input */
+.color-module .col-input {
+     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.color-module .col-input:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Style Output Inputs */
+.color-module .col-output {
+    background-color: #f1f3f5; /* Lighter gray for output */
+    cursor: text; /* Allow text selection */
+    font-family: Consolas, Monaco, monospace;
+}
+
+.color-module .demo-color {
+     width: 30px;
+     height: 30px;
+     margin-left: 0; /* Remove margin, handled by label */
+     flex-shrink: 0;
+     border-radius: 4px;
+     border: 1px solid #adb5bd;
+     display: inline-block;
+}
+
+.color-module .btn-copy {
+    height: 30px; /* Match input height */
+    padding: 6px 10px;
+    margin-left: 0;
+    flex-shrink: 0;
+    font-size: 12px;
+    cursor: pointer;
+    background-color: #e9ecef; /* Button color */
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    color: #495057;
+    line-height: 1;
+}
+.color-module .btn-copy:hover {
+    background-color: #dee2e6;
+    border-color: #adb5bd;
+}
+.color-module .btn-copy:active {
+    background-color: #ced4da;
 }

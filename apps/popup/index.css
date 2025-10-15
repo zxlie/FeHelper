@@ -1,12 +1,20 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
 
 .fe-whole-page {
+    width: 152px;
+    min-height: 140px;
     font-size: 14px;
     user-select: none;
     padding: 0;
     margin: 0;
-    width: 152px;
     position: relative;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
+    transition: min-height 0.2s ease-out;
 }
 
 .fe-hide {
@@ -14,38 +22,83 @@
 }
 
 .fe-function-title {
-    padding: 5px;
-    color: #522;
-    font-weight: bolder;
+    padding: 8px 12px;
+    color: #2b2d42;
+    font-weight: 600;
     cursor: default;
-    border-bottom: 1px dotted #aaa;
-    text-align: center;
+    border-bottom: 1px solid rgba(67, 97, 238, 0.1);
+    background: linear-gradient(to right, #f8f9ff, #f0f2ff);
     font-size: 12px;
+    letter-spacing: 0.5px;
+    flex-shrink: 0; /* 防止被压缩 */
 }
 
 .fe-function-title span {
     font-weight: normal;
-    color: #e1e1e1;
+    color: #999;
+    font-size: 10px;
 }
 
 ul.fe-function-list {
-    padding: 0 10px;
+    padding: 0;
     list-style: none;
-    width: 130px;
+    width: 100%;
+    margin: 0;
+    flex: 1;
+    min-height: 40px;
+    overflow-y: auto; /* 允许垂直滚动 */
+    overflow-x: hidden; /* 隐藏水平滚动 */
+    max-height: 500px; /* 不再限制最大高度 */
+    display: inline-table;
+    scrollbar-width: thin; /* Firefox 下的滚动条样式 */
+    scrollbar-color: rgba(67, 97, 238, 0.3) transparent;
+}
+
+/* 自定义滚动条样式 - Webkit内核浏览器 */
+ul.fe-function-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+ul.fe-function-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+ul.fe-function-list::-webkit-scrollbar-thumb {
+    background: rgba(67, 97, 238, 0.3);
+    border-radius: 3px;
+    transition: background 0.2s ease;
+}
+
+ul.fe-function-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(67, 97, 238, 0.5);
+}
+
+/* 暗黑模式下的滚动条 */
+html[dark-mode="on"] ul.fe-function-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+html[dark-mode="on"] ul.fe-function-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
 }
 
 ul.fe-function-list li {
-    padding: 3px 5px 3px 5px;
+    padding: 2px 10px 2px 38px;
     cursor: pointer;
-    color: #555;
-    -webkit-transition: all .4s ease;
-    text-align: justify;
+    color: #4a4c6d;
+    /* 只对安全的属性进行过渡，避免布局变化 */
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
     display: block;
-    height: 20px;
-    line-height: 20px;
-    width: 120px;
-    border-bottom: 1px dashed #e5e5e5;
-    overflow: hidden;
+    align-items: center;
+    height: 28px; /* 固定高度，不变化 */
+    border-radius: 6px;
+    margin: 2px 0; /* 固定边距，不变化 */
+    border-bottom: 1px solid rgba(67, 97, 238, 0.05);
+    text-align: justify;
+    position: relative;
+    line-height: 28px; /* 固定行高，不变化 */
+    flex-shrink: 0; /* 防止被压缩 */
+    box-sizing: border-box; /* 确保padding不影响总宽度 */
 }
 
 ul.fe-function-list li:last-child {
@@ -54,8 +107,11 @@ ul.fe-function-list li:last-child {
 
 ul.fe-function-list li.x-hovered,
 ul.fe-function-list li:hover {
-    color: #ff3C11;
-    background: #f1f1f1;
+    color: #000;
+    background: rgba(67, 97, 238, 0.08);
+    box-shadow: 0 2px 6px rgba(67, 97, 238, 0.08);
+    /* 保持字体粗细不变，避免文字宽度变化导致布局抖动 */
+    font-weight: 500;
 }
 
 ul.fe-function-list li > span {
@@ -71,15 +127,33 @@ ul.fe-function-list li:after {
 }
 
 ul.fe-function-list li > b {
-    width: 14px;
-    height: 14px;
-    -webkit-transition: all .5s ease;
-    display: inline-block;
-    margin-right: 5px;
-    color:#48f;
+    width: 20px;
+    height: 20px;
+    /* 只对transform进行过渡，避免其他属性变化影响布局 */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.1);
+    padding: 0px;
+    border-radius: 50%;
+    margin-right: 2px;
+    color: currentColor;
+    filter: drop-shadow(0 2px 4px rgba(67, 97, 238, 0.1));
+    position: absolute;
+    left: 10px;
+    top: 6px;
+    /* 确保图标的变换不影响文档流 */
+    transform-origin: center center;
+}
+
+/* 暗黑模式适配 */
+.dark-mode .fe-function-list li > b {
+    background: rgba(255,255,255,0.1);
 }
 
 ul.fe-function-list li:hover > b {
+    transform: rotate(360deg);
     -webkit-transform: rotate(360deg);
 }
 
@@ -90,15 +164,21 @@ ul.fe-function-list li i {
 }
 
 .fe-feedback {
-    font-size: 12px;
-    border-top: 1px dotted #ddd;
-    padding: 5px 15px;
-    line-height: 20px;
-    color: #888;
+    font-size: 13px;
+    border-top: 1px solid rgba(67, 97, 238, 0.08);
+    padding: 8px 16px;
+    background: linear-gradient(to right, rgba(67, 97, 238, 0.05), rgba(67, 97, 238, 0.05));
+    color: var(--text-color);
+    opacity: 0.9;
+    flex-shrink: 0; /* 防止被压缩 */
+    position: relative; /* 改为相对定位 */
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: auto; /* 确保在容器底部 */
 }
 
 .fe-feedback a {
-    color: #888;
+    color: #666;
     text-decoration: none;
     text-align: left;
 }
@@ -112,9 +192,10 @@ svg:not(:root) {
 }
 
 .fe-feedback svg {
-    vertical-align: text-bottom;
+    vertical-align: middle;
     display: inline-block;
     fill: currentColor;
+    margin-right: 3px;
 }
 
 .fe-feedback img {
@@ -130,6 +211,9 @@ svg:not(:root) {
     float: right;
     cursor: pointer;
     margin-left: 5px;
+    display: inline-flex;
+    align-items: center;
+    color: #666;
 }
 
 .fe-feedback .x-settings:hover {
@@ -139,4 +223,121 @@ svg:not(:root) {
 .fe-feedback .x-settings
 {
     float: right;
+}
+
+/* 加载状态样式 */
+.fe-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    min-height: 60px;
+    flex: 1;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(67, 97, 238, 0.1);
+    border-left: 2px solid #4361ee;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 8px;
+}
+
+.loading-text {
+    color: #666;
+    font-size: 12px;
+    text-align: center;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 无工具状态样式 */
+.fe-no-tools {
+    padding: 20px;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.no-tools-message p {
+    color: #666;
+    font-size: 12px;
+    margin: 0 0 12px 0;
+}
+
+.install-tools-btn {
+    background: #4361ee;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.install-tools-btn:hover {
+    background: #3651d4;
+    transform: translateY(-1px);
+}
+
+/* 暗色模式适配 */
+html[dark-mode="on"] .loading-text,
+html[dark-mode="on"] .no-tools-message p {
+    color: #ccc;
+}
+
+html[dark-mode="on"] .loading-spinner {
+    border-color: rgba(255, 255, 255, 0.1);
+    border-left-color: #4361ee;
+}
+
+
+/* 工具列表为空时的基本样式 */
+.fe-function-list:empty {
+    min-height: 20px;
+}
+
+/* 1个工具时的优化 */
+.fe-function-list li:only-child {
+    margin: 4px 0;
+    height: 32px;
+    line-height: 32px;
+}
+
+.fe-function-list li:only-child > b {
+    top: 6px;
+}
+
+/* 当只有极少工具时的特殊优化 */
+.very-few-tools .fe-function-list {
+    padding: 6px 0;
+}
+
+.very-few-tools .fe-function-list li {
+    height: 34px;
+    line-height: 34px;
+    margin: 4px 0;
+}
+
+
+/* 当没有工具时，优化无工具提示的显示 */
+.fe-no-tools .no-tools-message {
+    text-align: center;
+}
+
+/* 优化加载状态的显示 */
+.fe-loading {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    height: 120px;
 }

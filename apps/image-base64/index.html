@@ -13,65 +13,70 @@
             <div class="panel panel-default" style="margin-bottom: 0px;">
                 <div class="panel-heading">
                     <h3 class="panel-title">
-                        <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
-                            <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper
-                        </a>：{{ toolName[curType] }}
-
-                        <span class="x-switch ui-fl-r" ref="btnSwitch" @click="trans">切换为{{toolName[nextType]}}&gt;&gt;</span>
+                        <span class="title-text-wrapper">
+                            <a href="https://fehelper.com" target="_blank" class="x-a-high">
+                                <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a><span class="title-text-wrapper-text">| {{ toolName[curType] }}</span>
+                        </span>
+                        <span class="x-switch" ref="btnSwitch" @click="trans">切换为{{toolName[nextType]}}&gt;&gt;</span>
+                        <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+                        <span class="x-donate-link" @click="openDonateModal($event)"><a href="#" id="donateLink"><i class="nav-icon">❤</i>&nbsp;打赏鼓励</a></span>
                     </h3>
                 </div>
             </div>
+            
             <div class="panel-body mod-imagebase64" ref="imageBase64" v-show="curType=='image'">
-                <div class="row">
-                  <table>
-                      <tr>
-                          <td>
-                            <div class="x-panel" ref="panelBox">
-                              <img id="preview" alt="" :src="previewSrc" v-show="!!previewSrc.length">
-                              <div class="x-tips">
-                                  <a id="upload" href="#" ref="uploadBox" @click="upload($event)">选择图片</a><br>
-                                  或者选择一张图片拖拽图片到这里来
-                              </div>
+                <div class="image-base64-layout">
+                    <!-- 左侧：图片上传区域 -->
+                    <div class="upload-section">
+                        <div class="section-title">上传或粘贴图片</div>
+                        <div class="x-panel" ref="panelBox">
+                            <img id="preview" alt="" :src="previewSrc" v-show="!!previewSrc.length">
+                            <div class="upload-instructions" v-show="!previewSrc.length">
+                                <a id="upload" href="#" ref="uploadBox" @click="upload($event)">选择图片</a>
+                                <span class="drag-drop-text">或拖拽图片到这里</span>
                             </div>
+                        </div>
+                        <div class="tips">
+                            1、支持<i>屏幕截图</i>后直接在此处粘贴进行转化<br/>
+                            2、支持<i>复制文件、复制图片</i>在线地址在此处直接粘贴进行转化
+                        </div>
+                    </div>
 
-                              <div class="tips">
-                                  1、支持<i>屏幕截图</i>后直接在此处粘贴进行转化<br/>2、支持<i>复制文件、复制图片</i>在线地址在此处直接粘贴进行转化
-                              </div>
-                          </td>
-                          <td>
-                              <textarea id="base64Result" title="点击自动选择" placeholder="内容会自动生成..." readonly ref="resultBox" @click="select()" v-model="resultContent" class="form-control"></textarea>
-                              <div class="x-result-info">
-                                  <div class="x-item">
-                                      <span class="x-title">原始图片大小：</span><span id="sizeOri">{{sizeOri}}</span>
-                                  </div>
-                                  <div class="x-item">
-                                      <span class="x-title">DataUri&nbsp;&nbsp;大小：</span><span id="sizeBase">{{sizeBase}}</span>
-                                  </div>
-                              </div>
-                          </td>
-                      </tr>
-                  </table>
-                  <form action="#">
-                      <input type="file" id="file" accept=".jpg,.jpeg,.gif,.png,.bmp" ref="fileBox" @change="convert()">
-                  </form>
-                  <img id="img" alt="">
+                    <!-- 右侧：Base64结果 -->
+                    <div class="result-section">
+                        <div class="section-title">转换结果</div>
+                        <textarea id="base64Result" title="点击自动选择" placeholder="内容会自动生成..." readonly ref="resultBox" @click="select()" v-model="resultContent" class="form-control mod-textarea"></textarea>
+                        <div class="x-result-info">
+                            <div class="x-item">
+                                <span class="x-title">原始图片大小：</span><span id="sizeOri">{{sizeOri}}</span>
+                            </div>
+                            <div class="x-item">
+                                <span class="x-title">DataUri&nbsp;&nbsp;大小：</span><span id="sizeBase">{{sizeBase}}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <form action="#">
+                    <input type="file" id="file" accept=".jpg,.jpeg,.gif,.png,.bmp" ref="fileBox" @change="convert()">
+                </form>
+                <img id="img" alt="">
             </div>
 
             <div class="panel-body mod-base64image" ref="base64Image" v-show="curType=='base64'">
-                <div class="row">
-                    <table>
-                        <tr>
-                            <td>
-                                <textarea id="base64Input" class="form-control" title="点击自动选择" placeholder="在这里粘贴DataURI数据..." v-model="txtBase64Input"></textarea>
-                            </td>
-                            <td>
-                                <div class="x-panel">
-                                    <img id="base64Image" alt="" :src="txtBase64Output" v-show="!!txtBase64Input.length" @error="loadError">
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
+                <div class="base64-image-layout">
+                    <!-- 左侧：Base64输入 -->
+                    <div class="input-section">
+                        <div class="section-title">输入Base64数据</div>
+                        <textarea id="base64Input" class="form-control mod-textarea" title="点击自动选择" placeholder="在这里粘贴DataURI数据..." v-model="txtBase64Input"></textarea>
+                    </div>
+
+                    <!-- 右侧：图片预览 -->
+                    <div class="preview-section">
+                        <div class="section-title">预览结果</div>
+                        <div class="x-panel">
+                            <img id="base64Image" alt="" :src="txtBase64Output" v-show="!!txtBase64Input.length" @error="loadError">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -79,7 +84,6 @@
         </div>
 
         <script type="text/javascript" src="index.js"></script>
-
         <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
     </body>
 </html>

@@ -25,9 +25,37 @@ new Vue({
 
         //输入框聚焦
         editor.focus();
+        this.loadPatchHotfix();
     },
 
     methods: {
+
+        loadPatchHotfix() {
+            // 页面加载时自动获取并注入页面的补丁
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'fh-get-tool-patch',
+                toolName: 'code-compress'
+            }, patch => {
+                if (patch) {
+                    if (patch.css) {
+                        const style = document.createElement('style');
+                        style.textContent = patch.css;
+                        document.head.appendChild(style);
+                    }
+                    if (patch.js) {
+                        try {
+                            if (window.evalCore && window.evalCore.getEvalInstance) {
+                                window.evalCore.getEvalInstance(window)(patch.js);
+                            }
+                        } catch (e) {
+                            console.error('code-compress补丁JS执行失败', e);
+                        }
+                    }
+                }
+            });
+        },
+
         compress: function () {
             this.hasError = false;
             this.compressInfo = '';
@@ -68,7 +96,33 @@ new Vue({
         },
 
         jsCompress(js) {
-            let result = UglifyJs3.compress(js);
+            // 判断是否为合法JSON，如果是则加t=前缀后用UglifyJS压缩，压缩后去掉t=前缀
+            let isJSON = false;
+            let jsonStr = js.trim();
+            let result;
+            try {
+                if ((jsonStr.startsWith('{') || jsonStr.startsWith('[')) && (jsonStr.endsWith('}') || jsonStr.endsWith(']'))) {
+                    JSON.parse(jsonStr);
+                    isJSON = true;
+                }
+            } catch (e) {
+                isJSON = false;
+            }
+            if (isJSON) {
+                // 加t=前缀
+                let jsWithPrefix = 't=' + jsonStr;
+                result = UglifyJs3.compress(jsWithPrefix);
+                this.hasError = !!result.error;
+                if (!this.hasError && result.out.startsWith('t=')) {
+                    this.resultContent = result.out.substring(2); // 去掉t=
+                } else {
+                    this.resultContent = result.out || result.error;
+                }
+                !this.hasError && this.buildCompressInfo(this.sourceContent, this.resultContent);
+                return;
+            }
+            // 原有JS压缩逻辑
+            result = UglifyJs3.compress(js);
             this.hasError = !!result.error;
             this.resultContent = result.out || result.error;
             !this.hasError && this.buildCompressInfo(this.sourceContent, this.resultContent);
@@ -155,6 +209,29 @@ new Vue({
             document.body.removeChild(input);
 
             this.toast('压缩结果已复制成功，随处粘贴可用！');
+        },
+        loadExample(type,event) {
+            if(event){
+                event.preventDefault();
+            }
+            this.codeType = type;
+            editor.setValue(EXAMPLES[type]);
+            this.changeCodeType(type);
+        },
+        openOptionsPage: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.openOptionsPage();
+        },
+
+        openDonateModal: function(event ){
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'code-compress' }
+            });
         }
     }
 });

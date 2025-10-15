@@ -71,7 +71,7 @@ let toolMap = {
         }]
     },
     'aiagent': {
-        name: 'AI，请帮帮忙',
+        name: 'AI(智能助手)',
         tips: '由AI强力支撑的超智能对话工具，可以让它帮你写代码、改代码、做方案设计、查资料、做分析等',
         menuConfig: [{
             icon: '֍',
@@ -127,11 +127,11 @@ let toolMap = {
         }]
     },
     'regexp': {
-        name: 'JS正则表达式',
-        tips: '正则校验工具，默认提供一些工作中常用的正则表达式，支持内容实时匹配并高亮显示结果',
+        name: '正则公式速查',
+        tips: '支持 JavaScript / Python / PHP / Java 等语言的正则速查，包含验证类、提取类、替换类、格式化类、特殊字符类、编程相关等常用正则表达式',
         menuConfig: [{
             icon: '✙',
-            text: 'JS正则表达式'
+            text: '正则公式速查'
         }]
     },
     'trans-radix': {
@@ -193,6 +193,14 @@ let toolMap = {
             text: '网页截屏工具'
         }]
     },
+    'mock-data': {
+        name: '数据Mock工具',
+        tips: '快速生成各种测试数据，支持个人信息、商业数据、技术数据等多种类型，可自定义字段和输出格式',
+        menuConfig: [{
+            icon: '⟡',
+            text: '数据Mock工具'
+        }]
+    },
     'color-picker': {
         name: '页面取色工具',
         tips: '可直接在网页上针对任意元素进行色值采集，将光标移动到需要取色的位置，单击确定即可',
@@ -223,13 +231,13 @@ let toolMap = {
         }]
     },
     'page-timing': {
-        name: '网页性能检测',
-        tips: '检测网页加载性能，包括握手、响应、渲染等各阶段耗时，同时提供Response Headers以便分析',
+        name: '网站性能优化',
+        tips: '全面分析网页性能指标，包括核心Web指标(LCP/FID/CLS)、资源加载性能、内存使用、长任务监控等，并提供针对性的优化建议',
         contentScriptJs: true,
         noPage: true,
         menuConfig: [{
             icon: 'Σ',
-            text: '网页性能检测'
+            text: '网站性能优化'
         }]
     },
     'excel2json': {
@@ -248,6 +256,45 @@ let toolMap = {
             text: '图表制作工具'
         }]
     },
+    'svg-converter': {
+        name: 'SVG转为图片',
+        tips: '支持SVG文件转换为PNG、JPG、WEBP等格式，可自定义输出尺寸，支持文件拖放和URL导入',
+        menuConfig: [{
+            icon: '⇲',
+            text: 'SVG转图片工具'
+        }]
+    },
+    'poster-maker': {
+        name: '海报快速生成',
+        tips: '快速创建营销推广海报，支持朋友圈、小红书等多种模板，可自定义文字、图片和配色',
+        menuConfig: [{
+            icon: '🖼️',
+            text: '海报快速生成'
+        }]
+    },
+    'datetime-calc': {
+        name: '时间戳计算器',
+        tips: '支持多种时间格式解析、批量转换、时区转换、数据库格式生成等高级时间处理功能',
+        menuConfig: [{
+            icon: '⏱️',
+            text: '时间戳计算器',
+            contexts: ['page', 'selection', 'editable']
+        }]
+    }
 };
+
+// 判断是否为Firefox浏览器，如果是则移除特定工具
+if (navigator.userAgent.indexOf('Firefox') !== -1) {
+    delete toolMap['color-picker'];
+    delete toolMap['postman'];
+    delete toolMap['devtools'];
+    delete toolMap['websocket'];
+    delete toolMap['page-timing'];
+    delete toolMap['grid-ruler'];
+    delete toolMap['naotu'];
+    delete toolMap['screenshot'];
+    delete toolMap['page-monkey'];
+    delete toolMap['excel2json'];
+}
 
 export default toolMap;

@@ -94,6 +94,9 @@ window.Formatter = (function () {
 
     let lastItemIdGiven = 0;
     let cachedJsonString = '';
+    
+    // 单例Worker实例
+    let workerInstance = null;
 
     let _initElements = function () {
 
@@ -137,6 +140,7 @@ window.Formatter = (function () {
         str = str.replace(/>/g, '&gt;');
         str = str.replace(/"/g, '&quot;');
         str = str.replace(/'/g, '&#039;');
+        str = str.replace(/\\/g, '&#92;');
         return str;
     };
 
@@ -226,32 +230,280 @@ window.Formatter = (function () {
     // 添加json路径
     let _showJsonPath = function (curEl) {
         let keys = [];
-        do {
-            if (curEl.hasClass('item-block')) {
-                if (!curEl.hasClass('rootItem')) {
-                    keys.unshift('[' + curEl.prevAll('.item').length + ']');
-                } else {
-                    break;
+        let current = curEl;
+        
+        // 处理当前节点
+        if (current.hasClass('item') && !current.hasClass('rootItem')) {
+            if (current.hasClass('item-array-element')) {
+                // 这是数组元素，使用data-array-index属性
+                let index = current.attr('data-array-index');
+                if (index !== undefined) {
+                    keys.unshift('[' + index + ']');
                 }
             } else {
-                keys.unshift(curEl.find('>.key').text());
+                // 这是对象属性，获取key
+                let keyText = current.find('>.key').text();
+                if (keyText) {
+                    keys.unshift(keyText);
+                }
             }
-
-            if (curEl.parent().hasClass('rootItem') || curEl.parent().parent().hasClass('rootItem')) {
-                break;
-            }
-
-            curEl = curEl.parent().parent();
-
-        } while (curEl.length && !curEl.hasClass('rootItem'));
-
-        let path = keys.join('#@#').replace(/#@#\[/g, '[').replace(/#@#/g, '.');
-
-        let jfPath = $('#jsonPath');
-        if (!jfPath.length) {
-            jfPath = $('<span id="jsonPath"/>').prependTo(jfStatusBar);
         }
-        jfPath.html('当前节点：JSON.' + path);
+        
+        // 向上遍历所有祖先节点
+        current.parents('.item').each(function() {
+            let $this = $(this);
+            
+            // 跳过根节点
+            if ($this.hasClass('rootItem')) {
+                return false; // 终止遍历
+            }
+            
+            if ($this.hasClass('item-array-element')) {
+                // 这是数组元素，使用data-array-index属性
+                let index = $this.attr('data-array-index');
+                if (index !== undefined) {
+                    keys.unshift('[' + index + ']');
+                }
+            } else if ($this.hasClass('item-object') || $this.hasClass('item-array')) {
+                // 这是容器节点，寻找它的key
+                let $container = $this.parent().parent(); // 跳过 .kv-list
+                if ($container.length && !$container.hasClass('rootItem')) {
+                    if ($container.hasClass('item-array-element')) {
+                        // 容器本身是数组元素
+                        let index = $container.attr('data-array-index');
+                        if (index !== undefined) {
+                            keys.unshift('[' + index + ']');
+                        }
+                    } else {
+                        // 容器是对象属性
+                        let keyText = $container.find('>.key').text();
+                        if (keyText) {
+                            keys.unshift(keyText);
+                        }
+                    }
+                }
+            } else {
+                // 普通item节点，获取key
+                let keyText = $this.find('>.key').text();
+                if (keyText) {
+                    keys.unshift(keyText);
+                }
+            }
+        });
+
+        // 过滤掉空值和无效的key
+        let validKeys = keys.filter(key => key && key.trim() !== '');
+        
+        // 创建或获取语言选择器和路径显示区域
+        let jfPathContainer = $('#jsonPathContainer');
+        if (!jfPathContainer.length) {
+            jfPathContainer = $('<div id="jsonPathContainer"/>').prependTo(jfStatusBar);
+            
+            // 创建语言选择下拉框
+            let langSelector = $('<select id="jsonPathLangSelector" title="选择编程语言格式">' +
+                '<option value="javascript">JavaScript</option>' +
+                '<option value="php">PHP</option>' +
+                '<option value="python">Python</option>' +
+                '<option value="java">Java</option>' +
+                '<option value="csharp">C#</option>' +
+                '<option value="golang">Go</option>' +
+                '<option value="ruby">Ruby</option>' +
+                '<option value="swift">Swift</option>' +
+                '</select>').appendTo(jfPathContainer);
+            
+            // 创建路径显示区域
+            let jfPath = $('<span id="jsonPath"/>').appendTo(jfPathContainer);
+            
+            // 绑定语言切换事件
+            langSelector.on('change', function() {
+                // 保存选择的语言到本地存储
+                localStorage.setItem('fehelper_json_path_lang', $(this).val());
+                // 从容器中获取当前保存的keys，而不是使用闭包中的validKeys
+                let currentKeys = jfPathContainer.data('currentKeys') || [];
+                _updateJsonPath(currentKeys, $(this).val());
+            });
+            
+            // 从本地存储恢复语言选择
+            let savedLang = localStorage.getItem('fehelper_json_path_lang') || 'javascript';
+            langSelector.val(savedLang);
+        }
+        
+        // 保存当前的keys到容器的data属性中，供语言切换时使用
+        jfPathContainer.data('currentKeys', validKeys);
+        
+        // 获取当前选择的语言
+        let selectedLang = $('#jsonPathLangSelector').val() || 'javascript';
+        _updateJsonPath(validKeys, selectedLang);
+    };
+
+    // 根据不同编程语言格式化JSON路径
+    let _updateJsonPath = function(keys, language) {
+        let path = _formatJsonPath(keys, language);
+        $('#jsonPath').html('当前节点：' + path);
+    };
+
+    // 格式化JSON路径为不同编程语言格式
+    let _formatJsonPath = function(keys, language) {
+        if (!keys.length) {
+            return _getLanguageRoot(language);
+        }
+
+        let path = '';
+        
+        switch (language) {
+            case 'javascript':
+                path = '$';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        path += key;
+                    } else {
+                        // 对象属性
+                        if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key)) {
+                            // 有效的标识符，使用点语法
+                            path += '.' + key;
+                        } else {
+                            // 包含特殊字符，使用方括号语法
+                            path += '["' + key.replace(/"/g, '\\"') + '"]';
+                        }
+                    }
+                }
+                break;
+                
+            case 'php':
+                path = '$data';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        path += key;
+                    } else {
+                        // 对象属性
+                        path += '["' + key.replace(/"/g, '\\"') + '"]';
+                    }
+                }
+                break;
+                
+            case 'python':
+                path = 'data';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        path += key;
+                    } else {
+                        // 对象属性
+                        if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key) && !/^(and|as|assert|break|class|continue|def|del|elif|else|except|exec|finally|for|from|global|if|import|in|is|lambda|not|or|pass|print|raise|return|try|while|with|yield)$/.test(key)) {
+                            // 有效的标识符且不是关键字，可以使用点语法
+                            path += '.' + key;
+                        } else {
+                            // 使用方括号语法
+                            path += '["' + key.replace(/"/g, '\\"') + '"]';
+                        }
+                    }
+                }
+                break;
+                
+            case 'java':
+                path = 'jsonObject';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        let index = key.slice(1, -1);
+                        path += '.get(' + index + ')';
+                    } else {
+                        // 对象属性
+                        path += '.get("' + key.replace(/"/g, '\\"') + '")';
+                    }
+                }
+                break;
+                
+            case 'csharp':
+                path = 'jsonObject';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        path += key;
+                    } else {
+                        // 对象属性
+                        path += '["' + key.replace(/"/g, '\\"') + '"]';
+                    }
+                }
+                break;
+                
+            case 'golang':
+                path = 'data';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        let index = key.slice(1, -1);
+                        path += '.(' + index + ')';
+                    } else {
+                        // 对象属性
+                        path += '["' + key.replace(/"/g, '\\"') + '"]';
+                    }
+                }
+                break;
+                
+            case 'ruby':
+                path = 'data';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        path += key;
+                    } else {
+                        // 对象属性
+                        if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key)) {
+                            // 可以使用符号访问
+                            path += '[:"' + key + '"]';
+                        } else {
+                            // 字符串键
+                            path += '["' + key.replace(/"/g, '\\"') + '"]';
+                        }
+                    }
+                }
+                break;
+                
+            case 'swift':
+                path = 'jsonObject';
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (key.startsWith('[') && key.endsWith(']')) {
+                        // 数组索引
+                        path += key;
+                    } else {
+                        // 对象属性
+                        path += '["' + key.replace(/"/g, '\\"') + '"]';
+                    }
+                }
+                break;
+                
+            default:
+                // 默认使用JavaScript格式
+                return _formatJsonPath(keys, 'javascript');
+        }
+        
+        return path;
+    };
+
+    // 获取不同语言的根对象表示
+    let _getLanguageRoot = function(language) {
+        switch (language) {
+            case 'javascript': return '$';
+            case 'php': return '$data';
+            case 'python': return 'data';
+            case 'java': return 'jsonObject';
+            case 'csharp': return 'jsonObject';
+            case 'golang': return 'data';
+            case 'ruby': return 'data';
+            case 'swift': return 'jsonObject';
+            default: return '$';
+        }
     };
 
     // 给某个节点增加操作项
@@ -344,30 +596,28 @@ window.Formatter = (function () {
 
 
     /**
-     * 折叠所有
+     * 递归折叠所有层级的对象和数组节点
      * @param elements
      */
     function collapse(elements) {
-        let el;
-
-        $.each(elements, function (i) {
-            el = $(this);
+        elements.each(function () {
+            var el = $(this);
             if (el.children('.kv-list').length) {
                 el.addClass('collapsed');
 
+                // 只给没有id的节点分配唯一id，并生成注释
                 if (!el.attr('id')) {
                     el.attr('id', 'item' + (++lastItemIdGiven));
-
                     let count = el.children('.kv-list').eq(0).children().length;
-                    // Generate comment text eg "4 items"
                     let comment = count + (count === 1 ? ' item' : ' items');
-                    // Add CSS that targets it
                     jfStyleEl[0].insertAdjacentHTML(
                         'beforeend',
                         '\n#item' + lastItemIdGiven + '.collapsed:after{color: #aaa; content:" // ' + comment + '"}'
                     );
                 }
 
+                // 递归对子节点继续折叠，确保所有嵌套层级都被处理
+                collapse(el.children('.kv-list').children('.item-object, .item-block'));
             }
         });
     }
@@ -414,9 +664,11 @@ window.Formatter = (function () {
 
             if (buttonCollapseAll.text() === '折叠所有') {
                 buttonCollapseAll.text('展开所有');
-                collapse($('.item-object,.item-block'));
+                // 递归折叠所有层级的对象和数组，确保所有内容都被折叠
+                collapse($('#jfContent .item-object, #jfContent .item-block'));
             } else {
                 buttonCollapseAll.text('折叠所有');
+                // 展开所有内容
                 $('.item-object,.item-block').removeClass('collapsed');
             }
             jfStatusBar && jfStatusBar.hide();
@@ -472,43 +724,201 @@ window.Formatter = (function () {
             }
         });
 
+        // 行悬停效果：只高亮当前直接悬停的item，避免嵌套冒泡
+        let currentHoverElement = null;
+        
+        $('#jfContent .item').bind('mouseenter', function (e) {
+            // 只处理视觉效果，不触发任何其他逻辑
+            
+            // 清除之前的悬停样式
+            if (currentHoverElement) {
+                currentHoverElement.removeClass('fh-hover');
+            }
+            
+            // 添加当前悬停样式
+            let el = $(this);
+            el.addClass('fh-hover');
+            currentHoverElement = el;
+            
+            // 严格阻止事件冒泡和默认行为
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            e.preventDefault();
+        });
+        
+        $('#jfContent .item').bind('mouseleave', function (e) {
+            // 只处理视觉效果，不触发任何其他逻辑
+            let el = $(this);
+            el.removeClass('fh-hover');
+            
+            // 如果当前移除的元素是记录的悬停元素，清空记录
+            if (currentHoverElement && currentHoverElement[0] === el[0]) {
+                currentHoverElement = null;
+            }
+            
+            // 严格阻止事件冒泡和默认行为
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        });
+        
+        // 为整个jfContent区域添加鼠标离开事件，确保彻底清除悬停样式
+        $('#jfContent').bind('mouseleave', function (e) {
+            if (currentHoverElement) {
+                currentHoverElement.removeClass('fh-hover');
+                currentHoverElement = null;
+            }
+        });
+
+        // 图片预览功能：针对所有data-is-link=1的a标签
+        let $imgPreview = null;
+        // 加载缓存
+        function getImgCache() {
+            try {
+                return JSON.parse(sessionStorage.getItem('fehelper-img-preview-cache') || '{}');
+            } catch (e) { return {}; }
+        }
+        function setImgCache(url, isImg) {
+            let cache = getImgCache();
+            cache[url] = isImg;
+            sessionStorage.setItem('fehelper-img-preview-cache', JSON.stringify(cache));
+        }
+        $('#jfContent').on('mouseenter', 'a[data-is-link="1"]', function(e) {
+            const url = $(this).attr('data-link-url');
+            if (!url) return;
+            let cache = getImgCache();
+            if (cache.hasOwnProperty(url)) {
+                if (cache[url]) {
+                    $imgPreview = getOrCreateImgPreview();
+                    $imgPreview.find('img').attr('src', url);
+                    $imgPreview.show();
+                    $(document).on('mousemove.fhimg', function(ev) {
+                        $imgPreview.css({
+                            left: ev.pageX + 20 + 'px',
+                            top: ev.pageY + 20 + 'px'
+                        });
+                    });
+                    $imgPreview.css({
+                        left: e.pageX + 20 + 'px',
+                        top: e.pageY + 20 + 'px'
+                    });
+                }
+                return;
+            }
+            // 创建图片对象尝试加载
+            const img = new window.Image();
+            img.src = url;
+            img.onload = function() {
+                setImgCache(url, true);
+                $imgPreview = getOrCreateImgPreview();
+                $imgPreview.find('img').attr('src', url);
+                $imgPreview.show();
+                $(document).on('mousemove.fhimg', function(ev) {
+                    $imgPreview.css({
+                        left: ev.pageX + 20 + 'px',
+                        top: ev.pageY + 20 + 'px'
+                    });
+                });
+                $imgPreview.css({
+                    left: e.pageX + 20 + 'px',
+                    top: e.pageY + 20 + 'px'
+                });
+            };
+            img.onerror = function() {
+                setImgCache(url, false);
+            };
+        }).on('mouseleave', 'a[data-is-link="1"]', function(e) {
+            if ($imgPreview) $imgPreview.hide();
+            $(document).off('mousemove.fhimg');
+        });
+
+        // 新增：全局监听，防止浮窗残留
+        $(document).on('mousemove.fhimgcheck', function(ev) {
+            let $target = $(ev.target).closest('a[data-is-link="1"]');
+            if ($target.length === 0) {
+                if ($imgPreview) $imgPreview.hide();
+                $(document).off('mousemove.fhimg');
+            }
+        });
+
+    };
+    
+    /**
+     * 初始化或获取Worker实例（异步，兼容Chrome/Edge/Firefox）
+     * @returns {Promise<Worker|null>}
+     */
+    let _getWorkerInstance = async function() {
+        if (workerInstance) {
+            return workerInstance;
+        }
+        let workerUrl = chrome.runtime.getURL('json-format/json-worker.js');
+        // 判断是否为Firefox
+        const isFirefox = typeof InstallTrigger !== 'undefined' || navigator.userAgent.includes('Firefox');
+        try {
+            if (isFirefox) {
+                workerInstance = new Worker(workerUrl);
+                return workerInstance;
+            } else {
+                // Chrome/Edge用fetch+Blob方式
+                const resp = await fetch(workerUrl);
+                const workerScript = await resp.text();
+                const blob = new Blob([workerScript], { type: 'application/javascript' });
+                const blobUrl = URL.createObjectURL(blob);
+                workerInstance = new Worker(blobUrl);
+                return workerInstance;
+            }
+        } catch (e) {
+            console.error('创建Worker失败:', e);
+            workerInstance = null;
+            return null;
+        }
     };
 
     /**
      * 执行代码格式化
+     * 支持异步worker
      */
-    let format = function (jsonStr, skin) {
+    let format = async function (jsonStr, skin) {
         cachedJsonString = JSON.stringify(JSON.parse(jsonStr), null, 4);
 
         _initElements();
         jfPre.html(htmlspecialchars(cachedJsonString));
 
-        // 用webwork的方式来进行格式化，效率更高
-        let worker = new Worker(URL.createObjectURL(new Blob(["(" + JsonFormatWebWorker.toString() + ")()"], {type: 'text/javascript'})));
-        worker.onmessage = function (evt) {
-            let msg = evt.data;
-            switch (msg[0]) {
-                case 'FORMATTING' :
-                    formattingMsg.show();
-                    break;
-
-                case 'FORMATTED' :
-                    formattingMsg.hide();
-                    jfContent.html(msg[1]);
-
-                    _buildOptionBar();
-                    // 事件绑定
-                    _addEvents();
-                    // 支持文件下载
-                    _downloadSupport(cachedJsonString);
-
-                    break;
+        try {
+            // 获取Worker实例（异步）
+            let worker = await _getWorkerInstance();
+            if (worker) {
+                // 设置消息处理程序
+                worker.onmessage = function (evt) {
+                    let msg = evt.data;
+                    switch (msg[0]) {
+                        case 'FORMATTING':
+                            formattingMsg.show();
+                            break;
+                        case 'FORMATTED':
+                            formattingMsg.hide();
+                            jfContent.html(msg[1]);
+                            _buildOptionBar();
+                            // 事件绑定
+                            _addEvents();
+                            // 支持文件下载
+                            _downloadSupport(cachedJsonString);
+                            break;
+                    }
+                };
+                // 发送格式化请求
+                worker.postMessage({
+                    jsonString: jsonStr,
+                    skin: skin
+                });
+            } else {
+                // Worker创建失败，回退到同步方式
+                formatSync(jsonStr, skin);
             }
-        };
-        worker.postMessage({
-            jsonString: jsonStr,
-            skin: skin
-        });
+        } catch (e) {
+            console.error('Worker处理失败:', e);
+            // 出现任何错误，回退到同步方式
+            formatSync(jsonStr, skin);
+        }
     };
 
     // 同步的方式格式化
@@ -517,367 +927,45 @@ window.Formatter = (function () {
 
         _initElements();
         jfPre.html(htmlspecialchars(cachedJsonString));
-        let worker = new JsonFormatWebWorker(true);
-        worker.getFormattedHtml({
-            data: {
-                jsonString: jsonStr,
-                skin: skin
-            },
-            onFormatting: function (msg) {
-                formattingMsg.show();
-            },
-            onFormatted: function (msg) {
-                formattingMsg.hide();
-                jfContent.html(msg[1]);
-
-                _buildOptionBar();
-                // 事件绑定
-                _addEvents();
-                // 支持文件下载
-                _downloadSupport(cachedJsonString);
-            }
-        });
+        
+        // 显示格式化进度
+        formattingMsg.show();
+        
+        try {
+            // 回退方案：使用简单模式直接显示格式化的JSON
+            let formattedJson = JSON.stringify(JSON.parse(jsonStr), null, 4);
+            jfContent.html(`<div id="formattedJson"><pre class="rootItem">${htmlspecialchars(formattedJson)}</pre></div>`);
+            
+            // 隐藏进度提示
+            formattingMsg.hide();
+            
+            // 构建操作栏
+            _buildOptionBar();
+            // 事件绑定
+            _addEvents();
+            // 支持文件下载
+            _downloadSupport(cachedJsonString);
+            
+            return;
+        } catch (e) {
+            jfContent.html(`<div class="error">JSON格式化失败: ${e.message}</div>`);
+            
+            // 隐藏进度提示
+            formattingMsg.hide();
+        }
     };
+
+    // 工具函数：获取或创建唯一图片预览浮窗节点
+    function getOrCreateImgPreview() {
+        let $img = $('#fh-img-preview');
+        if (!$img.length) {
+            $img = $('<div id="fh-img-preview" style="position:absolute;z-index:999999;border:1px solid #ccc;background:#fff;padding:4px;box-shadow:0 2px 8px #0002;pointer-events:none;"><img style="max-width:300px;max-height:200px;display:block;"></div>').appendTo('body');
+        }
+        return $img;
+    }
 
     return {
         format: format,
         formatSync: formatSync
     }
 })();
-
-
-/*============================================== web worker =========================================================*/
-
-/**
- * 用webworker的形式来进行json格式化，在应对大json的时候，效果会非常明显
- * @constructor
- */
-var JsonFormatWebWorker = function (isUnSupportWorker = false) {
-
-    // 引入big-json.js解决大数字的问题
-    let __importScript = (filename) => {
-        this.compress && fetch(filename).then(resp => resp.text()).then(jsText => eval(jsText));
-    };
-    __importScript('json-bigint.js');
-
-    // Constants
-    let
-        TYPE_STRING = 1,
-        TYPE_NUMBER = 2,
-        TYPE_OBJECT = 3,
-        TYPE_ARRAY = 4,
-        TYPE_BOOL = 5,
-        TYPE_NULL = 6;
-
-    /**
-     * HTML特殊字符格式化
-     * @param str
-     * @returns {*}
-     */
-    let htmlspecialchars = function (str) {
-        str = str.replace(/&/g, '&amp;');
-        str = str.replace(/</g, '&lt;');
-        str = str.replace(/>/g, '&gt;');
-        str = str.replace(/"/g, '&quot;');
-        str = str.replace(/'/g, '&#039;');
-        return str;
-    };
-
-    /**
-     * FH 虚拟DOM
-     * @constructor
-     */
-    let FhVDom = function () {
-
-        this._id = 'fhvd_' + (new Date * 1);
-        this.tag = '';
-        this.innerText = '';
-        this.textContent = '';
-        this.childNodes = [];
-        this.className = '';
-        this.attributes = [];
-        this.classList = [];
-        this.classList.__proto__.add = this.classList.__proto__.push;
-
-        this.createElement = tag => {
-            this.tag = tag;
-            return this;
-        };
-
-        this.setAttribute = (attr, value) => {
-            this.attributes.push([attr, value]);
-        };
-
-        this.appendChild = child => {
-            this.childNodes.push(child);
-            return this;
-        };
-
-        this.getOuterHTML = () => {
-            let outerHtml = [];
-            if (this.tag) {
-                outerHtml.push(`<${this.tag}`);
-                let clsName = (this.className || '') + ' ' + this.classList.join(' ');
-                clsName.replace(/\s/g, '').length && outerHtml.push(` class="${clsName}"`);
-                this.attributes.length && outerHtml.push(this.attributes.map(attr => ` ${attr[0]}="${attr[1]}"`).join(''));
-                outerHtml.push(`>`);
-                if (('' + this.innerText).length) {
-                    outerHtml.push(this.innerText);
-                } else if (('' + this.textContent).length) {
-                    outerHtml.push(this.textContent);
-                } else {
-                    outerHtml.push(this.childNodes.map(node => node.getOuterHTML()).join(''))
-                }
-                outerHtml.push(`</${this.tag}>`);
-            } else {
-                if (('' + this.innerText).length) {
-                    outerHtml.push(this.innerText);
-                } else if (('' + this.textContent).length) {
-                    outerHtml.push(this.textContent);
-                }
-            }
-            return outerHtml.join('');
-        };
-
-        this.cloneNode = (deep) => {
-            let newDom = FhVDom.getInstance();
-            newDom.tag = this.tag;
-            if (deep || !this.tag) {
-                newDom.innerText = this.innerText;
-                newDom.textContent = this.textContent;
-            } else {
-                newDom.innerText = '';
-                newDom.textContent = '';
-            }
-            newDom.className = this.className;
-            newDom.classList = Array.from(this.classList);
-            newDom.attributes = Array.from(this.attributes);
-            return newDom;
-        };
-    };
-
-    // 构造器
-    FhVDom.getInstance = () => new FhVDom();
-
-    function createSpanNode(innerText, className) {
-        let span = FhVDom.getInstance().createElement('span');
-        span.className = className || '';
-        span.innerText = innerText || '';
-        return span;
-    }
-
-    function createDivNode(className) {
-        let div = FhVDom.getInstance().createElement('div');
-        div.className = className || '';
-        return div;
-    }
-
-    // Create template nodes
-    let templatesObj = {
-        t_item: createDivNode('item'),
-        t_key: createSpanNode('', 'key'),
-        t_string: createSpanNode('', 'string'),
-        t_number: createSpanNode('', 'number'),
-        t_exp: createSpanNode('', 'expand'),
-
-        t_null: createSpanNode('null', 'null'),
-        t_true: createSpanNode('true', 'bool'),
-        t_false: createSpanNode('false', 'bool'),
-
-        t_oBrace: createSpanNode('{', 'brace'),
-        t_cBrace: createSpanNode('}', 'brace'),
-        t_oBracket: createSpanNode('[', 'brace'),
-        t_cBracket: createSpanNode(']', 'brace'),
-
-        t_ellipsis: createSpanNode('', 'ellipsis'),
-        t_kvList: createDivNode('kv-list'),
-
-        t_colonAndSpace: createSpanNode(':\u00A0', 'colon'),
-        t_commaText: createSpanNode(',', 'comma'),
-        t_dblqText: createSpanNode('"', 'quote')
-    };
-
-    // Core recursive DOM-building function
-    function getItemDOM(value, keyName) {
-        let type,
-            item,
-            nonZeroSize,
-            templates = templatesObj,
-            objKey,
-            keySpan,
-            valueElement;
-
-        // Establish value type
-        if (typeof value === 'string')
-            type = TYPE_STRING;
-        else if (typeof value === 'number')
-            type = TYPE_NUMBER;
-        else if (value === false || value === true)
-            type = TYPE_BOOL;
-        else if (value === null)
-            type = TYPE_NULL;
-        else if (value instanceof Array)
-            type = TYPE_ARRAY;
-        else
-            type = TYPE_OBJECT;
-
-        item = templates.t_item.cloneNode(false);
-
-        // Add an 'expander' first (if this is object/array with non-zero size)
-        if (type === TYPE_OBJECT || type === TYPE_ARRAY) {
-
-            if (typeof JSON.BigNumber === 'function' && value instanceof JSON.BigNumber) {
-                value = JSON.stringify(value);
-                type = TYPE_NUMBER;
-            } else {
-                nonZeroSize = false;
-                for (objKey in value) {
-                    if (value.hasOwnProperty(objKey)) {
-                        nonZeroSize = true;
-                        break; // no need to keep counting; only need one
-                    }
-                }
-                if (nonZeroSize)
-                    item.appendChild(templates.t_exp.cloneNode(true));
-            }
-        }
-
-        // If there's a key, add that before the value
-        if (keyName !== false) { // NB: "" is a legal keyname in JSON
-            item.classList.add(type === TYPE_OBJECT ? 'item-object' : type === TYPE_ARRAY ? 'item-array' : 'item-line');
-            keySpan = templates.t_key.cloneNode(false);
-            keySpan.textContent = JSON.stringify(keyName).slice(1, -1); // remove quotes
-            item.appendChild(templates.t_dblqText.cloneNode(true));
-            item.appendChild(keySpan);
-            item.appendChild(templates.t_dblqText.cloneNode(true));
-            item.appendChild(templates.t_colonAndSpace.cloneNode(true));
-        }
-        else {
-            item.classList.add('item-block');
-        }
-
-        let kvList, childItem;
-        switch (type) {
-            case TYPE_STRING:
-                let innerStringEl = FhVDom.getInstance().createElement('span'),
-                    escapedString = JSON.stringify(value);
-                escapedString = escapedString.substring(1, escapedString.length - 1); // remove quotes
-                let isLink = false;
-                if (/^[\w]+:\/\//.test(value)) {
-                    try {
-                        let url = new URL(value);
-                        let innerStringA = FhVDom.getInstance().createElement('A');
-                        innerStringA.setAttribute('href', url.href);
-                        innerStringA.setAttribute('target', '_blank');
-                        innerStringA.innerText = htmlspecialchars(escapedString);
-                        innerStringEl.appendChild(innerStringA);
-                        isLink = true;
-                    } catch (e) {
-                    }
-                }
-
-                if (!isLink) {
-                    innerStringEl.innerText = htmlspecialchars(escapedString);
-                }
-                valueElement = templates.t_string.cloneNode(false);
-                valueElement.appendChild(templates.t_dblqText.cloneNode(true));
-                valueElement.appendChild(innerStringEl);
-                valueElement.appendChild(templates.t_dblqText.cloneNode(true));
-                item.appendChild(valueElement);
-                break;
-
-            case TYPE_NUMBER:
-                valueElement = templates.t_number.cloneNode(false);
-                valueElement.innerText = value;
-                item.appendChild(valueElement);
-                break;
-
-            case TYPE_OBJECT:
-                // Add opening brace
-                item.appendChild(templates.t_oBrace.cloneNode(true));
-                if (nonZeroSize) {
-                    item.appendChild(templates.t_ellipsis.cloneNode(false));
-                    kvList = templates.t_kvList.cloneNode(false);
-                    let keys = Object.keys(value).filter(k => value.hasOwnProperty(k));
-                    keys.forEach((k, index) => {
-                        childItem = getItemDOM(value[k], k);
-                        if (index < keys.length - 1) {
-                            childItem.appendChild(templates.t_commaText.cloneNode(true));
-                        }
-                        kvList.appendChild(childItem);
-                    });
-                    item.appendChild(kvList);
-                }
-
-                // Add closing brace
-                item.appendChild(templates.t_cBrace.cloneNode(true));
-                break;
-
-            case TYPE_ARRAY:
-                item.appendChild(templates.t_oBracket.cloneNode(true));
-                if (nonZeroSize) {
-                    item.appendChild(templates.t_ellipsis.cloneNode(false));
-                    kvList = templates.t_kvList.cloneNode(false);
-                    for (let i = 0, length = value.length, lastIndex = length - 1; i < length; i++) {
-                        childItem = getItemDOM(value[i], false);
-                        if (i < lastIndex)
-                            childItem.appendChild(templates.t_commaText.cloneNode(true));
-                        kvList.appendChild(childItem);
-                    }
-                    item.appendChild(kvList);
-                }
-                // Add closing bracket
-                item.appendChild(templates.t_cBracket.cloneNode(true));
-                break;
-
-            case TYPE_BOOL:
-                if (value)
-                    item.appendChild(templates.t_true.cloneNode(true));
-                else
-                    item.appendChild(templates.t_false.cloneNode(true));
-                break;
-
-            case TYPE_NULL:
-                item.appendChild(templates.t_null.cloneNode(true));
-                break;
-        }
-
-        return item;
-    }
-
-    // Listen for requests from content pages wanting to set up a port
-    // isUnSupportWorker 为true时，表示不支持webworker，不需要监听消息
-    if (!isUnSupportWorker) {
-        self.onmessage = function (event) {
-            // 插件在乎的是json字符串，所以只有json字符串时才进行格式化
-            if (event.data.jsonString) {
-                self.postMessage(['FORMATTING']);
-                let rootItem;
-                if (event.data.skin && event.data.skin === 'theme-simple') {
-                    rootItem = createDivNode('rootItem');
-                    rootItem.textContent = JSON.stringify(JSON.parse(event.data.jsonString), null, 4);
-                } else {
-                    rootItem = getItemDOM(JSON.parse(event.data.jsonString), false);
-                    rootItem.classList.add('rootItem');
-                }
-                let formattedHtml = `<div id="formattedJson">${rootItem.getOuterHTML()}</div>`;
-                self.postMessage(['FORMATTED', formattedHtml]);
-            }
-        };
-    }
-
-    // 针对不支持webworker的情况，允许直接调用
-    this.getFormattedHtml = function (options) {
-        options.onFormatting && options.onFormatting(['FORMATTING']);
-        let rootItem;
-        if (options.data.skin && options.data.skin === 'theme-simple') {
-            rootItem = createDivNode('rootItem');
-            rootItem.textContent = JSON.stringify(JSON.parse(options.data.jsonString), null, 4);
-        } else {
-            rootItem = getItemDOM(JSON.parse(options.data.jsonString), false);
-            rootItem.classList.add('rootItem');
-        }
-        let formattedHtml = `<div id="formattedJson">${rootItem.getOuterHTML()}</div>`;
-        options.onFormatted && options.onFormatted(['FORMATTED', formattedHtml]);
-    };
-};

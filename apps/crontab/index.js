@@ -1654,7 +1654,7 @@ let crontabGuruStarter = function () {
  * FeHelper 进制转换工具
  */
 new Vue({
-    el: '#containerCrontab',
+    el: '#pageContainer',
     data: {},
 
     mounted: function () {
@@ -1668,6 +1668,22 @@ new Vue({
     methods: {
         randomCron: function(){
             document.querySelector('#contabContentBox .example span.clickable').click();
+        },
+
+        openDonateModal: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'crontab' }
+            });
+        },
+
+        openOptionsPage: function(event) {  
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.openOptionsPage();
         }
     }
 });

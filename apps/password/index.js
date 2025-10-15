@@ -15,7 +15,13 @@ new Vue({
             upperLetter: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
             specialChar: '~!@#$%^&*()[{]}-_=+\|;:\'\",<.>/?`'
         },
-        resultContent: ''
+        resultContent: '',
+        showToast: false,
+        toastMsg: ''
+    },
+
+    mounted: function () {
+        this.loadPatchHotfix();
     },
 
     methods: {
@@ -50,12 +56,62 @@ new Vue({
 
             if ('clipboard' in navigator) {
                 navigator.clipboard.writeText(this.resultContent)
+                .then(() => {
+                    this.showToastMsg('复制成功！');
+                })
                 .catch(err => {
                     console.error('复制失败: ', err);
                 });
             }else{
                 alert("您的浏览器不支持 clipboard API, 请手动复制")
             }
-        }
+        },
+        showToastMsg: function(msg) {
+            this.toastMsg = msg;
+            this.showToast = true;
+            setTimeout(() => {
+                this.showToast = false;
+            }, 1500);
+        },
+        openOptionsPage: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.openOptionsPage();
+        },
+        openDonateModal: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'password' }
+            });
+        },
+        
+        loadPatchHotfix() {
+            // 页面加载时自动获取并注入页面的补丁
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'fh-get-tool-patch',
+                toolName: 'password'
+            }, patch => {
+                if (patch) {
+                    if (patch.css) {
+                        const style = document.createElement('style');
+                        style.textContent = patch.css;
+                        document.head.appendChild(style);
+                    }
+                    if (patch.js) {
+                        try {
+                            if (window.evalCore && window.evalCore.getEvalInstance) {
+                                window.evalCore.getEvalInstance(window)(patch.js);
+                            }
+                        } catch (e) {
+                            console.error('password补丁JS执行失败', e);
+                        }
+                    }
+                }
+            });
+        },
     }
 });

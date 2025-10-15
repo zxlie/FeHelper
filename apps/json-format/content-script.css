@@ -87,13 +87,38 @@ html.fh-jf .item {
     padding-bottom: 1px;
 }
 
+/* 行悬停效果 - 使用JavaScript控制的类 */
+html.fh-jf .item.fh-hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 2px;
+}
+
+/* 深色主题悬停效果 */
+html.fh-jf .theme-dark .item.fh-hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* VS Code主题悬停效果 */
+html.fh-jf .theme-vscode .item.fh-hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* GitHub主题悬停效果 */
+html.fh-jf .theme-github .item.fh-hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Light主题悬停效果 */
+html.fh-jf .theme-light .item.fh-hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
 html.fh-jf .item .kv-list {
     display: block;
     padding-left: 24px;
     border-left: 1px dashed #bbb;
     margin-left: 2px
 }
-
 html.fh-jf .item .string {
     word-wrap: break-word;
     white-space: pre-wrap;
@@ -114,15 +139,38 @@ html.fh-jf .item .brace {
 html.fh-jf .item .expand {
     width: 20px;
     height: 18px;
-    display: block;
+    display: inline-block;
     position: absolute;
-    left: -2px;
-    top: 4px;
+    left: -20px;
+    top: 2px;
     z-index: 5;
     opacity: 0.35;
     -webkit-user-select: none;
     cursor: pointer;
 }
+
+/* 当展开按钮在key前面时 */
+html.fh-jf .item > .expand:first-child {
+    position: absolute;
+    left: 4px;
+    top: 2px;
+}
+
+/* 根级对象和数组的展开按钮 */
+html.fh-jf .item-object > .expand:first-child,
+html.fh-jf .item-array > .expand:first-child {
+    position: absolute;
+    left: 4px;
+    top: 2px;
+}
+
+/* 数组块元素的展开按钮 */
+html.fh-jf .item-block > .expand:first-child {
+    position: absolute;
+    left: 4px;
+    top: 2px;
+}
+
 
 html.fh-jf .item .expand:after {
     content: "\25bc";
@@ -164,10 +212,16 @@ html.fh-jf .item.collapsed .item {
 
 html.fh-jf .item.collapsed > .expand {
     -webkit-transform: rotate(-90deg);
-    top: -1px
+    top: -4px;
+    left: -2px;
 }
 html.fh-jf .remove-quote .quote {
     display: none;
+}
+
+/* 展开按钮在key前面时不影响后续元素 */
+html.fh-jf .item > .expand:first-child + .quote {
+    margin-left: 0;
 }
 /*================json format style end===================*/
 
@@ -278,7 +332,7 @@ html.fh-jf  body {
     margin: 0;
 }
 
-html..fh-jf body {
+html.fh-jf body {
     padding: 0 8px;
 }
 
@@ -292,7 +346,7 @@ html.fh-jf .x-toolbar {
     border-radius: 4px;
     -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
     box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
-    padding: 5px 15px;
+    padding: 10px 15px;
     position: sticky;
     top: 0;
     z-index: 10000;
@@ -300,8 +354,13 @@ html.fh-jf .x-toolbar {
     user-select: none;
 }
 
+html.fh-jf .x-toolbar .x-stitle {
+    font-weight: 700;
+}
 html.fh-jf .x-toolbar .x-sort input {
     margin-right: 10px;
+    position: relative;
+    top: 2px;
 }
 html.fh-jf .x-toolbar span {
     white-space: normal !important;
@@ -317,7 +376,7 @@ html.fh-jf  .x-toolbar .x-sort {
 }
 
 html.fh-jf  .x-toolbar .x-split {
-    margin: 0 15px;
+    margin: 0 5px;
     color: #ccc;
     display: inline;
 }
@@ -421,8 +480,49 @@ html.fh-jf .hide-status-bar #statusBar {
     height:0;
     opacity: 0;
 }
+/* JSON Path 语言选择器容器 */
+#jsonPathContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* 语言选择下拉框样式 */
+#jsonPathLangSelector {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 2px 5px;
+    font-size: 11px;
+    color: #333;
+    outline: none;
+    cursor: pointer;
+    min-width: 80px;
+}
+
+#jsonPathLangSelector:hover {
+    border-color: #999;
+}
+
+#jsonPathLangSelector:focus {
+    border-color: #0066cc;
+    box-shadow: 0 0 3px rgba(0, 102, 204, 0.3);
+}
+
+/* JSON路径显示样式优化 */
 #jsonPath {
     cursor: default;
+    font-family: 'Courier New', 'Consolas', 'Monaco', monospace;
+    background: #f8f8f8;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid #e0e0e0;
+    font-size: 11px;
+    word-break: break-all;
+    max-width: calc(100vw - 200px);
+    overflow-x: auto;
+    white-space: nowrap;
 }
 
 html.fh-jf .boxOpt {
@@ -456,6 +556,8 @@ html.fh-jf .fe-feedback {
     float: right;
     cursor: pointer;
     font-weight: bold;
+    position: relative;
+    top: -2px;
 }
 
 .fe-feedback a {
@@ -514,7 +616,7 @@ html.fh-jf svg:not(:root) {
 /*设置面板*/
 .mod-setting-panel {
     position: absolute;
-    top: 32px;
+    top: 43px;
     right: 0;
     z-index:10000;
     width:300px;
@@ -563,6 +665,91 @@ html.fh-jf svg:not(:root) {
 .t-collapse .mod-setting-panel {
     position: fixed;
     right: 8px;
+}
+
+.fe-feedback>a.x-other-tools {
+    margin: 1px 0 0;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    -webkit-user-select: none;
+    user-select: none;
+    color: #333;
+    float: right;
+    background-color: #f5f8ff;
+    padding: 3px 10px;
+    border-radius: 15px;
+    border: 1px solid #d0d9ff;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    position: relative;
+    top: -2px;
+}
+.fe-feedback>a.x-other-tools-us {
+    display: none;
+}
+.fe-feedback>.x-donate-link {
+    line-height: 18px;
+    color: #2563eb;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    white-space: nowrap;
+    margin-right: auto;
+    border-radius: 20px;
+    background-color: #eff6ff;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
+    padding: 4px 12px;
+    margin: 0 10px;
+    font-size: 12px;
+    font-weight: normal;
+}
+.fe-feedback>.x-donate-link-us {
+    display: none;
+}
+.fe-feedback>.x-donate-link a{
+    color: #333;
+    text-decoration: none;
+}
+.fe-feedback>.x-donate-link:hover {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    text-decoration: none;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
+    transform: translateY(-1px);
+}
+
+
+.fe-feedback>a.x-other-tools .icon-plus-circle {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-size: contain;
+    font-size: 16px;
+    font-style: normal;
+    line-height: 14px;
+    margin-right: 0px;
+}
+
+.fe-feedback>a.x-other-tools .tool-market-badge {
+    display: inline-block;
+    background-color: #4d89fe;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 5px;
+    font-size: 12px;
+    font-weight: bold;
+}
+.fe-feedback>a.x-other-tools:hover {
+    color: #333;
+    background-color: #e6edff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
 }
 
 /*================ 皮肤：theme-default ===================*/
@@ -683,107 +870,157 @@ html.fh-jf body.theme-default {
 .theme-dark {
     background:#000;
 }
-.theme-dark .x-toolbar {
+html.fh-jf .theme-dark .x-toolbar {
     background: -webkit-linear-gradient(#222,#222,#111);
     border: 1px solid #333;
     border-bottom-color: #363636;
     color:#ddd;
 }
-.theme-dark .x-toolbar .x-a-title {
+html.fh-jf .theme-dark .x-toolbar .x-a-title {
     color:#48b;
 }
-.theme-dark .xjf-btn {
+html.fh-jf .theme-dark .xjf-btn {
     background:-webkit-linear-gradient(#222,#222,#111);
     border:1px solid #444;
     color:#ddd;
 }
-.theme-dark .xjf-btn:hover {
+html.fh-jf .theme-dark .xjf-btn:hover {
     background:-webkit-linear-gradient(#333,#333,#222);
 }
-.theme-dark #statusBar {
+html.fh-jf .theme-dark #statusBar {
     background: #333;
     color: #ddd;
     border-top: 1px solid #555;
 }
-.theme-dark .boxOpt {
+
+/* 深色主题的JSON路径组件适配 */
+html.fh-jf .theme-dark #jsonPathLangSelector {
+    background: #333;
+    border-color: #555;
+    color: #ccc;
+}
+
+html.fh-jf .theme-dark #jsonPathLangSelector:hover {
+    border-color: #777;
+}
+
+html.fh-jf .theme-dark #jsonPathLangSelector:focus {
+    border-color: #0066cc;
+}
+
+html.fh-jf .theme-dark #jsonPath {
+    background: #2a2a2a;
+    border-color: #444;
+    color: #ccc;
+}
+html.fh-jf .theme-dark .boxOpt {
     background: -webkit-linear-gradient(#222,#222,#111);
     border: 1px solid #333;
 }
-.theme-dark .boxOpt a:hover {
+html.fh-jf .theme-dark .boxOpt a:hover {
     color:#eee;
 }
-.theme-dark .mod-setting-panel {
+html.fh-jf .theme-dark .mod-setting-panel {
     background: #222;
     color: #fff;
     border-color: #444;
     box-shadow: 1px 1px #111;
 }
-.theme-dark .mod-setting-panel li:hover {
+html.fh-jf .theme-dark .mod-setting-panel li:hover {
     color:#ff0;
 }
-.theme-dark .mod-setting-panel input[name="maxlength"] {
+html.fh-jf .theme-dark .mod-setting-panel input[name="maxlength"] {
     background: #000;
     border: 1px solid #555;
     color: #fff;
 }
 
-.theme-dark .item .key {
+html.fh-jf .theme-dark .item .key {
     color: #fff;
 }
 
-.theme-dark .item .kv-list {
+html.fh-jf .theme-dark .item .kv-list {
     border-left: 1px dashed #222;
 }
-.theme-dark .item .string {
+html.fh-jf .theme-dark .item .string {
     color: #0f0;
 }
 
-.theme-dark .item .string a {
+html.fh-jf .theme-dark .item .string a {
     color: #369ad6;
     text-decoration: underline;
 }
 
-.theme-dark .item .string a:hover {
+html.fh-jf .theme-dark .item .string a:hover {
     color: #b00;
 }
-.theme-dark .item .brace,
-.theme-dark .item .colon,
-.theme-dark .item .comma{
+html.fh-jf .theme-dark .item .brace,
+html.fh-jf .theme-dark .item .colon,
+html.fh-jf .theme-dark .item .comma{
     color:#eaeaea;
 }
 
-.theme-dark .item .bool,
-.theme-dark .item .null,
-.theme-dark .item .number {
+html.fh-jf .theme-dark .item .bool,
+html.fh-jf .theme-dark .item .null,
+html.fh-jf .theme-dark .item .number {
     font-weight: bold;
     color: #f00
 }
-.theme-dark .item .item-object:hover > span,
-.theme-dark .item .item-array:hover > span,
-.theme-dark .item .item-block:hover > span{
+html.fh-jf .theme-dark .item .item-object:hover > span,
+html.fh-jf .theme-dark .item .item-array:hover > span,
+html.fh-jf .theme-dark .item .item-block:hover > span{
     font-weight: bold;
     color: orange;
 }
 
-.theme-dark .item .item-line:hover,
-.theme-dark .item-line.x-selected {
+html.fh-jf .theme-dark .item .item-line:hover,
+html.fh-jf .theme-dark .item-line.x-selected {
     background: #111;
 }
 
-.theme-dark .item .item-line:hover span ,
-.theme-dark .item.x-selected>span {
+html.fh-jf .theme-dark .item .item-line:hover span ,
+html.fh-jf .theme-dark .item.x-selected>span {
     font-weight: bolder;
     background: #444;
 }
-.theme-dark .item .quote {
+html.fh-jf .theme-dark .item .quote {
     color:#eaeaea;
 }
-.theme-dark .item .expand {
+html.fh-jf .theme-dark .item .expand {
     color:#fff;
 }
+html.fh-jf .theme-dark .x-donate-link {
+    background-color: #222;
+    border: 1px solid #444;
+    color: #ddd;
+}
+html.fh-jf .theme-dark .x-donate-link:hover {
+    background-color: #333;
+}
 
+html.fh-jf .theme-dark .x-donate-link a {
+    color: #ddd;
+}
+html.fh-jf .theme-dark .x-other-tools {
+    background-color: #222;
+    border: 1px solid #444;
+    color: #ddd;
+}
 
 /*================ 皮肤：theme-vscode ===================*/
+/* VSCode主题的JSON路径组件适配 */
+.theme-vscode #jsonPathLangSelector {
+    background: #f8f8f8;
+    border-color: #ccc;
+    color: #333;
+}
+
+.theme-vscode #jsonPath {
+    background: #f8f8f8;
+    border-color: #ddd;
+    color: #333;
+}
+
 .theme-vscode .item .key {
     color: #f00;
 }
@@ -827,6 +1064,19 @@ html.fh-jf body.theme-default {
 
 
 /*================ 皮肤：theme-github ===================*/
+/* GitHub主题的JSON路径组件适配 */
+.theme-github #jsonPathLangSelector {
+    background: #fff;
+    border-color: #d1d5da;
+    color: #24292e;
+}
+
+.theme-github #jsonPath {
+    background: #f6f8fa;
+    border-color: #d1d5da;
+    color: #24292e;
+}
+
 .theme-github {
     background: #f8f8f8;
 }
@@ -876,3 +1126,11 @@ html.fh-jf body.theme-default {
 .theme-vegetarian .item-line.x-selected {
     background: #f9f9f9;
 }
+.fh-jf .json-formatter-container {display: none;}
+.t-collapse .fe-feedback {
+    height: 20px;
+}
+.t-collapse .fe-feedback #toggleBtn{
+    padding-bottom: 20px;
+}
+

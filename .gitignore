@@ -1,9 +1,11 @@
 # 工程文件
 .idea
 .DS_Store
+.todolist
 node_modules/
 package-lock.json
 Users/
-output/apps/
-output-firefox/apps/
-output-edge/apps/
+output-chrome/
+output-firefox/
+output-edge/
+.vscode/    

@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FeHelper - 前端开发者的超级助手</title>
+    <meta name="description" content="FeHelper是一个专为前端开发者设计的强大浏览器扩展，集成31种实用工具：JSON美化/Mock数据生成/AI助手/接口调试/图像处理等，支持Chrome/Edge/Firefox，开源免费！">
+    <meta property="og:title" content="FeHelper - 前端开发者的超级助手" />
+    <meta property="og:description" content="专为前端开发者设计！31种实用工具，JSON美化/Mock数据/AI助手/接口调试，支持Chrome/Edge/Firefox，开源免费！" />
+    <meta property="og:image" content="https://fehelper.com/static/img/fe-128.png" />
+    <meta property="og:url" content="https://fehelper.com/" />
+    <meta itemprop="name" content="FeHelper - 职场人的超级助手">
+    <meta itemprop="description" content="全新升级！30+实用工具，支持Chrome/Edge/Firefox，开源免费，前端/数据/办公必备！">
+    <meta itemprop="image" content="https://fehelper.com/static/img/fe-128.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="static/img/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="static/img/fe-16.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="static/img/fe-48.png">
+    <link rel="icon" type="image/png" sizes="128x128" href="static/img/fe-128.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="static/img/fe-128.png">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css?v=20250711">
+    
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?17b02fba4e62901b4289eef4c2243123";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="static/img/fe-48.png" alt="FeHelper Logo" class="logo-icon">
+                <span>FeHelper</span>
+            </div>
+            <ul class="nav-menu">
+                <li>
+                  <a href="/v1/index/index.html" target="_blank" class="nav-online-link">
+                    <i class="fas fa-bolt" style="margin-right:6px;"></i>在线使用
+                  </a>
+                </li>
+                <li><a href="#features">功能特性</a></li>
+                <li><a href="#tools">工具箱</a></li>
+                <li><a href="docs.html">文档中心</a></li>
+                <li><a href="#about">关于我们</a></li>
+                <li><a href="#download">立即下载</a></li>
+                <li><a href="#offline-download" class="nav-offline-download">无梯下载</a></li>
+                <li><a href="https://github.com/zxlie/FeHelper" class="github-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a></li>
+            </ul>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-background">
+            <div class="gradient-bg"></div>
+            <div class="hero-pattern"></div>
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    前端开发者的 <span class="gradient-text">超级助手</span>
+                </h1>
+                <p class="hero-subtitle">
+                    <span class="subtitle-main">
+                        FeHelper是一个功能强大的 <span class="highlight">开源浏览器扩展</span>，专为前端开发者和各类职场人设计，集成了30+种实用工具，包括JSON处理、代码美化、接口调试、AI助手、图像处理等核心功能，支持Chrome、Edge、Firefox浏览器。
+                    </span>
+                </p>
+                <div class="badges-row pro-badges">
+                    <a href="https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad" target="_blank">
+                        <img src="https://img.shields.io/chrome-web-store/v/pkgccpejnmalmdinmhkkfafefagiiiad?label=chrome%20web%20store&logo=googlechrome&color=3b82f6&style=for-the-badge" alt="Chrome Web Store Version">
+                    </a>
+                    <img src="https://img.shields.io/badge/tools-30+-10b981?style=for-the-badge&logo=toolkit&logoColor=white" alt="工具数量">
+                    <img src="https://img.shields.io/chrome-web-store/rating/pkgccpejnmalmdinmhkkfafefagiiiad?label=rating&logo=googlechrome&color=3b82f6&style=for-the-badge" alt="Chrome Web Store Rating">
+                    <img src="https://img.shields.io/chrome-web-store/users/pkgccpejnmalmdinmhkkfafefagiiiad?label=users&logo=googlechrome&color=3b82f6&style=for-the-badge" alt="Chrome Web Store Users">
+                    <a href="https://github.com/zxlie/FeHelper" target="_blank">
+                        <img src="https://img.shields.io/github/stars/zxlie/FeHelper?style=for-the-badge&color=8b5cf6&logo=github" alt="GitHub Stars">
+                    </a>
+                    <a href="https://github.com/zxlie/FeHelper" target="_blank">
+                        <img src="https://img.shields.io/github/forks/zxlie/FeHelper?style=for-the-badge&color=8b5cf6&logo=github" alt="GitHub Forks">
+                    </a>
+                    <img src="https://img.shields.io/badge/since-2011-f59e0b?style=for-the-badge&logo=calendar&logoColor=white" alt="开发历史">
+                </div>
+                <div class="hero-buttons">
+                    <a href="#download" class="btn-primary">
+                        <i class="fas fa-download"></i>
+                        立即安装
+                    </a>
+                    <a href="#offline-download" class="btn-secondary no-ladder-download">
+                        <i class="fas fa-cloud-download-alt"></i>
+                        无梯下载
+                    </a>
+                    <a href="#features" class="btn-secondary">
+                        <i class="fas fa-play"></i>
+                        了解更多
+                    </a>
+                </div>
+
+            </div>
+            <div class="hero-visual">
+                <div class="browser-mockup">
+                    <div class="browser-header">
+                        <div class="browser-controls">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <div class="browser-url">fehelper.com</div>
+                        <div class="extension-icon">
+                            <img src="static/img/fe-16.png" alt="FeHelper Extension" class="extension-logo">
+                        </div>
+                    </div>
+                    <div class="browser-content">
+                        <div class="tool-grid-demo">
+                            <div class="tool-card-demo json">
+                                <i class="fas fa-code"></i>
+                                <span>开发工具类</span>
+                                <div class="tool-count">9种工具</div>
+                            </div>
+                            <div class="tool-card-demo qr">
+                                <i class="fas fa-image"></i>
+                                <span>图像处理类</span>
+                                <div class="tool-count">7种工具</div>
+                            </div>
+                            <div class="tool-card-demo encode">
+                                <i class="fas fa-exchange-alt"></i>
+                                <span>编解码转换类</span>
+                                <div class="tool-count">4种工具</div>
+                            </div>
+                            <div class="tool-card-demo postman">
+                                <i class="fas fa-rocket"></i>
+                                <span>效率工具类</span>
+                                <div class="tool-count">4种工具</div>
+                            </div>
+                            <div class="tool-card-demo calc">
+                                <i class="fas fa-calculator"></i>
+                                <span>计算工具类</span>
+                                <div class="tool-count">3种工具</div>
+                            </div>
+                            <div class="tool-card-demo other">
+                                <i class="fas fa-puzzle-piece"></i>
+                                <span>其他工具</span>
+                                <div class="tool-count">4种工具</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 微信小程序推广区域 -->
+                        <div class="wechat-miniprogram-section">
+                            
+                            <div class="main-flex">
+                                <div class="content-flex">
+                                    <div class="wechat-header">
+                                        <div class="wechat-icon">
+                                            <i class="fab fa-weixin"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="wechat-title">
+                                                🎉 微信小程序版
+                                                <span class="new-badge">NEW</span>
+                                            </h3>
+                                            <p class="wechat-subtitle">扫码即用，无需安装</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="wechat-tags">
+                                        <span class="wechat-tag">
+                                            <i class="fas fa-check"></i>
+                                            无需安装
+                                        </span>
+                                        <span class="wechat-tag">
+                                            <i class="fas fa-mobile-alt"></i>
+                                            扫码即用
+                                        </span>
+                                        <span class="wechat-tag">
+                                            <i class="fas fa-tools"></i>
+                                            核心功能
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="qr-section">
+                                    <img src="static/img/fh-wx-xcx.jpg" alt="FeHelper微信小程序码" class="qr-code-img">
+                                    <p class="qr-text">微信扫码使用</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 工具界面预览区 -->
+    <section class="tool-preview">
+      <div class="container">
+        <div class="section-header">
+          <h2>工具界面预览</h2>
+          <p>真实截图，所见即所得，体验极致流畅</p>
+        </div>
+        <div class="preview-images">
+          <div class="preview-item">
+            <img src="static/screenshot/options.png" alt="FeHelper主界面" />
+            <div class="preview-caption">插件配置页</div>
+          </div>
+          <div class="preview-item">
+            <img src="static/screenshot/json-format.png" alt="JSON美化工具界面" />
+            <div class="preview-caption">JSON美化工具</div>
+          </div>
+          <div class="preview-item">
+            <img src="static/screenshot/qr-code.png" alt="二维码工具界面" />
+            <div class="preview-caption">二维码工具</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>为什么选择 FeHelper？</h2>
+                <p>为职场人量身打造的全能工具集</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>超高性能 <span class="feature-sub">极速体验，极致流畅</span></h3>
+                    <p>基于 Manifest V3 构建，启动速度快，内存占用低，毫秒级响应，20万+开发者共同见证，真正不影响浏览器性能。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>安全可靠 <span class="feature-sub">数据本地，隐私无忧</span></h3>
+                    <p>遵循最新安全标准，所有数据本地处理，绝不上传任何敏感信息，企业级安全保障，支持离线使用。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fab fa-osi"></i>
+                    </div>
+                    <h3>完全开源 <span class="feature-sub">社区共建，持续进化</span></h3>
+                    <p>MIT 开源协议，代码透明，5K+ GitHub Stars，全球开发者共同维护，持续更新优化。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3>工具齐全 <span class="feature-sub">30+ 专业工具，一站集成</span></h3>
+                    <p>涵盖开发调试、数据处理、图像转换、效率办公等6大类31种工具，JSON美化、Mock数据、接口调试、AI助手等，满足各类开发需求。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3>跨平台兼容 <span class="feature-sub">多端支持，随时随地</span></h3>
+                    <p>完美适配 Chrome、Edge、Firefox 等主流浏览器，支持Windows、macOS、Linux等操作系统，开发体验无缝切换。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h3>智能便捷 <span class="feature-sub">AI驱动，个性定制</span></h3>
+                    <p>内置AI智能助手，支持代码优化建议；个性化工具排序、快捷键配置、夜间模式等，助力高效开发每一天。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools Section -->
+    <section id="tools" class="tools">
+        <div class="container">
+            <div class="section-header">
+                <h2>强大的工具集</h2>
+                <p>每一个工具都经过精心设计，只为提升您的开发效率</p>
+            </div>
+            <div class="tools-categories">
+                <div class="category-tabs">
+                    <button class="tab-btn active" data-category="dev">开发工具类 (9种)</button>
+                    <button class="tab-btn" data-category="image">图像处理类 (7种)</button>
+                    <button class="tab-btn" data-category="encode">编解码转换类 (4种)</button>
+                    <button class="tab-btn" data-category="productivity">效率工具类 (4种)</button>
+                    <button class="tab-btn" data-category="calculator">计算工具类 (3种)</button>
+                    <button class="tab-btn" data-category="other">其他工具 (4种)</button>
+                </div>
+
+                <!-- 开发工具类 -->
+                <div class="tools-grid active" data-category="dev">
+                    <div class="tool-card" data-category="dev">
+                        <h3><div class="tool-icon"><span>⒥</span></div>JSON美化工具</h3>
+                        <p>页面自动检测并格式化、手动格式化、乱码解码、排序、BigInt、编辑、下载、皮肤定制等</p>
+                        <div class="tool-demo"><div class="json-demo"><pre><code>{
+  "name": "FeHelper",
+  "version": "2025.6.2024",
+  "tools": ["JSON", "Mock", "AI", "Debug"]
+}</code></pre></div></div>
+                    </div>
+                    <div class="tool-card" data-category="dev">
+                        <h3><div class="tool-icon"><span>☷</span></div>JSON比对工具</h3>
+                        <p>支持两个JSON内容的自动键值比较，并高亮显示差异点，同时也能判断JSON是否合法</p>
+                        <div class="tool-demo"><div class="diff-demo"><div class="diff-left">原始</div><div class="diff-right">修改后</div><div class="diff-line added">+ "ai": "智能助手"</div><div class="diff-line removed">- "old": "旧功能"</div></div></div>
+                    </div>
+                    <div class="tool-card" data-category="dev">
+                        <h3><div class="tool-icon"><span>🎲</span></div>Mock数据生成器</h3>
+                        <p>快速生成各种测试数据，支持个人信息、商业数据、技术数据等多种类型，提供快速模板一键生成，支持JSON/CSV/SQL/XML格式输出</p>
+                        <div class="tool-demo"><div class="mock-demo"><div class="mock-item">{"name": "张三", "age": 28}</div><div class="mock-item">{"email": "test@example.com"}</div></div></div>
+                    </div>
+                    <div class="tool-card" data-category="dev">
+                        <h3><div class="tool-icon"><span>✡</span></div>代码美化工具</h3>
+                        <p>支持多语言的代码美化，包括 Javascript、CSS、HTML、XML、SQL，且会陆续支持更多格式</p>
+                        <div class="tool-demo"><div class="code-demo"><div class="code-before">压缩代码</div><span class="demo-arrow">→</span><div class="code-after">格式化代码</div></div></div>
+                    </div>
+                    <div class="tool-card" data-category="dev">
+                        <h3><div class="tool-icon"><span>♯</span></div>代码压缩工具</h3>
+                        <p>Web开发用，提供简单的代码压缩功能，支持HTML、Javascript、CSS代码压缩</p>
+                        <div class="tool-demo"><div class="compress-demo"><div class="size-before">100KB</div><span class="demo-arrow">→</span><div class="size-after">65KB</div><div class="compress-ratio">35% 压缩率</div></div></div>
+                    </div>
+                    <div class="tool-card" data-category="dev">
+                        <h3><div class="tool-icon"><span>☯</span></div>简易Postman</h3>
+                        <p>开发过程中的接口调试工具，支持GET/POST/HEAD请求方式，且支持JSON内容自动格式化</p>
+                        <div class="tool-demo"><div class="api-demo"><div class="request-line">POST /api/users</div><div class="response-status success">200 OK</div></div></div>
+                    </div>
+                    <div class="tool-card" data-category="dev">
+                        <h3><div class="tool-icon"><span>ⓦ</span></div>Websocket工具</h3>
+                        <p>支持对Websocket接口的抓包测试，包括ws服务的连接测试、消息发送测试、结果分析等</p>
+                        <div class="tool-demo"><div class="websocket-demo"><div class="ws-status connected"><span class="ws-indicator">●</span> 已连接</div></div></div>
+                    </div>
+                    <div class="tool-card" data-category="dev">
+                        <h3><div class="tool-icon"><span>✙</span></div>正则公式速查</h3>
+                        <p>支持 JavaScript / Python / PHP / Java 等语言的正则速查，包含验证类、提取类、替换类、格式化类、特殊字符类、编程相关等常用正则表达式</p>
+                    </div>
+                    <div class="tool-card" data-category="dev">
+                        <h3><div class="tool-icon"><span>⏱</span></div>网站性能分析</h3>
+                        <p>全面分析网页性能指标，包括核心Web指标(LCP/FID/CLS)、资源加载性能、内存使用、长任务监控等，并提供针对性的优化建议</p>
+                    </div>
+                </div>
+
+                <!-- 编解码转换类 -->
+                <div class="tools-grid" data-category="encode">
+                    <div class="tool-card" data-category="encode">
+                        <h3><div class="tool-icon"><span>♨</span></div>信息编码转换</h3>
+                        <p>支持多格式的信息编解码，如Unicode、UTF-8、UTF-16、URL、Base64、MD5、Hex、Gzip等</p>
+                        <div class="tool-demo"><div class="encode-demo"><div class="encode-input">Hello World</div><div class="encode-arrows"><span class="demo-arrow">⇄</span></div><div class="encode-output">SGVsbG8gV29ybGQ=</div></div></div>
+                    </div>
+                    <div class="tool-card" data-category="encode">
+                        <h3><div class="tool-icon"><span>❖</span></div>进制转换工具</h3>
+                        <p>支持2进制到36进制数据之间的任意转换，比如：10进制转2进制，8进制转16进制，等等</p>
+                    </div>
+                    <div class="tool-card" data-category="encode">
+                        <h3><div class="tool-icon"><span>♖</span></div>时间(戳)转换</h3>
+                        <p>本地化时间与时间戳之间的相互转换，支持秒/毫秒、支持世界时区切换、各时区时钟展示等</p>
+                    </div>
+                    <div class="tool-card" data-category="encode">
+                        <h3><div class="tool-icon"><span>▶</span></div>颜色转换工具</h3>
+                        <p>支持HEX颜色到RGB格式的互转，比如HEX颜色「#43ad7f」转RGB后为「rgb(67, 173, 127)」</p>
+                    </div>
+                </div>
+
+                <!-- 图像处理类 -->
+                <div class="tools-grid" data-category="image">
+                    <div class="tool-card" data-category="image">
+                        <h3><div class="tool-icon"><span>▣</span></div>二维码/解码</h3>
+                        <p>支持自定义颜色和icon的二维码生成器，并且支持多种模式的二维码解码，包括截图后粘贴解码</p>
+                        <div class="tool-demo"><div class="qr-demo"><div class="qr-code"><div class="qr-pattern"></div></div></div></div>
+                    </div>
+                    <div class="tool-card" data-category="image">
+                        <h3><div class="tool-icon"><span>▤</span></div>图片转Base64</h3>
+                        <p>支持多种模式的图片转Base64格式，比如链接粘贴/截图粘贴等，也支持Base64数据逆转图片</p>
+                    </div>
+                    <div class="tool-card" data-category="image">
+                        <h3><div class="tool-icon"><span>⇲</span></div>SVG转为图片</h3>
+                        <p>支持SVG文件转换为PNG、JPG、WEBP等格式，可自定义输出尺寸，支持文件拖放和URL导入</p>
+                    </div>
+                    <div class="tool-card" data-category="image">
+                        <h3><div class="tool-icon"><span>📊</span></div>图表制作工具</h3>
+                        <p>快速制作各类数据可视化图表，支持柱状图、折线图、饼图等多种图表类型，可导出为图片格式</p>
+                        <div class="tool-demo"><div class="color-gradient-demo"></div></div>
+                    </div>
+                    <div class="tool-card" data-category="image">
+                        <h3><div class="tool-icon"><span>🖼️</span></div>海报快速生成</h3>
+                        <p>快速创建营销推广海报，支持朋友圈、小红书等多种模板，可自定义文字、图片和配色</p>
+                    </div>
+                    <div class="tool-card" data-category="image">
+                        <h3><div class="tool-icon"><span>✂</span></div>网页截屏工具</h3>
+                        <p>可对任意网页进行截屏，支持可视区域截屏、全网页滚动截屏，最终结果可预览后再保存</p>
+                    </div>
+                    <div class="tool-card" data-category="image">
+                        <h3><div class="tool-icon"><span>✑</span></div>页面取色工具</h3>
+                        <p>可直接在网页上针对任意元素进行色值采集，将光标移动到需要取色的位置，单击确定即可</p>
+                        <div class="tool-demo"><div class="color-picker-demo"></div></div>
+                    </div>
+                </div>
+
+                <!-- 效率工具类 -->
+                <div class="tools-grid" data-category="productivity">
+                    <div class="tool-card" data-category="productivity">
+                        <h3><div class="tool-icon"><span>🤖</span></div>AI智能助手</h3>
+                        <p>由AI强力支撑的超智能对话工具，可以让它帮你写代码、改代码、做方案设计、查资料、做分析等</p>
+                        <div class="tool-demo"><div class="ai-chat-demo">💬 AI: 我可以帮您优化代码...</div></div>
+                    </div>
+                    <div class="tool-card" data-category="productivity">
+                        <h3><div class="tool-icon"><span>📝</span></div>我的便签笔记</h3>
+                        <p>方便快捷的浏览器便签笔记工具，支持创建目录对笔记进行分类管理，笔记支持一键导出/导入</p>
+                        <div class="tool-demo"><div class="sticky-notes-demo"><div class="note-yellow"></div><div class="note-green"></div><div class="note-blue"></div></div></div>
+                    </div>
+                    <div class="tool-card" data-category="productivity">
+                        <h3><div class="tool-icon"><span>📄</span></div>Markdown转换</h3>
+                        <p>Markdown编写/预览工具，支持HTML片段直接转Markdown，支持将内容以PDF格式进行下载</p>
+                        <div class="tool-demo"><div class="markdown-demo"># 标题<br/>**粗体** *斜体*</div></div>
+                    </div>
+                    <div class="tool-card" data-category="productivity">
+                        <h3><div class="tool-icon"><span>🐒</span></div>网页油猴工具</h3>
+                        <p>自行配置页面匹配规则、编写Hack脚本，实现网页Hack，如页面自动刷新、自动抢票等</p>
+                        <div class="tool-demo"><div class="monkey-script-demo">// 自动刷新脚本<br/>setInterval(refresh, 5000)</div></div>
+                    </div>
+                </div>
+
+                <!-- 计算工具类 -->
+                <div class="tools-grid" data-category="calculator">
+                    <div class="tool-card" data-category="calculator">
+                        <h3><div class="tool-icon"><span>½</span></div>Crontab工具</h3>
+                        <p>一个简易的Crontab生成工具，支持随机生成Demo，编辑过程中，分时日月周会高亮提示</p>
+                    </div>
+                    <div class="tool-card" data-category="calculator">
+                        <h3><div class="tool-icon"><span>$</span></div>贷(还)款利率</h3>
+                        <p>贷款或还款利率的计算器，按月呈现还款计划；并支持按还款额反推贷款实际利率</p>
+                    </div>
+                    <div class="tool-card" data-category="calculator">
+                        <h3><div class="tool-icon"><span>♆</span></div>随机密码生成</h3>
+                        <p>将各种字符进行随机组合生成密码，可以由数字、大小写字母、特殊符号组成，支持指定长度</p>
+                    </div>
+                </div>
+
+                <!-- 其他工具 -->
+                <div class="tools-grid" data-category="other">
+                    <div class="tool-card" data-category="other">
+                        <h3><div class="tool-icon"><span>🧠</span></div>便捷思维导图</h3>
+                        <p>轻量便捷，随想随用，支持自动保存、本地数据存储、批量数据导入导出、图片格式下载等</p>
+                        <div class="tool-demo"><div class="mindmap-demo"><div class="node-main"></div><div class="connector"></div><div class="node-sub"></div></div></div>
+                    </div>
+                    <div class="tool-card" data-category="other">
+                        <h3><div class="tool-icon"><span>📊</span></div>Excel转JSON</h3>
+                        <p>将Excel或CVS中的数据，直接转换成为结构化数据，如JSON、XML、MySQL、PHP等</p>
+                        <div class="tool-demo"><div class="excel-demo">Excel → JSON</div></div>
+                    </div>
+                    <div class="tool-card" data-category="other">
+                        <h3><div class="tool-icon"><span>📏</span></div>网页栅格标尺</h3>
+                        <p>Web开发用，横竖两把尺子，以10px为单位，用以检测&校准当前网页的栅格对齐率</p>
+                        <div class="tool-demo"><div class="ruler-demo"><div class="ruler-segment red"></div><div class="ruler-segment blue"></div><div class="ruler-segment red"></div></div></div>
+                    </div>
+                    <div class="tool-card" data-category="other">
+                        <h3><div class="tool-icon"><span>🔧</span></div>FH开发者工具</h3>
+                        <p>以开发平台的思想，FeHelper支持用户进行本地开发，将自己的插件功能集成进FH工具市场</p>
+                        <div class="tool-demo"><div class="devtools-demo">&lt;/&gt; 开发平台</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about">
+        <div class="container">
+            <div class="section-header">
+                <h2>关于 FeHelper</h2>
+                <p>从2011年到现在，十多年专注实用工具集成</p>
+            </div>
+            <div class="about-content">
+                <div class="about-text">
+                    <div class="timeline-item">
+                        <div class="timeline-year">2011</div>
+                        <div class="timeline-content">
+                            <h3>项目启动</h3>
+                            <p>FeHelper 1.0版本在Google Chrome Webstore发布，开始服务广大职场人</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2016</div>
+                        <div class="timeline-content">
+                            <h3>功能扩展</h3>
+                            <p>集成JSON美化、编码转换、二维码等核心工具，用户突破10万</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2020</div>
+                        <div class="timeline-content">
+                            <h3>开源发布</h3>
+                            <p>项目在GitHub开源，支持社区贡献，增加Firefox和Edge支持</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2024</div>
+                        <div class="timeline-content">
+                            <h3>全新升级</h3>
+                            <p>升级到Manifest V3，用户超过20万，GitHub Star超过5K</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2025</div>
+                        <div class="timeline-content">
+                            <h3>AI与智能化升级</h3>
+                            <p>集成AI智能助手，提供代码优化建议；新增Mock数据生成器、海报制作工具、图表制作等专业工具；个性化工具排序、夜间模式等用户体验全面升级；微信小程序版本发布。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Star趋势图替换原配图 -->
+                                <div class="about-image">
+                    <img src="https://api.star-history.com/svg?repos=zxlie/FeHelper&type=Date" alt="FeHelper GitHub Star趋势图" class="star-history-chart">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Browser Support -->
+    <section class="browser-support">
+        <div class="container">
+            <div class="section-header">
+                <h2>跨浏览器支持</h2>
+                <p>在您喜爱的浏览器中享受一致的体验</p>
+            </div>
+            <div class="browsers-grid">
+                <div class="browser-card chrome">
+                    <div class="browser-icon">
+                        <i class="fab fa-chrome"></i>
+                    </div>
+                    <h3>Google Chrome</h3>
+                    <p>Chrome Web Store 官方发布</p>
+                    <div class="browser-stats">
+                        <span class="rating">★★★★★ 4.7</span>
+                        <span class="users">200K+ 用户</span>
+                    </div>
+                    <a href="https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad" class="browser-link" target="_blank">
+                        <i class="fas fa-external-link-alt"></i>
+                        安装扩展
+                    </a>
+                </div>
+                <div class="browser-card edge">
+                    <div class="browser-icon">
+                        <i class="fab fa-edge"></i>
+                    </div>
+                    <h3>Microsoft Edge</h3>
+                    <p>Edge Add-ons 官方发布</p>
+                    <div class="browser-stats">
+                        <span class="rating">★★★★★ 4.8</span>
+                        <span class="users">100K+ 用户</span>
+                    </div>
+                    <a href="https://microsoftedge.microsoft.com/addons/detail/feolnkbgcbjmamimpfcnklggdcbgakhe" class="browser-link" target="_blank">
+                        <i class="fas fa-external-link-alt"></i>
+                        安装扩展
+                    </a>
+                </div>
+                <div class="browser-card firefox">
+                    <div class="browser-icon">
+                        <i class="fab fa-firefox"></i>
+                    </div>
+                    <h3>Mozilla Firefox</h3>
+                    <p>Firefox Add-ons 官方发布</p>
+                    <div class="browser-stats">
+                        <span class="rating">★★★★★ 4.9</span>
+                        <span class="users">全新发布</span>
+                    </div>
+                    <a href="https://addons.mozilla.org/zh-CN/firefox/addon/fehelper-%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B/" class="browser-link" target="_blank">
+                        <i class="fas fa-external-link-alt"></i>
+                        安装扩展
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Offline Download Section -->
+    <section id="offline-download" class="offline-download">
+        <div class="container">
+            <div class="section-header">
+                <h2>🚀 无梯下载指南</h2>
+                <p>无法访问Chrome商店？没关系！我们为您提供完整的离线下载方案</p>
+            </div>
+            
+            <div class="download-container">
+                <!-- 下载卡片 -->
+                <div class="download-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div>
+                            <h3 class="card-title">Chrome-Stats 镜像下载</h3>
+                            <p class="card-subtitle">第三方镜像站点，国内可直接访问下载</p>
+                        </div>
+                    </div>
+                    
+                    <div class="features-grid">
+                        <div class="feature-section">
+                            <div class="feature-header">
+                                <i class="fas fa-rocket"></i>
+                                <strong>快速开始</strong>
+                            </div>
+                            <div class="feature-steps">
+                                <div class="step-item">
+                                    <span class="step-number blue">1</span>
+                                    <span class="step-text">点击下载按钮安装扩展</span>
+                                </div>
+                                <div class="step-item">
+                                    <span class="step-number green">2</span>
+                                    <span class="step-text">点击浏览器工具栏FeHelper图标</span>
+                                </div>
+                                <div class="step-item">
+                                    <span class="step-number purple">3</span>
+                                    <span class="step-text">选择需要的工具开始使用</span>
+                                </div>
+                                <div class="step-item">
+                                    <span class="step-number orange">4</span>
+                                    <span class="step-text">设置快捷键提升使用效率</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="feature-section">
+                            <div class="feature-header">
+                                <i class="fas fa-shield-alt"></i>
+                                <strong>核心优势</strong>
+                            </div>
+                            <p class="feature-advantages">
+                                ✅ <strong>官方版本</strong>：与商店版本完全一致<br>
+                                ✅ <strong>开源透明</strong>：MIT协议，代码可审计<br>
+                                ✅ <strong>安全可靠</strong>：数据本地处理，隐私无忧<br>
+                                ✅ <strong>持续更新</strong>：社区活跃，功能不断增强<br>
+                                ✅ <strong>无需魔法</strong>：国内直接下载，极速安装
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="download-link-center">
+                        <a href="https://chrome-stats.com/d/pkgccpejnmalmdinmhkkfafefagiiiad/download" 
+                           target="_blank" 
+                           class="download-link">
+                            <i class="fas fa-external-link-alt"></i>
+                            前往 Chrome-Stats 下载
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 安装教程 -->
+                <div class="install-tutorial">
+                    <h3 class="tutorial-title">
+                        <i class="fas fa-cog"></i>
+                        详细安装教程
+                    </h3>
+                    
+                    <div class="tutorial-grid">
+                        <!-- 方法一：CRX文件安装 -->
+                        <div class="method-section">
+                            <h4 class="method-title">
+                                <span class="method-number blue">1</span>
+                                方法一：CRX文件安装（推荐）
+                            </h4>
+                            <ol class="method-steps">
+                                <li>点击上方按钮进入Chrome-Stats下载页面</li>
+                                <li>点击"<strong>Download CRX file</strong>"下载.crx文件</li>
+                                <li>在Chrome地址栏输入：<code>chrome://extensions</code></li>
+                                <li>开启右上角的"<strong>开发者模式</strong>"</li>
+                                <li>将下载的.crx文件直接拖拽到扩展页面</li>
+                                <li>点击"<strong>添加扩展程序</strong>"完成安装</li>
+                            </ol>
+                        </div>
+
+                        <!-- 方法二：ZIP文件安装 -->
+                        <div class="method-section">
+                            <h4 class="method-title">
+                                <span class="method-number green">2</span>
+                                方法二：ZIP文件安装
+                            </h4>
+                            <ol class="method-steps">
+                                <li>在Chrome-Stats页面点击"<strong>Download ZIP file</strong>"</li>
+                                <li>将下载的ZIP文件解压到本地文件夹</li>
+                                <li>在Chrome地址栏输入：<code>chrome://extensions</code></li>
+                                <li>开启右上角的"<strong>开发者模式</strong>"</li>
+                                <li>点击"<strong>加载已解压的扩展程序</strong>"</li>
+                                <li>选择解压后的文件夹完成安装</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <!-- 注意事项 -->
+                    <div class="warning-box">
+                        <h4 class="warning-title">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            重要提示
+                        </h4>
+                        <ul class="warning-list">
+                            <li>Chrome可能会提示"无法从此网站添加应用"，这是正常现象，选择继续即可</li>
+                            <li>安装后建议关闭"开发者模式"以避免警告提示</li>
+                            <li>扩展功能与商店版本完全一致，支持自动更新检查</li>
+                            <li>如遇安装问题，可在GitHub Issues区域反馈</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="download">
+        <div class="container">
+            <div class="download-content">
+                <div class="download-info">
+                    <h2>立即体验 FeHelper</h2>
+                    <p>选择您的浏览器，开始高效的前端开发之旅</p>
+                    <div class="download-features">
+                        <div class="feature">
+                            <i class="fas fa-check"></i>
+                            <span>完全免费使用</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check"></i>
+                            <span>无需注册账号</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check"></i>
+                            <span>数据本地处理</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check"></i>
+                            <span>持续更新维护</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="download-buttons">
+                    <a href="https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad" class="download-btn chrome-btn" target="_blank">
+                        <div class="btn-icon">
+                            <i class="fab fa-chrome"></i>
+                        </div>
+                        <div class="btn-text">
+                            <span class="btn-title">Chrome 浏览器</span>
+                            <span class="btn-subtitle">从 Chrome Web Store 安装</span>
+                        </div>
+                        <i class="fas fa-arrow-right btn-arrow"></i>
+                    </a>
+                    <a href="https://addons.mozilla.org/zh-CN/firefox/addon/fehelper-%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B/" class="download-btn firefox-btn" target="_blank">
+                        <div class="btn-icon">
+                            <i class="fab fa-firefox"></i>
+                        </div>
+                        <div class="btn-text">
+                            <span class="btn-title">Firefox 浏览器</span>
+                            <span class="btn-subtitle">从 Firefox Add-ons 安装</span>
+                        </div>
+                        <i class="fas fa-arrow-right btn-arrow"></i>
+                    </a>
+                    <a href="https://microsoftedge.microsoft.com/addons/detail/feolnkbgcbjmamimpfcnklggdcbgakhe" class="download-btn edge-btn" target="_blank">
+                        <div class="btn-icon">
+                            <i class="fab fa-edge"></i>
+                        </div>
+                        <div class="btn-text">
+                            <span class="btn-title">Edge 浏览器</span>
+                            <span class="btn-subtitle">从 Edge Add-ons 安装</span>
+                        </div>
+                        <i class="fas fa-arrow-right btn-arrow"></i>
+                    </a>
+                    <a href="https://github.com/zxlie/FeHelper" class="download-btn github-btn" target="_blank">
+                        <div class="btn-icon">
+                            <i class="fab fa-github"></i>
+                        </div>
+                        <div class="btn-text">
+                            <span class="btn-title">GitHub 源码</span>
+                            <span class="btn-subtitle">查看源码或本地构建</span>
+                        </div>
+                        <i class="fas fa-arrow-right btn-arrow"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TableExporter 推荐位 -->
+    <section class="tableexporter-promo">
+      <div class="container">
+        <div class="section-header">
+          <h2>🎉 强力推荐 · 表格导出神器</h2>
+          <p>TableExporter：智能识别网页表格，一键导出Excel，数据分析必备！</p>
+        </div>
+        <div class="promo-content">
+          <div class="promo-img-box">
+            <img src="https://fehelper.com/v1/table-exporter/assets/images/demo-screenshot.png" alt="TableExporter 插件截图" class="promo-img">
+          </div>
+          <div class="promo-info">
+            <ul class="promo-list">
+              <li><span>🚀</span> 智能识别网页所有表格，自动添加导出按钮</li>
+              <li><span>📊</span> 一键导出为Excel，完整保留样式、图片、链接</li>
+              <li><span>🎨</span> 多种主题样式，按钮位置自定义</li>
+              <li><span>⚡</span> 本地处理，数据隐私有保障</li>
+            </ul>
+            <div class="promo-btns">
+              <a href="https://chromewebstore.google.com/detail/tableexporter-%E8%A1%A8%E6%A0%BC%E5%AF%BC%E5%87%BA%E7%A5%9E%E5%99%A8/kiiicbilcnneedomahkhhmmoaojdcdmo" target="_blank" class="btn-primary">
+                <i class="fab fa-chrome"></i> Chrome 商店安装
+              </a>
+              <a href="https://fehelper.com/v1/table-exporter/" target="_blank" class="btn-secondary">
+                <i class="fas fa-globe"></i> 官网了解更多
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-main">
+                                    <div class="footer-logo">
+                    <img src="static/img/fe-48.png" alt="FeHelper Logo" class="logo-icon">
+                    <span>FeHelper</span>
+                </div>
+                    <p>为职场人打造的超级助手</p>
+                    <div class="social-links">
+                        <a href="https://github.com/zxlie/FeHelper" target="_blank">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://github.com/zxlie/FeHelper/issues/412" target="_blank">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>产品</h4>
+                        <a href="#features">功能特性</a>
+                        <a href="#tools">工具箱</a>
+                        <a href="#download">下载安装</a>
+                    </div>
+                    <div class="link-group">
+                        <h4>开发者</h4>
+                        <a href="https://github.com/zxlie/FeHelper" target="_blank">GitHub</a>
+                        <a href="https://github.com/zxlie/FeHelper/issues" target="_blank">问题反馈</a>
+                        <a href="https://github.com/zxlie/FeHelper/issues/412" target="_blank">联系我们</a>
+                    </div>
+                    <div class="link-group">
+                        <h4>支持</h4>
+                        <a href="https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad" target="_blank">Chrome Store</a>
+                        <a href="https://microsoftedge.microsoft.com/addons/detail/feolnkbgcbjmamimpfcnklggdcbgakhe" target="_blank">Edge Add-ons</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 FeHelper. Open source under MIT license.</p>
+                <p>Made with ❤️ for all office professionals</p>
+                <p class="footer-icp">
+                  <a href="https://beian.miit.gov.cn/" target="_blank">京ICP备14006329号-1</a> |
+                  <a href="https://beian.miit.gov.cn/" target="_blank">京ICP备14006329号-2</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 微信JSSDK集成：微信好友/朋友圈分享 -->
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+    <script>
+    (function() {
+      // 判断是否在微信内置浏览器
+      var ua = window.navigator.userAgent.toLowerCase();
+      if (!/micromessenger/.test(ua)) return;
+      var url = location.href.split('#')[0];
+      fetch('https://chrome.fehelper.com/api/wechat-signature?url=' + encodeURIComponent(url))
+        .then(function(res) { return res.json(); })
+        .then(function(cfg) {
+          wx.config({
+            debug: false,
+            appId: cfg.data.appId,
+            timestamp: cfg.data.timestamp,
+            nonceStr: cfg.data.nonceStr,
+            signature: cfg.data.signature,
+            jsApiList: [
+              'updateAppMessageShareData',
+              'updateTimelineShareData'
+            ]
+          });
+          wx.ready(function () {
+            // 分享给好友
+            wx.updateAppMessageShareData({
+              title: 'FeHelper - 职场人的超级助手',
+              desc: '全新升级！30+实用工具，支持Chrome/Edge/Firefox，开源免费，前端/数据/办公必备！',
+              link: url,
+              imgUrl: 'https://fehelper.com/static/img/fe-128.png'
+            });
+            // 分享到朋友圈
+            wx.updateTimelineShareData({
+              title: 'FeHelper - 职场人的超级助手：全新升级！30+实用工具，开源免费，前端/数据/办公必备！',
+              link: url,
+              imgUrl: 'https://fehelper.com/static/img/fe-128.png'
+            });
+          });
+        });
+    })();
+    </script>
+
+    <script src="static/js/script.js?v=20250628"></script>
+</body>
+</html> 
+
+
+
+
+

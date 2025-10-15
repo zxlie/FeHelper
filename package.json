@@ -4,29 +4,42 @@
   "description": "FeHelper-前端助手",
   "main": "index.js",
   "dependencies": {
-    "crypto": "^1.0.1"
+    "crypto": "^1.0.1",
+    "geoip-lite": "^1.4.10",
+    "imagemin-mozjpeg": "^10.0.0",
+    "ua-parser-js": "^2.0.3"
   },
   "devDependencies": {
+    "@babel/code-frame": "^7.27.1",
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.9",
     "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
     "gulp-clean": "^0.4.0",
-    "gulp-copy": "^1.1.0",
-    "gulp-htmlmin": "^4.0.0",
+    "gulp-copy": "^4.0.1",
+    "gulp-htmlmin": "^5.0.1",
+    "gulp-if": "^3.0.0",
+    "gulp-imagemin": "^7.1.0",
     "gulp-jsonminify": "^1.1.0",
-    "gulp-uglify-es": "^1.0.1",
+    "gulp-uglify-es": "^3.0.0",
     "gulp-uglifycss": "^1.0.9",
     "gulp-zip": "^4.1.0",
+    "nodemon": "^3.1.10",
     "pretty-bytes": "^4.0.2",
     "run-sequence": "^2.2.1",
-    "shelljs": "^0.8.1"
+    "shelljs": "^0.8.1",
+    "svgo": "^2.8.0",
+    "uuid": "^9.0.0"
   },
   "scripts": {
     "watch": "gulp watch",
     "build": "gulp",
-    "preinstall": "npx npm-force-resolutions"
+    "preinstall": "npx npm-force-resolutions",
+    "dev": "nodemon server/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zxlie/FeOnline.git"
+    "url": "git+https://github.com/zxlie/FeHelper.git"
   },
   "keywords": [
     "fehelper"
@@ -34,7 +47,7 @@
   "author": "zhaoxianlie",
   "license": "ISC",
   "bugs": {
-    "url": "https://www.baidufe.com/fehelper/feedback.html"
+    "url": "https://github.com/zxlie/FeHelper/issues"
   },
-  "homepage": "https://www.baidufe.com/fehelper"
+  "homepage": "https://github.com/zxlie/FeHelper"
 }

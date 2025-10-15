@@ -14,7 +14,8 @@ export default (() => {
         'FORBID_OPEN_IN_NEW_TAB': false,
         'AUTO_DARK_MODE': false,
         'ALWAYS_DARK_MODE': false,
-        'CONTENT_SCRIPT_ALLOW_ALL_FRAMES': false
+        'CONTENT_SCRIPT_ALLOW_ALL_FRAMES': false,
+        'FORBID_STATISTICS': false
     };
 
     /**
@@ -32,15 +33,20 @@ export default (() => {
     let _getOptions = function (callback) {
         let rst = {};
         chrome.storage.local.get(_getAllOpts(),(objs) => {
-            Object.keys(objs).forEach(item => {
-                let opt = objs[item];
-                if (opt !== null) {
-                    rst[item] = opt;
+            // 确保objs是一个对象
+            objs = objs || {};
+            
+            // 遍历所有配置项，确保每个配置项都有值
+            _getAllOpts().forEach(item => {
+                if (objs.hasOwnProperty(item) && objs[item] !== null) {
+                    rst[item] = objs[item];
                 } else {
+                    // 使用默认值
                     rst[item] = optionItemsWithDefaultValue[item];
                 }
             });
-            callback.call(null, rst);
+            
+            callback && callback.call(null, rst);
         });
     };
 
@@ -51,20 +57,46 @@ export default (() => {
      * @private
      */
     let _setOptions = function (items, callback) {
+        // 确保items是数组类型
+        if (!Array.isArray(items)) {
+            // 如果传入的是对象类型，转换为数组形式
+            if (typeof items === 'object' && items !== null) {
+                let tempItems = [];
+                Object.keys(items).forEach(key => {
+                    let obj = {};
+                    obj[key] = items[key];
+                    tempItems.push(obj);
+                });
+                items = tempItems;
+            } else {
+                items = [];
+            }
+        }
+
         _getAllOpts().forEach((opt) => {
-            let found = items.some(it => {
-                if (typeof(it) === 'string' && it === opt) {
-                    Awesome.StorageMgr.set(opt,'true');
-                    return true;
+            try {
+                let found = items.some(it => {
+                    if (!it) return false;
+                    
+                    if (typeof(it) === 'string' && it === opt) {
+                        chrome.storage.local.set({[opt]: 'true'});
+                        return true;
+                    }
+                    else if (typeof(it) === 'object' && it !== null && it.hasOwnProperty(opt)) {
+                        chrome.storage.local.set({[opt]: it[opt]});
+                        return true;
+                    }
+                    return false;
+                });
+                if (!found) {
+                    chrome.storage.local.set({[opt]: 'false'});
                 }
-                else if (typeof(it) === 'object' && it.hasOwnProperty(opt)) {
-                    Awesome.StorageMgr.set(opt,it[opt]);
-                    return true;
-                }
-                return false;
-            });
-            if (!found) {
-                Awesome.StorageMgr.set(opt,'false');
+            } catch (e) {
+                console.error('保存设置出错:', e, opt);
+                // 出错时设置为默认值
+                chrome.storage.local.set({
+                    [opt]: optionItemsWithDefaultValue[opt] === true ? 'true' : 'false'
+                });
             }
         });
 
@@ -77,3 +109,4 @@ export default (() => {
         setOptions: _setOptions
     };
 })();
+

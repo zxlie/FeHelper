@@ -14,7 +14,6 @@ new Vue({
         showResult: false
     },
     mounted: function () {
-
         let mode = new URL(location.href).searchParams.get('mode');
         this.qrEncodeMode = mode !== 'decode';
 
@@ -78,9 +77,37 @@ new Vue({
                 this.convert();
             }
         })
+
+        this.loadPatchHotfix();
     },
 
     methods: {
+
+        loadPatchHotfix() {
+            // 页面加载时自动获取并注入页面的补丁
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'fh-get-tool-patch',
+                toolName: 'qr-code'
+            }, patch => {
+                if (patch) {
+                    if (patch.css) {
+                        const style = document.createElement('style');
+                        style.textContent = patch.css;
+                        document.head.appendChild(style);
+                    }
+                    if (patch.js) {
+                        try {
+                            if (window.evalCore && window.evalCore.getEvalInstance) {
+                                window.evalCore.getEvalInstance(window)(patch.js);
+                            }
+                        } catch (e) {
+                            console.error('qr-code补丁JS执行失败', e);
+                        }
+                    }
+                }
+            });
+        },
         convert: function () {
             this.showResult = true;
             this.$nextTick(() => {
@@ -245,6 +272,69 @@ new Vue({
             this.previewSrc = src;
             this.$refs.panelBox.style.backgroundImage = 'none';
             this.resultContent = txt;
+        },
+
+        copyQR: function() {
+            const canvas = this.$el.querySelector('#preview canvas');
+            const copyButton = this.$el.querySelector('#copy_button');
+            const originalText = '复制';
+
+            if (!canvas || !copyButton) {
+                alert('请先生成二维码！');
+                return;
+            }
+
+            canvas.toBlob(blob => {
+                if (navigator.clipboard && navigator.clipboard.write) {
+                    navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })])
+                    .then(() => {
+                        copyButton.textContent = '√ 已复制';
+                        copyButton.classList.add('btn-action-success');
+
+                        setTimeout(() => {
+                            copyButton.textContent = originalText;
+                            copyButton.classList.remove('btn-action-success');
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('无法复制二维码: ', err);
+                        alert('复制失败，请检查浏览器权限或手动截图。');
+                    });
+                } else {
+                    alert('当前浏览器不支持自动复制图片，请手动截图。');
+                }
+            });
+        },
+
+        downloadQR: function() {
+            const canvas = this.$el.querySelector('#preview canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = 'qrcode.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } else {
+                alert('请先生成二维码！');
+            }
+        },
+
+        openOptionsPage: function(event ){
+            event.preventDefault();
+            event.stopPropagation();
+            if (chrome && chrome.runtime && chrome.runtime.openOptionsPage) {
+                 chrome.runtime.openOptionsPage();
+            } else {
+                 console.error('无法打开选项页。');
+            }
+        },
+
+        openDonateModal: function(event ){
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'qr-code' }
+            });
         }
     }
 });

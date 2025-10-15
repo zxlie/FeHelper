@@ -14,13 +14,10 @@
         <div class="panel panel-default" style="margin-bottom: 0px;">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                    <a href="https://fehelper.com" target="_blank" class="x-a-high">
                         <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：信息编解码工具
-
-                    <span class="x-btns">
-                        <input id="btnCodeChange" class="btn btn-sm btn-success" type="button" value="转换" @click="convert()">
-                        <input id="btnCodeClear" class="btn btn-sm btn-warning ui-ml-10" type="button" value="清空" @click="clear()">
-                    </span>
+                    <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
+                    <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
                 </h3>
             </div>
         </div>
@@ -64,6 +61,9 @@
                             <div class="radio ui-d-ib ui-mr-20">
                                 <label><input type="radio" name="codeType" value="html2js" v-model="selectedType" @click="convert()">HTML转JS</label>
                             </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="gzipEncode" v-model="selectedType" @click="convert()">Gzip压缩</label>
+                            </div>
                         </td>
                     </tr>
                     <tr>
@@ -96,10 +96,20 @@
                             <div class="radio ui-d-ib ui-mr-20">
                                 <label><input type="radio" name="codeType" value="cookieDecode" v-model="selectedType" @click="convert()">Cookie格式化</label>
                             </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="gzipDecode" v-model="selectedType" @click="convert()">Gzip解压</label>
+                            </div>
                         </td>
                     </tr>
                 </table>
 
+            </div>
+
+            <div class="row">
+                <span class="x-btns">
+                    <input id="btnCodeChange" class="btn btn-sm btn-success" type="button" value="转换" @click="convert()">
+                    <input id="btnCodeClear" class="btn btn-sm btn-warning ui-ml-10" type="button" value="清空" @click="clear()">
+                </span>
             </div>
 
             <div id="rst" class="row ui-mt-20" v-show="resultContent.length || urlResult">

@@ -14,16 +14,37 @@ window.JsonAutoFormat = (() => {
         if (location.protocol === 'chrome-extension:' || chrome.runtime && chrome.runtime.getURL) {
             url = chrome.runtime.getURL('json-format/' + filename);
         }
-        fetch(url).then(resp => resp.text()).then(jsText => {
-            if(window.evalCore && window.evalCore.getEvalInstance){
-                return window.evalCore.getEvalInstance(window)(jsText);
+        
+        // 使用chrome.runtime.sendMessage向background请求加载脚本
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing: 'load-local-script',
+            script: url
+        }, (scriptContent) => {
+            if (!scriptContent) {
+                return;
             }
-            let el = document.createElement('script');
-            el.textContent = jsText;
-            document.head.appendChild(el);
+            
+            // 如果有evalCore则使用它
+            if (window.evalCore && window.evalCore.getEvalInstance) {
+                try {
+                    window.evalCore.getEvalInstance(window)(scriptContent);
+                } catch(e) {
+                }
+            } else {
+                // 创建一个函数来执行脚本
+                try {
+                    // 使用Function构造函数创建一个函数，并在当前窗口上下文中执行
+                    // 这比动态创建script元素更安全，因为它不涉及DOM操作
+                    const executeScript = new Function(scriptContent);
+                    executeScript.call(window);
+                } catch(e) {
+                }
+            }
         });
     };
 
+    // 加载所需脚本
     __importScript('json-bigint.js');
     __importScript('format-lib.js');
     __importScript('json-abc.js');
@@ -71,6 +92,9 @@ window.JsonAutoFormat = (() => {
     let fnTry = null;
     let fnCatch = null;
 
+    // 工具栏是否显示
+    let showToolBar = true;
+
     // 格式化的配置
     let formatOptions = {
         JSON_FORMAT_THEME: 0,
@@ -89,9 +113,24 @@ window.JsonAutoFormat = (() => {
     };
 
     let _getHtmlFragment = () => {
+
+        // 判断当前地区是否在美国
+        const isInUSA = () => {
+            // 通过时区判断是否在美国
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const isUSTimeZone = /^America\/(New_York|Chicago|Denver|Los_Angeles|Anchorage|Honolulu)/.test(timeZone);
+
+            // 通过语言判断
+            const language = navigator.language || navigator.userLanguage;
+            const isUSLanguage = language.toLowerCase().indexOf('en-us') > -1;
+
+            // 如果时区和语言都符合美国特征,则认为在美国
+            return (isUSTimeZone && isUSLanguage);
+        };
+
         return [
             '<div id="jfToolbar" class="x-toolbar" style="display:none">' +
-            '    <a href="https://www.baidufe.com/fehelper/index.html" target="_blank" class="x-a-title">' +
+            '    <a href="https://fehelper.com" target="_blank" class="x-a-title">' +
             '        <img src="' + chrome.runtime.getURL('static/img/fe-16.png') + '" alt="fehelper"/> FeHelper</a>' +
             '    <span class="x-b-title"></span>' +
             '    <span class="x-sort">' +
@@ -108,6 +147,8 @@ window.JsonAutoFormat = (() => {
             '           <path fill-rule="evenodd" d="M14 8.77v-1.6l-1.94-.64-.45-1.09.88-1.84-1.13-1.13-1.81.91-1.09-.45-.69-1.92h-1.6l-.63 1.94-1.11.45-1.84-.88-1.13 1.13.91 1.81-.45 1.09L0 7.23v1.59l1.94.64.45 1.09-.88 1.84 1.13 1.13 1.81-.91 1.09.45.69 1.92h1.59l.63-1.94 1.11-.45 1.84.88 1.13-1.13-.92-1.81.47-1.09L14 8.75v.02zM7 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"></path>' +
             '       </svg>高级定制</span>' +
             '       <a id="toggleBtn" title="展开或收起工具栏">隐藏&gt;&gt;</a>' +
+            '       <span class="x-donate-link' + (isInUSA() ? ' x-donate-link-us' : '') + '"><a href="#" id="donateLink"><i class="nav-icon">❤</i>&nbsp;打赏鼓励</a></span>' +
+            '       <a class="x-other-tools' + (isInUSA() ? ' x-other-tools-us' : '') + '" style="cursor:pointer"><i class="icon-plus-circle">+</i>探索 <span class="tool-market-badge">工具市场</span></a>' +
             '    </span>' +
             '</div>',
             '<div id="formattingMsg"><span class="x-loading"></span>格式化中...</div>',
@@ -172,11 +213,20 @@ window.JsonAutoFormat = (() => {
                 formData.MAX_JSON_KEYS_NUMBER = sPanel.find('input[name="maxlength"]').val();
                 formData.JSON_FORMAT_THEME = sPanel.find('input[name="skinId"]:checked').val();
 
+                // 同步更新当前页面的formatOptions对象
+                Object.keys(formData).forEach(key => {
+                    formatOptions[key] = formData[key];
+                });
+
                 chrome.runtime.sendMessage({
                     type: 'fh-dynamic-any-thing',
                     thing: 'save-jsonformat-options',
                     params: formData
-                }, result => sPanel.hide());
+                }, result => {
+                    sPanel.hide();
+                    // 重新应用格式化以展示最新设置
+                    _didFormat();
+                });
             });
 
             sPanel.find('input[name="alwaysShowToolbar"]').on('click', function (e) {
@@ -219,6 +269,7 @@ window.JsonAutoFormat = (() => {
                     elBody.addClass('remove-quote');
                 }
             });
+
         } else if (sPanel[0].offsetHeight) {
             return sPanel.hide();
         } else {
@@ -251,7 +302,7 @@ window.JsonAutoFormat = (() => {
     };
 
     let _initToolbar = () => {
-
+        showToolBar = formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW;
         let cspSafe = _checkContentSecurityPolicy();
         if (cspSafe) {
             // =============================排序：获取上次记录的排序方式
@@ -297,24 +348,38 @@ window.JsonAutoFormat = (() => {
             e.preventDefault();
             e.stopPropagation();
 
+            let toolBarClassList = document.querySelector('#jfToolbar').classList;
+            showToolBar = !showToolBar;
+            if (showToolBar) {
+                toolBarClassList.remove('t-collapse');
+                tgBtn.html('隐藏&gt;&gt;');
+                formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW = true;
+            } else {
+                toolBarClassList.add('t-collapse');
+                tgBtn.html('&lt;&lt;');
+                formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW = false;
+            }
+            $('#jfToolbar input[name="alwaysShowToolbar"]').prop('checked', showToolBar);
+        });
+        
+        $('.fe-feedback .x-other-tools').on('click', function (e) {
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
-                thing: 'toggle-jsonformat-options'
-            }, show => {
-                let toolBarClassList = document.querySelector('#jfToolbar').classList;
-                if (show) {
-                    toolBarClassList.remove('t-collapse');
-                    tgBtn.html('隐藏&gt;&gt;');
-                } else {
-                    toolBarClassList.add('t-collapse');
-                    tgBtn.html('&lt;&lt;');
-                }
-                $('#jfToolbar input[name="alwaysShowToolbar"]').prop('checked', show);
+                thing: 'open-options-page'
             });
         });
 
         $('.fe-feedback .x-settings').click(e => _createSettingPanel());
         $('#jsonGetCorrectCnt').click(e => _getCorrectContent());
+
+        $('.x-toolbar .x-donate-link').on('click', function (e) {
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'json-format' }
+            });
+        });
+        
     };
 
     let _didFormat = function () {
@@ -352,21 +417,22 @@ window.JsonAutoFormat = (() => {
 
                 // 格式化
                 try {
-                    Formatter.format(source, theme);
+                    await Formatter.format(source, theme);
                 } catch (e) {
-                    Formatter.formatSync(source, theme)
+                    await Formatter.formatSync(source, theme)
                 }
-                $('#jfToolbar').fadeIn(500);
+                $('#jfToolbar').show();
             })();
         } else {
-            // 格式化
-            try {
-                Formatter.format(source, theme);
-            } catch (e) {
-                Formatter.formatSync(source, theme)
-            }
-
-            $('#jfToolbar').fadeIn(500);
+            (async () => {
+                // 格式化
+                try {
+                    await Formatter.format(source, theme);
+                } catch (e) {
+                    await Formatter.formatSync(source, theme)
+                }
+                $('#jfToolbar').show();
+            })();
         }
 
 
@@ -380,6 +446,17 @@ window.JsonAutoFormat = (() => {
                 $('#jfCallbackName_end').html(')');
             }
         }
+        
+        // 埋点：自动触发json-format-auto
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing: 'statistics-tool-usage',
+            params: {
+                tool_name: 'json-format',
+                url: location.href
+            }
+        });
+        
     };
 
     let _getCorrectContent = function () {
@@ -395,7 +472,7 @@ window.JsonAutoFormat = (() => {
     let _getJsonContentFromDOM = function (dom) {
         let source = dom.textContent.trim();
 
-        if (!source) {
+        if (!source && document.body) {
             source = (document.body.textContent || '').trim()
         }
 
@@ -463,7 +540,7 @@ window.JsonAutoFormat = (() => {
         }
 
         // 如果是 HTML 页面，也要看一下内容是不是明显就是个JSON，如果不是，则也不进行 json 格式化
-        if (document.contentType === 'text/html') {
+        if (document.contentType === 'text/html' && document.body) {
             // 使用 DOMParser 解析 HTML
             const parser = new DOMParser();
             const doc = parser.parseFromString(document.body.outerHTML, "text/html");
@@ -522,22 +599,25 @@ window.JsonAutoFormat = (() => {
 
         // 下面校验给定字符串是否为一个合法的json
         try {
-
             // 再看看是不是jsonp的格式
-            let reg = /^([\w\.]+)\(\s*([\s\S]*)\s*\)$/gm;
-            let reTry = /^(try\s*\{\s*)?/g;
-            let reCatch = /([;\s]*\}\s*catch\s*\(\s*\S+\s*\)\s*\{([\s\S])*\})?[;\s]*$/g;
-
-            // 检测是否有try-catch包裹
-            let sourceReplaced = source.replace(reTry, function () {
-                fnTry = fnTry ? fnTry : arguments[1];
-                return '';
-            }).replace(reCatch, function () {
-                fnCatch = fnCatch ? fnCatch : arguments[1];
-                return '';
-            }).trim();
-
-            let matches = reg.exec(sourceReplaced);
+            let reg = /^([\w\.]+)\(\s*([\s\S]*)\s*\)$/m;
+            // 优化后的 try/catch 包裹处理
+            fnTry = null;
+            fnCatch = null;
+            // 处理开头
+            if (source.startsWith('try {')) {
+                fnTry = 'try {';
+                source = source.slice(5).trimStart();
+            }
+            // 处理结尾
+            let catchIdx = source.lastIndexOf('} catch');
+            if (catchIdx !== -1) {
+                // 找到最后一个 } catch，截取到末尾
+                fnCatch = source.slice(catchIdx);
+                source = source.slice(0, catchIdx).trimEnd();
+            }
+            // 只做一次正则匹配
+            let matches = reg.exec(source);
             if (matches != null && (fnTry && fnCatch || !fnTry && !fnCatch)) {
                 funcName = matches[1];
                 source = matches[2];
@@ -547,11 +627,9 @@ window.JsonAutoFormat = (() => {
                     return;
                 }
             }
-
             // 这里可能会throw exception
             jsonObj = JSON.parse(source);
         } catch (ex) {
-
             // new Function的方式，能自动给key补全双引号，但是不支持bigint，所以是下下策，放在try-catch里搞
             try {
                 jsonObj = new Function("return " + source)();
@@ -573,7 +651,6 @@ window.JsonAutoFormat = (() => {
                 }
             }
         }
-
         try {
             // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
             source = JSON.stringify(jsonObj);
@@ -602,6 +679,7 @@ window.JsonAutoFormat = (() => {
                     thing:'inject-content-css',
                     tool: 'json-format'
                 });
+                cssInjected = true;
             }
 
             // JSON的所有key不能超过预设的值，比如 10000 个，要不然自动格式化会比较卡
@@ -624,8 +702,12 @@ window.JsonAutoFormat = (() => {
 
             formatOptions.originalSource = JSON.stringify(jsonObj);
 
-            _initToolbar();
-            _didFormat();
+            // 确保从storage加载最新设置
+            _getAllOptions(options => {
+                _extendsOptions(options);
+                _initToolbar();
+                _didFormat();
+            });
         }
     };
 
@@ -638,25 +720,20 @@ window.JsonAutoFormat = (() => {
         let source = _getJsonText();
         if (source) {
             _formatTheSource(source);
-        }else{
-            // 原计划，是兜底走fetch的方式，再尝试做一次格式化，但是这里会有很多corner Case我没法回归，所以注释掉
-            // fetch(location.href)
-            // .then(response => response.text())
-            // .then(html => {
-            //     // 使用 DOMParser 解析 HTML
-            //     const parser = new DOMParser();
-            //     const doc = parser.parseFromString(html, "text/html");
-
-            //     // 移除不需要的标签
-            //     doc.querySelectorAll('style, script').forEach(el => el.remove());
-            //     const text = _getJsonContentFromDOM(doc.body);
-            //     if(text){
-            //         _formatTheSource(text);
-            //     }
-            // })
-            // .catch();
         }
     };
+
+    // 页面加载后自动采集
+    try {
+        if (window.chrome && chrome.runtime && chrome.runtime.sendMessage && window.Awesome && window.Awesome.collectAndSendClientInfo) {
+            window.Awesome.collectAndSendClientInfo();
+        } else {
+            // fallback: 动态加载Awesome模块
+            import(chrome.runtime.getURL('background/awesome.js')).then(module => {
+                module.default.collectAndSendClientInfo();
+            }).catch(() => {});
+        }
+    } catch(e) {}
 
     return {
         format: () => _getAllOptions(options => {
@@ -664,7 +741,9 @@ window.JsonAutoFormat = (() => {
                 let intervalId = setTimeout(() => {
                     if(typeof Formatter !== 'undefined') {
                         clearInterval(intervalId);
+                        // 加载所有保存的配置
                         _extendsOptions(options);
+                        // 应用格式化
                         _format();
                     }
                 },pleaseLetJsLoaded);
@@ -675,5 +754,8 @@ window.JsonAutoFormat = (() => {
 
 
 if(location.protocol !== 'chrome-extension:') {
-    window.JsonAutoFormat.format();
+    (async () => {
+        await window.JsonAutoFormat.format();
+    })();
 }
+

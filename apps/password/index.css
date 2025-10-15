@@ -29,3 +29,118 @@
 #btnCopy {
     margin-left:20px;
 }
+
+/* 密码生成工具美化样式 */
+.password-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1.5px 4px rgba(0,0,0,0.08);
+    padding: 32px 24px 24px 24px;
+    max-width: 980px;
+    margin: 40px auto 0 auto;
+    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+}
+.password-card .checkbox {
+    margin-bottom: 18px;
+    font-size: 16px;
+    padding-left: 0;
+    margin-left: 0;
+    border-bottom: 1px dashed #ccc;
+    margin-left: 20px;
+}
+.password-card .checkbox.no-border {
+    border: none;
+}
+.password-card .checkbox input[type=checkbox] {
+    accent-color: #0078d7;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    vertical-align: middle;
+    position: relative;
+    top: -4px;
+}
+.password-card .checkbox label {
+    cursor: pointer;
+    font-weight: 500;
+}
+.password-card input[type=number] {
+    width: 80px;
+    margin-left: 8px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    padding: 4px 8px;
+    font-size: 15px;
+}
+.password-card .btn-group {
+    display: flex;
+    gap: 0;
+    margin-top: 12px;
+}
+.password-card .btn-group .main-btn {
+    margin-right: 20px;
+}
+.password-card .main-btn {
+    border-radius: 8px;
+}
+.password-card .main-btn {
+    min-width: 120px;
+    font-size: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,120,215,0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+    font-weight: 600;
+    padding: 8px 0;
+}
+.password-card .btn-warning.main-btn {
+    background: linear-gradient(90deg, #ffb300 0%, #ff9800 100%);
+    color: #fff;
+    border: none;
+}
+.password-card .btn-success.main-btn {
+    background: linear-gradient(90deg, #0078d7 0%, #00c6fb 100%);
+    color: #fff;
+    border: none;
+}
+.password-card .main-btn:hover {
+    filter: brightness(1.08);
+    box-shadow: 0 4px 16px rgba(0,120,215,0.12);
+}
+.result-area {
+    margin-top: 28px;
+    background: #f6f8fa;
+    border-radius: 12px;
+    padding: 18px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.result-area textarea {
+    width: 100%;
+    min-height: 60px;
+    font-size: 20px;
+    color: #0078d7;
+    background: transparent;
+    border: none;
+    resize: none;
+    font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+    font-weight: bold;
+    outline: none;
+}
+#pageContainer>.panel-body {
+    margin: 20px auto;
+}
+
+.fh-toast {
+    position: fixed;
+    left: 50%;
+    top: 80px;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    pointer-events: none;
+    transition: opacity 0.3s;
+}

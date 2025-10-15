@@ -42,3 +42,19 @@
     font-size: 14px;
     border-bottom: 1px solid #aaa;
 }
+.example-links {
+    display: inline-block;
+    margin-left: 70px;
+}
+
+.example-links a {
+    margin-right: 15px;
+    color: #337ab7;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.example-links a:hover {
+    color: #23527c;
+    text-decoration: underline;
+}

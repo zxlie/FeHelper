@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FeHelper 文档中心 - 前端开发者的超级助手</title>
+    <meta name="description" content="FeHelper是一个功能强大的浏览器扩展，专为前端开发者设计，集成了多种实用工具，支持Chrome和Edge浏览器。">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="static/img/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="static/img/fe-16.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="static/img/fe-48.png">
+    <link rel="icon" type="image/png" sizes="128x128" href="static/img/fe-128.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="static/img/fe-128.png">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/docs.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?17b02fba4e62901b4289eef4c2243123";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="static/img/fe-48.png" alt="FeHelper Logo" class="logo-icon">
+                <span>FeHelper</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html#features">功能特性</a></li>
+                <li><a href="index.html#tools">工具箱</a></li>
+                <li><a href="docs.html">文档中心</a></li>
+                <li><a href="index.html#about">关于我们</a></li>
+                <li><a href="index.html#download">立即下载</a></li>
+                <li><a href="https://github.com/zxlie/FeHelper" class="github-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a></li>
+            </ul>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 添加缺失的侧边栏切换按钮 -->
+    <button id="sidebar-toggle" class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- 添加返回顶部按钮 -->
+    <button id="back-to-top" class="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <div class="docs-container">
+        <div class="docs-sidebar">
+            <div class="sidebar-header">
+                <h2>工具文档</h2>
+            </div>
+            <div class="sidebar-search">
+                <input type="text" id="search-docs" class="search-input" placeholder="搜索工具...">
+            </div>
+            <ul class="tool-list" id="tool-list">
+                <li><p>正在加载文档列表...</p></li>
+            </ul>
+        </div>
+        
+        <div class="docs-content">
+            <!-- Docs Section -->
+            <div class="container docs-container">
+                <div class="section-header">
+                    <h2>FeHelper 文档中心</h2>
+                    <p>详细了解每个工具的使用方法和技巧</p>
+                </div>
+            </div>
+            
+            <div id="doc-container">
+                <div class="loader">
+                    <div class="loader-spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-main">
+                    <div class="footer-logo">
+                        <img src="static/img/fe-48.png" alt="FeHelper Logo" class="logo-icon">
+                        <span>FeHelper</span>
+                    </div>
+                    <p>专为前端开发者打造的超级助手</p>
+                    <div class="social-links">
+                        <a href="https://github.com/zxlie/FeHelper" target="_blank">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://www.baidufe.com/fehelper/feedback.html" target="_blank">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>产品</h4>
+                        <a href="index.html#features">功能特性</a>
+                        <a href="index.html#tools">工具箱</a>
+                        <a href="index.html#download">下载安装</a>
+                    </div>
+                    <div class="link-group">
+                        <h4>开发者</h4>
+                        <a href="https://github.com/zxlie/FeHelper" target="_blank">GitHub</a>
+                        <a href="https://github.com/zxlie/FeHelper/issues" target="_blank">问题反馈</a>
+                        <a href="https://www.baidufe.com/fehelper/feedback.html" target="_blank">联系我们</a>
+                    </div>
+                    <div class="link-group">
+                        <h4>支持</h4>
+                        <a href="https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad" target="_blank">Chrome Store</a>
+                        <a href="https://microsoftedge.microsoft.com/addons/detail/feolnkbgcbjmamimpfcnklggdcbgakhe" target="_blank">Edge Add-ons</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 FeHelper. Open source under MIT license.</p>
+                <p>Made with ❤️ for frontend developers</p>
+                <p class="footer-icp">
+                  <a href="https://beian.miit.gov.cn/" target="_blank">京ICP备14006329号-1</a> |
+                  <a href="https://beian.miit.gov.cn/" target="_blank">京ICP备14006329号-2</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="static/js/script.js"></script>
+    <script src="static/js/docs.js"></script>
+</body>
+</html> 
+
+

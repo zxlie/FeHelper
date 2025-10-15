@@ -12,16 +12,17 @@
             <div class="panel panel-default" style="margin-bottom: 0px;">
                 <div class="panel-heading">
                     <h3 class="panel-title">
-                        <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                        <a href="https://fehelper.com" target="_blank" class="x-a-high">
                             <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：JSON格式化
                         <span class="x-xdemo" ref="demoLink1" @click="setDemo">示例1：JSON片段</span>
                         <a class="x-xdemo" href="http://t.weather.sojson.com/api/weather/city/101030100" target="_blank">示例2：在线JSON</a>
+                        <a class="x-xdemo" href="/options/index.html?query=数据Mock工具" target="_blank" class="fh-tip-link" @click="jumpToMockDataTool($event)">获取更多Mock数据</a>
 
                         <span id="layoutBar">
                             <button id="btnLeftRight" ref="btnLeftRight" class="selected" @click="changeLayout('left-right')">左右布局</button><button id="btnUpDown" ref="btnUpDown" @click="changeLayout('up-down')">上下布局</button>
                         </span>
-
-                        <a class="x-other-tools" @click="openOptionsPage()">去开启FeHelper的更多功能&gt;&gt;</a>
+                        <a class="x-other-tools" v-if="!isInUSAFlag" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+                        <span class="x-donate-link" v-if="!isInUSAFlag" @click="openDonateModal($event)"><a href="#" id="donateLink"><i class="nav-icon">❤</i>&nbsp;打赏鼓励</a></span>
                     </h3>
                 </div>
             </div>
@@ -37,6 +38,8 @@
                 <span class="x-split">|</span>
                 <input type="checkbox" v-model="overrideJson" id="jsonOvrd" @click="setCache"><label for="jsonOvrd">节点编辑</label>
                 <span class="x-split">|</span>
+                <input type="checkbox" v-model="autoUnpackJsonString" id="autoUnpackJsonString" @click="autoUnpackJsonStringFn"><label for="autoUnpackJsonString">支持嵌套解析</label>
+                <span class="x-split">|</span>
                 <span class="x-sort">
                     <span class="x-stitle">排序：</span>
                     <label for="sort_null">默认</label>
@@ -50,6 +53,8 @@
                 <span class="x-endecode">
                     <button class="xjf-btn xjf-btn-left" @click="uniEncode">Uni编码</button><button class="xjf-btn xjf-btn-mid" @click="uniDecode">Uni解码</button><button class="xjf-btn xjf-btn-right" @click="urlDecode">URL解码</button>
                 </span>
+                <span class="x-split">|</span>
+                <button class="xjf-btn" @click="openJsonPathModal">JSONPath查询</button>
 
                 <span id="optionBar"></span>
             </div>
@@ -67,7 +72,81 @@
                     <div id="jfCallbackName_end" class="callback-name" v-html="jfCallbackName_end"></div>
                 </div>
             </div>
+
+            <!-- JSONPath查询模态框 -->
+            <div id="jsonPathModal" class="jsonpath-modal" v-show="showJsonPathModal" @click="closeJsonPathModal">
+                <div class="jsonpath-modal-content" @click.stop>
+                    <div class="jsonpath-modal-header">
+                        <h3>JSONPath查询</h3>
+                        <div class="jsonpath-header-controls">
+                            <input type="text" class="xjf-input jsonpath-header-input" v-model="jsonPathQuery" 
+                                   placeholder="JSONPath表达式 (如: $.data.items[*].name)" 
+                                   @keyup.enter="executeJsonPath">
+                            <button class="xjf-btn jsonpath-header-btn" @click="executeJsonPath" :disabled="!jsonPathQuery.trim()">查询</button>
+                            <button class="xjf-btn xjf-btn-examples jsonpath-header-btn" @click="showJsonPathExamples">示例</button>
+                        </div>
+                        <span class="jsonpath-modal-close" @click="closeJsonPathModal">&times;</span>
+                    </div>
+                    <div class="jsonpath-modal-body">
+                        
+                        <!-- 查询结果区域 -->
+                        <div class="jsonpath-results-section" v-if="jsonPathQuery && (jsonPathResults.length > 0 || jsonPathError)">
+                            <div class="jsonpath-query-info">
+                                <strong>查询表达式：</strong> <code>{{jsonPathQuery}}</code>
+                                <span class="jsonpath-result-count" v-if="!jsonPathError">找到 {{jsonPathResults.length}} 个结果</span>
+                            </div>
+                                            <div class="jsonpath-result-actions" v-if="jsonPathResults.length > 0">
+                        <button class="xjf-btn" 
+                                :class="{
+                                    'xjf-btn-copying': copyButtonState === 'copying',
+                                    'xjf-btn-success': copyButtonState === 'success',
+                                    'xjf-btn-error': copyButtonState === 'error'
+                                }"
+                                @click="copyJsonPathResults"
+                                :disabled="copyButtonState === 'copying'">
+                            <span v-if="copyButtonState === 'normal'">复制结果</span>
+                            <span v-if="copyButtonState === 'copying'">复制中...</span>
+                            <span v-if="copyButtonState === 'success'">✓ 复制成功</span>
+                            <span v-if="copyButtonState === 'error'">✗ 复制失败</span>
+                        </button>
+                        <button class="xjf-btn" @click="downloadJsonPathResults">下载结果</button>
+                    </div>
+                        <div class="jsonpath-results" v-if="jsonPathResults.length > 0">
+                            <div class="jsonpath-result-item" v-for="(result, index) in jsonPathResults" :key="index">
+                                <div class="jsonpath-result-path">路径: <code>{{result.path}}</code></div>
+                                <pre class="jsonpath-result-value">{{formatJsonPathResult(result.value)}}</pre>
+                            </div>
+                        </div>
+                        <div class="jsonpath-no-results" v-if="jsonPathResults.length === 0 && !jsonPathError">
+                            <p>未找到匹配的结果</p>
+                        </div>
+                            <div class="jsonpath-error" v-if="jsonPathError">
+                                <p class="error-msg">{{jsonPathError}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- JSONPath示例模态框 -->
+            <div id="jsonPathExamplesModal" class="jsonpath-modal v-cloak" v-show="showJsonPathExamplesModal" @click="closeJsonPathExamplesModal">
+                <div class="jsonpath-modal-content" @click.stop>
+                    <div class="jsonpath-modal-header">
+                        <h3>JSONPath查询示例</h3>
+                        <span class="jsonpath-modal-close" @click="closeJsonPathExamplesModal">&times;</span>
+                    </div>
+                    <div class="jsonpath-modal-body">
+                        <div class="jsonpath-examples">
+                            <div class="jsonpath-example-item" v-for="example in jsonPathExamples" :key="example.path" @click="useJsonPathExample(example.path)">
+                                <div class="jsonpath-example-path"><code>{{example.path}}</code></div>
+                                <div class="jsonpath-example-desc">{{example.description}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
         <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
         <script src="../static/vendor/codemirror/codemirror.js"></script>
         <script src="../static/vendor/codemirror/javascript.js"></script>

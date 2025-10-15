@@ -1,0 +1,12 @@
+# 工程文件
+.idea
+.DS_Store
+.todolist
+node_modules/
+package-lock.json
+Users/
+output/
+output-firefox/
+output-edge/
+
+# 配置文件

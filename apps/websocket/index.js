@@ -14,11 +14,39 @@ new Vue({
     watch: {},
     mounted: function () {
         this.$refs.url.focus();
+        this.loadPatchHotfix();
     },
     destroyed() {
         this.websock.close() //离开之后断开websocket连接
     },
     methods: {
+
+        loadPatchHotfix() {
+            // 页面加载时自动获取并注入页面的补丁
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'fh-get-tool-patch',
+                toolName: 'websocket'
+            }, patch => {
+                if (patch) {
+                    if (patch.css) {
+                        const style = document.createElement('style');
+                        style.textContent = patch.css;
+                        document.head.appendChild(style);
+                    }
+                    if (patch.js) {
+                        try {
+                            if (window.evalCore && window.evalCore.getEvalInstance) {
+                                window.evalCore.getEvalInstance(window)(patch.js);
+                            }
+                        } catch (e) {
+                            console.error('websocket补丁JS执行失败', e);
+                        }
+                    }
+                }
+            });
+        },
+
         initWebSocket() { //初始化weosocket
             this.results.push(this.now() + "连接到：" + this.url);
             console.log(this.now() + "连接到：" + this.url)
@@ -66,6 +94,20 @@ new Vue({
         now() {
             let date = new Date();
             return f0(date.getHours()) + ":" + f0(date.getMinutes()) + ":" + f0(date.getSeconds()) + " - ";
+        },
+        openDonateModal: function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'websocket' }
+            });
+        },
+        openOptionsPage: function(event) {
+            event.preventDefault();
+            event.stopPropagation();    
+            chrome.runtime.openOptionsPage();
         }
     }
 

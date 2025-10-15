@@ -5,7 +5,7 @@
 }
 
 .img-container {
-    overflow-y: scroll;
+    overflow: auto;
     border:10px solid #4e5d6c;
     border-right: 0;
     background-color:#4e5d6c;
@@ -14,6 +14,7 @@
     top: 120px;
     left: 0;
     right: 0;
+    max-height: calc(100vh - 150px);
 }
 
 .img-result {
@@ -66,6 +67,13 @@ th.x-op {
     font-size: 12px;
     font-weight: normal;
     color: #f00;
-    position: relative;
-    top: 5px;
+    margin-left: 20px;
+}
+
+/* 为canvas添加样式 */
+#imageEditor canvas {
+    display: block;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    width: 100%;
 }

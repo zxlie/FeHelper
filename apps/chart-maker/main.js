@@ -8,10 +8,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportPngBtn = document.getElementById('export-png-btn');
     const exportJpgBtn = document.getElementById('export-jpg-btn');
     const copyImgBtn = document.getElementById('copy-img-btn');
-    const chartTypeSelect = document.getElementById('chart-type');
     const manualFormatSelect = document.getElementById('manual-format');
     const fileUploadInput = document.getElementById('file-upload');
     const manualFormatContainer = document.getElementById('manual-format-container');
+    const donateLink = document.querySelector('.x-donate-link');
+    const otherToolsLink = document.querySelector('.x-other-tools');
+
     const manualInputContainers = [simpleDataContainer, seriesDataContainer, csvDataContainer];
     
     // 初始化显示状态
@@ -21,6 +23,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 初始化图表类型画廊
     initChartTypeGallery();
+
+    // 页面加载时自动获取并注入页面的补丁
+    loadPatchHotfix();
 
     function toggleManualInputs(show) {
         manualFormatContainer.style.display = show ? 'block' : 'none';
@@ -53,6 +58,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 fileUploadInput.value = ''; // 清空文件选择
             }
         });
+    });
+
+    // 监听打赏链接点击事件
+    donateLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing: 'open-donate-modal', 
+            params: { toolName: 'chart-maker' }
+        });
+    });
+
+    // 监听探索更多工具链接点击事件
+    otherToolsLink.addEventListener('click', function(event) {
+        event.preventDefault(); 
+        chrome.runtime.openOptionsPage();
     });
 
     // 监听手动格式选择变化
@@ -105,24 +126,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // 生成图表按钮点击事件 (修改为独立的函数)
     function generateChart() {
         try {
-            console.log('开始生成图表...');
             let parsedData;
             const method = document.querySelector('input[name="data-input-method"]:checked').value;
-            console.log('数据输入方式:', method);
 
             if (method === 'upload-csv' && uploadedData) {
                 parsedData = uploadedData;
-                console.log('使用上传的数据');
             } else if (method === 'manual') {
                 parsedData = parseInputData(); // 使用现有的手动数据解析函数
-                console.log('使用手动输入的数据');
             } else if (method === 'upload-csv' && !uploadedData) {
                 throw new Error('请先上传文件');
             } else {
                 throw new Error('请选择有效的数据输入方式并提供数据');
             }
-            
-            console.log('解析后的数据:', parsedData);
             
             if (!parsedData || 
                 (parsedData.labels && parsedData.labels.length === 0) || 
@@ -140,21 +155,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 chartSettings.isSimpleData = true;
             }
             
-            console.log('图表设置:', chartSettings);
-            
             // 调用chart-generator.js中的createChart函数
             if (typeof createChart !== 'function') {
                 throw new Error('createChart函数未定义，请确保chart-generator.js正确加载');
             }
             
             createChart(parsedData, chartSettings);
-            console.log('图表生成成功');
             
             exportPngBtn.disabled = false;
             exportJpgBtn.disabled = false;
             copyImgBtn.disabled = false;
         } catch (error) {
-            console.error('生成图表时出错:', error);
             showNotification(error.message, true);
         }
     }
@@ -174,19 +185,41 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    function loadPatchHotfix() {
+        // 页面加载时自动获取并注入页面的补丁
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing: 'fh-get-tool-patch',
+            toolName: 'chart-maker'
+        }, patch => {
+            if (patch) {
+                if (patch.css) {
+                    const style = document.createElement('style');
+                    style.textContent = patch.css;
+                    document.head.appendChild(style);
+                }
+                if (patch.js) {
+                    try {
+                        if (window.evalCore && window.evalCore.getEvalInstance) {
+                            window.evalCore.getEvalInstance(window)(patch.js);
+                        }
+                    } catch (e) {
+                        console.error('chart-maker补丁JS执行失败', e);
+                    }
+                }
+            }
+        });
+    }
+
     // 初始化图表类型画廊
     function initChartTypeGallery() {
-        console.log('初始化图表类型预览画廊...');
-        
         // 获取所有图表类型预览项
         const chartTypeItems = document.querySelectorAll('.chart-type-item');
-        console.log(`找到${chartTypeItems.length}个图表类型预览项`);
         
         // 为每个预览项添加点击事件
         chartTypeItems.forEach(item => {
             item.addEventListener('click', function() {
                 const chartType = this.getAttribute('data-chart-type');
-                console.log('选择了图表类型:', chartType);
                 
                 // 更新活动状态
                 chartTypeItems.forEach(item => item.classList.remove('active'));
@@ -596,7 +629,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadingOverlay.remove();
                 
                 showNotification('导出图像失败，请重试', true);
-                console.error('导出图像出错:', error);
             });
         }, 100);
     }
@@ -629,14 +661,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                     showNotification('图表已复制到剪贴板');
                                 })
                                 .catch(err => {
-                                    console.error('剪贴板API错误:', err);
                                     legacyCopyToClipboard(canvas);
                                 });
                         } else {
                             legacyCopyToClipboard(canvas);
                         }
                     } catch (e) {
-                        console.error('复制到剪贴板出错:', e);
                         legacyCopyToClipboard(canvas);
                     }
                 });
@@ -645,7 +675,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadingOverlay.remove();
                 
                 showNotification('复制图像失败，请重试', true);
-                console.error('复制图像出错:', error);
             });
         }, 100);
     }
@@ -706,7 +735,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // 根据数据格式更新图表类型选项
     function updateChartTypeOptions(dataFormat) {
         // 由于移除了图表类型下拉框，这个函数现在仅记录当前数据格式，不再修改任何选项
-        console.log('当前数据格式:', dataFormat);
-        // 未来可以根据数据格式来调整图表类型画廊的可见性或提示，但现在不需要操作
     }
 }); 

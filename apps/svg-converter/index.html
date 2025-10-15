@@ -1,0 +1,190 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <head>
+        <title>SVG转图片工具</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:;">
+        <link rel="shortcut icon" href="../static/img/favicon.ico">
+        <link rel="stylesheet" href="index.css" />
+        <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+        <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+        <style type="text/css">
+            <!--避免页面闪烁-->
+            [v-cloak] {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="pageContainer" v-cloak>
+            <div class="fe-mod-head">
+                <div class="mod-head-inner">
+                    <div class="mod-head-title">
+                        <div class="navbar-brand">
+                            <img src="../static/img/fe-16.png" alt="fehelper"/> 
+                            <span class="brand-text">FeHelper</span>
+                            <span class="brand-subtitle">SVG转图片工具</span>
+                        </div>
+                    </div>
+                    <div class="mod-head-actions">
+                        <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
+                        <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+                    </div>
+                </div>
+            </div>
+            <div class="fe-mod-bd">
+                <div class="mod-main">
+                    <div class="main-inner">
+                        <!-- SVG转图片界面 -->
+                        <div class="mod-svg-converter">
+                            <table class="mod-table">
+                                <tr>
+                                    <td>
+                                        <div ref="panelBox" class="x-panel" :class="{'has-image': svgPreviewSrc}">
+                                            <div class="panel-title">SVG源文件</div>
+                                            <div class="panel-content">
+                                                <div class="upload-zone" v-if="!svgPreviewSrc">
+                                                    <p>
+                                                        将SVG文件拖放到此处，或
+                                                        <input type="file" accept=".svg" @change="uploadSvgFile" id="svgFile" ref="svgFile" style="display: none;">
+                                                        <label for="svgFile" class="btn-upload">点击上传</label> <br/>
+                                                        <a href="javascript:;" @click="loadSvgFromUrl" class="load-url">从URL加载</a>
+                                                        <a href="javascript:;" id="pasteSvg" @click="pasteSvg" class="paste-content">粘贴SVG代码</a>
+                                                    </p>
+                                                </div>
+                                                <div v-if="svgPreviewSrc">
+                                                    <div class="upload-zone">
+                                                        <div class="preview-container">
+                                                            <img :src="svgPreviewSrc" id="svgPreview" class="svg-preview">
+                                                        </div>
+                                                    </div>
+                                                    <div class="preview-actions">
+                                                        <button type="button" class="btn btn-change" @click="resetSvgFile">更换文件</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- 添加文件信息面板 -->
+                                        <div v-if="svgPreviewSrc" class="file-info-panel">
+                                            <h3>SVG文件信息</h3>
+                                            <table class="info-table">
+                                                <tr>
+                                                    <td class="info-label">尺寸：</td>
+                                                    <td>{{svgInfo.dimensions}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="info-label">文件大小：</td>
+                                                    <td>{{svgInfo.fileSize}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="info-label">文件类型：</td>
+                                                    <td>{{svgInfo.fileType}}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </td>
+                                    <td class="converter-col">
+                                        <div class="converter-box">
+                                            <div class="converter-inputs">
+                                                <div class="input-group">
+                                                    <label>输出格式：</label>
+                                                    <select v-model="outputFormat">
+                                                        <option value="png">PNG</option>
+                                                        <option value="jpg">JPG</option>
+                                                        <option value="webp">WEBP</option>
+                                                    </select>
+                                                </div>
+                                                <div class="input-group">
+                                                    <label>宽度(px)：</label>
+                                                    <input type="number" v-model.number="imgWidth" placeholder="自动" min="0">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label>高度(px)：</label>
+                                                    <input type="number" v-model.number="imgHeight" placeholder="自动" min="0">
+                                                </div>
+                                            </div>
+                                            <div class="action-buttons">
+                                                <button type="button" class="btn btn-convert" @click="convertSvg">转换 &gt;</button>
+                                                <button type="button" class="btn btn-reset" @click="resetState">重置</button>
+                                            </div>
+
+                                            <div v-if="errorMsg" class="error-msg">{{errorMsg}}</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="x-panel" :class="{'has-image': imgPreviewSrc}">
+                                            <div class="panel-title">转换后图片</div>
+                                            <div class="panel-content">
+                                                <div class="result-zone">
+                                                    <p v-if="!imgPreviewSrc">转换后的图片将显示在这里</p>
+                                                    <img v-if="imgPreviewSrc" :src="imgPreviewSrc" id="imgPreview" class="img-preview">
+                                                </div>
+                                                <div v-if="imgPreviewSrc" class="download-btn">
+                                                    <button type="button" class="btn" @click="downloadImage">下载图片</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- 添加文件信息面板 -->
+                                        <div v-if="imgPreviewSrc" class="file-info-panel">
+                                            <h3>图片文件信息</h3>
+                                            <table class="info-table">
+                                                <tr>
+                                                    <td class="info-label">尺寸：</td>
+                                                    <td>{{imgInfo.dimensions}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="info-label">文件大小：</td>
+                                                    <td>{{imgInfo.fileSize}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="info-label">文件类型：</td>
+                                                    <td>{{imgInfo.fileType}}</td>
+                                                </tr>
+                                                <tr v-if="imgInfo.comparison.ratio > 0">
+                                                    <td class="info-label">大小比较：</td>
+                                                    <td>
+                                                        <span :class="{'size-increase': imgInfo.comparison.isIncrease, 'size-decrease': !imgInfo.comparison.isIncrease}">
+                                                            {{imgInfo.comparison.isIncrease ? '增加' : '减少'}} {{imgInfo.comparison.ratio}}%
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 添加加载状态指示器 -->
+            <div class="loading-overlay" v-if="isProcessing">
+                <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-message">{{ processingMessage }}</div>
+                    <div class="progress-bar" v-if="processingProgress > 0">
+                        <div class="progress-fill" :style="{width: processingProgress + '%'}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加一个静态的加载指示器作为备份 -->
+        <div id="static-loading" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 9999; justify-content: center; align-items: center;">
+            <div style="background-color: white; padding: 20px; border-radius: 5px; text-align: center; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);">
+                <div style="width: 40px; height: 40px; border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+                <div style="margin-top: 15px; font-size: 16px;" id="static-loading-message">正在处理，请稍候...</div>
+            </div>
+        </div>
+
+        <!-- 引入工具模块 -->
+        <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+        <script src="modules/file-utils.js"></script>
+        <script src="modules/svg-to-image.js"></script>
+        <script type="text/javascript" src="index.js"></script>
+        <script src="modules/loading-helper.js"></script>
+    </body>
+</html> 

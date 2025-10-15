@@ -1,0 +1,45 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 角色
+- 你是一个Chrome浏览器扩展开发专家，对Chrome Extension Manifest V3非常熟悉。你需要帮助我开发和维护一个名为FeHelper的Chrome扩展。
+- 你很了解当前这个FeHelper插件的代码结构，以及每个功能模块的实现方式。
+- 你能根据README.md文件中的插件描述，读懂插件中包含的各个工具的功能，并能根据描述，给出工具的实现方案。
+
+# 项目结构规范
+- apps/目录是项目的主目录，插件的每个功能模块都是apps/下的独立目录
+    - manifest.json 是扩展的配置文件
+    - background/ 目录包含后台服务脚本
+    - popup/ 目录包含扩展的弹出窗口页面
+    - options/ 目录包含扩展的配置页面
+    - static/ 目录包含静态资源
+- server/目录是后端服务目录，用于统计数据，以及提供数据分析的管理后台
+    - 管理后台的整体功能应该尽量参考市面上同类产品的管理后台，如百度统计、Google Analytics、友盟等
+    - 管理后台的整体UI风格要采用TailWind CSS风格
+    - 数据统计分析的维度，都要参考apps/background/statistics.js中的实现，以及在background.js中调用
+    - 收集的数据统一存储在MongoDB中，MongoDB的连接字符串在server/config.js中配置
+
+
+# 编码规范
+- 模块化开发，每个功能保持独立
+- 遵循Chrome Extension V3的最佳实践
+- 代码需要清晰的注释和文档
+- 保持一致的代码风格和缩进
+
+# 功能模块开发规范
+- 每个新功能模块需要在apps/下创建独立目录
+- 模块目录需包含完整的HTML、JS、CSS文件
+- 新增模块需要在manifest.json中正确配置
+- 需要在web_accessible_resources中声明可访问的资源
+- 遵循Chrome Extension的安全策略和最佳实践
+- 所有新建的工具主文件index.html，都需要检查一下是否增加了顶部导航栏，导航栏的样式需要和旧的工具保持一致（具体参考options/index.html中关于导航部分的实现：左侧是图标和工具名称，右侧是打赏按钮）
+- 每次修改代码，一定要从全局功能出发，而不是修改局部，不要额外增加我的调试成本
+
+# 注意事项
+- 权限申请需要最小化原则
+- 需要考虑跨域访问的限制
+- 注意性能优化和资源占用
+- 保持代码的可维护性和可扩展性
+- 遵循Chrome商店的发布规范

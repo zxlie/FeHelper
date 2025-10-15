@@ -7,32 +7,42 @@
 		<script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
 		<script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
     </head>
-    <body class="fe-whole-page">
-        <div id="pageContainer">
+    <body>
+        <div id="pageContainer" class="fe-whole-page" :class="getLayoutClasses()">
             <div class="fe-function-title">FeHelper<span>({{manifest.version}})</span></div>
-            <ul class="fe-function-list">
+            
+            <!-- 加载状态 -->
+            <div v-if="isLoading" class="fe-loading">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">加载工具列表中...</div>
+            </div>
+            
+            <!-- 工具列表 -->
+            <ul v-else-if="installedToolsCount > 0" class="fe-function-list" :class="{'few-tools': installedToolsCount <= 3}">
                 <li v-for="tool in Object.keys(fhTools)" :class="'-x-' + tool" @click="runHelper(tool)" v-if="fhTools[tool].installed">
                     <b>{{ fhTools[tool].icon || fhTools[tool].menuConfig[0].icon}}</b>{{fhTools[tool].name}}
                 </li>
             </ul>
+            
+            <!-- 如果没有工具 -->
+            <div v-else-if="!isLoading" class="fe-no-tools">
+                <div class="no-tools-message">
+                    <p>暂无已安装的工具</p>
+                    <button @click="openOptionsPage()" class="install-tools-btn">去安装工具</button>
+                </div>
+            </div>
+            
             <div class="fe-feedback">
-
-                <a href="https://github.com/zxlie/FeHelper" @click="openUrl($event)" target="_blank" tabindex="-1" class="x-github" title="访问Github">
-                    <svg height="16" class="octicon octicon-mark-github" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
-                    </svg>
-                </a>
-
-                <span class="x-settings" @click="openOptionsPage()" title="FeHelper配置项">
-                    <svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" width="14">
-                        <path fill-rule="evenodd" d="M14 8.77v-1.6l-1.94-.64-.45-1.09.88-1.84-1.13-1.13-1.81.91-1.09-.45-.69-1.92h-1.6l-.63 1.94-1.11.45-1.84-.88-1.13 1.13.91 1.81-.45 1.09L0 7.23v1.59l1.94.64.45 1.09-.88 1.84 1.13 1.13 1.81-.91 1.09.45.69 1.92h1.59l.63-1.94 1.11-.45 1.84.88 1.13-1.13-.92-1.81.47-1.09L14 8.75v.02zM7 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"></path>
-                    </svg>设置</span>
-
-                <a href="https://github.com/zxlie/FeHelper/issues" @click="openUrl($event)" target="_blank" tabindex="-1" class="x-fb" title="提交意见反馈">
+                <a href="https://github.com/zxlie/FeHelper/issues" @click="openUrl($event)" target="_blank" tabindex="-1" class="x-github" title="提交意见反馈">
                     <svg version="1.1" width="14" height="14" viewBox="0 0 426.667 426.667" style="enable-background:new 0 0 426.667 426.667;" xml:space="preserve">
                         <path d="M384,0H42.667C19.093,0,0.213,19.093,0.213,42.667L0,426.667l85.333-85.333H384c23.573,0,42.667-19.093,42.667-42.667v-256C426.667,19.093,407.573,0,384,0z M234.667,256H192v-42.667h42.667V256z M234.667,170.667H192V85.333h42.667V170.667z"/>
                     </svg>反馈
-                </a>
+                </a> 
+
+                <span class="x-settings" @click="openOptionsPage()" title="FeHelper配置">
+                    <svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" width="14">
+                        <path fill="currentColor" d="M12 2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-1 9H5V9h6v2zm0-4H5V5h6v2z"/>
+                    </svg>更多</span>
             </div>
         </div>
         <script src="../static/js/dark-mode.js"></script>

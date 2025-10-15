@@ -82,8 +82,42 @@ new Vue({
             event.preventDefault();
             event.stopPropagation();
         }, false);
+
+        this.loadPatchHotfix();
     },
     methods: {
+
+        loadPatchHotfix() {
+            // 页面加载时自动获取并注入页面的补丁
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'fh-get-tool-patch',
+                toolName: 'image-base64'
+            }, patch => {
+                if (patch) {
+                    if (patch.css) {
+                        const style = document.createElement('style');
+                        style.textContent = patch.css;
+                        document.head.appendChild(style);
+                    }
+                    if (patch.js) {
+                        try {
+                            if (window.evalCore && window.evalCore.getEvalInstance) {
+                                window.evalCore.getEvalInstance(window)(patch.js);
+                            }
+                        } catch (e) {
+                            console.error('image-base64补丁JS执行失败', e);
+                        }
+                    }
+                }
+            });
+        },
+
+        openOptionsPage(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.openOptionsPage();
+        },
 
         _sizeFormat: function (num) {
             if (isNaN(num)) {
@@ -211,6 +245,17 @@ new Vue({
             if (this.curType === 'base64' && this.txtBase64Input.trim().length) {
                 this.error = ('无法识别的Base64编码，请确认是正确的图片Data URI？');
             }
-        }
+        },
+
+        // 打开打赏页面
+        openDonateModal: function(event){
+            event.preventDefault();
+            event.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'open-donate-modal',
+                params: { toolName: 'image-base64' }
+            });
+        },
     }
 });

@@ -172,15 +172,18 @@ let EncodeUtils = (() => {
      * @return {String} 源码
      */
     let _base64Decode = function (str) {
-          // 检测是否包含URL编码的字符，如果有则先进行URL解码
-        if (str.includes("%")) {
-          try {
+        // 首先进行URL解码处理，将%XX格式的字符转换回原始字符
+        try {
+            // 使用decodeURIComponent进行URL解码
             str = decodeURIComponent(str);
-          } catch (e) {
-            // 如果URL解码失败，继续使用原字符串
-            console.warn("URL解码失败，使用原字符串:", e.message);
-          }
+        } catch (e) {
+            // 如果decodeURIComponent失败，尝试手动替换常见的URL编码字符
+            str = str.replace(/%2B/g, '+')
+                    .replace(/%2F/g, '/')
+                    .replace(/%3D/g, '=')
+                    .replace(/%20/g, ' ');
         }
+        
         let c1, c2, c3, c4;
         let i, len, out;
         len = str.length;
@@ -532,6 +535,76 @@ let EncodeUtils = (() => {
         // 返回格式化的JSON
         return cookiesArray;
     }
+
+    /**
+     * 使用gzip压缩文本（返回Base64编码的结果）
+     * @param {string} text - 需要压缩的文本
+     * @returns {Promise<string>} 压缩后的Base64字符串
+     */
+    let _gzipEncode = async function(text) {
+        try {
+            // 检查浏览器是否支持CompressionStream API
+            if (typeof CompressionStream === 'undefined') {
+                throw new Error('当前浏览器不支持CompressionStream API，请使用Chrome 80+、Firefox 113+或Safari 16.4+');
+            }
+            
+            // 将文本转换为Uint8Array
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+            
+            // 创建压缩流
+            const compressionStream = new CompressionStream('gzip');
+            const compressedStream = new Response(data).body.pipeThrough(compressionStream);
+            
+            // 读取压缩后的数据
+            const compressedArrayBuffer = await new Response(compressedStream).arrayBuffer();
+            
+            // 将ArrayBuffer转换为Base64字符串
+            const compressedArray = new Uint8Array(compressedArrayBuffer);
+            let binaryString = '';
+            for (let i = 0; i < compressedArray.length; i++) {
+                binaryString += String.fromCharCode(compressedArray[i]);
+            }
+            
+            return btoa(binaryString);
+        } catch (error) {
+            throw new Error('Gzip压缩失败: ' + error.message);
+        }
+    };
+
+    /**
+     * 使用gzip解压缩Base64编码的数据
+     * @param {string} compressedBase64 - Base64编码的压缩数据
+     * @returns {Promise<string>} 解压缩后的文本
+     */
+    let _gzipDecode = async function(compressedBase64) {
+        try {
+            // 检查浏览器是否支持DecompressionStream API
+            if (typeof DecompressionStream === 'undefined') {
+                throw new Error('当前浏览器不支持DecompressionStream API，请使用Chrome 80+、Firefox 113+或Safari 16.4+');
+            }
+            
+            // 将Base64字符串转换为Uint8Array
+            const binaryString = atob(compressedBase64);
+            const compressedArray = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                compressedArray[i] = binaryString.charCodeAt(i);
+            }
+            
+            // 创建解压缩流
+            const decompressionStream = new DecompressionStream('gzip');
+            const decompressedStream = new Response(compressedArray).body.pipeThrough(decompressionStream);
+            
+            // 读取解压缩后的数据
+            const decompressedArrayBuffer = await new Response(decompressedStream).arrayBuffer();
+            
+            // 将ArrayBuffer转换为文本
+            const decoder = new TextDecoder();
+            return decoder.decode(decompressedArrayBuffer);
+        } catch (error) {
+            throw new Error('Gzip解压缩失败: ' + error.message);
+        }
+    };
     
 
     return {
@@ -550,7 +623,9 @@ let EncodeUtils = (() => {
         urlParamsDecode: _urlParamsDecode,
         sha1Encode: _sha1Encode,
         jwtDecode,
-        formatCookieStringToJson
+        formatCookieStringToJson,
+        gzipEncode: _gzipEncode,
+        gzipDecode: _gzipDecode
     };
 })();
 

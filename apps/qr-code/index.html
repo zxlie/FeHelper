@@ -14,10 +14,13 @@
         <div class="panel panel-default" style="margin-bottom: 0px;">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
-                        <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：二维码{{qrEncodeMode? '生成':'解码'}}器
-
-                    <span class="x-switch ui-fl-r" ref="btnSwitch" @click="trans">切换为{{!qrEncodeMode? ' 二维码生成器 ' : ' 解码/扫码 '}}模式&gt;&gt;</span>
+                    <span class="title-text-wrapper">
+                        <a href="https://fehelper.com" target="_blank" class="x-a-high">
+                            <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a><span class="title-text-wrapper-text">| 二维码{{qrEncodeMode? '生成':'解码'}}器</span>
+                    </span>
+                    <span class="x-switch" ref="btnSwitch" @click="trans">切换为{{!qrEncodeMode? ' 二维码生成器 ' : ' 解码/扫码 '}}模式&gt;&gt;</span>
+                    <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+                    <span class="x-donate-link" @click="openDonateModal($event)"><a href="#" id="donateLink"><i class="nav-icon">❤</i>&nbsp;打赏鼓励</a></span>
                 </h3>
             </div>
         </div>
@@ -25,64 +28,78 @@
         <div class="panel-body mod-json">
 
             <div v-if="qrEncodeMode">
-                <div class="row">
-                    <textarea class="form-control mod-textarea" id="codeSource" ref="codeSource" v-model="textContent" placeholder="在这里填写需要生成二维码的任意内容"></textarea>
-                </div>
-
-                <div class="row ui-mt-10">
-
-                    <div class="ui-d-ib x-sizes">
-                        尺寸：<input name="opt_width" type="text" id="opt_width" v-model="qrSize" size="4" maxlength="4"/>
-                    </div>
-                    <div class="ui-d-ib x-colors">
-                        颜色：<input type="text" id="opt_fc" v-model="qrColor" size="10" />
+                <div class="qr-layout">
+                    <!-- 左侧：文本输入区域 -->
+                    <div class="qr-left">
+                        <div class="section-title">输入内容</div>
+                        <textarea class="form-control mod-textarea" id="codeSource" ref="codeSource" v-model="textContent" placeholder="在这里填写需要生成二维码的任意内容"></textarea>
                     </div>
 
-                    <div class="radio ui-d-ib x-icons">
-                        图标：<label><input id="remove_icon" name="qr_icon" type="radio" value="no" v-model="useIcon" @click="convert()">不要</label>
-                    </div>
+                    <!-- 中间：操作区域 -->
+                    <div class="qr-center">
+                        <div class="section-title">参数设置</div>
+                        <div class="control-panel">
+                            <div class="control-item">
+                                <label>尺寸：</label>
+                                <input name="opt_width" type="text" id="opt_width" v-model="qrSize" size="4" maxlength="4"/>
+                            </div>
+                            
+                            <div class="control-item">
+                                <label>颜色：</label>
+                                <input type="text" id="opt_fc" v-model="qrColor" size="10" />
+                            </div>
 
-                    <div class="radio ui-d-ib ui-ml-10">
-                        <label><input id="default_icon" name="qr_icon" type="radio" value="default" v-model="useIcon" @click="convert()">默认</label>
-                    </div>
-
-                    <div class="radio ui-d-ib ui-ml-10">
-                        <label><input id="upload_icon" name="qr_icon" type="radio" value="custom" v-model="useIcon" @click="$refs.fileBox.click()">上传</label>
-                        (提示:支持直接拖拽一个图标到页面)
-                    </div>
-
-                    <button id="confirm_button" class="btn btn-success ui-fl-r" @click="convert()">生成QR图</button>
-                </div>
-
-                <div class="row ui-mt-20" v-if="showResult">
-                    <h4>结果</h4>
-                    <hr class="x-hr"/>
-                    <div id="preview"></div>
-                </div>
-            </div>
-
-            <div class="row" v-if="!qrEncodeMode">
-                <table>
-                    <tr>
-                        <td>
-                            <div class="x-panel" ref="panelBox">
-                                <img id="decodePreview" alt="" :src="previewSrc" v-show="!!previewSrc.length">
-                                <div class="x-tips">
-                                    <a id="upload" href="#" ref="uploadBox" @click="$refs.fileBox.click()">选择图片</a><br>
-                                    或者选择一张图片拖拽图片到这里来
+                            <div class="control-item">
+                                <div class="radio ui-d-ib x-icons">
+                                    图标：<label><input id="remove_icon" name="qr_icon" type="radio" value="no" v-model="useIcon" @click="convert()">不要</label>
+                                    <label><input id="default_icon" name="qr_icon" type="radio" value="default" v-model="useIcon" @click="convert()">默认</label>
+                                    <label><input id="upload_icon" name="qr_icon" type="radio" value="custom" v-model="useIcon" @click="$refs.fileBox.click()">上传</label>
                                 </div>
                             </div>
 
-                            <div class="tips">
-                                1、支持<i>屏幕截图</i>后直接在此处粘贴进行解码<br/>2、支持<i>复制文件、复制图片</i>在线地址在此处直接粘贴进行解码
+                            <div class="control-item">
+                                <button id="confirm_button" class="btn btn-success" @click="convert()">生成二维码</button>
                             </div>
-                        </td>
-                        <td>
-                            <textarea id="decodeResult" title="点击自动选择" placeholder="内容会自动生成..." readonly ref="resultBox" @click="select()" v-model="resultContent" class="form-control"></textarea>
-                        </td>
-                    </tr>
-                </table>
-                <img id="img" alt="">
+                        </div>
+                    </div>
+
+                    <!-- 右侧：结果预览区域 -->
+                    <div class="qr-right">
+                        <div class="section-title">
+                            生成结果
+                            <div class="action-buttons" v-if="showResult">
+                                <button class="btn-action" id="copy_button" @click="copyQR">复制</button>
+                                <button class="btn-action" id="download_button" @click="downloadQR">下载</button>
+                            </div>
+                        </div>
+                        <div id="preview"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 二维码解码模式 -->
+            <div class="qr-decoder-layout" v-if="!qrEncodeMode">
+                <!-- 左侧：图片上传/预览 -->
+                <div class="decoder-left">
+                    <div class="section-title">上传或粘贴图片</div>
+                    <div class="upload-panel" ref="panelBox">
+                        <img id="decodePreview" alt="" :src="previewSrc" v-show="!!previewSrc.length">
+                        <div class="upload-instructions" v-show="!previewSrc.length">
+                            <a id="upload" href="#" ref="uploadBox" @click="$refs.fileBox.click()">选择图片</a>
+                            <span class="drag-drop-text">或拖拽图片到这里</span>
+                        </div>
+                    </div>
+                    <div class="decoder-tips tips">
+                        1、支持<i>屏幕截图</i>后直接在此处粘贴进行解码<br/>
+                        2、支持<i>复制文件、复制图片</i>在线地址在此处直接粘贴进行解码
+                    </div>
+                </div>
+
+                <!-- 右侧：解码结果 -->
+                <div class="decoder-right">
+                    <div class="section-title">解码结果</div>
+                    <textarea id="decodeResult" title="点击自动选择" placeholder="解码结果将显示在这里..." readonly ref="resultBox" @click="select()" v-model="resultContent" class="form-control mod-textarea"></textarea>
+                </div>
             </div>
 
         </div>

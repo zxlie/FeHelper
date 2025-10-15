@@ -13,8 +13,15 @@
         <div class="panel panel-default" style="margin-bottom: 0px;">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a href="https://www.baidufe.com/fehelper/index/index.html" target="_blank" class="x-a-high">
+                    <a href="https://fehelper.com" target="_blank" class="x-a-high">
                         <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：代码压缩工具
+                    <span class="example-links">
+                        <a href="javascript:;" @click="loadExample('html',$event)">html示例</a>
+                        <a href="javascript:;" @click="loadExample('js',$event)">js示例</a>
+                        <a href="javascript:;" @click="loadExample('css',$event)">css示例</a>
+                    </span>
+                    <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
+                    <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
                 </h3>
             </div>
         </div>
@@ -74,6 +81,7 @@
     <script type="text/javascript" src="htmlminifier.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
 
+    <script type="text/javascript" src="examples.js"></script>
     <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
     </body>
 </html>
