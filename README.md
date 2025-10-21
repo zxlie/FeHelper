@@ -141,7 +141,7 @@ FeHelper 是一个集成了 **30+ 种实用工具** 的浏览器扩展，支持 
 
 <table>
 <tr>
-<td width="50%" align="center">
+<td width="50%" align="left">
 
 **方法一：CRX 文件安装（推荐）**
 
@@ -153,7 +153,7 @@ FeHelper 是一个集成了 **30+ 种实用工具** 的浏览器扩展，支持 
 6. 点击"添加扩展程序"完成安装
 
 </td>
-<td width="50%" align="center">
+<td width="50%" align="left">
 
 **方法二：ZIP 文件安装**
 
