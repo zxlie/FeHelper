@@ -41,6 +41,9 @@
                 <div class="checkbox">
                     <label>密码长度：<input class="form-control" type="number" min="0" v-model="length" @click="convert()"></label>
                 </div>
+                <div class="checkbox">
+                    <label>生成数量：<input class="form-control" type="number" min="1" v-model="count" @change="convert()"></label>
+                </div>
 
                 <div class="checkbox ">
                     <input id="btnCodeChange" class="btn btn-success main-btn" type="button" value="生成随机密码" @click="convert()">

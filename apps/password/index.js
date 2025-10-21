@@ -8,7 +8,8 @@ new Vue({
         lowerLetter: true,
         upperLetter: true,
         specialChar: false,
-        length: 16,
+        length: 20,
+        count: 1,
         chars: {
             number: '0123456789',
             lowerLetter: 'abcdefghijklmnopqrstuvwxyz',
@@ -29,19 +30,22 @@ new Vue({
             this.$nextTick(() => {
                 let exceptedChars = ['number', 'lowerLetter', 'upperLetter', 'specialChar'].filter(item => this[item]).map(item => this.chars[item]).join('');
 
-                let password = [], rands = [], rand = 0;
-                for (let index = 0; index < this.length; index++) {
+                // 生成指定数量的密码
+                let passwords = [];
+                for (let i = 0; i < this.count; i++) {
+                    let password = [], rands = [], rand = 0;
+                    for (let index = 0; index < this.length; index++) {
+                        // 尽可能不让字符重复
+                        do {
+                            rand = Math.floor(Math.random() * exceptedChars.length);
+                        } while (rands.includes(rand) && rands.length < exceptedChars.length);
 
-                    // 尽可能不让字符重复
-                    do {
-                        rand = Math.floor(Math.random() * exceptedChars.length);
-                    } while (rands.includes(rand) && rands.length < exceptedChars.length);
-
-                    rands.push(rand);
-                    password.push(exceptedChars[rand]);
+                        rands.push(rand);
+                        password.push(exceptedChars[rand]);
+                    }
+                    passwords.push(password.join(''));
                 }
-
-                this.resultContent = password.join('');
+                this.resultContent = passwords.join('\n');
             });
         },
 
