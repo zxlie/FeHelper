@@ -1,202 +1,264 @@
-# FeHelper For Chrome, Firefox & MS-Edge
+# FeHelper - 前端开发者的超级助手
 
-FeHelper是一个功能强大的浏览器扩展，专为前端开发者设计，集成了多种实用工具，帮助开发者提高工作效率。无论是JSON数据处理、二维码生成与解码，还是代码美化与压缩，FeHelper都能为您提供便捷的解决方案。
+<div align="center">
 
-![FeHelper](https://user-images.githubusercontent.com/865735/75407628-7399c580-594e-11ea-8ef2-00adf39d61a8.jpg)
+![FeHelper Logo](https://user-images.githubusercontent.com/865735/75407628-7399c580-594e-11ea-8ef2-00adf39d61a8.jpg)
 
-[![Google Chrome](https://img.shields.io/chrome-web-store/v/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
-[![Google Chrome](https://img.shields.io/chrome-web-store/stars/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
-[![Google Chrome](https://img.shields.io/chrome-web-store/users/pkgccpejnmalmdinmhkkfafefagiiiad.svg?logo=Google%20Chrome&logoColor=red&color=blue)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
+**一个功能强大的开源浏览器扩展，专为前端开发者和职场人士设计**
 
-## 一、功能展示
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/pkgccpejnmalmdinmhkkfafefagiiiad?label=chrome%20web%20store&logo=googlechrome&color=3b82f6&style=for-the-badge)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
+[![Chrome Web Store Rating](https://img.shields.io/chrome-web-store/rating/pkgccpejnmalmdinmhkkfafefagiiiad?label=rating&logo=googlechrome&color=3b82f6&style=for-the-badge)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
+[![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/pkgccpejnmalmdinmhkkfafefagiiiad?label=users&logo=googlechrome&color=3b82f6&style=for-the-badge)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
+[![GitHub Stars](https://img.shields.io/github/stars/zxlie/FeHelper?style=for-the-badge&color=8b5cf6&logo=github)](https://github.com/zxlie/FeHelper)
+[![GitHub Forks](https://img.shields.io/github/forks/zxlie/FeHelper?style=for-the-badge&color=8b5cf6&logo=github)](https://github.com/zxlie/FeHelper)
+[![开发历史](https://img.shields.io/badge/since-2011-f59e0b?style=for-the-badge&logo=calendar&logoColor=white)](https://github.com/zxlie/FeHelper)
 
-![Web前端助手-FeHelper](https://user-images.githubusercontent.com/865735/75407048-020d4780-594d-11ea-9dd6-48f6d5774c2f.png)
+[🌐 官网地址](https://fehelper.com) • [📖 在线文档](https://fehelper.com/docs.html) • [💬 问题反馈](https://github.com/zxlie/FeHelper/issues) • [💰 FH$ 代币](https://www.gitfish.dev/repo/zxlie/FeHelper)
 
-## 二、贡献指南
+</div>
 
-我们欢迎社区的贡献！如果您有兴趣参与FeHelper的开发，请按照以下步骤进行：
+## ✨ 核心特性
 
-1. Fork本仓库并克隆到本地。
-2. 创建一个新的分支：`git checkout -b feature/YourFeature`
-3. 提交您的更改：`git commit -m 'Add some feature'`
-4. 推送到分支：`git push origin feature/YourFeature`
-5. 创建一个Pull Request。
+FeHelper 是一个集成了 **30+ 种实用工具** 的浏览器扩展，支持 Chrome、Edge、Firefox 三大浏览器，为前端开发者和职场人士提供一站式解决方案。
 
-## 三、官网地址
-https://www.baidufe.com/fehelper/index/index.html
+### 🎯 产品展示
 
-### 1、扩展示例
-![Web前端助手-FeHelper](https://user-images.githubusercontent.com/865735/75407048-020d4780-594d-11ea-9dd6-48f6d5774c2f.png)
+<table>
+<tr>
+<td width="50%" align="center">
 
-### 2、关于新版
-- 新版本的FeHelper，是以开放平台为思路的设计，详细了解FeHelper新版，可以参考链接：
-    - [FeHelper-开放平台版介绍文档](/README_NEW.md)
-    - [开放平台思路下的FeHelper-阿烈叔的博客](https://www.baidufe.com/item/5b1e07d6f5106b6907bc.html)
-- 新版本FeHelper在一个新的`私有仓储`，待打磨得足够细腻了，再考虑开源    
+![FeHelper 主界面](https://fehelper.com/static/screenshot/popup.png)
+*FeHelper 主界面 - 30+ 种实用工具一键访问*
 
-![FeHelper新版](https://user-images.githubusercontent.com/865735/75334978-b5315e80-58c3-11ea-9af0-e593149b0f7c.png)
+</td>
+<td width="50%" align="center">
 
-## 四、功能详细介绍
+![JSON 格式化工具](https://fehelper.com/static/screenshot/json-format.png)
+*JSON 格式化工具 - 支持美化、校验、压缩等功能*
 
-FeHelper是一个功能强大的开发者工具，专为前端开发者设计，集成了多种实用工具，帮助开发者提高工作效率。以下是FeHelper的主要功能：
+</td>
+</tr>
+<tr>
+<td width="50%" align="center">
 
-- **JSON工具**: 
-  - **JSON美化工具**：自动检测并格式化JSON数据，支持手动格式化、乱码解码、排序、BigInt处理、编辑、下载和皮肤定制等功能，极大地方便了开发者对JSON数据的处理。
-  - **JSON比对工具**：支持两个JSON内容的自动键值比较，并高亮显示差异点，帮助开发者快速识别数据变化。
+![编码解码工具](https://fehelper.com/static/screenshot/en-decode.png)
+*编码解码工具 - 支持多种编码格式转换*
 
-- **二维码工具**: 
-  - **二维码生成器**：支持自定义颜色和icon的二维码生成，适用于多种应用场景。
-  - **二维码解码器**：支持多种模式的二维码解码，包括截图后粘贴解码，方便快捷。
+</td>
+<td width="50%" align="center">
 
-- **编码工具**: 
-  - **字符串编解码**：支持多格式的信息编解码，如Unicode、UTF-8、URL、Base64、MD5等，满足不同编码需求。
-  - **代码美化工具**：支持多语言的代码美化，包括Javascript、CSS、HTML、XML、SQL，帮助开发者保持代码整洁。
-  - **代码压缩工具**：提供简单的代码压缩功能，支持HTML、Javascript、CSS代码压缩，优化网页加载速度。
+![二维码工具](https://fehelper.com/static/screenshot/qr-code.png)
+*二维码工具 - 快速生成和识别二维码*
 
-- **开发者工具**: 
-  - **AI助手**：由AI强力支撑的超智能对话工具，支持代码编写、改代码、做方案设计等，提升开发效率。
-  - **简易Postman**：接口调试工具，支持GET/POST/HEAD请求方式，自动格式化JSON内容，简化API测试流程。
-  - **Websocket工具**：支持对Websocket接口的抓包测试，包括ws服务的连接测试、消息发送测试、结果分析等。
+</td>
+</tr>
+<tr>
+<td width="50%" align="center" colspan="2">
 
-- **其他工具**: 
-  - **时间(戳)转换**：本地化时间与时间戳之间的相互转换，支持秒/毫秒、世界时区切换、各时区时钟展示等。
-  - **随机密码生成**：将各种字符进行随机组合生成密码，支持指定长度和字符类型，确保密码安全性。
-  - **我的便签笔记**：便签笔记工具，支持创建目录对笔记进行分类管理，笔记支持一键导出/导入，方便信息管理。
-  - **Markdown转换**：Markdown编写/预览工具，支持HTML片段直接转Markdown，支持将内容以PDF格式进行下载。
-  - **网页截屏工具**：可对任意网页进行截屏，支持可视区域截屏、全网页滚动截屏，最终结果可预览后再保存。
-  - **页面取色工具**：可直接在网页上针对任意元素进行色值采集，将光标移动到需要取色的位置，单击确定即可。
+![设置页面](https://fehelper.com/static/screenshot/options.png)
+*个性化设置 - 支持工具排序、主题切换等*
 
-FeHelper不仅功能强大，而且易于使用，是前端开发者的得力助手。更多工具和详细介绍请访问[FeHelper官网](https://www.baidufe.com/fehelper/index/index.html)。
+</td>
+</tr>
+</table>
 
-## 五、扩展安装地址
+### 🚀 最新更新
 
-### 1、Chrome web store地址（推荐）
-https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh-cn
+- **🤖 AI 智能助手**：集成 AI 助手，提供代码优化建议、方案设计、资料查找等功能
+- **📊 Mock 数据生成器**：快速生成各种测试数据，支持个人信息、商业数据、技术数据等多种类型
+- **🎨 海报制作工具**：内置海报制作功能，支持多种模板和自定义设计
+- **📈 图表制作工具**：支持多种图表类型，数据可视化更简单
+- **🌙 夜间模式**：支持深色主题，保护眼睛，提升夜间使用体验
+- **🔧 个性化排序**：支持自定义工具排序，打造专属工作台
 
-- 官网安装，你可能需要额外的梯子
-    - [谷歌访问助手（官方正式版）](http://www.ggfwzs.com/)
-    - [谷歌访问助手（发烧友破解版）](https://github.com/haotian-wang/google-access-helper)
+### 🛠️ 主要功能模块
 
-### 2、Microsoft Edge Addons
-https://microsoftedge.microsoft.com/addons/detail/feolnkbgcbjmamimpfcnklggdcbgakhe?hl=zh-CN
+#### 📋 JSON 处理工具
+- **JSON 美化与校验**：一键格式化、校验、压缩、解压 JSON 数据，支持大文件处理
+- **JSON 差异对比**：支持两个 JSON 内容的自动键值比较，高亮显示差异点
+- **JSON 转 Excel**：快速将 JSON 数据转换为 Excel 格式，便于数据分析
 
-- 如果你在使用Microsoft Edge浏览器的话，`可以直接安装`，不用翻墙
+<div align="center">
 
-### 3、Firefox Add-ons
-- FeHelper官网一键安装： https://www.baidufe.com/fehelper/index/index.html
-- GitHub下载xpi安装：[点击进入下载页](/apps/static/screenshot/xpi)
+![JSON 自动格式化](https://fehelper.com/static/screenshot/json-format-auto.png)
+*JSON 自动格式化 - 智能识别并美化 JSON 数据*
 
-### 4、crx文件下载=>本地安装(Chrome)
-- 官网下载：https://www.baidufe.com/fehelper
-- 翻墙下载：https://chrome-extension-downloader.com/?extension=pkgccpejnmalmdinmhkkfafefagiiiad
-- 本站下载：[点击进入下载页](/apps/static/screenshot/crx)
+</div>
 
-## 六、使用方法
+#### 🎨 代码处理工具
+- **代码美化**：支持 JavaScript、CSS、HTML、XML、SQL 等多种代码格式的美化
+- **代码压缩**：提供 HTML、JavaScript、CSS 代码压缩，优化网页加载速度
+- **正则表达式**：内置正则表达式测试工具，支持实时匹配和替换
 
-使用FeHelper时，请遵循以下最佳实践，以确保安全和高效：
+#### 🔗 接口调试工具
+- **简易 Postman**：提供接口调试功能，支持 GET/POST/HEAD 请求方式
+- **WebSocket 工具**：支持 WebSocket 连接测试，消息发送和结果分析
+- **接口 Mock**：快速生成 Mock 数据，支持多种数据格式
 
-1. **从可信来源安装**：
-   - 确保只从官方浏览器商店（如Chrome Web Store）安装FeHelper，以避免潜在的安全风险。
+#### 🖼️ 图像处理工具
+- **二维码生成与识别**：快速生成二维码，支持文本、链接、名片等多种内容类型
+- **图片转 Base64**：支持图片与 Base64 格式的相互转换
+- **网页截屏**：支持可视区域截屏、全网页滚动截屏
+- **页面取色**：直接在网页上采集任意元素的色值
+- **SVG 转换器**：支持 SVG 与图片格式的相互转换
 
-2. **定期检查和更新**：
-   - 定期检查FeHelper的更新，以确保使用最新版本，获得最新的功能和安全修复。
+#### ⚡ 效率工具
+- **时间戳转换**：本地化时间与时间戳之间的相互转换，支持多时区
+- **随机密码生成**：支持指定长度和字符类型的密码生成
+- **便签笔记**：支持创建目录分类管理，支持一键导出/导入
+- **Markdown 转换**：支持 HTML 转 Markdown，支持 PDF 格式下载
+- **油猴工具**：内置网页脚本注入功能，支持自定义脚本
 
-3. **管理权限**：
-   - 在安装FeHelper时，仔细查看所请求的权限，确保它们与扩展的功能相符。
+## 🎯 适用场景
 
-4. **安全使用**：
-   - 只安装必要的扩展，避免过多的扩展增加攻击面。
+- **前端开发**：JSON 处理、代码美化、接口调试、页面分析
+- **数据分析**：Excel 转 JSON、数据格式转换、图表制作
+- **UI/UX 设计**：页面取色、图像处理、海报制作
+- **办公效率**：便签笔记、时间转换、密码生成
+- **学习研究**：正则表达式、编码解码、WebSocket 测试
 
-5. **用户反馈和支持**：
-   - 如果在使用FeHelper时遇到问题或有建议，及时通过提供的反馈渠道联系开发者。
+## 📦 安装方式
 
-通过遵循这些指南，您可以更安全、更高效地使用FeHelper，充分发挥其强大的功能。
+### 🌐 浏览器商店（推荐）
 
-## 七、用户反馈渠道
-- 在线反馈：https://www.baidufe.com/fehelper/feedback.html
-- Mail反馈：xianliezhao@foxmail.com
-- Wechat反馈：398824681 <br>
-![阿烈叔的个人微信](https://user-images.githubusercontent.com/865735/75407547-3cc3af80-594e-11ea-9abf-6168b94547a1.png)
+| 浏览器 | 安装地址 | 评分 | 用户数 |
+|--------|----------|------|--------|
+| **Chrome** | [Chrome Web Store](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad) | ⭐⭐⭐⭐⭐ 4.7 | 200K+ |
+| **Edge** | [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/fehelper%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B/pkgccpejnmalmdinmhkkfafefagiiiad) | ⭐⭐⭐⭐⭐ 4.8 | 100K+ |
+| **Firefox** | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/fehelper-%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B/) | ⭐⭐⭐⭐⭐ 4.9 | 全新发布 |
 
-## 八、使用推荐与案例
+### 🚀 无梯下载指南
 
-FeHelper在开发者社区中广受好评，以下是一些使用推荐和案例：
+无法访问浏览器商店？没关系！我们为您提供完整的离线下载方案：
 
-1. **接口调试工具**: FeHelper被誉为强大的接口调试工具，支持模拟各种HTTP请求，保存cookie等信息，详情请参阅[CSDN博客](https://blog.csdn.net/fuhanghang/article/details/84592480)。
+| 方法 | 适用场景 | 下载地址 | 安装步骤 | 优势 |
+|------|----------|----------|----------|------|
+| **Chrome-Stats 镜像** | 国内用户首选 | [Chrome-Stats](https://chrome-stats.com/d/pkgccpejnmalmdinmhkkfafefagiiiad) | 1. 点击 "Download CRX file"<br>2. 打开 `chrome://extensions`<br>3. 开启"开发者模式"<br>4. 拖拽 .crx 文件到页面 | ✅ 国内直接访问<br>✅ 一键安装<br>✅ 官方版本 |
+| **ZIP 文件安装** | 需要源码版本 | [Chrome-Stats ZIP](https://chrome-stats.com/d/pkgccpejnmalmdinmhkkfafefagiiiad) | 1. 点击 "Download ZIP file"<br>2. 解压到本地文件夹<br>3. 开启"开发者模式"<br>4. 选择"加载已解压的扩展程序" | ✅ 可查看源码<br>✅ 支持自定义<br>✅ 学习开发 |
+| **GitHub 源码** | 开发者使用 | [GitHub 仓库](https://github.com/zxlie/FeHelper) | 1. `git clone` 克隆仓库<br>2. 打开 `chrome://extensions`<br>3. 开启"开发者模式"<br>4. 选择 apps 目录 | ✅ 最新代码<br>✅ 参与开发<br>✅ 社区贡献 |
 
-2. **功能丰富的插件**: FeHelper支持多种浏览器，提供JSON格式化、代码美化与压缩等功能，更多信息请访问[CSDN博客](https://blog.csdn.net/weixin_42272869/article/details/124412501)。
+#### 📋 详细安装步骤
 
-3. **前端开发测试利器**: FeHelper包含字符串编解码、代码美化、JSON格式化查看等前端实用工具，详见[博客园](https://www.cnblogs.com/oycyqr/p/8867362.html)。
+<table>
+<tr>
+<td width="50%" align="center">
 
-4. **网页源码压缩**: FeHelper在网页html源码压缩、css或javascript的压缩方面表现出色，更多内容在[阿里云开发者社区](https://developer.aliyun.com/article/710232)。
+**方法一：CRX 文件安装（推荐）**
 
-5. **前端必备插件**: FeHelper被推荐为前端必备的Chrome插件，详情请查看[稀土掘金](https://juejin.cn/post/6854573211590836231)。
+1. 访问 [Chrome-Stats](https://chrome-stats.com/d/pkgccpejnmalmdinmhkkfafefagiiiad)
+2. 点击 "Download CRX file" 下载
+3. 在 Chrome 地址栏输入：`chrome://extensions`
+4. 开启右上角的"开发者模式"
+5. 将 .crx 文件拖拽到扩展页面
+6. 点击"添加扩展程序"完成安装
 
-## 九、一些样例
-- [点击进入查看>>](/apps/static/screenshot/crx)
+</td>
+<td width="50%" align="center">
 
-# FeHelper功能开发
+**方法二：ZIP 文件安装**
 
-## 最新更新：个性化工具排序功能
+1. 在 Chrome-Stats 页面点击 "Download ZIP file"
+2. 将 ZIP 文件解压到本地文件夹
+3. 在 Chrome 地址栏输入：`chrome://extensions`
+4. 开启右上角的"开发者模式"
+5. 点击"加载已解压的扩展程序"
+6. 选择解压后的文件夹完成安装
 
-### 功能简介
-新增了个性化工具排序功能，允许用户自定义已安装工具在弹窗中的显示顺序，提升使用体验。
+</td>
+</tr>
+</table>
 
-### 使用方法
-1. 点击扩展图标旁的"插件设置"按钮，或在弹窗中点击"更多"
-2. 在设置页面中找到"FH工具排序"部分
-3. 通过拖拽调整工具的显示顺序
-4. 点击"保存排序"按钮确认更改
-5. 新的排序将立即在弹窗中生效
+#### 🔧 开发者安装
 
-### 功能特性
-- **拖拽排序**: 直观的拖拽界面，轻松调整工具顺序
-- **实时预览**: 拖拽过程中提供视觉反馈
-- **自动保存**: 支持重置为默认顺序
-- **兼容性好**: 新安装的工具会自动添加到列表末尾
-- **持久存储**: 排序设置保存在本地，重启浏览器后依然有效
+```bash
+# 克隆仓库
+git clone https://github.com/zxlie/FeHelper.git
 
-### 技术实现
-- 使用HTML5拖拽API实现交互功能
-- 通过chrome.storage.local存储用户自定义排序
-- 修改popup显示逻辑，优先使用用户自定义排序
-- 提供友好的用户界面和操作反馈
+# 进入项目目录
+cd FeHelper
 
-### 注意事项
-- 只有已安装的工具才会出现在排序列表中
-- 卸载工具后，该工具会自动从排序列表中移除
-- 重置排序将恢复到默认的安装时间顺序
+# 在 Chrome 中加载扩展
+# 1. 打开 chrome://extensions/
+# 2. 开启"开发者模式"
+# 3. 点击"加载已解压的扩展程序"
+# 4. 选择 apps 目录
+```
 
-## 最新优化：弹窗显示优化
+### 📱 其他平台
 
-### 问题描述
-修复了当启用工具数量较少时弹窗显示不协调的问题，优化了不同工具数量下的视觉体验。
+- **微信小程序**：扫码即可使用，无需安装
+- **在线版本**：[fehelper.com](https://fehelper.com) 在线使用
 
-### 优化内容
-1. **动态布局调整**: 
-   - 根据已安装工具数量自动调整弹窗最小高度
-   - 1个工具时使用紧凑布局（110px最小高度）
-   - 2-3个工具时使用适中布局（140px最小高度）
-   - 4个及以上工具使用标准布局（120px最小高度）
+### ⚠️ 重要提示
 
-2. **间距优化**:
-   - 工具数量少时增加工具项的高度和间距
-   - 优化图标位置，确保视觉平衡
-   - 改进工具列表的内边距设置
+- Chrome 可能会提示"无法从此网站添加应用"，这是正常现象，选择继续即可
+- 安装后建议关闭"开发者模式"以避免警告提示
+- 扩展功能与商店版本完全一致，支持自动更新检查
+- 如遇安装问题，可在 [GitHub Issues](https://github.com/zxlie/FeHelper/issues) 区域反馈
 
-3. **布局增强**:
-   - 使用Flexbox布局，确保反馈区域始终在底部
-   - 添加平滑过渡动画，提升用户体验
-   - 优化工具列表滚动行为，支持大量工具时的滚动显示
 
-4. **响应式设计**:
-   - 设置合理的最大高度，避免弹窗过高
-   - 确保在不同屏幕DPI下都有良好的显示效果
-   - 优化空状态和加载状态的显示
+## 📊 项目统计
 
-### 技术实现
-- 使用Vue.js计算属性动态判断工具数量
-- CSS类名动态绑定实现不同状态下的样式
-- 添加调试日志便于开发时查看布局状态
-- 平滑过渡动画提升用户体验
+| 指标 | 数值 |
+|------|------|
+| **开发历史** | 13+ 年 (2011-至今) |
+| **GitHub Stars** | 5.3K+ |
+| **GitHub Forks** | 1.3K+ |
+| **Chrome 用户** | 200K+ |
+| **提交次数** | 500+ |
+| **工具数量** | 30+ |
+| **支持浏览器** | Chrome, Edge, Firefox |
 
+
+## 🌟 社区活跃度
+
+- **📈 持续更新**：2023年至今已有 160+ 次提交
+- **🐛 问题响应**：平均 24 小时内响应 issue
+- **💡 功能建议**：欢迎提交 feature request
+- **🤝 贡献代码**：欢迎提交 Pull Request
+
+
+## 💰 FH$ 代币
+
+FeHelper 在 [GitFish](https://www.gitfish.dev/repo/zxlie/FeHelper) 上发布了 FH$ 代币，对虚拟货币感兴趣的用户可以关注：
+
+[![GitFish FH$](https://img.shields.io/badge/GitFish-FH%24-00d4aa?style=for-the-badge&logo=bitcoin&logoColor=white)](https://www.gitfish.dev/repo/zxlie/FeHelper)
+
+## 🤝 贡献指南
+
+我们欢迎社区的贡献！如果您有兴趣参与 FeHelper 的开发，请按照以下步骤进行：
+
+1. **Fork 本仓库**并克隆到本地
+2. **创建新分支**：`git checkout -b feature/YourFeature`
+3. **提交更改**：`git commit -m 'Add some feature'`
+4. **推送分支**：`git push origin feature/YourFeature`
+5. **创建 Pull Request**
+
+### 开发规范
+
+- 遵循 Chrome Extension Manifest V3 最佳实践
+- 保持代码风格一致，添加必要的注释
+- 新功能需要包含完整的 HTML、JS、CSS 文件
+- 在 `manifest.json` 中正确配置新模块
+
+## 📞 联系我们
+
+- **🌐 官网**：[fehelper.com](https://fehelper.com)
+- **📧 邮箱**：xianliezhao@foxmail.com
+- **💬 微信**：398824681
+- **🐛 问题反馈**：[GitHub Issues](https://github.com/zxlie/FeHelper/issues)
+- **💰 FH$ 代币**：[GitFish](https://www.gitfish.dev/repo/zxlie/FeHelper)
+
+## 📄 许可证
+
+本项目采用 [MIT License](LICENSE) 开源协议。
+
+---
+
+<div align="center">
+
+**⭐ 如果 FeHelper 对您有帮助，请给我们一个 Star！**
+
+[![Star History Chart](https://api.star-history.com/svg?repos=zxlie/FeHelper&type=Date)](https://star-history.com/#zxlie/FeHelper&Date)
+
+</div>
