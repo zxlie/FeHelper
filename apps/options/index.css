@@ -1101,6 +1101,31 @@ body{
     animation: ripple 0.6s ease-out;
 }
 
+/* FH$ 代币按钮特殊效果 */
+.navbar-actions .token-link {
+    background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.navbar-actions .token-link:hover {
+    background: linear-gradient(45deg, #f39c12, #e67e22);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+    color: #fff;
+}
+
+.navbar-actions .token-link .nav-icon {
+    color: #fff;
+    font-size: 18px;
+}
+
+.navbar-actions .token-link:hover .nav-icon {
+    animation: bounce 1s infinite;
+    color: #fff;
+}
+
 /* 打赏鼓励按钮特殊效果 */
 .navbar-actions .donate-link {
     background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
@@ -1172,6 +1197,18 @@ body{
 @keyframes rotate {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-3px);
+    }
+    60% {
+        transform: translateY(-2px);
+    }
 }
 
 /* 响应式调整 */
@@ -1596,6 +1633,66 @@ body{
     padding: 10px;
 }
 
+/* FH$ 代币提示样式 */
+.token-tips {
+    background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 4px 15px rgba(253, 203, 110, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.token-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.token-icon {
+    font-size: 24px;
+    margin-right: 10px;
+    animation: bounce 2s infinite;
+}
+
+.token-header h4 {
+    margin: 0;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.token-content {
+    text-align: left;
+    color: #fff;
+}
+
+.token-content p {
+    margin: 8px 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.token-content strong {
+    color: #fff;
+    font-weight: 600;
+}
+
+.token-link-inline {
+    color: #fff;
+    text-decoration: underline;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.token-link-inline:hover {
+    color: #f1c40f;
+    text-decoration: none;
+    transform: scale(1.05);
+}
+
 .donate-desc {
     font-size: 16px;
     margin-bottom: 20px;
@@ -1751,6 +1848,21 @@ body{
 
 .dark-mode .navbar-actions .donate-link .nav-icon,
 .dark-mode .navbar-actions .settings-link .nav-icon {
+    color: #fff;
+}
+
+/* 暗黑模式下的代币按钮样式 */
+.dark-mode .navbar-actions .token-link {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: #fff;
+}
+
+.dark-mode .navbar-actions .token-link:hover {
+    background: linear-gradient(45deg, #d68910, #b7950b);
+    box-shadow: 0 5px 15px rgba(211, 84, 0, 0.4);
+}
+
+.dark-mode .navbar-actions .token-link .nav-icon {
     color: #fff;
 }
 

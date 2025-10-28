@@ -19,6 +19,10 @@
             </a>
         </div>
         <div class="navbar-actions">
+            <a href="https://www.gitfish.dev/repo/zxlie/FeHelper" target="_blank" class="nav-item token-link">
+                <i class="nav-icon">💰</i>
+                <span>FH$ 代币</span>
+            </a>
             <a href="#" @click="openDonateModal" class="nav-item donate-link">
                 <i class="nav-icon">❤</i>
                 <span>打赏鼓励</span>
@@ -180,6 +184,21 @@
                 <div class="settings-body">
                     <div class="donate-content">
                         <p class="donate-desc">{{donate.text}}我会尽量抽时间保持更新😄</p>
+                        
+                        <!-- FH$ 代币提示 -->
+                        <div class="token-tips">
+                            <div class="token-header">
+                                <i class="token-icon">💰</i>
+                                <h4>FeHelper 代币 FH$</h4>
+                            </div>
+                            <div class="token-content">
+                                <p>🎉 <strong>FeHelper 现已支持开源代币 FH$！</strong></p>
+                                <p>• 支持通过 <a href="https://www.gitfish.dev/repo/zxlie/FeHelper" target="_blank" class="token-link-inline">GitFish 平台</a> 购买 FH$ 代币</p>
+                                <p>• 欢迎在 <a href="https://github.com/zxlie/FeHelper" target="_blank" class="token-link-inline">GitHub</a> 提交 PR 赚取代币奖励</p>
+                                <p>• 代币可用于支持项目发展，参与社区治理</p>
+                            </div>
+                        </div>
+                        
                         <div class="donate-qrcode">
                             <img :src="donate.image" alt="微信打赏二维码" class="donate-image">
                             <p class="donate-text">微信打赏，鼓励升级！</p>
