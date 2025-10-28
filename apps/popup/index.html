@@ -20,7 +20,8 @@
             <!-- 工具列表 -->
             <ul v-else-if="installedToolsCount > 0" class="fe-function-list" :class="{'few-tools': installedToolsCount <= 3}">
                 <li v-for="tool in Object.keys(fhTools)" :class="'-x-' + tool" @click="runHelper(tool)" v-if="fhTools[tool].installed">
-                    <b>{{ fhTools[tool].icon || fhTools[tool].menuConfig[0].icon}}</b>{{fhTools[tool].name}}
+                    <b>{{ fhTools[tool].icon || fhTools[tool].menuConfig[0].icon}}</b>
+                    <span class="tool-name">{{fhTools[tool].name}}</span>
                 </li>
             </ul>
             

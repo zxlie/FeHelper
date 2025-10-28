@@ -83,20 +83,21 @@ html[dark-mode="on"] ul.fe-function-list::-webkit-scrollbar-thumb:hover {
 }
 
 ul.fe-function-list li {
-    padding: 2px 10px 2px 38px;
+    padding: 2px 10px; /* 简化padding，因为图标不再绝对定位 */
     cursor: pointer;
     color: #4a4c6d;
     /* 只对安全的属性进行过渡，避免布局变化 */
     transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-    display: block;
-    align-items: center;
+    display: flex; /* 改为flex布局 */
+    align-items: center; /* 垂直居中 */
+    justify-content: flex-start; /* 改为左对齐，让图标和文字左对齐 */
     height: 28px; /* 固定高度，不变化 */
+    line-height: 28px;
+    width: 100%; /* 使用100%宽度，让内容在容器中居中 */
     border-radius: 6px;
     margin: 2px 0; /* 固定边距，不变化 */
     border-bottom: 1px solid rgba(67, 97, 238, 0.05);
-    text-align: justify;
     position: relative;
-    line-height: 28px; /* 固定行高，不变化 */
     flex-shrink: 0; /* 防止被压缩 */
     box-sizing: border-box; /* 确保padding不影响总宽度 */
 }
@@ -114,16 +115,15 @@ ul.fe-function-list li:hover {
     font-weight: 500;
 }
 
-ul.fe-function-list li > span {
-    padding-left: 24px;
-}
-
-ul.fe-function-list li:after {
-    content: ' ';
+ul.fe-function-list li > span.tool-name {
     display: inline-block;
-    width: 100%;
+    flex: 1; /* 让文字区域占据剩余空间 */
+    white-space: nowrap;
     overflow: hidden;
-    height: 0;
+    text-overflow: ellipsis;
+    line-height: 28px;
+    flex-shrink: 1; /* 允许文字被压缩以显示省略号 */
+    min-width: 0; /* 允许flex项目缩小到内容宽度以下 */
 }
 
 ul.fe-function-list li > b {
@@ -137,14 +137,12 @@ ul.fe-function-list li > b {
     background: rgba(0,0,0,0.1);
     padding: 0px;
     border-radius: 50%;
-    margin-right: 2px;
+    margin-right: 12px; /* 增加图标和文字之间的间距 */
     color: currentColor;
     filter: drop-shadow(0 2px 4px rgba(67, 97, 238, 0.1));
-    position: absolute;
-    left: 10px;
-    top: 6px;
-    /* 确保图标的变换不影响文档流 */
-    transform-origin: center center;
+    /* 移除绝对定位，让图标作为flex项目 */
+    flex-shrink: 0; /* 防止图标被压缩 */
+    flex-basis: 20px; /* 设置固定基础宽度，确保所有图标对齐 */
 }
 
 /* 暗黑模式适配 */
@@ -310,11 +308,11 @@ html[dark-mode="on"] .loading-spinner {
 .fe-function-list li:only-child {
     margin: 4px 0;
     height: 32px;
-    line-height: 32px;
+    width: 100%; /* 使用100%宽度 */
 }
 
-.fe-function-list li:only-child > b {
-    top: 6px;
+.fe-function-list li:only-child > span.tool-name {
+    line-height: 32px;
 }
 
 /* 当只有极少工具时的特殊优化 */
@@ -324,8 +322,12 @@ html[dark-mode="on"] .loading-spinner {
 
 .very-few-tools .fe-function-list li {
     height: 34px;
-    line-height: 34px;
     margin: 4px 0;
+    width: 100%; /* 使用100%宽度 */
+}
+
+.very-few-tools .fe-function-list li > span.tool-name {
+    line-height: 34px;
 }
 
 

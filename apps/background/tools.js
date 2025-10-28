@@ -1,6 +1,6 @@
 let toolMap = {
     'json-format': {
-        name: 'JSON美化工具',
+        name: 'Json美化工具',
         tips: '页面自动检测并格式化、手动格式化、乱码解码、排序、BigInt、编辑、下载、皮肤定制等',
         contentScriptJs: true,
         contentScriptCss: true,
@@ -12,7 +12,7 @@ let toolMap = {
         }]
     },
     'json-diff': {
-        name: 'JSON比对工具',
+        name: 'Json比对工具',
         tips: '支持两个JSON内容的自动键值比较，并高亮显示差异点，同时也能判断JSON是否合法',
         menuConfig: [{
             icon: '☷',
