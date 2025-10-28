@@ -983,6 +983,13 @@ new Vue({
                     });
                     this.selectedOpts = selectedOpts;
                     
+                    // 同步localStorage设置，确保与其他工具兼容
+                    localStorage.setItem('AUTO_DARK_MODE', opts.AUTO_DARK_MODE);
+                    localStorage.setItem('ALWAYS_DARK_MODE', opts.ALWAYS_DARK_MODE);
+                    
+                    // 应用深色模式设置
+                    this.applyDarkModeSettings(opts);
+                    
                     // 加载右键菜单设置
                     this.menuDownloadCrx = await Awesome.menuMgr('download-crx', 'get') === '1';
                     this.menuFeHelperSeting = await Awesome.menuMgr('fehelper-setting', 'get') !== '0';
@@ -1009,6 +1016,51 @@ new Vue({
             } catch (error) {
                 this.isFirefox = false;
             }
+        },
+
+        // 应用深色模式设置
+        applyDarkModeSettings(opts) {
+            const body = document.body;
+            const shouldEnableDarkMode = this.shouldEnableDarkMode(opts);
+            
+            // 同时设置localStorage和chrome.storage.local，确保与其他工具兼容
+            localStorage.setItem('AUTO_DARK_MODE', opts.AUTO_DARK_MODE);
+            localStorage.setItem('ALWAYS_DARK_MODE', opts.ALWAYS_DARK_MODE);
+            
+            if (shouldEnableDarkMode) {
+                body.classList.add('dark-mode');
+                // 设置html属性，方便其他工具检测
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.documentElement.setAttribute('dark-mode', 'on');
+            } else {
+                body.classList.remove('dark-mode');
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.documentElement.setAttribute('dark-mode', 'off');
+            }
+        },
+
+        // 判断是否应该启用深色模式
+        shouldEnableDarkMode(opts) {
+            // 如果始终开启深色模式，直接返回true
+            if (opts.ALWAYS_DARK_MODE === true || opts.ALWAYS_DARK_MODE === 'true') {
+                return true;
+            }
+            
+            // 如果自动开启深色模式，检查时间
+            if (opts.AUTO_DARK_MODE === true || opts.AUTO_DARK_MODE === 'true') {
+                return this.isNightTime();
+            }
+            
+            return false;
+        },
+
+        // 检查当前时间是否在夜间时段（19:00-06:00）
+        isNightTime() {
+            const now = new Date();
+            const hour = now.getHours();
+            
+            // 19:00-23:59 或 00:00-05:59
+            return hour >= 19 || hour < 6;
         },
         
         // 显示设置模态框
@@ -1106,6 +1158,9 @@ new Vue({
                             menuOnly: true
                         });
                         
+                        // 应用深色模式设置
+                        this.applyDarkModeSettings(opts);
+                        
                         // 关闭弹窗
                         this.closeSettings();
                         
@@ -1146,8 +1201,12 @@ new Vue({
             // 切换夜间模式
             if (body.classList.contains('dark-mode')) {
                 body.classList.remove('dark-mode');
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.documentElement.setAttribute('dark-mode', 'off');
             } else {
                 body.classList.add('dark-mode');
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.documentElement.setAttribute('dark-mode', 'on');
                 
                 // 设置倒计时
                 this.countDown = 10;
@@ -1158,10 +1217,13 @@ new Vue({
                     if (this.countDown <= 0) {
                         clearInterval(timer);
                         body.classList.remove('dark-mode');
+                        document.documentElement.setAttribute('data-theme', 'light');
+                        document.documentElement.setAttribute('dark-mode', 'off');
                     }
                 }, 1000);
             }
         },
+
 
         // 检查URL中的donate_from参数并显示打赏弹窗
         checkDonateParam() {

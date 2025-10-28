@@ -1,5 +1,17 @@
 body{
     margin: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 深色模式基础样式 */
+.dark-mode {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+.dark-mode body {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
 }
 .market-container {
     padding: 20px;
@@ -7,6 +19,13 @@ body{
     background: #fff;
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 深色模式下的市场容器 */
+.dark-mode .market-container {
+    background: #1f1f1f;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
 /* 顶部搜索和筛选区 */
@@ -1864,6 +1883,78 @@ body{
 
 .dark-mode .navbar-actions .token-link .nav-icon {
     color: #fff;
+}
+
+/* 暗黑模式下的代币提示区域样式 */
+.dark-mode .token-tips {
+    background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.dark-mode .token-content p {
+    color: #fff;
+}
+
+.dark-mode .token-link-inline {
+    color: #f1c40f;
+}
+
+.dark-mode .token-link-inline:hover {
+    color: #f39c12;
+}
+
+/* 深色模式下的文本样式 */
+.dark-mode h1, .dark-mode h2, .dark-mode h3, .dark-mode h4, .dark-mode h5, .dark-mode h6 {
+    color: #e0e0e0;
+}
+
+.dark-mode p, .dark-mode span, .dark-mode div {
+    color: #c0c0c0;
+}
+
+/* 深色模式下的输入框样式 */
+.dark-mode input[type="text"], 
+.dark-mode input[type="email"], 
+.dark-mode input[type="password"], 
+.dark-mode textarea, 
+.dark-mode select {
+    background-color: #333;
+    border-color: #555;
+    color: #e0e0e0;
+}
+
+.dark-mode input[type="text"]:focus, 
+.dark-mode input[type="email"]:focus, 
+.dark-mode input[type="password"]:focus, 
+.dark-mode textarea:focus, 
+.dark-mode select:focus {
+    border-color: #4ca1af;
+    box-shadow: 0 0 0 2px rgba(76, 161, 175, 0.2);
+}
+
+/* 深色模式下的复选框样式 */
+.dark-mode input[type="checkbox"] {
+    background-color: #333;
+    border-color: #555;
+}
+
+.dark-mode input[type="checkbox"]:checked {
+    background-color: #4ca1af;
+    border-color: #4ca1af;
+}
+
+/* 深色模式下的标签样式 */
+.dark-mode label {
+    color: #e0e0e0;
+}
+
+/* 深色模式下的链接样式 */
+.dark-mode a {
+    color: #4ca1af;
+}
+
+.dark-mode a:hover {
+    color: #5cb3c1;
 }
 
 /* 工具排序样式 */
