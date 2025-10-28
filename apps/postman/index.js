@@ -136,16 +136,6 @@ new Vue({
                 }
             });
 
-            // 如果body是json格式的，需要转换成k-v格式
-            try {
-                let obj = JSON.parse(body);
-                body = Object.keys(obj).map(k => {
-                    let v = JSON.stringify(obj[k]).replace(/"/g,'');
-                    return `${k}=${v}`;
-                }).join('&');
-            } catch (e) {
-            }
-
             xhr.send(isPost && body);
         },
 
