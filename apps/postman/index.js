@@ -22,6 +22,13 @@ new Vue({
         paramMode:'kv' // kv、json
     },
 
+    computed: {
+        // 计算属性：根据当前参数内容格式返回按钮文字
+        paramModeText() {
+            return this.detectParamFormat() === 'kv' ? 'JSON' : 'URL-KV';
+        }
+    },
+
     watch: {
         urlContent: function (val) {
             let url = val;
@@ -49,11 +56,17 @@ new Vue({
             },
             deep: true,
         },
+        // 监听参数内容变化，自动更新按钮文字
+        paramContent: function() {
+            // 触发计算属性重新计算
+            this.$forceUpdate();
+        }
     },
 
     mounted: function () {
         this.$refs.url.focus();
         this.loadPatchHotfix();
+        this.initMockServer();
     },
     methods: {
 
@@ -80,6 +93,31 @@ new Vue({
                         }
                     }
                 }
+            });
+        },
+
+        initMockServer() {
+            // 注册Service Worker用于Mock服务器
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('./sw.js')
+                        .then((registration) => {
+                            console.log('✅ FeHelper Mock Server 已注册:', registration.scope);
+                            // 通知Vue组件Mock服务器已就绪
+                            window.dispatchEvent(new CustomEvent('mockServerReady'));
+                        })
+                        .catch((error) => {
+                            console.warn('❌ Mock Server 注册失败:', error);
+                        });
+                });
+            } else {
+                console.warn('❌ 当前浏览器不支持Service Worker');
+            }
+            
+            // 监听Mock服务器就绪事件
+            window.addEventListener('mockServerReady', () => {
+                console.log('🎉 Mock服务器已就绪，可以测试POST请求了！');
+                // 可以在这里添加一些UI提示
             });
         },
 
@@ -145,24 +183,74 @@ new Vue({
         deleteHeader(event) {
             event.target.parentNode.remove();
         },
+        // 检测当前参数内容的数据格式
+        detectParamFormat() {
+            if (!this.paramContent || !this.paramContent.trim()) {
+                return 'kv'; // 默认为KV格式
+            }
+            
+            const content = this.paramContent.trim();
+            
+            // 检测是否为JSON格式
+            try {
+                JSON.parse(content);
+                return 'json';
+            } catch (e) {
+                // 检测是否为KV格式（包含=号且用&分隔）
+                if (content.includes('=') && (content.includes('&') || content.split('=').length === 2)) {
+                    return 'kv';
+                }
+                // 如果都不符合，默认为KV格式
+                return 'kv';
+            }
+        },
+
         transParamMode(){
-            if(this.paramMode === 'kv') {
+            // 先检测当前格式
+            const currentFormat = this.detectParamFormat();
+            
+            if(currentFormat === 'kv') {
                 this.paramMode = 'json';
                 let objParam = {};
-                this.paramContent.split('&').forEach(p => {
-                    let x = p.split('=');
-                    objParam[x[0]] = x[1];
-                });
-                this.paramContent = JSON.stringify(objParam,null,4);
+                
+                // 检查是否有内容
+                if (this.paramContent && this.paramContent.trim()) {
+                    this.paramContent.split('&').forEach(p => {
+                        if (p.trim()) {
+                            let x = p.split('=');
+                            if (x.length >= 2) {
+                                objParam[x[0].trim()] = x[1].trim();
+                            }
+                        }
+                    });
+                }
+                
+                // 如果没有任何参数，提供默认示例
+                if (Object.keys(objParam).length === 0) {
+                    objParam = {
+                        "key1": "value1",
+                        "key2": "value2",
+                        "key3": "value3"
+                    };
+                }
+                
+                this.paramContent = JSON.stringify(objParam, null, 4);
             }else{
                 this.paramMode = 'kv';
                 try {
-                    let obj = JSON.parse(this.paramContent);
-                    this.paramContent = Object.keys(obj).map(k => {
-                        let v = JSON.stringify(obj[k]).replace(/"/g,'');
-                        return `${k}=${v}`;
-                    }).join('&');
+                    if (this.paramContent && this.paramContent.trim()) {
+                        let obj = JSON.parse(this.paramContent);
+                        this.paramContent = Object.keys(obj).map(k => {
+                            let v = JSON.stringify(obj[k]).replace(/"/g,'');
+                            return `${k}=${v}`;
+                        }).join('&');
+                    } else {
+                        // 如果JSON为空，提供默认示例
+                        this.paramContent = 'key1=value1&key2=value2&key3=value3';
+                    }
                 } catch (e) {
+                    // JSON解析失败时，提供默认示例
+                    this.paramContent = 'key1=value1&key2=value2&key3=value3';
                 }
             }
         },
@@ -284,12 +372,60 @@ new Vue({
 
         setDemo: function (type) {
             if (type === 1) {
+                // GET示例
                 this.urlContent = 'http://t.weather.sojson.com/api/weather/city/101030100';
                 this.methodContent = 'GET';
-            } else {
-                this.urlContent = 'https://chrome.fehelper.com/test/post';
+                this.paramContent = '';
+                this.headerList = [new Date() * 1];
+            } else if (type === 2) {
+                // 基础Mock API
+                this.urlContent = window.location.origin + '/api/mock';
                 this.methodContent = 'POST';
-                this.paramContent = 'username=postman&password=123456'
+                this.paramContent = JSON.stringify({
+                    username: 'fehelper_user',
+                    password: '123456',
+                    email: 'test@fehelper.com',
+                    action: 'login',
+                    timestamp: new Date().toISOString()
+                }, null, 2);
+                
+                // 自动设置Content-Type为application/json
+                this.headerList = [new Date() * 1];
+                this.$nextTick(() => {
+                    $(`#header_key_${this.headerList[0]}`).val('Content-Type');
+                    $(`#header_value_${this.headerList[0]}`).val('application/json');
+                });
+            } else if (type === 3) {
+                // Mock登录API
+                this.urlContent = window.location.origin + '/api/user/login';
+                this.methodContent = 'POST';
+                this.paramContent = JSON.stringify({
+                    username: 'admin',
+                    password: 'admin123',
+                    remember: true
+                }, null, 2);
+                
+                this.headerList = [new Date() * 1];
+                this.$nextTick(() => {
+                    $(`#header_key_${this.headerList[0]}`).val('Content-Type');
+                    $(`#header_value_${this.headerList[0]}`).val('application/json');
+                });
+            } else if (type === 4) {
+                // Mock数据创建API
+                this.urlContent = window.location.origin + '/api/data/create';
+                this.methodContent = 'POST';
+                this.paramContent = JSON.stringify({
+                    title: '测试数据',
+                    content: '这是一个通过FeHelper Mock服务器创建的测试数据',
+                    category: 'test',
+                    tags: ['mock', 'test', 'fehelper']
+                }, null, 2);
+                
+                this.headerList = [new Date() * 1];
+                this.$nextTick(() => {
+                    $(`#header_key_${this.headerList[0]}`).val('Content-Type');
+                    $(`#header_value_${this.headerList[0]}`).val('application/json');
+                });
             }
         },
 

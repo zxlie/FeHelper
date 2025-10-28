@@ -92,15 +92,23 @@ textarea.form-control.f-param {
     z-index: 10000;
 }
 .x-xdemo,a.x-xdemo {
-    margin-left: 30px;
+    margin-left: 15px;
     font-size: 12px;
-    color: blue;
+    color: #007bff;
     cursor: pointer;
     text-decoration: underline;
     user-select: none;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s ease;
 }
 .x-xdemo:hover {
-    text-decoration: underline;
+    text-decoration: none;
+    background-color: #e9ecef;
+    border-color: #007bff;
+    color: #0056b3;
 }
 .x-toolbar {
     margin:0;

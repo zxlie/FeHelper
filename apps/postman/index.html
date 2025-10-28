@@ -24,6 +24,15 @@
         </div>
         <div class="panel-body mod-endecode">
 
+            <!-- Mock服务器状态提示 -->
+            <div class="alert alert-info" style="margin-bottom: 15px; padding: 10px 15px; border-radius: 4px; background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460;">
+                <strong>🎉 本地Mock服务器已就绪！</strong> 
+                点击下方按钮快速体验本地POST请求测试，无需真实后端服务器。
+                <small style="display: block; margin-top: 5px; color: #6c757d;">
+                    💡 提示：Mock服务器基于Service Worker实现，支持JSON和表单数据格式
+                </small>
+            </div>
+
             <div class="row mod-inputs">
                 <div class="ui-mt-10">
                     <label for="url">接口地址：</label>
@@ -31,6 +40,8 @@
 
                     <span class="x-xdemo" @click="setDemo(1)">Get示例</span>
                     <span class="x-xdemo" @click="setDemo(2)">Post示例</span>
+                    <span class="x-xdemo" @click="setDemo(3)">Mock登录API</span>
+                    <span class="x-xdemo" @click="setDemo(4)">Mock数据API</span>
 
                 </div>
 
@@ -55,7 +66,7 @@
                     <label for="param">请求参数：</label>
                     <textarea type="text" v-model="paramContent" id="param" class="form-control f-param" placeholder="请输入参数"></textarea>
 
-                    <span class="x-xdemo" @click="transParamMode()">参数转<span v-html="paramMode==='kv'?'JSON':'URL-KV'">JSON</span>格式</span>
+                    <span class="x-xdemo" @click="transParamMode()">参数转<span v-html="paramModeText">JSON</span>格式</span>
                 </div>
 
                 <div class="ui-mt-10">

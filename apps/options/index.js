@@ -2,7 +2,6 @@ import Awesome from '../background/awesome.js'
 import MSG_TYPE from '../static/js/common.js';
 import Settings from './settings.js';
 import Statistics from '../background/statistics.js';
-import toolMap from '../background/tools.js';
 
 // 工具分类定义
 const TOOL_CATEGORIES = [

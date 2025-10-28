@@ -12,6 +12,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zxlie/FeHelper?style=for-the-badge&color=8b5cf6&logo=github)](https://github.com/zxlie/FeHelper)
 [![GitHub Forks](https://img.shields.io/github/forks/zxlie/FeHelper?style=for-the-badge&color=8b5cf6&logo=github)](https://github.com/zxlie/FeHelper)
 [![开发历史](https://img.shields.io/badge/since-2011-f59e0b?style=for-the-badge&logo=calendar&logoColor=white)](https://github.com/zxlie/FeHelper)
+![star](https://gitcode.com/zxlie/FeHelper/star/badge.svg)
 
 [🌐 官网地址](https://fehelper.com) • [📖 在线文档](https://fehelper.com/docs.html) • [💬 问题反馈](https://github.com/zxlie/FeHelper/issues) • [💰 FH$ 代币](https://www.gitfish.dev/repo/zxlie/FeHelper)
 

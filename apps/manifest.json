@@ -64,7 +64,8 @@
             "background/tools.js",
 
             "code-beautify/beautify.js",
-            "code-beautify/beautify-css.js"
+            "code-beautify/beautify-css.js",
+            "postman/sw.js"
         ],
         "matches": ["<all_urls>"]
       }
