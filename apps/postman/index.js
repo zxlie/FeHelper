@@ -160,9 +160,10 @@ new Vue({
             xhr.open(method, url);
 
             let isPost = false;
+            let hasContentTypeHeader = false;
+            
             if (method.toLowerCase() === 'post') {
                 isPost = true;
-                this.urlencodedDefault && xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             }
 
             // 设置请求头：Header
@@ -171,10 +172,52 @@ new Vue({
                 let headerVal = $(`#header_value_${id}`).val();
                 if (headerKey && headerVal) {
                     xhr.setRequestHeader(headerKey, headerVal);
+                    // 检查是否已经设置了Content-Type
+                    if (headerKey.toLowerCase() === 'content-type') {
+                        hasContentTypeHeader = true;
+                    }
                 }
             });
 
-            xhr.send(isPost && body);
+            // 如果没有手动设置Content-Type，且启用了默认的urlencoded，则设置默认的Content-Type
+            if (isPost && !hasContentTypeHeader && this.urlencodedDefault) {
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            }
+
+            // 根据Content-Type处理请求体
+            let requestBody = null;
+            if (isPost && body) {
+                // 获取Content-Type
+                let contentType = '';
+                this.headerList.forEach(id => {
+                    let headerKey = $(`#header_key_${id}`).val();
+                    let headerVal = $(`#header_value_${id}`).val();
+                    if (headerKey && headerKey.toLowerCase() === 'content-type') {
+                        contentType = headerVal;
+                    }
+                });
+                
+                if (contentType.includes('application/json')) {
+                    // JSON格式：直接发送JSON字符串
+                    requestBody = body;
+                } else if (contentType.includes('application/x-www-form-urlencoded')) {
+                    // URL编码格式：将JSON转换为key=value&key=value格式
+                    try {
+                        const jsonObj = JSON.parse(body);
+                        requestBody = Object.keys(jsonObj).map(key => 
+                            encodeURIComponent(key) + '=' + encodeURIComponent(jsonObj[key])
+                        ).join('&');
+                    } catch (e) {
+                        // 如果解析失败，直接使用原始body
+                        requestBody = body;
+                    }
+                } else {
+                    // 其他格式：直接发送
+                    requestBody = body;
+                }
+            }
+
+            xhr.send(requestBody);
         },
 
         addHeader() {
