@@ -410,16 +410,43 @@ window.JsonAutoFormat = (() => {
             elBody.addClass('hide-status-bar');
         }
 
-        if (formatOptions.autoDecode) {
+        // 检查是否在受限域名，直接使用同步模式
+        const currentUrl = window.location.href;
+        const restrictedDomains = ['gitee.com', 'github.com', 'raw.githubusercontent.com'];
+        const isRestrictedDomain = restrictedDomains.some(domain => currentUrl.includes(domain));
+        
+        if (isRestrictedDomain) {
+            console.log('检测到受限域名，直接使用同步模式');
+            if (formatOptions.autoDecode) {
+                (async () => {
+                    try {
+                        let txt = await JsonEnDecode.urlDecodeByFetch(source);
+                        source = JsonEnDecode.uniDecode(txt);
+                    } catch (e) {
+                        console.warn('URL解码失败，使用原始内容:', e);
+                    }
+                    Formatter.formatSync(source, theme);
+                    $('#jfToolbar').show();
+                })();
+            } else {
+                Formatter.formatSync(source, theme);
+                $('#jfToolbar').show();
+            }
+        } else if (formatOptions.autoDecode) {
             (async () => {
-                let txt = await JsonEnDecode.urlDecodeByFetch(source);
-                source = JsonEnDecode.uniDecode(txt);
+                try {
+                    let txt = await JsonEnDecode.urlDecodeByFetch(source);
+                    source = JsonEnDecode.uniDecode(txt);
+                } catch (e) {
+                    console.warn('URL解码失败，使用原始内容:', e);
+                }
 
                 // 格式化
                 try {
                     await Formatter.format(source, theme);
                 } catch (e) {
-                    await Formatter.formatSync(source, theme)
+                    console.warn('异步格式化失败，使用同步模式:', e);
+                    Formatter.formatSync(source, theme);
                 }
                 $('#jfToolbar').show();
             })();
@@ -429,7 +456,8 @@ window.JsonAutoFormat = (() => {
                 try {
                     await Formatter.format(source, theme);
                 } catch (e) {
-                    await Formatter.formatSync(source, theme)
+                    console.warn('异步格式化失败，使用同步模式:', e);
+                    Formatter.formatSync(source, theme);
                 }
                 $('#jfToolbar').show();
             })();

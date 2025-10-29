@@ -157,35 +157,221 @@ window.Formatter = (function () {
 
         let button = $('<button class="xjf-btn xjf-btn-right">下载JSON</button>').appendTo('#optionBar');
 
-        if (typeof chrome === 'undefined' || !chrome.permissions) {
-            button.click(function (e) {
-                let aLink = $('#aLinkDownload');
-                if (!aLink[0]) {
-                    aLink = $('<a id="aLinkDownload" target="_blank" title="保存到本地">下载JSON数据</a>').appendTo('body');
-                    aLink.attr('download', 'FeHelper-' + dt + '.json');
-                    aLink.attr('href', URL.createObjectURL(blob));
+        // 检查是否在沙盒化iframe中
+        function isSandboxed() {
+            try {
+                return window !== window.top || window.parent !== window;
+            } catch (e) {
+                return true;
+            }
+        }
+        
+        // 在沙盒模式下显示JSON内容
+        function showJsonContentInSandbox() {
+            // 查找 #formattedJson 节点
+            let formattedJsonDiv = document.getElementById('formattedJson');
+            if (!formattedJsonDiv) {
+                console.error('未找到 #formattedJson 节点');
+                return;
+            }
+            
+            // 清空 #formattedJson 的内容
+            formattedJsonDiv.innerHTML = '';
+            
+            // 创建下载提示和内容显示区域
+            let downloadInfo = document.createElement('div');
+            downloadInfo.style.cssText = `
+                background: #e3f2fd;
+                border: 1px solid #2196f3;
+                border-radius: 4px;
+                padding: 15px;
+                margin-bottom: 15px;
+                font-family: Arial, sans-serif;
+            `;
+            downloadInfo.innerHTML = `
+                <div style="color: #1976d2; font-weight: bold; margin-bottom: 8px;">📋 沙盒模式 - JSON内容</div>
+                <div style="color: #666; font-size: 14px; margin-bottom: 10px;">由于浏览器安全限制，无法直接下载。请复制以下内容并保存为 .json 文件：</div>
+                <button onclick="
+                    let textarea = this.parentElement.nextElementSibling;
+                    textarea.select();
+                    document.execCommand('copy');
+                    alert('已复制到剪贴板！');
+                " style="
+                    background: #2196f3;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 14px;
+                ">复制全部内容</button>
+            `;
+            
+            // 创建文本区域
+            let textarea = document.createElement('textarea');
+            textarea.style.cssText = `
+                width: 100%;
+                height: 300px;
+                font-family: 'Courier New', monospace;
+                font-size: 12px;
+                border: 1px solid #ddd;
+                padding: 15px;
+                border-radius: 4px;
+                resize: vertical;
+                box-sizing: border-box;
+                background: #f8f9fa;
+            `;
+            textarea.value = content;
+            textarea.readOnly = true;
+            
+            // 将内容添加到 #formattedJson 节点
+            formattedJsonDiv.appendChild(downloadInfo);
+            formattedJsonDiv.appendChild(textarea);
+            
+            console.log('JSON内容已显示在 #formattedJson 节点中');
+        }
+        
+        // 显示JSON内容模态框（非沙盒模式）
+        function showJsonContent() {
+            let modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                z-index: 999999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: Arial, sans-serif;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    max-width: 90%;
+                    max-height: 90%;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+                    position: relative;
+                ">
+                    <h3 style="margin: 0 0 15px 0; color: #333; font-size: 18px;">JSON内容</h3>
+                    <p style="color: #666; font-size: 14px; margin: 0 0 15px 0;">请复制以下内容并保存为 .json 文件：</p>
+                    <textarea readonly style="
+                        width: 100%;
+                        height: 400px;
+                        font-family: 'Courier New', monospace;
+                        font-size: 12px;
+                        border: 1px solid #ddd;
+                        padding: 15px;
+                        border-radius: 4px;
+                        resize: vertical;
+                        box-sizing: border-box;
+                    ">${content}</textarea>
+                    <div style="margin-top: 15px; text-align: right;">
+                        <button onclick="this.closest('div').parentElement.remove()" style="
+                            background: #6c757d;
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin-right: 10px;
+                            font-size: 14px;
+                        ">关闭</button>
+                        <button onclick="
+                            this.previousElementSibling.previousElementSibling.select();
+                            document.execCommand('copy');
+                            alert('已复制到剪贴板！');
+                        " style="
+                            background: #007bff;
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 14px;
+                        ">复制全部</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 点击背景关闭
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
                 }
-                aLink[0].click();
-            });
-        } else {
-            button.click(function (e) {
-                // 请求权限
-                chrome.permissions.request({
-                    permissions: ['downloads']
-                }, (granted) => {
-                    if (granted) {
-                        chrome.downloads.download({
-                            url: URL.createObjectURL(blob),
-                            saveAs: true,
-                            conflictAction: 'overwrite',
-                            filename: 'FeHelper-' + dt + '.json'
-                        });
-                    } else {
-                        toast('必须接受授权，才能正常下载！');
-                    }
-                });
             });
         }
+        
+        // 尝试下载
+        function tryDownload() {
+            try {
+                let aLink = document.createElement('a');
+                aLink.download = 'FeHelper-' + dt + '.json';
+                aLink.href = URL.createObjectURL(blob);
+                aLink.style.display = 'none';
+                
+                document.body.appendChild(aLink);
+                aLink.click();
+                
+                setTimeout(() => {
+                    if (document.body.contains(aLink)) {
+                        document.body.removeChild(aLink);
+                    }
+                    URL.revokeObjectURL(aLink.href);
+                }, 100);
+                
+                return true;
+            } catch (error) {
+                console.error('下载失败:', error);
+                return false;
+            }
+        }
+        
+        // 下载按钮点击事件
+        button.click(function (e) {
+            e.preventDefault();
+            
+            // 如果在沙盒化环境中，在 #formattedJson 中显示内容
+            if (isSandboxed()) {
+                console.log('检测到沙盒化环境，在 #formattedJson 中显示内容');
+                showJsonContentInSandbox();
+                return;
+            }
+            
+            // 尝试Chrome扩展API
+            if (typeof chrome !== 'undefined' && chrome.downloads) {
+                try {
+                    chrome.downloads.download({
+                        url: URL.createObjectURL(blob),
+                        saveAs: true,
+                        conflictAction: 'overwrite',
+                        filename: 'FeHelper-' + dt + '.json'
+                    }, (downloadId) => {
+                        if (chrome.runtime.lastError) {
+                            console.error('Chrome下载失败:', chrome.runtime.lastError);
+                            showJsonContent();
+                        } else {
+                            console.log('Chrome下载成功，ID:', downloadId);
+                        }
+                    });
+                } catch (error) {
+                    console.error('Chrome下载API调用失败:', error);
+                    showJsonContent();
+                }
+            } else {
+                // 尝试标准下载
+                if (!tryDownload()) {
+                    showJsonContent();
+                }
+            }
+        });
 
     };
 
@@ -316,15 +502,26 @@ window.Formatter = (function () {
             
             // 绑定语言切换事件
             langSelector.on('change', function() {
-                // 保存选择的语言到本地存储
-                localStorage.setItem('fehelper_json_path_lang', $(this).val());
+                // 保存选择的语言到本地存储（如果可用）
+                try {
+                    localStorage.setItem('fehelper_json_path_lang', $(this).val());
+                } catch (e) {
+                    // 在沙盒环境中忽略localStorage错误
+                    console.warn('localStorage不可用，跳过保存语言选择');
+                }
                 // 从容器中获取当前保存的keys，而不是使用闭包中的validKeys
                 let currentKeys = jfPathContainer.data('currentKeys') || [];
                 _updateJsonPath(currentKeys, $(this).val());
             });
             
-            // 从本地存储恢复语言选择
-            let savedLang = localStorage.getItem('fehelper_json_path_lang') || 'javascript';
+            // 从本地存储恢复语言选择（如果可用）
+            let savedLang = 'javascript';
+            try {
+                savedLang = localStorage.getItem('fehelper_json_path_lang') || 'javascript';
+            } catch (e) {
+                // 在沙盒环境中使用默认值
+                console.warn('localStorage不可用，使用默认语言选择');
+            }
             langSelector.val(savedLang);
         }
         
@@ -843,6 +1040,36 @@ window.Formatter = (function () {
     };
     
     /**
+     * 检测CSP限制
+     * @returns {boolean}
+     */
+    let _checkCSPRestrictions = function() {
+        // 检查是否在iframe中且被沙盒化
+        if (window !== window.top) {
+            try {
+                // 尝试访问父窗口，如果被沙盒化会抛出异常
+                window.parent.document;
+            } catch (e) {
+                console.warn('检测到沙盒化iframe，跳过Worker创建');
+                return true;
+            }
+        }
+        
+        // 检查URL是否包含已知的CSP限制域名
+        const currentUrl = window.location.href;
+        const restrictedDomains = ['gitee.com', 'github.com', 'raw.githubusercontent.com'];
+        
+        for (let domain of restrictedDomains) {
+            if (currentUrl.includes(domain)) {
+                console.warn(`检测到受限域名 ${domain}，跳过Worker创建`);
+                return true;
+            }
+        }
+        
+        return false;
+    };
+
+    /**
      * 初始化或获取Worker实例（异步，兼容Chrome/Edge/Firefox）
      * @returns {Promise<Worker|null>}
      */
@@ -850,6 +1077,13 @@ window.Formatter = (function () {
         if (workerInstance) {
             return workerInstance;
         }
+        
+        // 检查CSP限制
+        if (_checkCSPRestrictions()) {
+            console.log('由于CSP限制，跳过Worker创建，使用同步模式');
+            return null;
+        }
+        
         let workerUrl = chrome.runtime.getURL('json-format/json-worker.js');
         // 判断是否为Firefox
         const isFirefox = typeof InstallTrigger !== 'undefined' || navigator.userAgent.includes('Firefox');
@@ -878,10 +1112,18 @@ window.Formatter = (function () {
      * 支持异步worker
      */
     let format = async function (jsonStr, skin) {
-        cachedJsonString = JSON.stringify(JSON.parse(jsonStr), null, 4);
-
         _initElements();
-        jfPre.html(htmlspecialchars(cachedJsonString));
+
+        try {
+            // 先验证JSON是否有效
+            let parsedJson = JSON.parse(jsonStr);
+            cachedJsonString = JSON.stringify(parsedJson, null, 4);
+            jfPre.html(htmlspecialchars(cachedJsonString));
+        } catch (e) {
+            console.error('JSON解析失败:', e);
+            jfContent.html(`<div class="error">JSON解析失败: ${e.message}</div>`);
+            return;
+        }
 
         try {
             // 获取Worker实例（异步）
@@ -923,18 +1165,26 @@ window.Formatter = (function () {
 
     // 同步的方式格式化
     let formatSync = function (jsonStr, skin) {
-        cachedJsonString = JSON.stringify(JSON.parse(jsonStr), null, 4);
-
         _initElements();
-        jfPre.html(htmlspecialchars(cachedJsonString));
         
         // 显示格式化进度
         formattingMsg.show();
         
         try {
-            // 回退方案：使用简单模式直接显示格式化的JSON
-            let formattedJson = JSON.stringify(JSON.parse(jsonStr), null, 4);
-            jfContent.html(`<div id="formattedJson"><pre class="rootItem">${htmlspecialchars(formattedJson)}</pre></div>`);
+            // 先验证JSON是否有效
+            let parsedJson = JSON.parse(jsonStr);
+            cachedJsonString = JSON.stringify(parsedJson, null, 4);
+            
+            // 设置原始JSON内容到jfPre（用于元数据按钮）
+            jfPre.html(htmlspecialchars(cachedJsonString));
+            
+            // 使用完整的JSON美化功能
+            let formattedHtml = formatJsonToHtml(parsedJson, skin);
+            
+            // 创建正确的HTML结构：jfContent > formattedJson
+            let formattedJsonDiv = $('<div id="formattedJson"></div>');
+            formattedJsonDiv.html(formattedHtml);
+            jfContent.html(formattedJsonDiv);
             
             // 隐藏进度提示
             formattingMsg.hide();
@@ -948,6 +1198,7 @@ window.Formatter = (function () {
             
             return;
         } catch (e) {
+            console.error('JSON格式化失败:', e);
             jfContent.html(`<div class="error">JSON格式化失败: ${e.message}</div>`);
             
             // 隐藏进度提示
@@ -962,6 +1213,337 @@ window.Formatter = (function () {
             $img = $('<div id="fh-img-preview" style="position:absolute;z-index:999999;border:1px solid #ccc;background:#fff;padding:4px;box-shadow:0 2px 8px #0002;pointer-events:none;"><img style="max-width:300px;max-height:200px;display:block;"></div>').appendTo('body');
         }
         return $img;
+    }
+
+    // 格式化JSON为HTML（同步版本）
+    function formatJsonToHtml(json, skin) {
+        return createNode(json).getHTML();
+    }
+
+    // 创建节点 - 直接复用webworker中的完整逻辑
+    function createNode(value) {
+        let node = {
+            type: getType(value),
+            value: value,
+            children: [],
+            
+            getHTML: function() {
+                switch(this.type) {
+                    case 'string':
+                        // 判断原始字符串是否为URL
+                        if (isUrl(this.value)) {
+                            // 用JSON.stringify保证转义符显示，内容包裹在<a>里
+                            return '<div class="item item-line"><span class="string"><a href="'
+                                + htmlspecialchars(this.value) + '" target="_blank" rel="noopener noreferrer" data-is-link="1" data-link-url="' + htmlspecialchars(this.value) + '">' 
+                                + htmlspecialchars(JSON.stringify(this.value)) + '</a></span></div>';
+                        } else {
+                            return '<div class="item item-line"><span class="string">' + formatStringValue(JSON.stringify(this.value)) + '</span></div>';
+                        }
+                    case 'number':
+                        // 确保大数字不使用科学计数法
+                        let numStr = typeof this.value === 'number' && this.value.toString().includes('e') 
+                            ? this.value.toLocaleString('fullwide', {useGrouping: false})
+                            : this.value;
+                        return '<div class="item item-line"><span class="number">' + 
+                            numStr + 
+                            '</span></div>';
+                    case 'bigint':
+                        // 对BigInt类型特殊处理，只显示数字，不添加n后缀
+                        return '<div class="item item-line"><span class="number">' + 
+                            this.value.toString() + 
+                            '</span></div>';
+                    case 'boolean':
+                        return '<div class="item item-line"><span class="bool">' + 
+                            this.value + 
+                            '</span></div>';
+                    case 'null':
+                        return '<div class="item item-line"><span class="null">null</span></div>';
+                    case 'object':
+                        return this.getObjectHTML();
+                    case 'array':
+                        return this.getArrayHTML();
+                    default:
+                        return '';
+                }
+            },
+            
+            getObjectHTML: function() {
+                if (!this.value || Object.keys(this.value).length === 0) {
+                    return '<div class="item item-object"><span class="brace">{</span><span class="brace">}</span></div>';
+                }
+                
+                let html = '<div class="item item-object">' +
+                    '<span class="expand"></span>' +
+                    '<span class="brace">{</span>' +
+                    '<span class="ellipsis"></span>' +
+                    '<div class="kv-list">';
+                    
+                let keys = Object.keys(this.value);
+                keys.forEach((key, index) => {
+                    let prop = this.value[key];
+                    let childNode = createNode(prop);
+                    // 判断子节点是否为对象或数组，决定是否加item-block
+                    let itemClass = (childNode.type === 'object' || childNode.type === 'array') ? 'item item-block' : 'item';
+                    html += '<div class="' + itemClass + '">';
+                    // 如果值是对象或数组，在key前面添加展开按钮
+                    if (childNode.type === 'object' || childNode.type === 'array') {
+                        html += '<span class="expand"></span>';
+                    }
+                    html += '<span class="quote">"</span>' +
+                        '<span class="key">' + htmlspecialchars(key) + '</span>' +
+                        '<span class="quote">"</span>' +
+                        '<span class="colon">: </span>';
+                    // 添加值
+                    if (childNode.type === 'object' || childNode.type === 'array') {
+                        html += childNode.getInlineHTMLWithoutExpand();
+                    } else {
+                        html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
+                    }
+                    // 如果不是最后一个属性，添加逗号
+                    if (index < keys.length - 1) {
+                        html += '<span class="comma">,</span>';
+                    }
+                    html += '</div>';
+                });
+                
+                html += '</div><span class="brace">}</span></div>';
+                return html;
+            },
+            
+            getArrayHTML: function() {
+                if (!this.value || this.value.length === 0) {
+                    return '<div class="item item-array"><span class="brace">[</span><span class="brace">]</span></div>';
+                }
+                
+                let html = '<div class="item item-array">' +
+                    '<span class="expand"></span>' +
+                    '<span class="brace">[</span>' +
+                    '<span class="ellipsis"></span>' +
+                    '<div class="kv-list item-array-container">';
+                    
+                this.value.forEach((item, index) => {
+                    let childNode = createNode(item);
+                    
+                    html += '<div class="item item-block item-array-element" data-array-index="' + index + '">';
+                    
+                    // 如果数组元素是对象或数组，在前面添加展开按钮
+                    if (childNode.type === 'object' || childNode.type === 'array') {
+                        html += '<span class="expand"></span>';
+                        html += childNode.getInlineHTMLWithoutExpand();
+                    } else {
+                        html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
+                    }
+                    
+                    // 如果不是最后一个元素，添加逗号
+                    if (index < this.value.length - 1) {
+                        html += '<span class="comma">,</span>';
+                    }
+                    
+                    html += '</div>';
+                });
+                
+                html += '</div><span class="brace">]</span></div>';
+                return html;
+            },
+            
+            // 新增内联HTML方法，用于在同一行显示开始大括号/方括号
+            getInlineHTML: function() {
+                switch(this.type) {
+                    case 'object':
+                        return this.getInlineObjectHTML();
+                    case 'array':
+                        return this.getInlineArrayHTML();
+                    default:
+                        return this.getHTML();
+                }
+            },
+            
+            // 新增不包含展开按钮的内联HTML方法
+            getInlineHTMLWithoutExpand: function() {
+                switch(this.type) {
+                    case 'object':
+                        return this.getInlineObjectHTMLWithoutExpand();
+                    case 'array':
+                        return this.getInlineArrayHTMLWithoutExpand();
+                    default:
+                        return this.getHTML();
+                }
+            },
+            
+            getInlineObjectHTML: function() {
+                if (!this.value || Object.keys(this.value).length === 0) {
+                    return '<span class="brace">{</span><span class="brace">}</span>';
+                }
+                let html = '<span class="brace">{</span>' +
+                    '<span class="expand"></span>' +
+                    '<span class="ellipsis"></span>' +
+                    '<div class="kv-list">';
+                let keys = Object.keys(this.value);
+                keys.forEach((key, index) => {
+                    let prop = this.value[key];
+                    let childNode = createNode(prop);
+                    // 判断子节点是否为对象或数组，决定是否加item-block
+                    let itemClass = (childNode.type === 'object' || childNode.type === 'array') ? 'item item-block' : 'item';
+                    html += '<div class="' + itemClass + '">';
+                    if (childNode.type === 'object' || childNode.type === 'array') {
+                        html += '<span class="expand"></span>';
+                    }
+                    html += '<span class="quote">"</span>' +
+                        '<span class="key">' + htmlspecialchars(key) + '</span>' +
+                        '<span class="quote">"</span>' +
+                        '<span class="colon">: </span>';
+                    if (childNode.type === 'object' || childNode.type === 'array') {
+                        html += childNode.getInlineHTMLWithoutExpand();
+                    } else {
+                        html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
+                    }
+                    if (index < keys.length - 1) {
+                        html += '<span class="comma">,</span>';
+                    }
+                    html += '</div>';
+                });
+                html += '</div><span class="brace">}</span>';
+                return html;
+            },
+            
+            getInlineArrayHTML: function() {
+                if (!this.value || this.value.length === 0) {
+                    return '<span class="brace">[</span><span class="brace">]</span>';
+                }
+                
+                let html = '<span class="brace">[</span>' +
+                    '<span class="expand"></span>' +
+                    '<span class="ellipsis"></span>' +
+                    '<div class="kv-list item-array-container">';
+                    
+                this.value.forEach((item, index) => {
+                    let childNode = createNode(item);
+                    
+                    html += '<div class="item item-block item-array-element" data-array-index="' + index + '">';
+                    
+                    // 如果数组元素是对象或数组，在前面添加展开按钮
+                    if (childNode.type === 'object' || childNode.type === 'array') {
+                        html += '<span class="expand"></span>';
+                        html += childNode.getInlineHTMLWithoutExpand();
+                    } else {
+                        html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
+                    }
+                    
+                    // 如果不是最后一个元素，添加逗号
+                    if (index < this.value.length - 1) {
+                        html += '<span class="comma">,</span>';
+                    }
+                    
+                    html += '</div>';
+                });
+                
+                html += '</div><span class="brace">]</span>';
+                return html;
+            },
+            
+            getInlineObjectHTMLWithoutExpand: function() {
+                if (!this.value || Object.keys(this.value).length === 0) {
+                    return '<span class="brace">{</span><span class="brace">}</span>';
+                }
+                let html = '<span class="brace">{</span>' +
+                    '<span class="ellipsis"></span>' +
+                    '<div class="kv-list">';
+                let keys = Object.keys(this.value);
+                keys.forEach((key, index) => {
+                    let prop = this.value[key];
+                    let childNode = createNode(prop);
+                    // 判断子节点是否为对象或数组，决定是否加item-block
+                    let itemClass = (childNode.type === 'object' || childNode.type === 'array') ? 'item item-block' : 'item';
+                    html += '<div class="' + itemClass + '">';
+                    if (childNode.type === 'object' || childNode.type === 'array') {
+                        html += '<span class="expand"></span>';
+                    }
+                    html += '<span class="quote">"</span>' +
+                        '<span class="key">' + htmlspecialchars(key) + '</span>' +
+                        '<span class="quote">"</span>' +
+                        '<span class="colon">: </span>';
+                    if (childNode.type === 'object' || childNode.type === 'array') {
+                        html += childNode.getInlineHTMLWithoutExpand();
+                    } else {
+                        html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
+                    }
+                    if (index < keys.length - 1) {
+                        html += '<span class="comma">,</span>';
+                    }
+                    html += '</div>';
+                });
+                html += '</div><span class="brace">}</span>';
+                return html;
+            },
+            
+            getInlineArrayHTMLWithoutExpand: function() {
+                if (!this.value || this.value.length === 0) {
+                    return '<span class="brace">[</span><span class="brace">]</span>';
+                }
+                
+                let html = '<span class="brace">[</span>' +
+                    '<span class="ellipsis"></span>' +
+                    '<div class="kv-list item-array-container">';
+                    
+                this.value.forEach((item, index) => {
+                    let childNode = createNode(item);
+                    
+                    html += '<div class="item item-block item-array-element" data-array-index="' + index + '">';
+                    
+                    // 确保所有类型的数组元素都能正确处理
+                    if (childNode.type === 'object' || childNode.type === 'array') {
+                        html += '<span class="expand"></span>';
+                        html += childNode.getInlineHTMLWithoutExpand();
+                    } else {
+                        html += childNode.getHTML().replace(/^<div class="item item-line">/, '').replace(/<\/div>$/, '');
+                    }
+                    
+                    // 如果不是最后一个元素，添加逗号
+                    if (index < this.value.length - 1) {
+                        html += '<span class="comma">,</span>';
+                    }
+                    
+                    html += '</div>';
+                });
+                
+                html += '</div><span class="brace">]</span>';
+                return html;
+            }
+        };
+        
+        return node;
+    }
+
+    // 获取值的类型
+    function getType(value) {
+        if (value === null) return 'null';
+        if (typeof value === 'bigint') return 'bigint';
+        if (Array.isArray(value)) return 'array';
+        if (typeof value === 'object') return 'object';
+        return typeof value;
+    }
+
+    // 判断是否为URL
+    function isUrl(str) {
+        if (typeof str !== 'string') return false;
+        const urlRegex = /^(https?:\/\/|ftp:\/\/)[^\s<>"'\\]+$/i;
+        return urlRegex.test(str);
+    }
+
+    // 格式化字符串值，如果是URL则转换为链接
+    function formatStringValue(str) {
+        // URL正则表达式，匹配 http/https/ftp 协议的URL
+        const urlRegex = /^(https?:\/\/|ftp:\/\/)[^\s<>"'\\]+$/i;
+        
+        if (urlRegex.test(str)) {
+            // 如果是URL，转换为链接
+            const escapedUrl = htmlspecialchars(str);
+            return '<a href="' + escapedUrl + '" target="_blank" rel="noopener noreferrer" data-is-link="1" data-link-url="' + escapedUrl + '">' + htmlspecialchars(str) + '</a>';
+        } else {
+            // 直接显示解析后的字符串内容，不需要重新转义
+            // 这样可以保持用户原始输入的意图
+            return htmlspecialchars(str);
+        }
     }
 
     return {

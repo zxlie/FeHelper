@@ -77,6 +77,7 @@ html.fh-jf  pre {
     margin-bottom: 25px;
 }
 
+
 /*================json format style start===================*/
 html.fh-jf .item {
     display: block;
@@ -119,9 +120,92 @@ html.fh-jf .item .kv-list {
     border-left: 1px dashed #bbb;
     margin-left: 2px
 }
+
+/* 紧凑格式样式 */
+html.fh-jf .item-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+html.fh-jf .item-line .key {
+    margin-right: 2px;
+    flex-shrink: 0;
+}
+
+html.fh-jf .item-line .colon {
+    margin-right: 2px;
+    flex-shrink: 0;
+}
+
+html.fh-jf .item-line .comma {
+    margin-left: 2px;
+    flex-shrink: 0;
+}
+
+html.fh-jf .item-line .string,
+html.fh-jf .item-line .number,
+html.fh-jf .item-line .bool,
+html.fh-jf .item-line .null {
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+/* 紧凑数组样式 */
+html.fh-jf .item-array .kv-list {
+    display: inline;
+    padding-left: 0;
+    border-left: none;
+    margin-left: 0;
+}
+
+html.fh-jf .item-array .item-array-element {
+    display: inline;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+/* 确保紧凑格式的数组元素不换行 */
+html.fh-jf .item-array .item-array-element .string,
+html.fh-jf .item-array .item-array-element .number,
+html.fh-jf .item-array .item-array-element .bool,
+html.fh-jf .item-array .item-array-element .null {
+    display: inline;
+    white-space: nowrap;
+}
+
+/* 简单对象的紧凑格式样式 */
+html.fh-jf .item-array .item-array-element .brace {
+    display: inline;
+    margin: 0 1px;
+}
+
+html.fh-jf .item-array .item-array-element .key {
+    display: inline;
+    margin-right: 2px;
+}
+
+html.fh-jf .item-array .item-array-element .colon {
+    display: inline;
+    margin-right: 2px;
+}
+
+html.fh-jf .item-array .item-array-element .comma {
+    display: inline;
+    margin-left: 2px;
+}
 html.fh-jf .item .string {
     word-wrap: break-word;
     white-space: pre-wrap;
+}
+
+/* 紧凑格式下的字符串样式 */
+html.fh-jf .item-line .string {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
 }
 
 html.fh-jf .item .string a {

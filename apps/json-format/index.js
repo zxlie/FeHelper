@@ -52,14 +52,14 @@ new Vue({
 
         this.placeHolder = this.defaultResultTpl;
 
-        this.autoDecode = localStorage.getItem(AUTO_DECODE);
-        this.autoDecode = this.autoDecode === 'true';
+        // 安全获取localStorage值（在沙盒环境中可能不可用）
+        this.autoDecode = this.safeGetLocalStorage(AUTO_DECODE) === 'true';
 
         this.isInUSAFlag = this.isInUSA();
 
-        this.jsonLintSwitch = (localStorage.getItem(JSON_LINT) !== 'false');
-        this.overrideJson = (localStorage.getItem(EDIT_ON_CLICK) === 'true');
-        this.changeLayout(localStorage.getItem(LOCAL_KEY_OF_LAYOUT));
+        this.jsonLintSwitch = (this.safeGetLocalStorage(JSON_LINT) !== 'false');
+        this.overrideJson = (this.safeGetLocalStorage(EDIT_ON_CLICK) === 'true');
+        this.changeLayout(this.safeGetLocalStorage(LOCAL_KEY_OF_LAYOUT));
 
         editor = CodeMirror.fromTextArea(this.$refs.jsonBox, {
             mode: "text/javascript",
@@ -103,6 +103,24 @@ new Vue({
         this.loadPatchHotfix();
     },
     methods: {
+        // 安全获取localStorage值（在沙盒环境中可能不可用）
+        safeGetLocalStorage(key) {
+            try {
+                return localStorage.getItem(key);
+            } catch (e) {
+                console.warn('localStorage不可用，使用默认值:', key);
+                return null;
+            }
+        },
+
+        // 安全设置localStorage值（在沙盒环境中可能不可用）
+        safeSetLocalStorage(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {
+                console.warn('localStorage不可用，跳过保存:', key);
+            }
+        },
 
         loadPatchHotfix() {
             // 页面加载时自动获取并注入页面的补丁
@@ -275,7 +293,7 @@ new Vue({
 
         autoDecodeFn: function () {
             this.$nextTick(() => {
-                localStorage.setItem(AUTO_DECODE, this.autoDecode);
+                this.safeSetLocalStorage(AUTO_DECODE, this.autoDecode);
                 this.format();
             });
         },
@@ -293,7 +311,7 @@ new Vue({
         },
 
         updateWrapperHeight: function () {
-            let curLayout = localStorage.getItem(LOCAL_KEY_OF_LAYOUT);
+            let curLayout = this.safeGetLocalStorage(LOCAL_KEY_OF_LAYOUT);
             let elPc = document.querySelector('#pageContainer');
             if (curLayout === 'up-down') {
                 elPc.style.height = 'auto';
@@ -315,19 +333,19 @@ new Vue({
                 this.$refs.btnLeftRight.classList.add('selected');
                 this.$refs.btnUpDown.classList.remove('selected');
             }
-            localStorage.setItem(LOCAL_KEY_OF_LAYOUT, type);
+            this.safeSetLocalStorage(LOCAL_KEY_OF_LAYOUT, type);
             this.updateWrapperHeight();
         },
 
         setCache: function () {
             this.$nextTick(() => {
-                localStorage.setItem(EDIT_ON_CLICK, this.overrideJson);
+                this.safeSetLocalStorage(EDIT_ON_CLICK, this.overrideJson);
             });
         },
 
         lintOn: function () {
             this.$nextTick(() => {
-                localStorage.setItem(JSON_LINT, this.jsonLintSwitch);
+                this.safeSetLocalStorage(JSON_LINT, this.jsonLintSwitch);
             });
             if (!editor.getValue().trim()) {
                 return true;
@@ -382,7 +400,7 @@ new Vue({
 
         autoUnpackJsonStringFn: function () {
             this.$nextTick(() => {
-                localStorage.setItem('jsonformat:auto-unpack-json-string', this.autoUnpackJsonString);
+                this.safeSetLocalStorage('jsonformat:auto-unpack-json-string', this.autoUnpackJsonString);
                 this.format();
             });
         },
