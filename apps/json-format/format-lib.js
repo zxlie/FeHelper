@@ -1115,9 +1115,18 @@ window.Formatter = (function () {
         _initElements();
 
         try {
-            // 先验证JSON是否有效
-            let parsedJson = JSON.parse(jsonStr);
-            cachedJsonString = JSON.stringify(parsedJson, null, 4);
+            // 先验证JSON是否有效（使用与worker一致的BigInt安全解析）
+            let parsedJson = _parseWithBigInt(jsonStr);
+            // 使用replacer保证bigint与大数字不丢精度
+            cachedJsonString = JSON.stringify(parsedJson, function(key, value) {
+                if (typeof value === 'bigint') {
+                    return value.toString();
+                }
+                if (typeof value === 'number' && value.toString().includes('e')) {
+                    return value.toLocaleString('fullwide', {useGrouping: false});
+                }
+                return value;
+            }, 4);
             jfPre.html(htmlspecialchars(cachedJsonString));
         } catch (e) {
             console.error('JSON解析失败:', e);
@@ -1171,9 +1180,17 @@ window.Formatter = (function () {
         formattingMsg.show();
         
         try {
-            // 先验证JSON是否有效
-            let parsedJson = JSON.parse(jsonStr);
-            cachedJsonString = JSON.stringify(parsedJson, null, 4);
+            // 先验证JSON是否有效（使用与worker一致的BigInt安全解析）
+            let parsedJson = _parseWithBigInt(jsonStr);
+            cachedJsonString = JSON.stringify(parsedJson, function(key, value) {
+                if (typeof value === 'bigint') {
+                    return value.toString();
+                }
+                if (typeof value === 'number' && value.toString().includes('e')) {
+                    return value.toLocaleString('fullwide', {useGrouping: false});
+                }
+                return value;
+            }, 4);
             
             // 设置原始JSON内容到jfPre（用于元数据按钮）
             jfPre.html(htmlspecialchars(cachedJsonString));
@@ -1204,6 +1221,25 @@ window.Formatter = (function () {
             // 隐藏进度提示
             formattingMsg.hide();
         }
+    };
+
+    // 与 worker 保持一致的 BigInt 安全解析：
+    // 1) 给可能的大整数加标记；2) 使用reviver还原为原生BigInt
+    let _parseWithBigInt = function(text) {
+        // 允许数字后存在可选空白，再跟 , ] }
+        const marked = text.replace(/([:,\[]\s*)(-?\d{16,})(\s*)(?=(?:,|\]|\}))/g, function(match, prefix, number, spaces) {
+            return prefix + '"__BigInt__' + number + '"' + spaces;
+        });
+        return JSON.parse(marked, function(key, value) {
+            if (typeof value === 'string' && value.indexOf('__BigInt__') === 0) {
+                try {
+                    return BigInt(value.slice(10));
+                } catch (e) {
+                    return value.slice(10);
+                }
+            }
+            return value;
+        });
     };
 
     // 工具函数：获取或创建唯一图片预览浮窗节点

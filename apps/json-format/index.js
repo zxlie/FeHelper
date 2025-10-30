@@ -103,6 +103,26 @@ new Vue({
         this.loadPatchHotfix();
     },
     methods: {
+        // 安全的JSON.stringify：
+        // - 让 BigInt 在最终字符串中显示为未加引号的纯数字（用于显示与再解析）
+        // - 普通 number 若为科学计数法，转为完整字符串（仍是数字）
+        safeStringify(obj, space) {
+            const tagged = JSON.stringify(obj, function(key, value) {
+                if (typeof value === 'bigint') {
+                    // 用占位符标记，稍后去掉外层引号
+                    return `__FH_BIGINT__${value.toString()}`;
+                }
+                if (typeof value === 'number' && value.toString().includes('e')) {
+                    // 转成完整字符串，再在末尾转换为数字文本（通过占位）
+                    return `__FH_NUMSTR__${value.toLocaleString('fullwide', {useGrouping: false})}`;
+                }
+                return value;
+            }, space);
+            // 去掉占位符外层引号，恢复为裸数字文本
+            return tagged
+                .replace(/"__FH_BIGINT__(-?\d+)"/g, '$1')
+                .replace(/"__FH_NUMSTR__(-?\d+)"/g, '$1');
+        },
         // 安全获取localStorage值（在沙盒环境中可能不可用）
         safeGetLocalStorage(key) {
             try {
@@ -177,7 +197,7 @@ new Vue({
             // json对象
             let jsonObj = null;
 
-            // 下面校验给定字符串是否为一个合法的json
+            // 下面校验给定字符串是否为一个合法的json（优先：宽松修正 + BigInt 安全解析）
             try {
                 // 再看看是不是jsonp的格式
                 let reg = /^([\w\.]+)\(\s*([\s\S]*)\s*\)$/igm;
@@ -186,23 +206,18 @@ new Vue({
                     funcName = matches[1];
                     source = matches[2];
                 }
-                // 这里可能会throw exception
-                jsonObj = JSON.parse(source);
-
+                jsonObj = parseWithBigInt(source);
             } catch (ex) {
-                // new Function的方式，能自动给key补全双引号，但是不支持bigint，所以是下下策，放在try-catch里搞
+                // 兜底：仅当 BigInt 安全解析失败时，才尝试 eval 系列
                 try {
                     jsonObj = new Function("return " + source)();
                 } catch (exx) {
                     try {
-                        // 再给你一次机会，是不是下面这种情况：  "{\"ret\":\"0\", \"msg\":\"ok\"}"
                         jsonObj = new Function("return '" + source + "'")();
                         if (typeof jsonObj === 'string') {
                             try {
-                                // 确保bigint不会失真
-                                jsonObj = JSON.parse(jsonObj);
+                                jsonObj = parseWithBigInt(jsonObj);
                             } catch (ie) {
-                                // 最后给你一次机会，是个字符串，老夫给你再转一次
                                 jsonObj = new Function("return " + jsonObj)();
                             }
                         }
@@ -210,15 +225,6 @@ new Vue({
                         this.errorMsg = exxx.message;
                     }
                 }
-            }
-
-            try{
-                // 这里多做一个动作，给没有携带双引号的Key都自动加上，防止Long类型失真
-                const regex = /([{,]\s*)(\w+)(\s*:)/g;
-                source = source.replace(regex, '$1"$2"$3');
-                jsonObj = JSON.parse(source);
-            }catch(e){
-                // 这里什么动作都不需要做，这种情况下转换失败的，肯定是Value被污染了，抛弃即可
             }
 
             // 新增：自动解包嵌套JSON字符串
@@ -234,7 +240,7 @@ new Vue({
                     if (sortType !== '0') {
                         jsonObj = JsonABC.sortObj(jsonObj, parseInt(sortType), true);
                     }
-                    source = JSON.stringify(jsonObj);
+                    source = this.safeStringify(jsonObj);
                 } catch (ex) {
                     // 通过JSON反解不出来的，一定有问题
                     this.errorMsg = ex.message;
@@ -795,3 +801,21 @@ function deepParseJSONStrings(obj) {
     return obj;
 }
 
+
+// 统一的 BigInt 安全解析（与format-lib/worker思路一致）：
+// 1) 自动给未加引号的 key 补双引号；2) 为可能的超长数字加标记；3) 用 reviver 还原为 BigInt
+function parseWithBigInt(text) {
+    // 补齐未加引号的 key
+    const keyFixRegex = /([\{,]\s*)(\w+)(\s*:)/g;
+    let fixed = String(text).replace(keyFixRegex, '$1"$2"$3');
+    // 标记 16 位及以上的整数（允许值后有空白，再跟 , ] } 或结尾）
+    fixed = fixed.replace(/([:,\[]\s*)(-?\d{16,})(\s*)(?=(?:,|\]|\}|$))/g, function(m, p1, num, sp) {
+        return p1 + '"__BigInt__' + num + '"' + sp;
+    });
+    return JSON.parse(fixed, function(key, value) {
+        if (typeof value === 'string' && value.indexOf('__BigInt__') === 0) {
+            try { return BigInt(value.slice(10)); } catch(e) { return value.slice(10); }
+        }
+        return value;
+    });
+}
