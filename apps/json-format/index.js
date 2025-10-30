@@ -805,9 +805,11 @@ function deepParseJSONStrings(obj) {
 // 统一的 BigInt 安全解析（与format-lib/worker思路一致）：
 // 1) 自动给未加引号的 key 补双引号；2) 为可能的超长数字加标记；3) 用 reviver 还原为 BigInt
 function parseWithBigInt(text) {
+    // 先把使用单引号包裹的 key 统一替换成双引号
+    let fixed = String(text).replace(/([\{,]\s*)'([^'\\]*?)'(\s*:)/g, '$1"$2"$3');
     // 补齐未加引号的 key
     const keyFixRegex = /([\{,]\s*)(\w+)(\s*:)/g;
-    let fixed = String(text).replace(keyFixRegex, '$1"$2"$3');
+    fixed = fixed.replace(keyFixRegex, '$1"$2"$3');
     // 标记 16 位及以上的整数（允许值后有空白，再跟 , ] } 或结尾）
     fixed = fixed.replace(/([:,\[]\s*)(-?\d{16,})(\s*)(?=(?:,|\]|\}|$))/g, function(m, p1, num, sp) {
         return p1 + '"__BigInt__' + num + '"' + sp;
