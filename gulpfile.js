@@ -148,7 +148,7 @@ function zipPackage(outputRoot = 'output-chrome', cb) {
     } else if (outputRoot === 'output-edge') {
         console.log('    去Edge商店发布吧：https://partner.microsoft.com/zh-cn/dashboard/microsoftedge/overview');
     } else if (outputRoot === 'output-firefox') {
-        console.log('    去Firefox商店发布吧：https://addons.mozilla.org/zh-CN/developers/addon/web前端助手-fehelper/versions');
+        console.log('    去Firefox商店发布吧：https://addons.mozilla.org/zh-CN/developers/addon/fehelper-%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B/edit');
     }
     console.log('================================================================================\n\n');
     if (cb) cb();
