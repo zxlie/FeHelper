@@ -1,7 +1,7 @@
 {
   "name": "FeHelper(前端助手)-Dev",
   "short_name": "FeHelper",
-  "version": "2025.10.3001",
+  "version": "2025.11.0801",
   "manifest_version": 3,
   "description": "FE助手：前端开发必备工具集，涵盖JSON格式化、代码美化与压缩、二维码生成、网页定制、便签笔记等数十种实用功能。界面现代、响应式设计，极致性能优化，国内可用，助力高效开发！",
   "icons": {
