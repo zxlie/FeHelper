@@ -70,7 +70,7 @@ body[browser-extension] .wp-json .mod-json {
 }
 #jsonSourceLeft, #jsonSourceRight, .CodeMirror {
     height: calc(100%);
-    font-size: 10px;
+    font-size: 14px;
 }
 .x-error {
     color: #1f0606;
