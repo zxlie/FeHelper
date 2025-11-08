@@ -25,8 +25,7 @@ new Vue({
         fireChange: true,
         overrideJson: false,
         isInUSAFlag: false,
-        autoUnpackJsonString: false,
-        escapeJsonString: false,
+        nestedEscapeParse: false,
         // JSONPath查询相关
         jsonPathQuery: '',
         showJsonPathModal: false,
@@ -60,7 +59,10 @@ new Vue({
 
         this.jsonLintSwitch = (this.safeGetLocalStorage(JSON_LINT) !== 'false');
         this.overrideJson = (this.safeGetLocalStorage(EDIT_ON_CLICK) === 'true');
-        this.escapeJsonString = (this.safeGetLocalStorage('jsonformat:escape-json-string') === 'true');
+        // 兼容旧的localStorage键名，优先使用新的键名
+        const oldAutoUnpack = this.safeGetLocalStorage('jsonformat:auto-unpack-json-string') === 'true';
+        const oldEscape = this.safeGetLocalStorage('jsonformat:escape-json-string') === 'true';
+        this.nestedEscapeParse = (this.safeGetLocalStorage('jsonformat:nested-escape-parse') === 'true') || oldAutoUnpack || oldEscape;
         this.changeLayout(this.safeGetLocalStorage(LOCAL_KEY_OF_LAYOUT));
 
         editor = CodeMirror.fromTextArea(this.$refs.jsonBox, {
@@ -229,32 +231,22 @@ new Vue({
                 }
             }
 
-            // 新增：自动解包嵌套JSON字符串
-            if (this.autoUnpackJsonString && jsonObj != null && typeof jsonObj === 'object') {
-                jsonObj = deepParseJSONStrings(jsonObj);
-                source = JSON.stringify(jsonObj);
-            }
-
             // 是json格式，可以进行JSON自动格式化
             if (jsonObj != null && typeof jsonObj === "object" && !this.errorMsg.length) {
                 try {
+                    // 嵌套转义解析：深度解析字符串值中的JSON
+                    if (this.nestedEscapeParse && jsonObj != null && typeof jsonObj === 'object') {
+                        jsonObj = deepParseJSONStrings(jsonObj);
+                    }
+                    
                     let sortType = document.querySelectorAll('[name=jsonsort]:checked')[0].value;
                     if (sortType !== '0') {
                         jsonObj = JsonABC.sortObj(jsonObj, parseInt(sortType), true);
                     }
                     
-                    // 转义嵌套JSON字符串（格式化显示）- 在排序之后执行
-                    if (this.escapeJsonString) {
-                        // 设置全局标志，让渲染层知道转义功能已开启
-                        if (typeof window.Formatter !== 'undefined' && window.Formatter.setEscapeEnabled) {
-                            window.Formatter.setEscapeEnabled(true);
-                        }
-                        jsonObj = escapeAndFormatJsonStrings(jsonObj);
-                    } else {
-                        // 关闭转义功能
-                        if (typeof window.Formatter !== 'undefined' && window.Formatter.setEscapeEnabled) {
-                            window.Formatter.setEscapeEnabled(false);
-                        }
+                    // 关闭转义功能（因为已经深度解析为实际JSON了）
+                    if (typeof window.Formatter !== 'undefined' && window.Formatter.setEscapeEnabled) {
+                        window.Formatter.setEscapeEnabled(false);
                     }
                     
                     source = this.safeStringify(jsonObj);
@@ -421,16 +413,9 @@ new Vue({
             })
         },
 
-        autoUnpackJsonStringFn: function () {
+        nestedEscapeParseFn: function () {
             this.$nextTick(() => {
-                this.safeSetLocalStorage('jsonformat:auto-unpack-json-string', this.autoUnpackJsonString);
-                this.format();
-            });
-        },
-
-        escapeJsonStringFn: function () {
-            this.$nextTick(() => {
-                this.safeSetLocalStorage('jsonformat:escape-json-string', this.escapeJsonString);
+                this.safeSetLocalStorage('jsonformat:nested-escape-parse', this.nestedEscapeParse);
                 this.format();
             });
         },
@@ -791,13 +776,38 @@ new Vue({
 // 新增：递归解包嵌套JSON字符串的函数
 function deepParseJSONStrings(obj) {
     if (Array.isArray(obj)) {
-        return obj.map(deepParseJSONStrings);
+        return obj.map(item => {
+            // 对于数组中的字符串元素，也尝试解析为JSON
+            if (typeof item === 'string' && item.trim()) {
+                try {
+                    const parsed = JSON.parse(item);
+                    // 只递归对象或数组，且排除BigInt结构（如{s,e,c}）和纯数字
+                    if (
+                        typeof parsed === 'object' &&
+                        parsed !== null &&
+                        (Array.isArray(parsed) || Object.prototype.toString.call(parsed) === '[object Object]') &&
+                        !(
+                            parsed &&
+                            typeof parsed.s === 'number' &&
+                            typeof parsed.e === 'number' &&
+                            Array.isArray(parsed.c) &&
+                            Object.keys(parsed).length === 3
+                        )
+                    ) {
+                        return deepParseJSONStrings(parsed);
+                    }
+                } catch (e) {
+                    // 解析失败，保持原字符串
+                }
+            }
+            return deepParseJSONStrings(item);
+        });
     } else if (typeof obj === 'object' && obj !== null) {
         const newObj = {};
         for (const key in obj) {
             if (!obj.hasOwnProperty(key)) continue;
             const val = obj[key];
-            if (typeof val === 'string') {
+            if (typeof val === 'string' && val.trim()) {
                 try {
                     const parsed = JSON.parse(val);
                     // 只递归对象或数组，且排除BigInt结构（如{s,e,c}）和纯数字
@@ -816,7 +826,9 @@ function deepParseJSONStrings(obj) {
                         newObj[key] = deepParseJSONStrings(parsed);
                         continue;
                     }
-                } catch (e) {}
+                } catch (e) {
+                    // 解析失败，保持原值
+                }
             }
             newObj[key] = deepParseJSONStrings(val);
         }
@@ -825,39 +837,6 @@ function deepParseJSONStrings(obj) {
     return obj;
 }
 
-
-// 转义并格式化嵌套的JSON字符串
-// 将字符串值中的JSON内容格式化并转义显示
-// 注意：这个函数只是标记需要格式化的字符串，实际格式化在渲染时完成
-function escapeAndFormatJsonStrings(obj) {
-    if (Array.isArray(obj)) {
-        return obj.map(escapeAndFormatJsonStrings);
-    } else if (typeof obj === 'object' && obj !== null) {
-        const newObj = {};
-        for (const key in obj) {
-            if (!obj.hasOwnProperty(key)) continue;
-            const val = obj[key];
-            if (typeof val === 'string' && val.trim()) {
-                // 尝试解析字符串是否为有效的JSON
-                try {
-                    const parsed = JSON.parse(val);
-                    // 如果是有效的JSON（对象或数组），保持原字符串不变
-                    // 实际格式化会在渲染时通过检测字符串是否为有效JSON来完成
-                    if (typeof parsed === 'object' && parsed !== null) {
-                        // 保持原字符串，不做任何修改
-                        newObj[key] = val;
-                        continue;
-                    }
-                } catch (e) {
-                    // 不是有效的JSON，保持原值
-                }
-            }
-            newObj[key] = escapeAndFormatJsonStrings(val);
-        }
-        return newObj;
-    }
-    return obj;
-}
 
 // 统一的 BigInt 安全解析（与format-lib/worker思路一致）：
 // 1) 自动给未加引号的 key 补双引号；2) 为可能的超长数字加标记；3) 用 reviver 还原为 BigInt

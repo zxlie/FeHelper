@@ -38,9 +38,7 @@
                 <span class="x-split">|</span>
                 <input type="checkbox" v-model="overrideJson" id="jsonOvrd" @click="setCache"><label for="jsonOvrd">节点编辑</label>
                 <span class="x-split">|</span>
-                <input type="checkbox" v-model="autoUnpackJsonString" id="autoUnpackJsonString" @click="autoUnpackJsonStringFn"><label for="autoUnpackJsonString">支持嵌套解析</label>
-                <span class="x-split">|</span>
-                <input type="checkbox" v-model="escapeJsonString" id="escapeJsonString" @click="escapeJsonStringFn"><label for="escapeJsonString">转义</label>
+                <input type="checkbox" v-model="nestedEscapeParse" id="nestedEscapeParse" @click="nestedEscapeParseFn"><label for="nestedEscapeParse">嵌套转义解析</label>
                 <span class="x-split">|</span>
                 <span class="x-sort">
                     <span class="x-stitle">排序：</span>
