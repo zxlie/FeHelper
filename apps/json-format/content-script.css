@@ -152,48 +152,18 @@ html.fh-jf .item-line .null {
     min-width: 0;
 }
 
-/* 紧凑数组样式 */
+/* 数组样式 - 完全展开显示 */
 html.fh-jf .item-array .kv-list {
-    display: inline;
-    padding-left: 0;
-    border-left: none;
-    margin-left: 0;
+    display: block;
+    padding-left: 24px;
+    border-left: 1px dashed #bbb;
+    margin-left: 2px;
 }
 
 html.fh-jf .item-array .item-array-element {
-    display: inline;
+    display: block;
     padding-left: 0;
     margin-left: 0;
-}
-
-/* 确保紧凑格式的数组元素不换行 */
-html.fh-jf .item-array .item-array-element .string,
-html.fh-jf .item-array .item-array-element .number,
-html.fh-jf .item-array .item-array-element .bool,
-html.fh-jf .item-array .item-array-element .null {
-    display: inline;
-    white-space: nowrap;
-}
-
-/* 简单对象的紧凑格式样式 */
-html.fh-jf .item-array .item-array-element .brace {
-    display: inline;
-    margin: 0 1px;
-}
-
-html.fh-jf .item-array .item-array-element .key {
-    display: inline;
-    margin-right: 2px;
-}
-
-html.fh-jf .item-array .item-array-element .colon {
-    display: inline;
-    margin-right: 2px;
-}
-
-html.fh-jf .item-array .item-array-element .comma {
-    display: inline;
-    margin-left: 2px;
 }
 html.fh-jf .item .string {
     word-wrap: break-word;
@@ -249,10 +219,14 @@ html.fh-jf .item-array > .expand:first-child {
 }
 
 /* 数组块元素的展开按钮 */
-html.fh-jf .item-block > .expand:first-child {
+html.fh-jf .item.item-array .item-array-element > .expand:first-child {
     position: absolute;
-    left: 4px;
+    left: -16px;
     top: 2px;
+}
+html.fh-jf .item.item-array .item-array-element.collapsed > .expand:first-child {
+    top: -4px;
+    left: -20px;
 }
 
 

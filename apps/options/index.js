@@ -518,13 +518,19 @@ new Vue({
         // 在页面内显示通知消息
         showInPageNotification(options) {
             try {
+                // 确保 options 是一个对象
+                if (!options || typeof options !== 'object') {
+                    options = { message: String(options || '') };
+                }
                 // 创建一个通知元素
                 const notificationEl = document.createElement('div');
                 notificationEl.className = 'in-page-notification';
+                const title = (options && options.title) ? String(options.title) : 'FeHelper';
+                const message = (options && options.message) ? String(options.message) : '';
                 notificationEl.innerHTML = `
                     <div class="notification-content">
-                        <div class="notification-title">${options.title || 'FeHelper'}</div>
-                        <div class="notification-message">${options.message || ''}</div>
+                        <div class="notification-title">${title}</div>
+                        <div class="notification-message">${message}</div>
                     </div>
                     <button class="notification-close">×</button>
                 `;
@@ -1497,18 +1503,32 @@ new Vue({
         },
 
         async autoFixBugs() {
-            this.showNotification({ message: '正在拉取修复补丁，请稍候...' });
+            this.showNotification({ 
+                title: 'FeHelper 一键修复',
+                message: '正在拉取修复补丁，请稍候...' 
+            });
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
                 thing: 'fetch-fehelper-patchs'
             }, (resp) => {
+                if (chrome.runtime.lastError) {
+                    this.showNotification({ 
+                        title: 'FeHelper 一键修复',
+                        message: '补丁拉取失败：' + chrome.runtime.lastError.message 
+                    });
+                    return;
+                }
                 if (!resp || !resp.success) {
-                    this.showNotification({ message: '补丁拉取失败，请稍后重试！', type: 'error' });
+                    const errorMsg = resp && resp.error ? resp.error : '未知错误';
+                    this.showNotification({ 
+                        title: 'FeHelper 一键修复',
+                        message: errorMsg
+                    });
                     return;
                 }
                 this.showNotification({
+                    title: 'FeHelper 一键修复',
                     message: '当前FeHelper插件中的已知Bug都已修复，你可以去验证了。',
-                    type: 'success',
                     duration: 5000
                 });
                 // 当前页面的bug立即更新

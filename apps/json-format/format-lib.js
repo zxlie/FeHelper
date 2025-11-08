@@ -97,6 +97,10 @@ window.Formatter = (function () {
     
     // 单例Worker实例
     let workerInstance = null;
+    // CSP限制标记，避免重复尝试创建Worker
+    let cspRestricted = false;
+    // 转义功能开启标记
+    let escapeJsonStringEnabled = false;
 
     let _initElements = function () {
 
@@ -1040,37 +1044,34 @@ window.Formatter = (function () {
     };
     
     /**
-     * 检测CSP限制
+     * 检测基本环境限制（沙盒等）
      * @returns {boolean}
      */
-    let _checkCSPRestrictions = function() {
+    let _checkBasicRestrictions = function() {
         // 检查是否在iframe中且被沙盒化
         if (window !== window.top) {
             try {
                 // 尝试访问父窗口，如果被沙盒化会抛出异常
                 window.parent.document;
             } catch (e) {
-                console.warn('检测到沙盒化iframe，跳过Worker创建');
+                // 静默处理，不输出日志
                 return true;
             }
         }
         
-        // 检查URL是否包含已知的CSP限制域名
-        const currentUrl = window.location.href;
-        const restrictedDomains = ['gitee.com', 'github.com', 'raw.githubusercontent.com'];
-        
-        for (let domain of restrictedDomains) {
-            if (currentUrl.includes(domain)) {
-                console.warn(`检测到受限域名 ${domain}，跳过Worker创建`);
-                return true;
-            }
+        // 检查是否在受限的协议下（非chrome-extension:、http:、https:）
+        if (location.protocol !== 'chrome-extension:' && location.protocol !== 'http:' && location.protocol !== 'https:') {
+            // 静默处理，不输出日志
+            return true;
         }
         
         return false;
     };
+    
 
     /**
      * 初始化或获取Worker实例（异步，兼容Chrome/Edge/Firefox）
+     * 自动检测CSP限制，如果检测到限制则回退到同步模式
      * @returns {Promise<Worker|null>}
      */
     let _getWorkerInstance = async function() {
@@ -1078,30 +1079,54 @@ window.Formatter = (function () {
             return workerInstance;
         }
         
-        // 检查CSP限制
-        if (_checkCSPRestrictions()) {
-            console.log('由于CSP限制，跳过Worker创建，使用同步模式');
+        // 如果已经检测到CSP限制，直接返回null，避免重复尝试
+        if (cspRestricted) {
             return null;
         }
         
+        // 检查基本环境限制（沙盒、协议等）
+        if (_checkBasicRestrictions()) {
+            cspRestricted = true;
+            return null;
+        }
+        
+        // 在非chrome-extension协议下，使用Blob URL方式创建Worker可能会触发CSP错误
+        // 为了避免控制台报错，直接使用同步模式
+        // 只有在chrome-extension协议下才使用Worker（不会有CSP限制）
+        if (location.protocol !== 'chrome-extension:') {
+            // 静默标记为受限，直接使用同步模式，避免触发CSP错误
+            cspRestricted = true;
+            return null;
+        }
+        
+        // 只在chrome-extension协议下创建Worker
         let workerUrl = chrome.runtime.getURL('json-format/json-worker.js');
         // 判断是否为Firefox
         const isFirefox = typeof InstallTrigger !== 'undefined' || navigator.userAgent.includes('Firefox');
         try {
             if (isFirefox) {
-                workerInstance = new Worker(workerUrl);
-                return workerInstance;
+                try {
+                    workerInstance = new Worker(workerUrl);
+                    return workerInstance;
+                } catch (e) {
+                    // Firefox下创建Worker失败，静默处理
+                    cspRestricted = true;
+                    return null;
+                }
             } else {
-                // Chrome/Edge用fetch+Blob方式
-                const resp = await fetch(workerUrl);
-                const workerScript = await resp.text();
-                const blob = new Blob([workerScript], { type: 'application/javascript' });
-                const blobUrl = URL.createObjectURL(blob);
-                workerInstance = new Worker(blobUrl);
-                return workerInstance;
+                // Chrome/Edge在chrome-extension协议下，可以直接使用Worker URL，不需要Blob
+                try {
+                    workerInstance = new Worker(workerUrl);
+                    return workerInstance;
+                } catch (e) {
+                    // 创建Worker失败，静默处理
+                    cspRestricted = true;
+                    return null;
+                }
             }
         } catch (e) {
-            console.error('创建Worker失败:', e);
+            // 任何其他错误，静默标记为CSP受限并回退
+            cspRestricted = true;
             workerInstance = null;
             return null;
         }
@@ -1111,8 +1136,13 @@ window.Formatter = (function () {
      * 执行代码格式化
      * 支持异步worker
      */
-    let format = async function (jsonStr, skin) {
+    let format = async function (jsonStr, skin, escapeJsonString) {
         _initElements();
+        
+        // 设置转义功能标志
+        if (escapeJsonString !== undefined) {
+            escapeJsonStringEnabled = escapeJsonString;
+        }
 
         try {
             // 先验证JSON是否有效（使用与worker一致的BigInt安全解析）
@@ -1138,8 +1168,30 @@ window.Formatter = (function () {
             // 获取Worker实例（异步）
             let worker = await _getWorkerInstance();
             if (worker) {
+                // 设置错误处理，如果Worker因为CSP等原因失败，回退到同步模式
+                let workerErrorHandler = function(e) {
+                    // 静默处理，不输出日志
+                    cspRestricted = true; // 标记为CSP受限，避免重复尝试
+                    workerInstance = null;
+                    formatSync(jsonStr, skin, escapeJsonString);
+                };
+                worker.onerror = workerErrorHandler;
+                
+                // 设置超时，如果Worker长时间无响应，回退到同步模式
+                let workerTimeout = setTimeout(() => {
+                    // 静默处理，不输出日志
+                    if (workerInstance) {
+                        try {
+                            workerInstance.terminate();
+                        } catch (e) {}
+                        workerInstance = null;
+                    }
+                    formatSync(jsonStr, skin, escapeJsonString);
+                }, 5000);
+                
                 // 设置消息处理程序
                 worker.onmessage = function (evt) {
+                    clearTimeout(workerTimeout);
                     let msg = evt.data;
                     switch (msg[0]) {
                         case 'FORMATTING':
@@ -1156,25 +1208,41 @@ window.Formatter = (function () {
                             break;
                     }
                 };
+                
                 // 发送格式化请求
-                worker.postMessage({
-                    jsonString: jsonStr,
-                    skin: skin
-                });
+                try {
+                    worker.postMessage({
+                        jsonString: jsonStr,
+                        skin: skin,
+                        escapeJsonString: escapeJsonStringEnabled
+                    });
+                } catch (e) {
+                    // 如果发送消息失败（Worker可能已被CSP阻止），回退到同步模式
+                    // 静默处理，不输出日志
+                    cspRestricted = true; // 标记为CSP受限，避免重复尝试
+                    clearTimeout(workerTimeout);
+                    workerInstance = null;
+                    formatSync(jsonStr, skin, escapeJsonString);
+                }
             } else {
                 // Worker创建失败，回退到同步方式
-                formatSync(jsonStr, skin);
+                formatSync(jsonStr, skin, escapeJsonString);
             }
         } catch (e) {
             console.error('Worker处理失败:', e);
             // 出现任何错误，回退到同步方式
-            formatSync(jsonStr, skin);
+            formatSync(jsonStr, skin, escapeJsonString);
         }
     };
 
     // 同步的方式格式化
-    let formatSync = function (jsonStr, skin) {
+    let formatSync = function (jsonStr, skin, escapeJsonString) {
         _initElements();
+        
+        // 设置转义功能标志
+        if (escapeJsonString !== undefined) {
+            escapeJsonStringEnabled = escapeJsonString;
+        }
         
         // 显示格式化进度
         formattingMsg.show();
@@ -1273,6 +1341,39 @@ window.Formatter = (function () {
                                 + htmlspecialchars(this.value) + '" target="_blank" rel="noopener noreferrer" data-is-link="1" data-link-url="' + htmlspecialchars(this.value) + '">' 
                                 + htmlspecialchars(JSON.stringify(this.value)) + '</a></span></div>';
                         } else {
+                            // 检测字符串是否是有效的JSON（用于转义功能）
+                            // 当转义功能开启时，如果字符串是有效的JSON，就格式化显示
+                            if (escapeJsonStringEnabled) {
+                                const strValue = String(this.value);
+                                // 检查字符串是否看起来像JSON（以[或{开头，以]或}结尾）
+                                const trimmed = strValue.trim();
+                                if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || 
+                                    (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
+                                    try {
+                                        // 尝试解析为JSON
+                                        const parsed = JSON.parse(strValue);
+                                        // 如果解析成功且是对象或数组，格式化显示
+                                        if (typeof parsed === 'object' && parsed !== null) {
+                                            const nestedNode = createNode(parsed);
+                                            // 获取嵌套JSON的完整HTML（完全展开）
+                                            let nestedHTML = nestedNode.getHTML();
+                                            // 移除外层的item容器div，只保留内部内容
+                                            nestedHTML = nestedHTML.replace(/^<div class="item[^"]*">/, '').replace(/<\/div>$/, '');
+                                            // 返回格式化的JSON结构，但保持在外层的字符串容器中
+                                            // 使用block显示，确保完全展开
+                                            return '<div class="item item-line"><span class="string">' + 
+                                                '<span class="quote">"</span>' +
+                                                '<div class="string-json-nested" style="display:block;margin-left:0;padding-left:0;">' +
+                                                nestedHTML +
+                                                '</div>' +
+                                                '<span class="quote">"</span>' +
+                                                '</span></div>';
+                                        }
+                                    } catch (e) {
+                                        // 解析失败，按普通字符串处理
+                                    }
+                                }
+                            }
                             return '<div class="item item-line"><span class="string">' + formatStringValue(JSON.stringify(this.value)) + '</span></div>';
                         }
                     case 'number':
@@ -1584,6 +1685,9 @@ window.Formatter = (function () {
 
     return {
         format: format,
-        formatSync: formatSync
+        formatSync: formatSync,
+        setEscapeEnabled: function(enabled) {
+            escapeJsonStringEnabled = enabled;
+        }
     }
 })();

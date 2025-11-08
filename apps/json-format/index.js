@@ -26,6 +26,7 @@ new Vue({
         overrideJson: false,
         isInUSAFlag: false,
         autoUnpackJsonString: false,
+        escapeJsonString: false,
         // JSONPath查询相关
         jsonPathQuery: '',
         showJsonPathModal: false,
@@ -59,6 +60,7 @@ new Vue({
 
         this.jsonLintSwitch = (this.safeGetLocalStorage(JSON_LINT) !== 'false');
         this.overrideJson = (this.safeGetLocalStorage(EDIT_ON_CLICK) === 'true');
+        this.escapeJsonString = (this.safeGetLocalStorage('jsonformat:escape-json-string') === 'true');
         this.changeLayout(this.safeGetLocalStorage(LOCAL_KEY_OF_LAYOUT));
 
         editor = CodeMirror.fromTextArea(this.$refs.jsonBox, {
@@ -240,6 +242,21 @@ new Vue({
                     if (sortType !== '0') {
                         jsonObj = JsonABC.sortObj(jsonObj, parseInt(sortType), true);
                     }
+                    
+                    // 转义嵌套JSON字符串（格式化显示）- 在排序之后执行
+                    if (this.escapeJsonString) {
+                        // 设置全局标志，让渲染层知道转义功能已开启
+                        if (typeof window.Formatter !== 'undefined' && window.Formatter.setEscapeEnabled) {
+                            window.Formatter.setEscapeEnabled(true);
+                        }
+                        jsonObj = escapeAndFormatJsonStrings(jsonObj);
+                    } else {
+                        // 关闭转义功能
+                        if (typeof window.Formatter !== 'undefined' && window.Formatter.setEscapeEnabled) {
+                            window.Formatter.setEscapeEnabled(false);
+                        }
+                    }
+                    
                     source = this.safeStringify(jsonObj);
                 } catch (ex) {
                     // 通过JSON反解不出来的，一定有问题
@@ -252,11 +269,11 @@ new Vue({
                         (async () => {
                             let txt = await JsonEnDecode.urlDecodeByFetch(source);
                             source = JsonEnDecode.uniDecode(txt);
-                            await Formatter.format(source);
+                            await Formatter.format(source, null, this.escapeJsonString);
                         })();
                     } else {
                         (async () => {
-                            await Formatter.format(source);
+                            await Formatter.format(source, null, this.escapeJsonString);
                         })();
                     }
 
@@ -407,6 +424,13 @@ new Vue({
         autoUnpackJsonStringFn: function () {
             this.$nextTick(() => {
                 this.safeSetLocalStorage('jsonformat:auto-unpack-json-string', this.autoUnpackJsonString);
+                this.format();
+            });
+        },
+
+        escapeJsonStringFn: function () {
+            this.$nextTick(() => {
+                this.safeSetLocalStorage('jsonformat:escape-json-string', this.escapeJsonString);
                 this.format();
             });
         },
@@ -801,6 +825,39 @@ function deepParseJSONStrings(obj) {
     return obj;
 }
 
+
+// 转义并格式化嵌套的JSON字符串
+// 将字符串值中的JSON内容格式化并转义显示
+// 注意：这个函数只是标记需要格式化的字符串，实际格式化在渲染时完成
+function escapeAndFormatJsonStrings(obj) {
+    if (Array.isArray(obj)) {
+        return obj.map(escapeAndFormatJsonStrings);
+    } else if (typeof obj === 'object' && obj !== null) {
+        const newObj = {};
+        for (const key in obj) {
+            if (!obj.hasOwnProperty(key)) continue;
+            const val = obj[key];
+            if (typeof val === 'string' && val.trim()) {
+                // 尝试解析字符串是否为有效的JSON
+                try {
+                    const parsed = JSON.parse(val);
+                    // 如果是有效的JSON（对象或数组），保持原字符串不变
+                    // 实际格式化会在渲染时通过检测字符串是否为有效JSON来完成
+                    if (typeof parsed === 'object' && parsed !== null) {
+                        // 保持原字符串，不做任何修改
+                        newObj[key] = val;
+                        continue;
+                    }
+                } catch (e) {
+                    // 不是有效的JSON，保持原值
+                }
+            }
+            newObj[key] = escapeAndFormatJsonStrings(val);
+        }
+        return newObj;
+    }
+    return obj;
+}
 
 // 统一的 BigInt 安全解析（与format-lib/worker思路一致）：
 // 1) 自动给未加引号的 key 补双引号；2) 为可能的超长数字加标记；3) 用 reviver 还原为 BigInt

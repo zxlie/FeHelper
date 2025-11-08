@@ -48,11 +48,19 @@ const JSONBigInt = {
     }
 };
 
+// 转义功能开启标记
+let escapeJsonStringEnabled = false;
+
 // 处理主线程消息
 self.onmessage = function(event) {
     
     // 格式化JSON
     if (event.data.jsonString) {
+        // 接收转义功能标志
+        if (event.data.escapeJsonString !== undefined) {
+            escapeJsonStringEnabled = event.data.escapeJsonString;
+        }
+        
         // 发送格式化中的消息
         self.postMessage(['FORMATTING']);
         
@@ -158,6 +166,39 @@ function createNode(value) {
                             + htmlspecialchars(this.value) + '" target="_blank" rel="noopener noreferrer" data-is-link="1" data-link-url="' + htmlspecialchars(this.value) + '">' 
                             + htmlspecialchars(JSON.stringify(this.value)) + '</a></span></div>';
                     } else {
+                        // 检测字符串是否是有效的JSON（用于转义功能）
+                        // 当转义功能开启时，如果字符串是有效的JSON，就格式化显示
+                        if (escapeJsonStringEnabled) {
+                            const strValue = String(this.value);
+                            // 检查字符串是否看起来像JSON（以[或{开头，以]或}结尾）
+                            const trimmed = strValue.trim();
+                            if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || 
+                                (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
+                                try {
+                                    // 尝试解析为JSON
+                                    const parsed = JSON.parse(strValue);
+                                    // 如果解析成功且是对象或数组，格式化显示
+                                    if (typeof parsed === 'object' && parsed !== null) {
+                                        const nestedNode = createNode(parsed);
+                                        // 获取嵌套JSON的完整HTML（完全展开）
+                                        let nestedHTML = nestedNode.getHTML();
+                                        // 移除外层的item容器div，只保留内部内容
+                                        nestedHTML = nestedHTML.replace(/^<div class="item[^"]*">/, '').replace(/<\/div>$/, '');
+                                        // 返回格式化的JSON结构，但保持在外层的字符串容器中
+                                        // 使用block显示，确保完全展开
+                                        return '<div class="item item-line"><span class="string">' + 
+                                            '<span class="quote">"</span>' +
+                                            '<div class="string-json-nested" style="display:block;margin-left:0;padding-left:0;">' +
+                                            nestedHTML +
+                                            '</div>' +
+                                            '<span class="quote">"</span>' +
+                                            '</span></div>';
+                                    }
+                                } catch (e) {
+                                    // 解析失败，按普通字符串处理
+                                }
+                            }
+                        }
                         return '<div class="item item-line"><span class="string">' + formatStringValue(JSON.stringify(this.value)) + '</span></div>';
                     }
                 case 'number':

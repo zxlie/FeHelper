@@ -869,8 +869,7 @@ let BgPageInstance = (function () {
                 }
             })
             .catch(e => {
-                console.error(`[FeHelper] 获取补丁失败:`, e);
-                callback && callback({ success: false, error: e.message });
+                callback && callback({ success: false, error: '没有需要修复的补丁' });
             });
     }
 
