@@ -424,9 +424,6 @@ html.fh-jf .x-toolbar span {
     white-space: normal !important;
 }
 
-html.fh-jf  .x-toolbar .x-sort input#sort_desc {
-    margin-right: 0;
-}
 
 html.fh-jf  .x-toolbar .x-sort {
     display: inline;

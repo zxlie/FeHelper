@@ -68,6 +68,8 @@ window.JsonAutoFormat = (() => {
         ENABLE_JSON_KEY_SORT: 'ENABLE_JSON_KEY_SORT',
         // 保留键值双引号
         KEEP_KEY_VALUE_DBL_QUOTE: 'KEEP_KEY_VALUE_DBL_QUOTE',
+        // 嵌套转义解析
+        NESTED_ESCAPE_PARSE: 'NESTED_ESCAPE_PARSE',
         // 最大json key数量
         MAX_JSON_KEYS_NUMBER: 'MAX_JSON_KEYS_NUMBER',
         // 自定义皮肤
@@ -100,7 +102,8 @@ window.JsonAutoFormat = (() => {
         JSON_FORMAT_THEME: 0,
         sortType: 0,
         autoDecode: false,
-        originalSource: ''
+        originalSource: '',
+        NESTED_ESCAPE_PARSE: false
     };
 
     // 获取JSON格式化的配置信息
@@ -139,6 +142,7 @@ window.JsonAutoFormat = (() => {
             '        <label for="sort_null">默认</label><input type="radio" name="jsonsort" id="sort_null" value="0" checked>' +
             '        <label for="sort_asc">升序</label><input type="radio" name="jsonsort" id="sort_asc" value="1">' +
             '        <label for="sort_desc">降序</label><input type="radio" name="jsonsort" id="sort_desc" value="-1">' +
+            '        <label for="nestedEscapeParseToggle">嵌套转义解析</label><input type="checkbox" id="nestedEscapeParseToggle">' + 
             '    </span>' +
             '    <span class="x-fix-encoding"><span class="x-split">|</span><button class="xjf-btn" id="jsonGetCorrectCnt">乱码修正</button></span>' +
             '    <span id="optionBar"></span>' +
@@ -328,6 +332,27 @@ window.JsonAutoFormat = (() => {
             $('#jfToolbar .x-sort').hide();
         }
 
+        let nestedToggle = $('#nestedEscapeParseToggle');
+        nestedToggle.prop('checked', !!formatOptions.NESTED_ESCAPE_PARSE);
+        if (typeof window.Formatter !== 'undefined' && window.Formatter.setEscapeEnabled) {
+            window.Formatter.setEscapeEnabled(!!formatOptions.NESTED_ESCAPE_PARSE);
+        }
+        nestedToggle.off('change').on('change', function () {
+            let enabled = $(this).prop('checked');
+            formatOptions.NESTED_ESCAPE_PARSE = enabled;
+            if (typeof window.Formatter !== 'undefined' && window.Formatter.setEscapeEnabled) {
+                window.Formatter.setEscapeEnabled(enabled);
+            }
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'save-jsonformat-options',
+                params: {
+                    NESTED_ESCAPE_PARSE: enabled
+                }
+            });
+            _didFormat();
+        });
+
 
         // =============================乱码修正
         if (!formatOptions.FIX_ERROR_ENCODING) {
@@ -425,11 +450,11 @@ window.JsonAutoFormat = (() => {
                     } catch (e) {
                         console.warn('URL解码失败，使用原始内容:', e);
                     }
-                    Formatter.formatSync(source, theme);
+                    Formatter.formatSync(source, theme, formatOptions.NESTED_ESCAPE_PARSE);
                     $('#jfToolbar').show();
                 })();
             } else {
-                Formatter.formatSync(source, theme);
+                Formatter.formatSync(source, theme, formatOptions.NESTED_ESCAPE_PARSE);
                 $('#jfToolbar').show();
             }
         } else if (formatOptions.autoDecode) {
@@ -443,10 +468,10 @@ window.JsonAutoFormat = (() => {
 
                 // 格式化
                 try {
-                    await Formatter.format(source, theme);
+                    await Formatter.format(source, theme, formatOptions.NESTED_ESCAPE_PARSE);
                 } catch (e) {
                     console.warn('异步格式化失败，使用同步模式:', e);
-                    Formatter.formatSync(source, theme);
+                    Formatter.formatSync(source, theme, formatOptions.NESTED_ESCAPE_PARSE);
                 }
                 $('#jfToolbar').show();
             })();
@@ -454,10 +479,10 @@ window.JsonAutoFormat = (() => {
             (async () => {
                 // 格式化
                 try {
-                    await Formatter.format(source, theme);
+                    await Formatter.format(source, theme, formatOptions.NESTED_ESCAPE_PARSE);
                 } catch (e) {
                     console.warn('异步格式化失败，使用同步模式:', e);
-                    Formatter.formatSync(source, theme);
+                    Formatter.formatSync(source, theme, formatOptions.NESTED_ESCAPE_PARSE);
                 }
                 $('#jfToolbar').show();
             })();
@@ -614,6 +639,16 @@ window.JsonAutoFormat = (() => {
     let _extendsOptions = options => {
         options = options || {};
         Object.keys(options).forEach(opt => formatOptions[opt] = options[opt]);
+        if (options.hasOwnProperty('AUTO_TEXT_DECODE')) {
+            formatOptions.autoDecode = !!options.AUTO_TEXT_DECODE;
+        } else if (formatOptions.hasOwnProperty('AUTO_TEXT_DECODE')) {
+            formatOptions.autoDecode = !!formatOptions.AUTO_TEXT_DECODE;
+        }
+        if (options.hasOwnProperty('NESTED_ESCAPE_PARSE')) {
+            formatOptions.NESTED_ESCAPE_PARSE = !!options.NESTED_ESCAPE_PARSE;
+        } else if (formatOptions.hasOwnProperty('NESTED_ESCAPE_PARSE')) {
+            formatOptions.NESTED_ESCAPE_PARSE = !!formatOptions.NESTED_ESCAPE_PARSE;
+        }
     };
 
 
@@ -786,4 +821,3 @@ if(location.protocol !== 'chrome-extension:') {
         await window.JsonAutoFormat.format();
     })();
 }
-
