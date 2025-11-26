@@ -1152,6 +1152,9 @@ window.Formatter = (function () {
                 if (typeof value === 'bigint') {
                     return value.toString();
                 }
+                if (isBigNumberLike(value)) {
+                    return getBigNumberDisplayString(value);
+                }
                 if (typeof value === 'number' && value.toString().includes('e')) {
                     return value.toLocaleString('fullwide', {useGrouping: false});
                 }
@@ -1254,6 +1257,9 @@ window.Formatter = (function () {
                 if (typeof value === 'bigint') {
                     return value.toString();
                 }
+                if (isBigNumberLike(value)) {
+                    return getBigNumberDisplayString(value);
+                }
                 if (typeof value === 'number' && value.toString().includes('e')) {
                     return value.toLocaleString('fullwide', {useGrouping: false});
                 }
@@ -1294,20 +1300,82 @@ window.Formatter = (function () {
     // 与 worker 保持一致的 BigInt 安全解析：
     // 1) 给可能的大整数加标记；2) 使用reviver还原为原生BigInt
     let _parseWithBigInt = function(text) {
-        // 允许数字后存在可选空白，再跟 , ] }
-        const marked = text.replace(/([:,\[]\s*)(-?\d{16,})(\s*)(?=(?:,|\]|\}))/g, function(match, prefix, number, spaces) {
-            return prefix + '"__BigInt__' + number + '"' + spaces;
-        });
-        return JSON.parse(marked, function(key, value) {
-            if (typeof value === 'string' && value.indexOf('__BigInt__') === 0) {
-                try {
-                    return BigInt(value.slice(10));
-                } catch (e) {
-                    return value.slice(10);
+        // 先解析JSON，然后在对象层面处理大整数
+        // 这样可以避免在字符串内容中错误地匹配数字
+        try {
+            // 直接解析，如果成功则不需要BigInt处理
+            return JSON.parse(text);
+        } catch (e) {
+            // 如果解析失败，可能是因为大整数导致的精度问题
+            // 使用更安全的方式：只在非字符串上下文中标记大整数
+            // 通过状态机跟踪是否在字符串内部
+            let inString = false;
+            let escape = false;
+            let marked = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                
+                if (escape) {
+                    marked += char;
+                    escape = false;
+                    continue;
                 }
+                
+                if (char === '\\') {
+                    marked += char;
+                    escape = true;
+                    continue;
+                }
+                
+                if (char === '"') {
+                    inString = !inString;
+                    marked += char;
+                    continue;
+                }
+                
+                marked += char;
             }
-            return value;
-        });
+            
+            // 只在非字符串上下文中替换大整数
+            // 使用更精确的正则，确保不在字符串内
+            const result = text.replace(/([:,\[]\s*)(-?\d{16,})(\s*)(?=[,\]\}])/g, function(match, prefix, number, spaces, offset) {
+                // 检查这个位置是否在字符串内
+                let inStr = false;
+                let esc = false;
+                for (let i = 0; i < offset; i++) {
+                    if (esc) {
+                        esc = false;
+                        continue;
+                    }
+                    if (text[i] === '\\') {
+                        esc = true;
+                        continue;
+                    }
+                    if (text[i] === '"') {
+                        inStr = !inStr;
+                    }
+                }
+                
+                // 如果在字符串内，不替换
+                if (inStr) {
+                    return match;
+                }
+                
+                return prefix + '"__BigInt__' + number + '"' + spaces;
+            });
+            
+            return JSON.parse(result, function(key, value) {
+                if (typeof value === 'string' && value.indexOf('__BigInt__') === 0) {
+                    try {
+                        return BigInt(value.slice(10));
+                    } catch (e) {
+                        return value.slice(10);
+                    }
+                }
+                return value;
+            });
+        }
     };
 
     // 工具函数：获取或创建唯一图片预览浮窗节点
@@ -1350,7 +1418,7 @@ window.Formatter = (function () {
                                 if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || 
                                     (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
                                     try {
-                                        // 尝试解析为JSON
+                                        // 尝试解析为JSON，使用全局的 JSON.parse（已被 json-bigint.js 覆盖）
                                         const parsed = JSON.parse(strValue);
                                         // 如果解析成功且是对象或数组，格式化显示
                                         if (typeof parsed === 'object' && parsed !== null) {
@@ -1387,7 +1455,7 @@ window.Formatter = (function () {
                     case 'bigint':
                         // 对BigInt类型特殊处理，只显示数字，不添加n后缀
                         return '<div class="item item-line"><span class="number">' + 
-                            this.value.toString() + 
+                            getBigNumberDisplayString(this.value) + 
                             '</span></div>';
                     case 'boolean':
                         return '<div class="item item-line"><span class="bool">' + 
@@ -1655,8 +1723,13 @@ window.Formatter = (function () {
     function getType(value) {
         if (value === null) return 'null';
         if (typeof value === 'bigint') return 'bigint';
-        if (Array.isArray(value)) return 'array';
-        if (typeof value === 'object') return 'object';
+        if (typeof value === 'object') {
+            if (isBigNumberLike(value)) {
+                return 'bigint'; // 将 BigNumber 对象也当作 bigint 处理
+            }
+            if (Array.isArray(value)) return 'array';
+            return 'object';
+        }
         return typeof value;
     }
 
@@ -1681,6 +1754,101 @@ window.Formatter = (function () {
             // 这样可以保持用户原始输入的意图
             return htmlspecialchars(str);
         }
+    }
+
+    function isBigNumberLike(value) {
+        return value && typeof value === 'object' &&
+            typeof value.s === 'number' &&
+            typeof value.e === 'number' &&
+            Array.isArray(value.c);
+    }
+
+    function getBigNumberDisplayString(value) {
+        if (typeof value === 'bigint') {
+            return value.toString();
+        }
+        if (!isBigNumberLike(value)) {
+            return String(value);
+        }
+        const direct = tryConvertBigNumberToString(value);
+        if (direct) {
+            return direct;
+        }
+        return rebuildBigNumberFromParts(value);
+    }
+
+    function tryConvertBigNumberToString(value) {
+        const nativeToString = value && value.toString;
+        if (typeof nativeToString === 'function' && nativeToString !== Object.prototype.toString) {
+            try {
+                const result = nativeToString.call(value);
+                if (typeof result === 'string' && result !== '[object Object]') {
+                    return result;
+                }
+            } catch (e) {}
+        }
+        const ctor = getAvailableBigNumberCtor();
+        if (ctor && typeof Object.setPrototypeOf === 'function') {
+            try {
+                if (!(value instanceof ctor)) {
+                    Object.setPrototypeOf(value, ctor.prototype);
+                }
+                if (typeof value.toString === 'function' && value.toString !== Object.prototype.toString) {
+                    const result = value.toString();
+                    if (typeof result === 'string' && result !== '[object Object]') {
+                        return result;
+                    }
+                }
+            } catch (e) {}
+        }
+        return null;
+    }
+
+    function rebuildBigNumberFromParts(value) {
+        const sign = value.s < 0 ? '-' : '';
+        const CHUNK_SIZE = 14;
+        let digits = '';
+
+        for (let i = 0; i < value.c.length; i++) {
+            let chunkStr = Math.abs(value.c[i]).toString();
+            if (i > 0) {
+                chunkStr = chunkStr.padStart(CHUNK_SIZE, '0');
+            }
+            digits += chunkStr;
+        }
+
+        digits = digits.replace(/^0+/, '') || '0';
+        const decimalIndex = value.e + 1;
+
+        if (decimalIndex <= 0) {
+            const zeros = '0'.repeat(Math.abs(decimalIndex));
+            let fraction = zeros + digits;
+            fraction = fraction.replace(/0+$/, '');
+            if (!fraction) {
+                return sign + '0';
+            }
+            return sign + '0.' + fraction;
+        }
+        if (decimalIndex >= digits.length) {
+            return sign + digits + '0'.repeat(decimalIndex - digits.length);
+        }
+
+        const intPart = digits.slice(0, decimalIndex);
+        let fracPart = digits.slice(decimalIndex).replace(/0+$/, '');
+        if (!fracPart) {
+            return sign + intPart;
+        }
+        return sign + intPart + '.' + fracPart;
+    }
+
+    function getAvailableBigNumberCtor() {
+        if (typeof JSON !== 'undefined' && typeof JSON.BigNumber === 'function') {
+            return JSON.BigNumber;
+        }
+        if (typeof BigNumber === 'function') {
+            return BigNumber;
+        }
+        return null;
     }
 
     return {
