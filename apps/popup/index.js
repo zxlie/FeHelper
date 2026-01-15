@@ -49,6 +49,18 @@ new Vue({
         // 获取当前ctx的version
         this.manifest = chrome.runtime.getManifest();
         
+        console.log(`[FeHelper-Popup] Popup页面开始加载 - ${new Date().toLocaleString()}`);
+        console.log(`[FeHelper-Popup] 扩展版本: ${this.manifest.version}`);
+        
+        // 主动向后端发送消息，确保Service Worker被激活
+        chrome.runtime.sendMessage({
+            type: 'fh-popup-opened',
+            timestamp: Date.now()
+        }, (response) => {
+            console.log(`[FeHelper-Popup] Service Worker激活成功 - ${new Date().toLocaleString()}`);
+            console.log(`[FeHelper-Popup] 后台响应:`, response || '无响应');
+        });
+        
         // 立即开始加载工具列表，不阻塞页面渲染
         this.loadTools();
 
@@ -57,13 +69,18 @@ new Vue({
     },
 
     mounted: function () {
+        console.log(`[FeHelper-Popup] Popup页面DOM渲染完成 - ${new Date().toLocaleString()}`);
+        
         // 页面DOM渲染完成后，执行非关键操作
         this.$nextTick(() => {
             // 延迟执行非关键操作，避免阻塞UI渲染
             setTimeout(() => {
+                console.log(`[FeHelper-Popup] 开始执行非关键初始化操作`);
+                
                 // 自动开关灯
                 if (typeof DarkModeMgr !== 'undefined') {
                     DarkModeMgr.turnLightAuto();
+                    console.log(`[FeHelper-Popup] 自动开关灯功能已初始化`);
                 }
 
                 // 记录工具使用（非关键操作）
@@ -72,7 +89,10 @@ new Vue({
                 // 页面加载后自动采集（非关键操作）
                 if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
                     Awesome.collectAndSendClientInfo();
+                    console.log(`[FeHelper-Popup] 客户端信息采集已发送`);
                 }
+                
+                console.log(`[FeHelper-Popup] 非关键初始化操作完成`);
             }, 50); // 延迟50ms执行，让UI先渲染
         });
 
@@ -240,19 +260,35 @@ new Vue({
         },
 
         runHelper: async function (toolName) {
-            if (!toolName || !this.fhTools[toolName]) return;
+            if (!toolName || !this.fhTools[toolName]) {
+                console.error(`[FeHelper-Popup] 无效的工具名称或工具未安装: ${toolName}`);
+                return;
+            }
             
+            const tool = this.fhTools[toolName];
             let request = {
                 type: MSG_TYPE.OPEN_DYNAMIC_TOOL,
                 page: toolName,
-                noPage: !!this.fhTools[toolName].noPage
+                noPage: !!tool.noPage
             };
-            if(this.fhTools[toolName]._devTool) {
+            
+            if(tool._devTool) {
                 request.page = 'dynamic';
                 request.query = `tool=${toolName}`;
             }
-            chrome.runtime.sendMessage(request);
-            !!this.fhTools[toolName].noPage && setTimeout(window.close, 200);
+            
+            try {
+                await chrome.runtime.sendMessage(request);
+                !!tool.noPage && setTimeout(window.close, 200);
+            } catch (error) {
+                console.error(`[FeHelper-Popup] 消息发送失败:`, error);
+                
+                // 备用方案：直接打开工具页面
+                chrome.tabs.create({
+                    url: `/${toolName}/index.html` + (request.query ? `?${request.query}` : ''),
+                    active: true
+                });
+            }
         },
 
         openOptionsPage: () => {

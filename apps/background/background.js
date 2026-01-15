@@ -151,8 +151,26 @@ let BgPageInstance = (function () {
      * @constructor
      */
     chrome.DynamicToolRunner = async function (configs) {
+        // 参数验证
+        if (!configs || typeof configs !== 'object') {
+            console.error(`[FeHelper] DynamicToolRunner参数无效:`, configs);
+            notifyText({
+                message: '抱歉，无法识别要打开的工具！'
+            });
+            return;
+        }
 
         let tool = configs.tool || configs.page;
+        
+        // 工具名称验证
+        if (!tool) {
+            console.error(`[FeHelper] DynamicToolRunner: 无效的工具名称`, configs);
+            notifyText({
+                message: '抱歉，无法识别要打开的工具！'
+            });
+            return;
+        }
+        
         let withContent = configs.withContent;
         let activeTab = null;
         let query = configs.query;
@@ -179,7 +197,6 @@ let BgPageInstance = (function () {
         }
 
         chrome.tabs.query({currentWindow: true}, function (tabs) {
-
             activeTab = tabs.filter(tab => tab.active)[0];
 
             // 如果是二维码工具，且没有传入内容，则使用当前页面的URL
@@ -208,11 +225,20 @@ let BgPageInstance = (function () {
                     chrome.tabs.create({
                         url,
                         active: true
-                    }).then(tab => { FeJson[tab.id] = { content: withContent }; });
+                    }).then(tab => {
+                        FeJson[tab.id] = { content: withContent };
+                    }).catch(error => {
+                        console.error(`[FeHelper] 创建标签页失败:`, error);
+                        notifyText({
+                            message: '抱歉，无法打开工具页面！'
+                        });
+                    });
                 } else {
                     chrome.tabs.update(tabId, {highlighted: true}).then(tab => {
                         FeJson[tab.id] = { content: withContent };
                         chrome.tabs.reload(tabId);
+                    }).catch(error => {
+                        console.error(`[FeHelper] 更新标签页失败:`, error);
                     });
                 }
 
@@ -652,14 +678,23 @@ let BgPageInstance = (function () {
 
     // 监听Service Worker激活事件，确保菜单能被正确重建
     chrome.runtime.onStartup.addListener(() => {
-        console.log(`[FeHelper] onStartup事件触发，重建菜单`);
+        console.log(`[FeHelper] onStartup事件触发 - ${new Date().toLocaleString()}`);
+        console.log(`[FeHelper] Service Worker启动，开始重建菜单`);
         Menu.rebuild();
     });
 
     // 监听扩展安装/更新事件，确保菜单能被正确重建
     chrome.runtime.onInstalled.addListener((details) => {
-        console.log(`[FeHelper] onInstalled事件触发，原因: ${details.reason}，重建菜单`);
+        console.log(`[FeHelper] onInstalled事件触发 - ${new Date().toLocaleString()}`);
+        console.log(`[FeHelper] 安装/更新原因: ${details.reason}`);
+        console.log(`[FeHelper] 旧版本: ${details.previousVersion || '首次安装'}`);
+        console.log(`[FeHelper] 开始重建菜单...`);
         Menu.rebuild();
+    });
+
+    // 监听Service Worker唤醒事件
+    chrome.runtime.onConnect.addListener(() => {
+        console.log(`[FeHelper] Service Worker被唤醒 - ${new Date().toLocaleString()}`);
     });
 
     /**
