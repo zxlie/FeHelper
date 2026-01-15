@@ -151,11 +151,6 @@ let BgPageInstance = (function () {
      * @constructor
      */
     chrome.DynamicToolRunner = async function (configs) {
-        console.log(`[FeHelper] DynamicToolRunner调用 - ${new Date().toLocaleString()}`, { 
-            configs: JSON.stringify(configs),
-            typeofConfigs: typeof configs
-        });
-
         // 参数验证
         if (!configs || typeof configs !== 'object') {
             console.error(`[FeHelper] DynamicToolRunner参数无效:`, configs);
@@ -166,11 +161,6 @@ let BgPageInstance = (function () {
         }
 
         let tool = configs.tool || configs.page;
-        console.log(`[FeHelper] 解析工具名称 - ${new Date().toLocaleString()}`, { 
-            toolFromTool: configs.tool, 
-            toolFromPage: configs.page, 
-            resolvedTool: tool 
-        });
         
         // 工具名称验证
         if (!tool) {
@@ -187,21 +177,17 @@ let BgPageInstance = (function () {
 
         // 如果是noPage模式，则表名只完成content-script的工作，直接发送命令即可
         if (configs.noPage) {
-            console.log(`[FeHelper] 处理noPage模式工具 - ${new Date().toLocaleString()}`, { tool });
             let toolFunc = tool.replace(/-/g, '');
             chrome.tabs.query({active: true, currentWindow: true}, tabs => {
-                console.log(`[FeHelper] 查询当前激活标签页 - ${new Date().toLocaleString()}`, { tabCount: tabs.length });
                 let found = tabs.some(tab => {
                     if (/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))) {
                         let codes = `window['${toolFunc}NoPage'] && window['${toolFunc}NoPage'](${JSON.stringify(tab)});`;
-                        console.log(`[FeHelper] 向标签页注入脚本 - ${new Date().toLocaleString()}`, { tabId: tab.id, codes: codes.substring(0, 50) + '...' });
                         InjectTools.inject(tab.id, {js: codes});
                         return true;
                     }
                     return false;
                 });
                 if (!found) {
-                    console.log(`[FeHelper] 未找到合适的标签页运行工具 - ${new Date().toLocaleString()}`, { tool });
                     notifyText({
                         message: '抱歉，此工具无法在当前页面使用！'
                     });
@@ -211,31 +197,24 @@ let BgPageInstance = (function () {
         }
 
         chrome.tabs.query({currentWindow: true}, function (tabs) {
-            console.log(`[FeHelper] 查询当前窗口标签页 - ${new Date().toLocaleString()}`, { tabCount: tabs.length });
-
             activeTab = tabs.filter(tab => tab.active)[0];
-            console.log(`[FeHelper] 找到激活标签页 - ${new Date().toLocaleString()}`, { tabId: activeTab?.id, tabUrl: activeTab?.url });
 
             // 如果是二维码工具，且没有传入内容，则使用当前页面的URL
             if (tool === 'qr-code' && !withContent && activeTab) {
                 withContent = activeTab.url;
-                console.log(`[FeHelper] 二维码工具自动填充内容 - ${new Date().toLocaleString()}`, { content: withContent });
             }
 
             Settings.getOptions((opts) => {
-                console.log(`[FeHelper] 获取扩展选项 - ${new Date().toLocaleString()}`, { FORBID_OPEN_IN_NEW_TAB: opts['FORBID_OPEN_IN_NEW_TAB'] });
                 let isOpened = false;
                 let tabId;
 
                 // 允许在新窗口打开
                 if (String(opts['FORBID_OPEN_IN_NEW_TAB']) === 'true') {
                     let reg = new RegExp("^chrome.*\\/" + tool + "\\/index.html" + (query ? "\\?" + query : '') + "$", "i");
-                    console.log(`[FeHelper] 检查工具是否已打开 - ${new Date().toLocaleString()}`, { regex: reg.toString() });
                     for (let i = 0, len = tabs.length; i < len; i++) {
                         if (reg.test(tabs[i].url)) {
                             isOpened = true;
                             tabId = tabs[i].id;
-                            console.log(`[FeHelper] 工具已在标签页打开 - ${new Date().toLocaleString()}`, { tabId, tabUrl: tabs[i].url });
                             break;
                         }
                     }
@@ -243,30 +222,23 @@ let BgPageInstance = (function () {
 
                 if (!isOpened) {
                     let url = `/${tool}/index.html` + (query ? "?" + query : '');
-                    console.log(`[FeHelper] 创建新标签页打开工具 - ${new Date().toLocaleString()}`, { url, active: true });
                     chrome.tabs.create({
                         url,
                         active: true
                     }).then(tab => {
-                        console.log(`[FeHelper] 新标签页创建成功 - ${new Date().toLocaleString()}`, { tabId: tab.id, tabUrl: tab.url });
                         FeJson[tab.id] = { content: withContent };
-                        console.log(`[FeHelper] 保存页面内容到缓存 - ${new Date().toLocaleString()}`, { tabId: tab.id, hasContent: !!withContent });
                     }).catch(error => {
-                        console.error(`[FeHelper] 创建标签页失败 - ${new Date().toLocaleString()}`, error);
+                        console.error(`[FeHelper] 创建标签页失败:`, error);
                         notifyText({
                             message: '抱歉，无法打开工具页面！'
                         });
                     });
                 } else {
-                    console.log(`[FeHelper] 更新已打开的工具标签页 - ${new Date().toLocaleString()}`, { tabId });
                     chrome.tabs.update(tabId, {highlighted: true}).then(tab => {
-                        console.log(`[FeHelper] 标签页高亮成功 - ${new Date().toLocaleString()}`, { tabId: tab.id });
                         FeJson[tab.id] = { content: withContent };
-                        console.log(`[FeHelper] 保存页面内容到缓存 - ${new Date().toLocaleString()}`, { tabId: tab.id, hasContent: !!withContent });
                         chrome.tabs.reload(tabId);
-                        console.log(`[FeHelper] 标签页重新加载 - ${new Date().toLocaleString()}`, { tabId: tab.id });
                     }).catch(error => {
-                        console.error(`[FeHelper] 更新标签页失败 - ${new Date().toLocaleString()}`, error);
+                        console.error(`[FeHelper] 更新标签页失败:`, error);
                     });
                 }
 
@@ -490,24 +462,12 @@ let BgPageInstance = (function () {
             }
             // 打开动态工具页面
             else if (request.type === MSG_TYPE.OPEN_DYNAMIC_TOOL) {
-                console.log(`[FeHelper] 处理工具打开请求 - ${new Date().toLocaleString()}`, { 
-                    type: request.type, 
-                    tool: request.tool || request.page, 
-                    noPage: request.noPage, 
-                    timestamp: request.timestamp,
-                    query: request.query
-                });
                 chrome.DynamicToolRunner(request);
                 // 记录工具使用
                 if (request.page) {
                     Statistics.recordToolUsage(request.page);
                 }
-                // 发送响应
-                callback && callback({
-                    status: 'success',
-                    message: '工具打开请求已处理',
-                    tool: request.tool || request.page
-                });
+                callback && callback();
             }
             // 打开其他页面
             else if (request.type === MSG_TYPE.OPEN_PAGE) {

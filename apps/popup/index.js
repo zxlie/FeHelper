@@ -260,45 +260,30 @@ new Vue({
         },
 
         runHelper: async function (toolName) {
-            console.log(`[FeHelper-Popup] 点击工具: ${toolName} - ${new Date().toLocaleString()}`);
-            
             if (!toolName || !this.fhTools[toolName]) {
-                console.error(`[FeHelper-Popup] 无效的工具名称或工具未安装: ${toolName}`, { fhTools: this.fhTools });
+                console.error(`[FeHelper-Popup] 无效的工具名称或工具未安装: ${toolName}`);
                 return;
             }
             
             const tool = this.fhTools[toolName];
-            console.log(`[FeHelper-Popup] 工具信息:`, { 
-                name: tool.name, 
-                installed: tool.installed, 
-                isDevTool: !!tool._devTool, 
-                noPage: !!tool.noPage 
-            });
-            
             let request = {
                 type: MSG_TYPE.OPEN_DYNAMIC_TOOL,
                 page: toolName,
-                noPage: !!tool.noPage,
-                timestamp: Date.now()
+                noPage: !!tool.noPage
             };
             
             if(tool._devTool) {
                 request.page = 'dynamic';
                 request.query = `tool=${toolName}`;
-                console.log(`[FeHelper-Popup] 开发工具，使用dynamic页面:`, request.query);
             }
             
-            console.log(`[FeHelper-Popup] 发送消息:`, { type: request.type, page: request.page, noPage: request.noPage });
-            
             try {
-                const response = await chrome.runtime.sendMessage(request);
-                console.log(`[FeHelper-Popup] 消息发送成功，响应:`, response);
+                await chrome.runtime.sendMessage(request);
                 !!tool.noPage && setTimeout(window.close, 200);
             } catch (error) {
                 console.error(`[FeHelper-Popup] 消息发送失败:`, error);
                 
                 // 备用方案：直接打开工具页面
-                console.log(`[FeHelper-Popup] 尝试备用方案：直接打开工具页面`);
                 chrome.tabs.create({
                     url: `/${toolName}/index.html` + (request.query ? `?${request.query}` : ''),
                     active: true
