@@ -6,9 +6,9 @@
 
 **一个功能强大的开源浏览器扩展，专为前端开发者和职场人士设计**
 
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/pkgccpejnmalmdinmhkkfafefagiiiad?label=chrome%20web%20store&logo=googlechrome&color=3b82f6&style=for-the-badge)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
-[![Chrome Web Store Rating](https://img.shields.io/chrome-web-store/rating/pkgccpejnmalmdinmhkkfafefagiiiad?label=rating&logo=googlechrome&color=3b82f6&style=for-the-badge)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
-[![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/pkgccpejnmalmdinmhkkfafefagiiiad?label=users&logo=googlechrome&color=3b82f6&style=for-the-badge)](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/pkgccpejnmalmdinmhkkfafefagiiiad?label=chrome%20web%20store&logo=googlechrome&color=3b82f6&style=for-the-badge)](https://chromewebstore.google.com/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
+[![Chrome Web Store Rating](https://img.shields.io/chrome-web-store/rating/pkgccpejnmalmdinmhkkfafefagiiiad?label=rating&logo=googlechrome&color=3b82f6&style=for-the-badge)](https://chromewebstore.google.com/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
+[![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/pkgccpejnmalmdinmhkkfafefagiiiad?label=users&logo=googlechrome&color=3b82f6&style=for-the-badge)](https://chromewebstore.google.com/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
 [![GitHub Stars](https://img.shields.io/github/stars/zxlie/FeHelper?style=for-the-badge&color=8b5cf6&logo=github)](https://github.com/zxlie/FeHelper)
 [![GitHub Forks](https://img.shields.io/github/forks/zxlie/FeHelper?style=for-the-badge&color=8b5cf6&logo=github)](https://github.com/zxlie/FeHelper)
 [![开发历史](https://img.shields.io/badge/since-2011-f59e0b?style=for-the-badge&logo=calendar&logoColor=white)](https://github.com/zxlie/FeHelper)
@@ -124,7 +124,7 @@ FeHelper 是一个集成了 **30+ 种实用工具** 的浏览器扩展，支持 
 
 | 浏览器 | 安装地址 | 评分 | 用户数 |
 |--------|----------|------|--------|
-| **Chrome** | [Chrome Web Store](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad) | ⭐⭐⭐⭐⭐ 4.7 | 200K+ |
+| **Chrome** | [Chrome Web Store](https://chromewebstore.google.com/detail/pkgccpejnmalmdinmhkkfafefagiiiad) | ⭐⭐⭐⭐⭐ 4.7 | 200K+ |
 | **Edge** | [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/fehelper%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B/pkgccpejnmalmdinmhkkfafefagiiiad) | ⭐⭐⭐⭐⭐ 4.8 | 100K+ |
 | **Firefox** | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/fehelper-%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8B/) | ⭐⭐⭐⭐⭐ 4.9 | 全新发布 |
 
