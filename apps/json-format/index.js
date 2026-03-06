@@ -847,7 +847,16 @@ function parseWithBigInt(text) {
     const keyFixRegex = /([\{,]\s*)(\w+)(\s*:)/g;
     fixed = fixed.replace(keyFixRegex, '$1"$2"$3');
     // 标记 16 位及以上的整数（允许值后有空白，再跟 , ] } 或结尾）
-    fixed = fixed.replace(/([:,\[]\s*)(-?\d{16,})(\s*)(?=(?:,|\]|\}|$))/g, function(m, p1, num, sp) {
+    // 使用 offset 检查匹配位置是否在 JSON 字符串内部，避免破坏嵌套转义的 JSON 字符串
+    fixed = fixed.replace(/([:,\[]\s*)(-?\d{16,})(\s*)(?=(?:,|\]|\}|$))/g, function(m, p1, num, sp, offset) {
+        let inStr = false;
+        let esc = false;
+        for (let i = 0; i < offset; i++) {
+            if (esc) { esc = false; continue; }
+            if (fixed[i] === '\\') { esc = true; continue; }
+            if (fixed[i] === '"') { inStr = !inStr; }
+        }
+        if (inStr) return m;
         return p1 + '"__BigInt__' + num + '"' + sp;
     });
     return JSON.parse(fixed, function(key, value) {
