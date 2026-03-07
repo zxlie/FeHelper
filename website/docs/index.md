@@ -178,7 +178,7 @@ FeHelper提供了完整的插件市场和配置管理功能，让用户可以根
 ## 安装方式
 
 ### Chrome浏览器
-1. 访问 [Chrome网上应用店](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
+1. 访问 [Chrome网上应用店](https://chromewebstore.google.com/detail/pkgccpejnmalmdinmhkkfafefagiiiad)
 2. 点击"添加到Chrome"即可安装
 
 ### Firefox浏览器
