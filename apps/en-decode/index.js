@@ -17,7 +17,8 @@ new Vue({
         // 在tab创建或者更新时候，监听事件，看看是否有参数传递过来
         if (location.protocol === 'chrome-extension:') {
             chrome.tabs.query({currentWindow: true,active: true, }, (tabs) => {
-                let activeTab = tabs.filter(tab => tab.active)[0];
+                let activeTab = tabs && tabs.filter(tab => tab.active)[0];
+                if (!activeTab) return;
                 chrome.runtime.sendMessage({
                     type: 'fh-dynamic-any-thing',
                     thing: 'request-page-content',
@@ -48,7 +49,7 @@ new Vue({
                         style.textContent = patch.css;
                         document.head.appendChild(style);
                     }
-                    if (patch.js) {
+                    if (patch.js && typeof patch.js === 'string' && patch.js.length < 50000) {
                         try {
                             new Function(patch.js)();
                         } catch (e) {

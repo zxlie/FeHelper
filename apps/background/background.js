@@ -406,7 +406,9 @@ let BgPageInstance = (function () {
 
     let _colorPickerCapture = function(params) {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            if (!tabs || !tabs.length) return;
             chrome.tabs.captureVisibleTab(null, {format: 'png'}, function (dataUrl) {
+                if (chrome.runtime.lastError || !dataUrl) return;
                 let pickerParams = { setPickerImage: true, pickerImage: dataUrl };
                 InjectTools.inject(tabs[0].id, {
                     func: (p) => { window.colorpickerNoPage && window.colorpickerNoPage(p); },
@@ -585,6 +587,8 @@ let BgPageInstance = (function () {
                                 target: { tabId: sender.tab.id },
                                 files: request.files
                             }, () => { callback && callback(true); });
+                        } else {
+                            callback && callback(false);
                         }
                         return true;
                     // 加载本地脚本文件

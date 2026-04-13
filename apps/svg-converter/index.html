@@ -18,23 +18,18 @@
         </style>
     </head>
     <body>
-        <div id="pageContainer" v-cloak>
-            <div class="fe-mod-head">
-                <div class="mod-head-inner">
-                    <div class="mod-head-title">
-                        <div class="navbar-brand">
-                            <img src="../static/img/fe-16.png" alt="fehelper"/> 
-                            <span class="brand-text">FeHelper</span>
-                            <span class="brand-subtitle">SVG转图片工具</span>
-                        </div>
-                    </div>
-                    <div class="mod-head-actions">
+        <div class="wrapper" id="pageContainer" v-cloak>
+            <div class="panel panel-default" style="margin-bottom: 0px;">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <a href="https://fehelper.com" target="_blank" class="x-a-high">
+                            <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：SVG转图片工具
                         <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
                         <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
-                    </div>
+                    </h3>
                 </div>
             </div>
-            <div class="fe-mod-bd">
+            <div class="panel-body">
                 <div class="mod-main">
                     <div class="main-inner">
                         <!-- SVG转图片界面 -->
@@ -43,7 +38,7 @@
                                 <tr>
                                     <td>
                                         <div ref="panelBox" class="x-panel" :class="{'has-image': svgPreviewSrc}">
-                                            <div class="panel-title">SVG源文件</div>
+                                            <div class="x-panel-title">SVG源文件</div>
                                             <div class="panel-content">
                                                 <div class="upload-zone" v-if="!svgPreviewSrc">
                                                     <p>
@@ -115,7 +110,7 @@
                                     </td>
                                     <td>
                                         <div class="x-panel" :class="{'has-image': imgPreviewSrc}">
-                                            <div class="panel-title">转换后图片</div>
+                                            <div class="x-panel-title">转换后图片</div>
                                             <div class="panel-content">
                                                 <div class="result-zone">
                                                     <p v-if="!imgPreviewSrc">转换后的图片将显示在这里</p>
@@ -159,7 +154,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- 添加加载状态指示器 -->
             <div class="loading-overlay" v-if="isProcessing">
                 <div class="loading-container">

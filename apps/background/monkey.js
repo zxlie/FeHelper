@@ -40,7 +40,7 @@ export default (() => {
                         let scripts = '(' + ((monkey) => {
                             let injectFunc = () => {
                                 // 执行脚本
-                                try{evalCore.getEvalInstance(window)(monkey.mScript)}catch(x){}
+                                try{ new Function(monkey.mScript)() }catch(x){}
 
                                 parseInt(monkey.mRefresh) && setTimeout(() => {
                                     location.reload(true);
@@ -49,12 +49,11 @@ export default (() => {
 
                             window._fhImportJs = js => {
                                 return fetch(js).then(resp => resp.text()).then(jsText => {
-                                    if(window.evalCore && window.evalCore.getEvalInstance){
-                                         return window.evalCore.getEvalInstance(window)(jsText);
+                                    try { new Function(jsText)(); } catch(e) {
+                                        let el = document.createElement('script');
+                                        el.textContent = jsText;
+                                        document.head.appendChild(el);
                                     }
-                                    let el = document.createElement('script');
-                                    el.textContent = jsText;
-                                    document.head.appendChild(el);
                                 });
                             };
 

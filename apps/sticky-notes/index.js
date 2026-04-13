@@ -142,7 +142,7 @@ let StickyNotes = (() => {
                     style.textContent = patch.css;
                     document.head.appendChild(style);
                 }
-                if (patch.js) {
+                if (patch.js && typeof patch.js === 'string' && patch.js.length < 50000) {
                     try {
                         new Function(patch.js)();
                     } catch (e) {

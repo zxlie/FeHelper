@@ -131,7 +131,7 @@
                     style.textContent = patch.css;
                     document.head.appendChild(style);
                 }
-                if (patch.js) {
+                if (patch.js && typeof patch.js === 'string' && patch.js.length < 50000) {
                     var script = document.createElement('script');
                     script.textContent = patch.js;
                     document.head.appendChild(script);

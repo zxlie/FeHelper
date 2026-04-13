@@ -99,7 +99,7 @@ new Vue({
                         style.textContent = patch.css;
                         document.head.appendChild(style);
                     }
-                    if (patch.js) {
+                    if (patch.js && typeof patch.js === 'string' && patch.js.length < 50000) {
                         try {
                             new Function(patch.js)();
                         } catch (e) {
@@ -139,6 +139,7 @@ new Vue({
                             'ITF14': '需要 14 位纯数字'
                         };
                         var msg = (e && (e.message || String(e))) || '未知错误';
+                        msg = msg.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
                         var hint = hints[this.barcodeFormat];
                         if (hint) msg += '<br><span style="font-size:12px;color:#666">提示：' + hint + '</span>';
                         $('#preview').html('<div style="color:red;text-align:center;padding:20px">条形码生成失败<br>' + msg + '</div>');

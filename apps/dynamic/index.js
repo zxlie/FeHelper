@@ -58,7 +58,9 @@ let DynamicTool = (() => {
                     document.head.appendChild(node);
                 }
                 allJs = allJs.map(f => values[1][f]).join(';');
-                allJs.length && window.evalCore.getEvalInstance(window)(allJs);
+                if (allJs.length) {
+                    try { new Function(allJs)(); } catch(e) { console.error('动态工具JS执行失败', e); }
+                }
             });
         });
     };

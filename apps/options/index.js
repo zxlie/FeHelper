@@ -168,8 +168,8 @@ new Vue({
             if (this.searchKey) {
                 const key = this.searchKey.toLowerCase();
                 result = result.filter(tool => 
-                    tool.name.toLowerCase().includes(key) || 
-                    tool.tips.toLowerCase().includes(key)
+                    (tool.name || '').toLowerCase().includes(key) || 
+                    (tool.tips || '').toLowerCase().includes(key)
                 );
             }
 

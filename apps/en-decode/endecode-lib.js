@@ -491,9 +491,9 @@ let EncodeUtils = (() => {
                 throw new InvalidTokenError("Invalid token specified: must be three parts");
             }
             
-            for(let part of parts){
-                if (typeof part !== "string") {
-                    throw new InvalidTokenError(`Invalid token specified: missing part #${pos + 1}`);
+            for(let i = 0; i < parts.length; i++){
+                if (typeof parts[i] !== "string" || parts[i].length === 0) {
+                    throw new InvalidTokenError(`Invalid token specified: missing part #${i + 1}`);
                 }        
             }
         

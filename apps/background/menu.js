@@ -45,9 +45,12 @@ export default (function () {
                             target: {tabId:tab.id,allFrames:false},
                             args: [info.selectionText || ''],
                             func: (text) => text
-                        }, resp => globalThis.FeHelperBg.DynamicToolRunner({
-                            tool, withContent: resp[0].result
-                        }));
+                        }, resp => {
+                            if (chrome.runtime.lastError || !resp || !resp[0]) return;
+                            globalThis.FeHelperBg.DynamicToolRunner({
+                                tool, withContent: resp[0].result
+                            });
+                        });
                     };
                     break;
 
@@ -58,9 +61,12 @@ export default (function () {
                             target: {tabId:tab.id,allFrames:false},
                             args: [info.linkUrl || info.srcUrl || info.selectionText || info.pageUrl || ''],
                             func: (text) => text
-                        }, resp => globalThis.FeHelperBg.DynamicToolRunner({
-                            tool, withContent: resp[0].result
-                        }));
+                        }, resp => {
+                            if (chrome.runtime.lastError || !resp || !resp[0]) return;
+                            globalThis.FeHelperBg.DynamicToolRunner({
+                                tool, withContent: resp[0].result
+                            });
+                        });
                     };
                     break;
 
@@ -70,9 +76,12 @@ export default (function () {
                             target: {tabId:tab.id,allFrames:false},
                             args: [info.linkUrl || info.srcUrl || info.selectionText || info.pageUrl || tab.url || ''],
                             func: (text) => text
-                        }, resp => globalThis.FeHelperBg.DynamicToolRunner({
-                            tool, withContent: resp[0].result
-                        }));
+                        }, resp => {
+                            if (chrome.runtime.lastError || !resp || !resp[0]) return;
+                            globalThis.FeHelperBg.DynamicToolRunner({
+                                tool, withContent: resp[0].result
+                            });
+                        });
                     };
                     toolMap[tool].menuConfig[1].onClick = function (info, tab) {
                         chrome.scripting.executeScript({
@@ -186,7 +195,9 @@ export default (function () {
                                     noPage: !!tools[tool].noPage,
                                     query: `tool=${tool}`
                                 });
-                                !!tools[tool].noPage && setTimeout(window.close, 200);
+                                if (tools[tool].noPage && typeof self !== 'undefined' && typeof self.close === 'function') {
+                                    setTimeout(() => self.close(), 200);
+                                }
                             }
                         }];
                     }

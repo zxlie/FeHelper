@@ -78,6 +78,7 @@ new Vue({
             let locale = (new Date(Date.parse(this.txtLocale) - ((new Date()).getTimezoneOffset() + this.curGMT * 60) * 60000)).getTime();
             if (isNaN(locale)) {
                 alert('请输入合法的时间格式，如：2014-04-01 10:01:01，或：2014-01-01');
+                return;
             }
             let base = this.secTo === 's' ? 1000 : 1;
             this.txtDesStamp = Math.round(locale / base);
@@ -120,18 +121,20 @@ new Vue({
                 alert('请先填写 Windows FILETIME');
                 return;
             }
-            let fileTime = parseInt(ft, 10);
-            if (isNaN(fileTime)) {
+            let fileTime;
+            try {
+                fileTime = BigInt(ft);
+            } catch(e) {
                 alert('请输入合法的 FILETIME');
                 return;
             }
-            let unixMs = fileTime / 10000 - 11644473600000;
+            let unixMs = Number(fileTime / 10000n) - 11644473600000;
             let d = new Date(unixMs);
             this.txtFileTimeResult = d.format('yyyy-MM-dd HH:mm:ss.SSS');
         },
         dateToFileTime: function () {
             let unixMs = this.txtNowMs;
-            let fileTime = Math.round((unixMs + 11644473600000) * 10000);
+            let fileTime = BigInt(unixMs + 11644473600000) * 10000n;
             this.txtFileTimeResult = String(fileTime);
         },
 
@@ -148,7 +151,7 @@ new Vue({
                         style.textContent = patch.css;
                         document.head.appendChild(style);
                     }
-                    if (patch.js) {
+                    if (patch.js && typeof patch.js === 'string' && patch.js.length < 50000) {
                         try {
                             new Function(patch.js)();
                         } catch (e) {
