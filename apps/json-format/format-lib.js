@@ -58,16 +58,17 @@ Date.prototype.format = function (pattern) {
  */
 window.toast = function (content) {
     window.clearTimeout(window.feHelperAlertMsgTid);
+    var safe = String(content).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     let elAlertMsg = document.querySelector("#fehelper_alertmsg");
     if (!elAlertMsg) {
         let elWrapper = document.createElement('div');
         elWrapper.innerHTML = '<div id="fehelper_alertmsg" style="position:fixed;bottom:25px;left:5px;z-index:1000000">' +
             '<p style="background:#000;display:inline-block;color:#fff;text-align:center;' +
-            'padding:10px 10px;margin:0 auto;font-size:14px;border-radius:4px;">' + content + '</p></div>';
+            'padding:10px 10px;margin:0 auto;font-size:14px;border-radius:4px;">' + safe + '</p></div>';
         elAlertMsg = elWrapper.childNodes[0];
         document.body.appendChild(elAlertMsg);
     } else {
-        elAlertMsg.querySelector('p').innerHTML = content;
+        elAlertMsg.querySelector('p').innerHTML = safe;
         elAlertMsg.style.display = 'block';
     }
 

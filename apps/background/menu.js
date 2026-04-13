@@ -45,7 +45,7 @@ export default (function () {
                             target: {tabId:tab.id,allFrames:false},
                             args: [info.selectionText || ''],
                             func: (text) => text
-                        }, resp => chrome.DynamicToolRunner({
+                        }, resp => globalThis.FeHelperBg.DynamicToolRunner({
                             tool, withContent: resp[0].result
                         }));
                     };
@@ -58,7 +58,7 @@ export default (function () {
                             target: {tabId:tab.id,allFrames:false},
                             args: [info.linkUrl || info.srcUrl || info.selectionText || info.pageUrl || ''],
                             func: (text) => text
-                        }, resp => chrome.DynamicToolRunner({
+                        }, resp => globalThis.FeHelperBg.DynamicToolRunner({
                             tool, withContent: resp[0].result
                         }));
                     };
@@ -70,7 +70,7 @@ export default (function () {
                             target: {tabId:tab.id,allFrames:false},
                             args: [info.linkUrl || info.srcUrl || info.selectionText || info.pageUrl || tab.url || ''],
                             func: (text) => text
-                        }, resp => chrome.DynamicToolRunner({
+                        }, resp => globalThis.FeHelperBg.DynamicToolRunner({
                             tool, withContent: resp[0].result
                         }));
                     };
@@ -97,7 +97,7 @@ export default (function () {
 
                 default:
                     toolMap[tool].menuConfig[0].onClick = function (info, tab) {
-                        chrome.DynamicToolRunner({
+                        globalThis.FeHelperBg.DynamicToolRunner({
                             tool, withContent: tool === 'image-base64' ? info.srcUrl : ''
                         })
                     };
@@ -131,7 +131,7 @@ export default (function () {
                     if(mFunc) {
                         mFunc(info,tab);
                     }else{
-                        chrome.DynamicToolRunner({ tool });
+                        globalThis.FeHelperBg.DynamicToolRunner({ tool });
                     }
                 }
             })(toolName,menuItemId,menu.onClick));
@@ -181,7 +181,7 @@ export default (function () {
                             icon: tools[tool].icon,
                             text: tools[tool].name,
                             onClick: (info, tab) => {
-                                chrome.DynamicToolRunner({
+                                globalThis.FeHelperBg.DynamicToolRunner({
                                     page: 'dynamic',
                                     noPage: !!tools[tool].noPage,
                                     query: `tool=${tool}`

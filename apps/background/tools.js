@@ -94,6 +94,14 @@ let toolMap = {
             text: '随机密码生成'
         }]
     },
+    'uuid-gen': {
+        name: 'UUID/ID生成器',
+        tips: '生成 UUID v4、Twitter Snowflake 风格雪花 ID、NanoID，并支持解析雪花 ID 各字段',
+        menuConfig: [{
+            icon: '❄',
+            text: 'UUID/ID生成器'
+        }]
+    },
     'sticky-notes': {
         name: '我的便签笔记',
         tips: '方便快捷的浏览器便签笔记工具，支持创建目录对笔记进行分类管理，笔记支持一键导出/导入',

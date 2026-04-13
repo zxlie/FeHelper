@@ -9,7 +9,7 @@ const TOOL_CATEGORIES = [
     { key: 'encode', name: '编解码转换类', tools: ['en-decode', 'trans-radix', 'timestamp', 'trans-color'] },
     { key: 'image', name: '图像处理类', tools: ['qr-code', 'image-base64', 'svg-converter', 'chart-maker', 'poster-maker' ,'screenshot', 'color-picker'] },
     { key: 'productivity', name: '效率工具类', tools: ['aiagent', 'sticky-notes', 'html2markdown', 'page-monkey'] },
-    { key: 'calculator', name: '计算工具类', tools: ['crontab', 'loan-rate', 'password'] },
+    { key: 'calculator', name: '计算工具类', tools: ['crontab', 'loan-rate', 'password', 'uuid-gen'] },
     { key: 'other', name: '其他工具', tools: [] }
 ];
 
@@ -1549,11 +1549,9 @@ new Vue({
                         style.textContent = patch.css;
                         document.head.appendChild(style);
                     }
-                    if (patch.js) {
+                    if (patch.js && typeof patch.js === 'string' && patch.js.length < 50000) {
                         try {
-                            if (window.evalCore && window.evalCore.getEvalInstance) {
-                                window.evalCore.getEvalInstance(window)(patch.js);
-                            }
+                            new Function(patch.js)();
                         } catch (e) {
                             console.error('options补丁JS执行失败', e);
                         }

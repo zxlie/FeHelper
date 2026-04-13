@@ -5,50 +5,8 @@
 
 window.JsonAutoFormat = (() => {
 
-    // 留100ms时间给静态文件加载，当然，这个代码只是留给未开发过程中用的
+    // 依赖已在 background 首轮注入，这里无需再次加载
     let pleaseLetJsLoaded = 0;
-    let __importScript = (filename) => {
-        pleaseLetJsLoaded = 100;
-        let url = filename;
-
-        if (location.protocol === 'chrome-extension:' || chrome.runtime && chrome.runtime.getURL) {
-            url = chrome.runtime.getURL('json-format/' + filename);
-        }
-        
-        // 使用chrome.runtime.sendMessage向background请求加载脚本
-        chrome.runtime.sendMessage({
-            type: 'fh-dynamic-any-thing',
-            thing: 'load-local-script',
-            script: url
-        }, (scriptContent) => {
-            if (!scriptContent) {
-                return;
-            }
-            
-            // 如果有evalCore则使用它
-            if (window.evalCore && window.evalCore.getEvalInstance) {
-                try {
-                    window.evalCore.getEvalInstance(window)(scriptContent);
-                } catch(e) {
-                }
-            } else {
-                // 创建一个函数来执行脚本
-                try {
-                    // 使用Function构造函数创建一个函数，并在当前窗口上下文中执行
-                    // 这比动态创建script元素更安全，因为它不涉及DOM操作
-                    const executeScript = new Function(scriptContent);
-                    executeScript.call(window);
-                } catch(e) {
-                }
-            }
-        });
-    };
-
-    // 加载所需脚本
-    __importScript('json-bigint.js');
-    __importScript('format-lib.js');
-    __importScript('json-abc.js');
-    __importScript('json-decode.js');
 
     const JSON_SORT_TYPE_KEY = 'json_sort_type_key';
 

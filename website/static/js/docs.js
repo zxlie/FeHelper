@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'crontab': 'Crontab工具',
         'loan-rate': '贷(还)款利率',
         'password': '随机密码生成',
+        'uuid-gen': 'UUID/ID生成器',
         'devtools': 'FH开发者工具',
         'index': '文档首页',
         'grid-ruler': '网页标尺工具',
@@ -40,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'encode': ['en-decode', 'trans-radix', 'timestamp', 'trans-color'],
         'image': ['qr-code', 'image-base64', 'svg-converter', 'chart-maker', 'poster-maker', 'screenshot', 'color-picker'],
         'productivity': ['aiagent', 'sticky-notes', 'html2markdown', 'page-monkey', 'naotu'],
-        'calculator': ['crontab', 'loan-rate', 'password'],
+        'calculator': ['crontab', 'loan-rate', 'password', 'uuid-gen'],
         'other': ['grid-ruler', 'excel2json']
     };
 

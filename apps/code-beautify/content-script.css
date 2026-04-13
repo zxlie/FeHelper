@@ -159,3 +159,35 @@ html.fh-cb pre ol li:hover {
 html.jf-cb pre {
     padding: 30px 2px 0;
 }
+
+html.jf-cb pre ol {
+    background: #f9f9f9;
+    color: #ccc;
+    font-family: Consolas, Monaco, 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+}
+html.jf-cb pre ol li {
+    margin: 0 0 0 2px;
+    padding: 1px 0 1px 8px;
+    background: #fff;
+    border-left: 1px solid #ddd;
+}
+html.jf-cb pre ol li > span {
+    color: #333;
+}
+html.jf-cb pre ol li:hover {
+    background: #fffde7;
+}
+
+.hl-keyword { color: #d73a49; font-weight: bold; }
+.hl-literal { color: #005cc5; }
+.hl-string { color: #032f62; }
+.hl-number { color: #005cc5; }
+.hl-comment { color: #6a737d; font-style: italic; }
+.hl-regex { color: #032f62; }
+.hl-attribute { color: #005cc5; }
+.hl-selector-tag { color: #22863a; font-weight: bold; }
+.hl-selector-id { color: #6f42c1; font-weight: bold; }
+.hl-selector-class { color: #6f42c1; }
+.hl-selector-pseudo { color: #e36209; }

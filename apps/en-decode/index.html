@@ -64,6 +64,9 @@
                             <div class="radio ui-d-ib ui-mr-20">
                                 <label><input type="radio" name="codeType" value="gzipEncode" v-model="selectedType" @click="convert()">Gzip压缩</label>
                             </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="stringEscape" v-model="selectedType" @click="convert()">字符串转义</label>
+                            </div>
                         </td>
                     </tr>
                     <tr>
@@ -98,6 +101,9 @@
                             </div>
                             <div class="radio ui-d-ib ui-mr-20">
                                 <label><input type="radio" name="codeType" value="gzipDecode" v-model="selectedType" @click="convert()">Gzip解压</label>
+                            </div>
+                            <div class="radio ui-d-ib ui-mr-20">
+                                <label><input type="radio" name="codeType" value="stringUnescape" v-model="selectedType" @click="convert()">字符串去转义</label>
                             </div>
                         </td>
                     </tr>

@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <head>
+        <title>UUID/ID生成器</title>
+        <meta charset="UTF-8">
+        <link rel="shortcut icon" href="../static/img/favicon.ico">
+        <link rel="stylesheet" href="index.css" />
+    </head>
+    <body>
+    <div class="wrapper" id="pageContainer">
+        <div class="panel panel-default" style="margin-bottom: 0px;">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a href="https://fehelper.com" target="_blank" class="x-a-high">
+                        <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：UUID/ID 生成器
+                    <a href="#" class="x-donate-link" id="btnDonate"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
+                    <a class="x-other-tools" id="btnOptions"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+                </h3>
+            </div>
+        </div>
+        <div class="panel-body" style="padding: 15px 0;">
+            <div class="x-section">
+                <h4>UUID v4 生成器</h4>
+                <div class="x-row">
+                    <label>生成数量：</label>
+                    <input type="number" id="uuidCount" value="5" min="1" max="100" class="form-control ui-d-ib" style="width:80px">
+                    <label class="ui-ml-20">格式：</label>
+                    <select id="uuidFormat" class="form-control ui-d-ib" style="width:160px">
+                        <option value="standard">标准 (带连字符)</option>
+                        <option value="nohyphen">无连字符</option>
+                        <option value="upper">大写</option>
+                        <option value="braces">带花括号</option>
+                    </select>
+                    <button class="btn btn-primary ui-ml-20" id="btnGenUUID">生成</button>
+                </div>
+                <textarea class="form-control x-result" id="uuidResult" readonly></textarea>
+            </div>
+
+            <div class="x-section">
+                <h4>雪花 ID (Snowflake) 生成器</h4>
+                <div class="x-row">
+                    <label>机器ID：</label>
+                    <input type="number" id="machineId" value="1" min="0" max="31" class="form-control ui-d-ib" style="width:80px">
+                    <label class="ui-ml-20">数据中心ID：</label>
+                    <input type="number" id="datacenterId" value="1" min="0" max="31" class="form-control ui-d-ib" style="width:80px">
+                    <label class="ui-ml-20">数量：</label>
+                    <input type="number" id="snowflakeCount" value="5" min="1" max="100" class="form-control ui-d-ib" style="width:80px">
+                    <button class="btn btn-primary ui-ml-20" id="btnGenSnowflake">生成</button>
+                </div>
+                <textarea class="form-control x-result" id="snowflakeResult" readonly></textarea>
+            </div>
+
+            <div class="x-section">
+                <h4>雪花 ID 解析</h4>
+                <div class="x-row">
+                    <input type="text" id="snowflakeInput" class="form-control ui-d-ib" style="width:300px" placeholder="输入雪花ID进行解析">
+                    <button class="btn btn-success ui-ml-20" id="btnParseSnowflake">解析</button>
+                </div>
+                <div class="x-parse-result" id="snowflakeParsed" style="display:none">
+                    <table class="table table-bordered">
+                        <tr><td style="width:150px"><b>时间戳</b></td><td id="parsedTimestamp"></td></tr>
+                        <tr><td><b>日期时间</b></td><td id="parsedDatetime"></td></tr>
+                        <tr><td><b>数据中心ID</b></td><td id="parsedDatacenterId"></td></tr>
+                        <tr><td><b>机器ID</b></td><td id="parsedMachineId"></td></tr>
+                        <tr><td><b>序列号</b></td><td id="parsedSequence"></td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="x-section">
+                <h4>NanoID 生成器</h4>
+                <div class="x-row">
+                    <label>长度：</label>
+                    <input type="number" id="nanoIdLength" value="21" min="1" max="256" class="form-control ui-d-ib" style="width:80px">
+                    <label class="ui-ml-20">数量：</label>
+                    <input type="number" id="nanoIdCount" value="5" min="1" max="100" class="form-control ui-d-ib" style="width:80px">
+                    <button class="btn btn-primary ui-ml-20" id="btnGenNanoId">生成</button>
+                </div>
+                <textarea class="form-control x-result" id="nanoIdResult" readonly></textarea>
+            </div>
+        </div>
+    </div>
+    <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="../static/js/utils.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+    </body>
+</html>

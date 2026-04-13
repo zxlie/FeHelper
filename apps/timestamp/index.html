@@ -95,6 +95,14 @@
             </select>
         </div>
 
+        <h4 class="x-wd">&gt;&gt; Windows FILETIME 转换</h4>
+        <div class="row x-cnt">
+            <input class="form-control ui-d-ib" v-model="txtFileTime" type="text" placeholder="Windows FILETIME (eg: 133574880000000000)">
+            <input class="mod-time-input form-control ui-d-ib btn btn-primary ui-ml-10 ui-mr-10" @click="fileTimeToDate()" type="button" value="FileTime→日期" tabindex="-1">
+            <input class="mod-time-input form-control ui-d-ib btn btn-default ui-ml-10 ui-mr-10" @click="dateToFileTime()" type="button" value="当前时间→FileTime" tabindex="-1">
+            <input class="form-control ui-d-ib" v-model="txtFileTimeResult" type="text" readonly @click="copyToClipboard($event.target.value)">
+        </div>
+
         <h4 class="x-wd">&gt;&gt; 世界时钟</h4>
         <table class="table table-bordered table-responsive">
             <thead>

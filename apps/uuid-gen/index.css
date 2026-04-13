@@ -1,0 +1,10 @@
+@import url("../static/css/bootstrap.min.css");
+
+.x-section { margin-bottom: 30px; }
+.x-section h4 { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
+.x-row { margin-bottom: 12px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.x-row label { margin: 0; white-space: nowrap; }
+.x-result { width: 100%; min-height: 120px; font-family: 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 13px; line-height: 1.6; resize: vertical; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px; }
+.x-parse-result { margin-top: 10px; }
+.x-parse-result .table { max-width: 500px; }
+.x-parse-result .table td { padding: 6px 12px; }

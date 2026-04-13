@@ -4,15 +4,14 @@
   "description": "FeHelper-前端助手",
   "main": "index.js",
   "dependencies": {
-    "crypto": "^1.0.1",
-    "geoip-lite": "^1.4.10",
-    "imagemin-mozjpeg": "^10.0.0",
-    "ua-parser-js": "^2.0.3"
+    "imagemin-mozjpeg": "^10.0.0"
   },
   "devDependencies": {
     "@babel/code-frame": "^7.27.1",
     "@babel/core": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.0",
     "gulp": "^4.0.2",
     "gulp-babel": "^8.0.0",
     "gulp-clean": "^0.4.0",
@@ -29,13 +28,15 @@
     "run-sequence": "^2.2.1",
     "shelljs": "^0.8.1",
     "svgo": "^2.8.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "vitest": "^4.1.4"
   },
   "scripts": {
     "watch": "gulp watch",
     "build": "gulp",
-    "preinstall": "npx npm-force-resolutions",
-    "dev": "nodemon server/index.js"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "repository": {
     "type": "git",
@@ -45,7 +46,7 @@
     "fehelper"
   ],
   "author": "zhaoxianlie",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/zxlie/FeHelper/issues"
   },

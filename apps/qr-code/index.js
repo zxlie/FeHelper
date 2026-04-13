@@ -12,6 +12,9 @@ new Vue({
         resultContent: '',
         qrEncodeMode: true,
         showResult: false
+        ,codeType: 'qrcode',
+        barcodeFormat: 'CODE128',
+        barcodeMode: false
     },
     mounted: function () {
         let mode = new URL(location.href).searchParams.get('mode');
@@ -98,9 +101,7 @@ new Vue({
                     }
                     if (patch.js) {
                         try {
-                            if (window.evalCore && window.evalCore.getEvalInstance) {
-                                window.evalCore.getEvalInstance(window)(patch.js);
-                            }
+                            new Function(patch.js)();
                         } catch (e) {
                             console.error('qr-code补丁JS执行失败', e);
                         }
@@ -111,10 +112,41 @@ new Vue({
         convert: function () {
             this.showResult = true;
             this.$nextTick(() => {
-                if (this.textContent) {
-                    $('#preview').html('').qrcode(this._createOptions());
+                if (!this.textContent) {
+                    $('#preview').html('请在输入框里输入内容');
+                    this.barcodeMode = false;
+                    return;
+                }
+                if (this.codeType === 'barcode') {
+                    this.barcodeMode = true;
+                    $('#preview').html('<svg id="barcodeSvg"></svg>');
+                    try {
+                        JsBarcode('#barcodeSvg', this.textContent, {
+                            format: this.barcodeFormat,
+                            width: 2,
+                            height: 100,
+                            displayValue: true,
+                            fontSize: 14,
+                            valid: function(valid) {
+                                if (!valid) throw new Error('输入内容不符合所选格式要求');
+                            }
+                        });
+                    } catch(e) {
+                        var hints = {
+                            'EAN13': '需要 13 位纯数字（最后一位为校验位，可只输 12 位自动补全）',
+                            'EAN8': '需要 8 位纯数字（可只输 7 位自动补全校验位）',
+                            'UPC': '需要 12 位纯数字（可只输 11 位自动补全校验位）',
+                            'ITF14': '需要 14 位纯数字'
+                        };
+                        var msg = (e && (e.message || String(e))) || '未知错误';
+                        var hint = hints[this.barcodeFormat];
+                        if (hint) msg += '<br><span style="font-size:12px;color:#666">提示：' + hint + '</span>';
+                        $('#preview').html('<div style="color:red;text-align:center;padding:20px">条形码生成失败<br>' + msg + '</div>');
+                        this.barcodeMode = false;
+                    }
                 } else {
-                    $('#preview').html('再在输入框里输入一些内容，就能生成二维码了哦~')
+                    this.barcodeMode = false;
+                    $('#preview').html('').qrcode(this._createOptions());
                 }
             });
         },
@@ -306,14 +338,29 @@ new Vue({
         },
 
         downloadQR: function() {
-            const canvas = this.$el.querySelector('#preview canvas');
-            if (canvas) {
-                const link = document.createElement('a');
-                link.download = 'qrcode.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+            if (this.codeType === 'barcode' && this.barcodeMode) {
+                const svg = document.getElementById('barcodeSvg');
+                if (svg) {
+                    const svgData = new XMLSerializer().serializeToString(svg);
+                    const blob = new Blob([svgData], {type: 'image/svg+xml'});
+                    const link = document.createElement('a');
+                    link.download = 'barcode.svg';
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                } else {
+                    alert('请先生成条形码！');
+                }
             } else {
-                alert('请先生成二维码！');
+                const canvas = this.$el.querySelector('#preview canvas');
+                if (canvas) {
+                    const link = document.createElement('a');
+                    link.download = 'qrcode.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                } else {
+                    alert('请先生成二维码！');
+                }
             }
         },
 

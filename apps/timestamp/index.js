@@ -14,7 +14,9 @@ new Vue({
         secFrom: 's',
         secTo: 's',
         worldTime: {},
-        curGMT: (new Date()).getTimezoneOffset() / 60 * -1
+        curGMT: (new Date()).getTimezoneOffset() / 60 * -1,
+        txtFileTime: '',
+        txtFileTimeResult: ''
     },
     mounted: function () {
         this.startTimestamp();
@@ -59,7 +61,7 @@ new Vue({
                 alert('请先填写你需要转换的Unix时间戳');
                 return;
             }
-            if (!parseInt(this.txtSrcStamp, 10)) {
+            if (isNaN(parseInt(this.txtSrcStamp, 10))) {
                 alert('请输入合法的Unix时间戳');
                 return;
             }
@@ -95,20 +97,42 @@ new Vue({
         },
         toast(content) {
             window.clearTimeout(window.feHelperAlertMsgTid);
+            let safe = String(content).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             let elAlertMsg = document.querySelector("#fehelper_alertmsg");
             if (!elAlertMsg) {
                 let elWrapper = document.createElement('div');
-                elWrapper.innerHTML = '<div id="fehelper_alertmsg">' + content + '</div>';
+                elWrapper.innerHTML = '<div id="fehelper_alertmsg">' + safe + '</div>';
                 elAlertMsg = elWrapper.childNodes[0];
                 document.body.appendChild(elAlertMsg);
             } else {
-                elAlertMsg.innerHTML = content;
+                elAlertMsg.innerHTML = safe;
                 elAlertMsg.style.display = 'block';
             }
 
             window.feHelperAlertMsgTid = window.setTimeout(function () {
                 elAlertMsg.style.display = 'none';
             }, 3000);
+        },
+
+        fileTimeToDate: function () {
+            let ft = String(this.txtFileTime).trim();
+            if (ft.length === 0) {
+                alert('请先填写 Windows FILETIME');
+                return;
+            }
+            let fileTime = parseInt(ft, 10);
+            if (isNaN(fileTime)) {
+                alert('请输入合法的 FILETIME');
+                return;
+            }
+            let unixMs = fileTime / 10000 - 11644473600000;
+            let d = new Date(unixMs);
+            this.txtFileTimeResult = d.format('yyyy-MM-dd HH:mm:ss.SSS');
+        },
+        dateToFileTime: function () {
+            let unixMs = this.txtNowMs;
+            let fileTime = Math.round((unixMs + 11644473600000) * 10000);
+            this.txtFileTimeResult = String(fileTime);
         },
 
         loadPatchHotfix() {
@@ -126,9 +150,7 @@ new Vue({
                     }
                     if (patch.js) {
                         try {
-                            if (window.evalCore && window.evalCore.getEvalInstance) {
-                                window.evalCore.getEvalInstance(window)(patch.js);
-                            }
+                            new Function(patch.js)();
                         } catch (e) {
                             console.error('timestamp补丁JS执行失败', e);
                         }

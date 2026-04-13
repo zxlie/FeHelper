@@ -131,36 +131,6 @@ let Statistics = (function() {
      */
     const sendToServer = async (eventName, params = {}) => {
         return ''; // 暂时关闭统计
-        if (!(await isStatisticsAllowed())) return;
-        const uid = await getUserId();
-        const clientInfo = await getClientInfo();
-        // 只保留服务端 TrackSchema 需要的字段
-        const payload = {
-            event: eventName,
-            userId: uid,
-            ...clientInfo
-        };
-        // 只允许 TrackSchema 里的字段
-        const allowedFields = [
-            'tool_name', 'extensionVersion', 'browser', 'browserVersion', 'os', 'osVersion', 'IP',  'language', 'platform'
-        ];
-        for (const key of allowedFields) {
-            if (params[key] !== undefined) {
-                payload[key] = params[key];
-            }
-        }
-        try {
-            fetch(SERVER_TRACK_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload),
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                keepalive: true
-            }).catch(e => console.log('自建统计服务器发送失败:', e));
-        } catch (error) {
-            console.log('自建统计发送失败:', error);
-        }
     };
     
     /**

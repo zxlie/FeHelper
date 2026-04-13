@@ -1,9 +1,9 @@
 {
-  "name": "FeHelper(前端助手)-Dev",
+  "name": "FeHelper - JSON格式化、编解码、二维码、开发者工具箱",
   "short_name": "FeHelper",
-  "version": "2025.11.2601",
+  "version": "2026.04.1320",
   "manifest_version": 3,
-  "description": "JSON自动格式化、手动格式化，支持排序、解码、下载等，更多功能可在配置页按需安装！",
+  "description": "30+开发者工具集：JSON格式化/BigInt精度/对比、编解码(Base64/URL/Unicode/Gzip/JWT)、时间戳/FILETIME转换、二维码/条形码、UUID/雪花ID生成、代码美化、正则、取色、Postman、进制转换等，按需安装！",
   "icons": {
     "16": "static/img/fe-16.png",
     "48": "static/img/fe-48.png",
@@ -23,6 +23,7 @@
     "open_in_tab": true
   },
   "permissions": [
+    "alarms",
     "tabs",
     "scripting",
     "contextMenus",
@@ -84,16 +85,15 @@
         "static/vendor/jquery/jquery-3.3.1.min.js",
         "static/vendor/evalCore.min.js"
       ],
-      "run_at": "document_start",
-      "all_frames": true
+      "run_at": "document_idle",
+      "all_frames": false
     }
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'self'"
   },
   "update_url": "https://clients2.google.com/service/update2/crx",
-  "homepage_url": "https://www.fehelper.com"
+  "homepage_url": "https://www.fehelper.com",
+  "author": "nicetool.net"
 }
-
-
 

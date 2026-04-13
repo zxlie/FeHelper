@@ -34,24 +34,19 @@ window.baidu = {
 /**
  * 获取某字符串的字节数
  */
-String.prototype.getBytes = function () {
-    var stream = this.replace(/\n/g, 'xx').replace(/\t/g, 'x');
-    var escapedStr = encodeURIComponent(stream);
-    return escapedStr.replace(/%[A-Z0-9][A-Z0-9]/g, 'x').length;
+if (!String.prototype.getBytes) {
+    String.prototype.getBytes = function () {
+        var stream = this.replace(/\n/g, 'xx').replace(/\t/g, 'x');
+        var escapedStr = encodeURIComponent(stream);
+        return escapedStr.replace(/%[A-Z0-9][A-Z0-9]/g, 'x').length;
+    };
 }
-
-/**
- * 让所有字符串支持空白过滤功能：trim
- * @retrn {String} 返回两端无空白的字符串
- */
-String.prototype.trim = function () {
-    return this.replace(/^\s*|\s*$/g, "");
-};
 
 /**
  * 日期格式化
  * @param {Object} pattern
  */
+if (!Date.prototype.format) {
 Date.prototype.format = function (pattern) {
     let pad = function (source, length) {
         let pre = "",
@@ -101,6 +96,7 @@ Date.prototype.format = function (pattern) {
 
     return pattern;
 };
+}
 
 /**
  * 自动消失的Alert弹窗
@@ -108,16 +104,17 @@ Date.prototype.format = function (pattern) {
  */
 window.toast = function (content) {
     window.clearTimeout(window.feHelperAlertMsgTid);
+    var safe = String(content).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     let elAlertMsg = document.querySelector("#fehelper_alertmsg");
     if (!elAlertMsg) {
         let elWrapper = document.createElement('div');
         elWrapper.innerHTML = '<div id="fehelper_alertmsg" style="position:fixed;top:5px;right:5px;z-index:1000000">' +
             '<p style="background:#000;display:inline-block;color:#fff;text-align:center;' +
-            'padding:10px 10px;margin:0 auto;font-size:14px;border-radius:4px;">' + content + '</p></div>';
+            'padding:10px 10px;margin:0 auto;font-size:14px;border-radius:4px;">' + safe + '</p></div>';
         elAlertMsg = elWrapper.childNodes[0];
         document.body.appendChild(elAlertMsg);
     } else {
-        elAlertMsg.querySelector('p').innerHTML = content;
+        elAlertMsg.querySelector('p').innerHTML = safe;
         elAlertMsg.style.display = 'block';
     }
 

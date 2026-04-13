@@ -34,9 +34,7 @@ new Vue({
                     }
                     if (patch.js) {
                         try {
-                            if (window.evalCore && window.evalCore.getEvalInstance) {
-                                window.evalCore.getEvalInstance(window)(patch.js);
-                            }
+                            new Function(patch.js)();
                         } catch (e) {
                             console.error('trans-radix补丁JS执行失败', e);
                         }
@@ -63,7 +61,41 @@ new Vue({
 
         radixConvert: function () {
             this.$nextTick(() => {
-                this.rstValue = parseInt(this.srcValue, this.fromSelected).toString(this.toSelected);
+                try {
+                    const src = String(this.srcValue).trim();
+                    if (!src) { this.rstValue = '0'; return; }
+                    const from = this.fromSelected;
+                    const to = this.toSelected;
+                    let decimal;
+                    if (from === 10) {
+                        decimal = BigInt(src);
+                    } else {
+                        decimal = BigInt(0);
+                        const digits = src.toLowerCase();
+                        const base = BigInt(from);
+                        for (let i = 0; i < digits.length; i++) {
+                            const d = parseInt(digits[i], from);
+                            if (isNaN(d)) throw new Error('Invalid digit');
+                            decimal = decimal * base + BigInt(d);
+                        }
+                    }
+                    if (to === 10) {
+                        this.rstValue = decimal.toString();
+                    } else {
+                        if (decimal === 0n) { this.rstValue = '0'; return; }
+                        const base = BigInt(to);
+                        const chars = '0123456789abcdef';
+                        let result = '';
+                        let n = decimal < 0n ? -decimal : decimal;
+                        while (n > 0n) {
+                            result = chars[Number(n % base)] + result;
+                            n = n / base;
+                        }
+                        this.rstValue = (decimal < 0n ? '-' : '') + result;
+                    }
+                } catch (e) {
+                    this.rstValue = 'NaN';
+                }
             });
         },
 

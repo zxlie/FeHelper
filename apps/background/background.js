@@ -24,6 +24,8 @@ let BgPageInstance = (function () {
         /^https:\/\/chrome\.google\.com/
     ];
 
+    const FeHelperBg = {};
+
     // 全局缓存最新的客户端信息
     let FH_CLIENT_INFO = {};
 
@@ -75,6 +77,24 @@ let BgPageInstance = (function () {
     };
 
 
+    let _getContentScriptFiles = function (tool) {
+        let files = [];
+
+        switch (tool) {
+            case 'json-format':
+                files.push(
+                    'json-format/json-bigint.js',
+                    'json-format/format-lib.js',
+                    'json-format/json-abc.js',
+                    'json-format/json-decode.js'
+                );
+                break;
+        }
+
+        files.push(`${tool}/content-script.js`);
+        return files;
+    };
+
     // 往当前页面直接注入脚本，不再使用content-script的配置了
     let _injectContentScripts = function (tabId) {
 
@@ -85,13 +105,13 @@ let BgPageInstance = (function () {
             let jsTools = Object.keys(tools)
                         .filter(tool => !tools[tool]._devTool
                                 && (tools[tool].contentScriptJs || tools[tool].contentScript));
-            let jsCodes = [];
-            jsTools.forEach((t, i) => {
-                let func = `window['${t.replace(/-/g, '')}ContentScript']`;
-                jsCodes.push(`(()=>{let func=${func};func&&func();})()`);
+            let initFuncNames = jsTools.map(t => `${t.replace(/-/g, '')}ContentScript`);
+            let jsFiles = jsTools.reduce((files, tool) => files.concat(_getContentScriptFiles(tool)), []);
+            InjectTools.inject(tabId, {
+                files: jsFiles,
+                func: (names) => { names.forEach(n => { try { let fn = window[n]; fn && fn(); } catch(e) {} }); },
+                args: [initFuncNames]
             });
-            let jsFiles = jsTools.map(tool => `${tool}/content-script.js`);
-            InjectTools.inject(tabId, {files: jsFiles,js: jsCodes.join(';')});
         });
 
         // 其他开发者自定义工具脚本注入======For FH DevTools
@@ -110,7 +130,7 @@ let BgPageInstance = (function () {
      * 打开打赏弹窗
      * @param {string} toolName - 工具名称
      */
-    chrome.gotoDonateModal = function (toolName) {
+    FeHelperBg.gotoDonateModal = function (toolName) {
         chrome.tabs.query({currentWindow: true}, function (tabs) {
 
             Settings.getOptions((opts) => {
@@ -150,7 +170,7 @@ let BgPageInstance = (function () {
      * @config noPage 无页面模式
      * @constructor
      */
-    chrome.DynamicToolRunner = async function (configs) {
+    FeHelperBg.DynamicToolRunner = async function (configs) {
 
         let tool = configs.tool || configs.page;
         let withContent = configs.withContent;
@@ -163,8 +183,11 @@ let BgPageInstance = (function () {
             chrome.tabs.query({active: true, currentWindow: true}, tabs => {
                 let found = tabs.some(tab => {
                     if (/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))) {
-                        let codes = `window['${toolFunc}NoPage'] && window['${toolFunc}NoPage'](${JSON.stringify(tab)});`;
-                        InjectTools.inject(tab.id, {js: codes});
+                        let funcName = toolFunc + 'NoPage';
+                        InjectTools.inject(tab.id, {
+                            func: (fn, t) => { window[fn] && window[fn](t); },
+                            args: [funcName, tab]
+                        });
                         return true;
                     }
                     return false;
@@ -247,7 +270,7 @@ let BgPageInstance = (function () {
             const installedTools = Object.keys(tools).filter(tool => tools[tool].installed);
             if (installedTools.length === 1) {
                 const singleTool = installedTools[0];
-                chrome.DynamicToolRunner({
+                FeHelperBg.DynamicToolRunner({
                     tool: singleTool,
                     noPage: !!tools[singleTool].noPage
                 });
@@ -256,7 +279,7 @@ let BgPageInstance = (function () {
                 Statistics.recordToolUsage(singleTool);
             } else {
                 // 备用方案：如果检测失败，打开JSON格式化工具
-                chrome.DynamicToolRunner({
+                FeHelperBg.DynamicToolRunner({
                     tool: MSG_TYPE.JSON_FORMAT
                 });
                 
@@ -266,7 +289,7 @@ let BgPageInstance = (function () {
         }).catch(error => {
             console.error('获取工具列表失败，使用默认工具:', error);
             // 出错时的备用方案
-            chrome.DynamicToolRunner({
+            FeHelperBg.DynamicToolRunner({
                 tool: MSG_TYPE.JSON_FORMAT
             });
             
@@ -375,7 +398,7 @@ let BgPageInstance = (function () {
             return;
         }
         
-        chrome.DynamicToolRunner({
+        FeHelperBg.DynamicToolRunner({
             tool: 'screenshot',
             withContent: data
         });
@@ -384,21 +407,44 @@ let BgPageInstance = (function () {
     let _colorPickerCapture = function(params) {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             chrome.tabs.captureVisibleTab(null, {format: 'png'}, function (dataUrl) {
-                let js = `window.colorpickerNoPage(${JSON.stringify({
-                    setPickerImage: true,
-                    pickerImage: dataUrl
-                })})`;
-                InjectTools.inject(tabs[0].id, { js });
+                let pickerParams = { setPickerImage: true, pickerImage: dataUrl };
+                InjectTools.inject(tabs[0].id, {
+                    func: (p) => { window.colorpickerNoPage && window.colorpickerNoPage(p); },
+                    args: [pickerParams]
+                });
             });
         });
     };
 
-    let _codeBeautify = function(params){
+    let _codeBeautify = function(params, sender){
+        let tabId = params.tabId || (sender && sender.tab && sender.tab.id);
+        if (!tabId) return;
+
+        let fileType = params.fileType;
+        if (!['javascript', 'css'].includes(fileType)) {
+            fileType = 'javascript';
+        }
+
         Awesome.StorageMgr.get('JS_CSS_PAGE_BEAUTIFY').then(val => {
             if(val !== '0') {
-                let js = `window._codebutifydetect_('${params.fileType}')`;
-                InjectTools.inject(params.tabId, { js });
-                // 记录工具使用
+                let filesToInject = [];
+                if (fileType === 'javascript') {
+                    filesToInject.push('code-beautify/beautify.js');
+                }
+                let triggerDetect = () => {
+                    InjectTools.inject(tabId, {
+                        func: (ft) => { window._codebutifydetect_ && window._codebutifydetect_(ft); },
+                        args: [fileType]
+                    });
+                };
+                if (filesToInject.length) {
+                    chrome.scripting.executeScript({
+                        target: { tabId },
+                        files: filesToInject
+                    }, triggerDetect);
+                } else {
+                    triggerDetect();
+                }
                 Statistics.recordToolUsage('code-beautify');
             }
         });
@@ -436,7 +482,7 @@ let BgPageInstance = (function () {
             }
             // 打开动态工具页面
             else if (request.type === MSG_TYPE.OPEN_DYNAMIC_TOOL) {
-                chrome.DynamicToolRunner(request);
+                FeHelperBg.DynamicToolRunner(request);
                 // 记录工具使用
                 if (request.page) {
                     Statistics.recordToolUsage(request.page);
@@ -445,7 +491,7 @@ let BgPageInstance = (function () {
             }
             // 打开其他页面
             else if (request.type === MSG_TYPE.OPEN_PAGE) {
-                chrome.DynamicToolRunner({
+                FeHelperBg.DynamicToolRunner({
                     tool: request.page
                 });
                 // 记录工具使用
@@ -482,7 +528,7 @@ let BgPageInstance = (function () {
                         return true; // 这个返回true是非常重要的！！！要不然callback会拿不到结果
                     // 代码美化功能
                     case 'code-beautify':
-                        _codeBeautify(request.params);
+                        _codeBeautify(request.params, sender);
                         break;
                     // 关闭代码美化功能
                     case 'close-beautify':
@@ -530,8 +576,17 @@ let BgPageInstance = (function () {
                         break;
                     // 打开打赏弹窗
                     case 'open-donate-modal':
-                        chrome.gotoDonateModal(request.params.toolName);
+                        FeHelperBg.gotoDonateModal(request.params.toolName);
                         break;
+                    // 通过 chrome.scripting.executeScript 注入脚本文件（CSP安全）
+                    case 'inject-scripts-to-tab':
+                        if (sender.tab && sender.tab.id && request.files) {
+                            chrome.scripting.executeScript({
+                                target: { tabId: sender.tab.id },
+                                files: request.files
+                            }, () => { callback && callback(true); });
+                        }
+                        return true;
                     // 加载本地脚本文件
                     case 'load-local-script':
                         loadLocalScript(request.script, callback);
@@ -567,7 +622,7 @@ let BgPageInstance = (function () {
         chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
             if (String(changeInfo.status).toLowerCase() === "complete") {
                 if(/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))){
-                    InjectTools.inject(tabId, { js: `window.__FH_TAB_ID__=${tabId};` });
+                    InjectTools.inject(tabId, { func: (id) => { window.__FH_TAB_ID__ = id; }, args: [tabId] });
                     _injectContentScripts(tabId);
                 }
             }
@@ -609,21 +664,29 @@ let BgPageInstance = (function () {
         chrome.runtime.setUninstallURL(chrome.runtime.getManifest().homepage_url);
     };
 
+    let runUpdateCheck = function () {
+        if (chrome.runtime.requestUpdateCheck && navigator.userAgent.indexOf("Firefox") === -1) {
+            chrome.runtime.requestUpdateCheck((status) => {
+                if (status === "update_available") {
+                    chrome.runtime.reload();
+                }
+            });
+        }
+    };
+
+    chrome.alarms.onAlarm.addListener((alarm) => {
+        if (alarm.name === 'fehelper-check-update') {
+            runUpdateCheck();
+        }
+    });
+
     /**
      * 检查插件更新
      * @private
      */
     let _checkUpdate = function () {
-        setTimeout(() => {
-            // 检查是否为 Firefox 浏览器，Firefox 不支持 requestUpdateCheck API
-            if (chrome.runtime.requestUpdateCheck && navigator.userAgent.indexOf("Firefox") === -1) {
-                chrome.runtime.requestUpdateCheck((status) => {
-                    if (status === "update_available") {
-                        chrome.runtime.reload();
-                    }
-                });
-            }
-        }, 1000 * 30);
+        chrome.alarms.create('fehelper-check-update', { periodInMinutes: 1440 });
+        runUpdateCheck();
     };
 
     /**
@@ -662,7 +725,7 @@ let BgPageInstance = (function () {
             // 成功触发
         }).catch(() => {
             // 如果发送消息失败，使用noPage模式
-            chrome.DynamicToolRunner({
+            FeHelperBg.DynamicToolRunner({
                 tool: 'screenshot',
                 noPage: true
             });
@@ -681,7 +744,7 @@ let BgPageInstance = (function () {
         if (tabId) {
             _triggerScreenshotTool(tabId);
         } else {
-            chrome.DynamicToolRunner({
+            FeHelperBg.DynamicToolRunner({
                 tool: 'screenshot',
                 noPage: true
             });
@@ -734,7 +797,7 @@ let BgPageInstance = (function () {
 
     // 处理二维码解码
     function handleQrDecode(uri) {
-        chrome.DynamicToolRunner({
+        FeHelperBg.DynamicToolRunner({
             withContent: uri,
             tool: 'qr-code',
             query: `mode=decode`
@@ -751,7 +814,7 @@ let BgPageInstance = (function () {
 
     // 处理页面性能数据设置
     function handleSetPageTimingData(wpoInfo) {
-        chrome.DynamicToolRunner({
+        FeHelperBg.DynamicToolRunner({
             tool: 'page-timing',
             withContent: wpoInfo
         });
@@ -872,6 +935,8 @@ let BgPageInstance = (function () {
                 callback && callback({ success: false, error: '没有需要修复的补丁' });
             });
     }
+
+    globalThis.FeHelperBg = FeHelperBg;
 
     return {
         pageCapture: _captureVisibleTab,

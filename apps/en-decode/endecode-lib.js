@@ -605,7 +605,36 @@ let EncodeUtils = (() => {
             throw new Error('Gzip解压缩失败: ' + error.message);
         }
     };
-    
+
+    let _stringEscape = function(text) {
+        return text
+            .replace(/\\/g, '\\\\')
+            .replace(/\n/g, '\\n')
+            .replace(/\r/g, '\\r')
+            .replace(/\t/g, '\\t')
+            .replace(/\f/g, '\\f')
+            .replace(/"/g, '\\"')
+            .replace(/'/g, "\\'");
+    };
+
+    let _stringUnescape = function(text) {
+        return text.replace(/\\(n|r|t|f|\\|"|'|u[0-9a-fA-F]{4})/g, function(match, p1) {
+            switch(p1) {
+                case 'n': return '\n';
+                case 'r': return '\r';
+                case 't': return '\t';
+                case 'f': return '\f';
+                case '\\': return '\\';
+                case '"': return '"';
+                case "'": return "'";
+                default:
+                    if (p1.startsWith('u')) {
+                        return String.fromCharCode(parseInt(p1.substring(1), 16));
+                    }
+                    return match;
+            }
+        });
+    };
 
     return {
         uniEncode: _uniEncode,
@@ -625,7 +654,9 @@ let EncodeUtils = (() => {
         jwtDecode,
         formatCookieStringToJson,
         gzipEncode: _gzipEncode,
-        gzipDecode: _gzipDecode
+        gzipDecode: _gzipDecode,
+        stringEscape: _stringEscape,
+        stringUnescape: _stringUnescape
     };
 })();
 

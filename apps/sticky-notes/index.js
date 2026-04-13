@@ -144,9 +144,7 @@ let StickyNotes = (() => {
                 }
                 if (patch.js) {
                     try {
-                        if (window.evalCore && window.evalCore.getEvalInstance) {
-                            window.evalCore.getEvalInstance(window)(patch.js);
-                        }
+                        new Function(patch.js)();
                     } catch (e) {
                         console.error('sticky-notes补丁JS执行失败', e);
                     }

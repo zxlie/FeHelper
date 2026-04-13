@@ -50,9 +50,7 @@ new Vue({
                     }
                     if (patch.js) {
                         try {
-                            if (window.evalCore && window.evalCore.getEvalInstance) {
-                                window.evalCore.getEvalInstance(window)(patch.js);
-                            }
+                            new Function(patch.js)();
                         } catch (e) {
                             console.error('en-decode补丁JS执行失败', e);
                         }
@@ -152,6 +150,10 @@ new Vue({
                         }
                         this.resultContent = '正在解压缩...';
                         this.resultContent = await EncodeUtils.gzipDecode(this.sourceContent);
+                    } else if (this.selectedType === 'stringEscape') {
+                        this.resultContent = EncodeUtils.stringEscape(this.sourceContent);
+                    } else if (this.selectedType === 'stringUnescape') {
+                        this.resultContent = EncodeUtils.stringUnescape(this.sourceContent);
                     }
                 } catch (error) {
                     this.resultContent = '操作失败: ' + error.message;
