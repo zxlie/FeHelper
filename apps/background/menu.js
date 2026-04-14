@@ -12,7 +12,8 @@ import Settings from '../options/settings.js';
 export default (function () {
 
     let FeJson = {
-        contextMenuId:"fhm_main"
+        contextMenuId:"fhm_main",
+        menuClickHandlers: {}
     };
 
     // 邮件菜单配置项
@@ -115,6 +116,14 @@ export default (function () {
         });
     })();
 
+    // MV3: 单一全局监听器，通过 handler map 分发点击事件（避免 SW 重启后监听器丢失）
+    chrome.contextMenus.onClicked.addListener((info, tab) => {
+        let handler = FeJson.menuClickHandlers[info.menuItemId];
+        if (handler) {
+            handler(info, tab);
+        }
+    });
+
     /**
      * 创建一个menu 菜单
      * @param toolName
@@ -125,25 +134,19 @@ export default (function () {
     let _createItem = (toolName, menuList) => {
         menuList && menuList.forEach && menuList.forEach(menu => {
 
-            // 确保每次创建出来的是一个新的主菜单，防止onClick事件冲突
-            let menuItemId = 'fhm_c' + escape(menu.text).replace(/\W/g,'') + new Date*1;
+            let menuItemId = 'fhm_c' + escape(menu.text).replace(/\W/g,'') + Date.now() + Math.floor(Math.random() * 1000);
 
             chrome.contextMenus.create({
                 id: menuItemId,
                 title: menu.icon + '  ' + menu.text,
                 contexts: menu.contexts || ['all'],
                 parentId: FeJson.contextMenuId
+            }, () => {
+                if (chrome.runtime.lastError) return;
+                FeJson.menuClickHandlers[menuItemId] = menu.onClick || (() => {
+                    globalThis.FeHelperBg.DynamicToolRunner({ tool: toolName });
+                });
             });
-
-            chrome.contextMenus.onClicked.addListener(((tool,mId,mFunc) => (info, tab) => {
-                if(info.menuItemId === mId) {
-                    if(mFunc) {
-                        mFunc(info,tab);
-                    }else{
-                        globalThis.FeHelperBg.DynamicToolRunner({ tool });
-                    }
-                }
-            })(toolName,menuItemId,menu.onClick));
         });
     };
 
@@ -164,6 +167,7 @@ export default (function () {
      * 创建扩展专属的右键菜单
      */
     let _initMenus = function () {
+        FeJson.menuClickHandlers = {};
         _removeContextMenu(() => {
             let id = chrome.contextMenus.create({
                 id: FeJson.contextMenuId ,

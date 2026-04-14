@@ -46,10 +46,11 @@ new Vue({
     },
 
     created: function () {
-        // 获取当前ctx的version
         this.manifest = chrome.runtime.getManifest();
         
-        // 立即开始加载工具列表，不阻塞页面渲染
+        // 主动唤醒 Service Worker，确保后台就绪
+        chrome.runtime.sendMessage({ type: 'fh-popup-opened' }).catch(() => {});
+        
         this.loadTools();
 
         // 页面加载时自动获取并注入popup页面的补丁
@@ -240,17 +241,26 @@ new Vue({
         runHelper: async function (toolName) {
             if (!toolName || !this.fhTools[toolName]) return;
             
+            let tool = this.fhTools[toolName];
             let request = {
                 type: MSG_TYPE.OPEN_DYNAMIC_TOOL,
                 page: toolName,
-                noPage: !!this.fhTools[toolName].noPage
+                noPage: !!tool.noPage
             };
-            if(this.fhTools[toolName]._devTool) {
+            if (tool._devTool) {
                 request.page = 'dynamic';
                 request.query = `tool=${toolName}`;
             }
-            chrome.runtime.sendMessage(request);
-            !!this.fhTools[toolName].noPage && setTimeout(window.close, 200);
+            try {
+                await chrome.runtime.sendMessage(request);
+                !!tool.noPage && setTimeout(window.close, 200);
+            } catch (e) {
+                // SW 可能已休眠，降级为直接打开工具页
+                chrome.tabs.create({
+                    url: `/${toolName}/index.html` + (request.query ? `?${request.query}` : ''),
+                    active: true
+                });
+            }
         },
 
         openOptionsPage: () => {
@@ -276,12 +286,8 @@ new Vue({
             // 根据工具数量添加相应的类
             if (installedCount <= 1) {
                 container.classList.add('very-few-tools');
-                console.log('Popup布局：应用very-few-tools类 (工具数量:', installedCount, ')');
             } else if (installedCount <= 3) {
                 container.classList.add('few-tools');
-                console.log('Popup布局：应用few-tools类 (工具数量:', installedCount, ')');
-            } else {
-                console.log('Popup布局：使用默认布局 (工具数量:', installedCount, ')');
             }
         }
     }

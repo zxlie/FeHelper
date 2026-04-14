@@ -172,12 +172,14 @@ let BgPageInstance = (function () {
      */
     FeHelperBg.DynamicToolRunner = async function (configs) {
 
+        if (!configs || typeof configs !== 'object') return;
         let tool = configs.tool || configs.page;
+        if (!tool) return;
+
         let withContent = configs.withContent;
         let activeTab = null;
         let query = configs.query;
 
-        // 如果是noPage模式，则表名只完成content-script的工作，直接发送命令即可
         if (configs.noPage) {
             let toolFunc = tool.replace(/-/g, '');
             chrome.tabs.query({active: true, currentWindow: true}, tabs => {
@@ -231,12 +233,14 @@ let BgPageInstance = (function () {
                     chrome.tabs.create({
                         url,
                         active: true
-                    }).then(tab => { FeJson[tab.id] = { content: withContent }; });
+                    }).then(tab => {
+                        FeJson[tab.id] = { content: withContent };
+                    }).catch(() => {});
                 } else {
                     chrome.tabs.update(tabId, {highlighted: true}).then(tab => {
                         FeJson[tab.id] = { content: withContent };
                         chrome.tabs.reload(tabId);
-                    });
+                    }).catch(() => {});
                 }
 
             });
@@ -637,12 +641,10 @@ let BgPageInstance = (function () {
             switch (reason) {
                 case 'install':
                     chrome.runtime.openOptionsPage();
-                    // 记录新安装用户
                     Statistics.recordInstallation();
                     break;
                 case 'update':
                     _animateTips('+++1');
-                    // 记录更新安装
                     Statistics.recordUpdate(previousVersion);
                     if (previousVersion === '2019.12.2415') {
                         notifyText({
@@ -650,18 +652,14 @@ let BgPageInstance = (function () {
                             autoClose: 5000
                         });
                     }
-
-                    // 从V2020.02.1413版本开始，本地的数据存储大部分迁移至chrome.storage.local
-                    // 这里需要对老版本升级过来的情况进行强制数据迁移
-                    let getAbsNum = num => parseInt(num.split(/\./).map(n => n.padStart(4, '0')).join(''), 10);
-                    // let preVN = getAbsNum(previousVersion);
-                    // let minVN = getAbsNum('2020.02.1413');
-                    // if (preVN < minVN) {
-                    //     Awesome.makeStorageUnlimited();
-                    //     setTimeout(() => chrome.runtime.reload(), 1000 * 5);
-                    // }
                     break;
             }
+            Menu.rebuild();
+        });
+
+        // MV3: Service Worker 每次重新启动时确保菜单可用
+        chrome.runtime.onStartup.addListener(() => {
+            Menu.rebuild();
         });
         
         // 卸载
@@ -697,24 +695,14 @@ let BgPageInstance = (function () {
      * 初始化
      */
     let _init = function () {
-        console.log(`[FeHelper] Background初始化开始 - ${new Date().toLocaleString()}`);
-        console.log(`[FeHelper] 扩展版本: ${chrome.runtime.getManifest().version}`);
-        console.log(`[FeHelper] Service Worker启动原因: ${chrome.runtime.getContexts ? 'Context API可用' : '传统模式'}`);
-        
         _checkUpdate();
         _addExtensionListener();
-        
-        // 初始化统计功能
         Statistics.init();
-        
         Menu.rebuild();
         
-        // 定期清理冗余的垃圾
         setTimeout(() => {
             Awesome.gcLocalFiles();
         }, 1000 * 10);
-        
-        console.log(`[FeHelper] Background初始化完成 - ${new Date().toLocaleString()}`);
     };
 
     /**
