@@ -160,68 +160,68 @@ export default (function () {
             id: 'fhm_s' + Math.ceil(Math.random()*10e9),
             type: 'separator',
             parentId: FeJson.contextMenuId
-        });
+        }, () => { chrome.runtime.lastError; });
     };
 
     /**
-     * 创建扩展专属的右键菜单
+     * 创建扩展专属的右键菜单（debounce 防并发）
      */
+    let _initMenusTimer = null;
     let _initMenus = function () {
+        clearTimeout(_initMenusTimer);
+        _initMenusTimer = setTimeout(_doInitMenus, 80);
+    };
+
+    let _doInitMenus = function () {
         FeJson.menuClickHandlers = {};
         _removeContextMenu(() => {
-            let id = chrome.contextMenus.create({
-                id: FeJson.contextMenuId ,
+            chrome.contextMenus.create({
+                id: FeJson.contextMenuId,
                 title: "FeHelper",
                 contexts: ['page', 'selection', 'editable', 'link', 'image'],
                 documentUrlPatterns: ['http://*/*', 'https://*/*', 'file://*/*']
+            }, () => {
+                if (chrome.runtime.lastError) return;
+                _buildChildMenus();
             });
+        });
+    };
 
-            // 绘制用户安装的菜单，放在前面
-            Awesome.getInstalledTools().then(tools => {
-                let allMenus = Object.keys(tools).filter(tool => tools[tool].installed && tools[tool].menu);
-                let onlineTools = allMenus.filter(tool => tool !== 'devtools' && !tools[tool].hasOwnProperty('_devTool'));
-                let devTools = allMenus.filter(tool => tool === 'devtools' || tools[tool].hasOwnProperty('_devTool'));
+    let _buildChildMenus = function () {
+        Awesome.getInstalledTools().then(tools => {
+            let allMenus = Object.keys(tools).filter(tool => tools[tool].installed && tools[tool].menu);
+            let onlineTools = allMenus.filter(tool => tool !== 'devtools' && !tools[tool].hasOwnProperty('_devTool'));
+            let devTools = allMenus.filter(tool => tool === 'devtools' || tools[tool].hasOwnProperty('_devTool'));
 
-                // 绘制FH提供的工具菜单
-                onlineTools.forEach(tool => _createItem(tool, tools[tool].menuConfig));
-                // 如果有本地工具的菜单需要绘制，则需要加一条分割线
-                devTools.length && _createSeparator();
-                // 绘制本地工具的菜单
-                devTools.forEach(tool => {
-                    // 说明是自定义工具 构造menuConfig
-                    if(!tools[tool].menuConfig) {
-                        tools[tool].menuConfig = [{
-                            icon: tools[tool].icon,
-                            text: tools[tool].name,
-                            onClick: (info, tab) => {
-                                globalThis.FeHelperBg.DynamicToolRunner({
-                                    page: 'dynamic',
-                                    noPage: !!tools[tool].noPage,
-                                    query: `tool=${tool}`
-                                });
-                                if (tools[tool].noPage && typeof self !== 'undefined' && typeof self.close === 'function') {
-                                    setTimeout(() => self.close(), 200);
-                                }
+            onlineTools.forEach(tool => _createItem(tool, tools[tool].menuConfig));
+            devTools.length && _createSeparator();
+            devTools.forEach(tool => {
+                if(!tools[tool].menuConfig) {
+                    tools[tool].menuConfig = [{
+                        icon: tools[tool].icon,
+                        text: tools[tool].name,
+                        onClick: (info, tab) => {
+                            globalThis.FeHelperBg.DynamicToolRunner({
+                                page: 'dynamic',
+                                noPage: !!tools[tool].noPage,
+                                query: `tool=${tool}`
+                            });
+                            if (tools[tool].noPage && typeof self !== 'undefined' && typeof self.close === 'function') {
+                                setTimeout(() => self.close(), 200);
                             }
-                        }];
-                    }
-                    _createItem(tool, tools[tool].menuConfig)
-                });
-              });
-
-            // 绘制两个系统提供的菜单，放到最后
-            let sysMenu = ['download-crx', 'fehelper-setting'];
-            let arrPromises = sysMenu.map(menu => Awesome.menuMgr(menu, 'get'));
-            Promise.all(arrPromises).then(values => {
-                let needDraw = String(values[0]) === '1' || String(values[1]) !== '0';
-
-                // 绘制一条分割线
-                _createSeparator();
-
-                // 绘制菜单
-                String(values[0]) === '1' && _createItem(sysMenu[0], [defaultMenuOptions[sysMenu[0]]]);
-                String(values[1]) !== '0' && _createItem(sysMenu[1], [defaultMenuOptions[sysMenu[1]]]);
+                        }
+                    }];
+                }
+                _createItem(tool, tools[tool].menuConfig);
             });
+        });
+
+        let sysMenu = ['download-crx', 'fehelper-setting'];
+        let arrPromises = sysMenu.map(menu => Awesome.menuMgr(menu, 'get'));
+        Promise.all(arrPromises).then(values => {
+            _createSeparator();
+            String(values[0]) === '1' && _createItem(sysMenu[0], [defaultMenuOptions[sysMenu[0]]]);
+            String(values[1]) !== '0' && _createItem(sysMenu[1], [defaultMenuOptions[sysMenu[1]]]);
         });
     };
 
