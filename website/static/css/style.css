@@ -2432,7 +2432,194 @@ body {
     color: #64748b;
     font-size: 0.95rem;
     margin-top: 32px;
-} 
+}
+
+/* ===== v2026.04 新版亮点区块 ===== */
+.whats-new {
+    padding: 80px 0 60px;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.whats-new-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 40px;
+}
+
+.new-item {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px 24px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.new-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.new-item-security::before { background: linear-gradient(90deg, #10b981, #06b6d4); }
+.new-item-feature::before { background: linear-gradient(90deg, #8b5cf6, #3b82f6); }
+.new-item-enhance::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+.new-item-engineering::before { background: linear-gradient(90deg, #06b6d4, #3b82f6); }
+
+.new-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+}
+
+.new-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 16px;
+}
+
+.new-item-security .new-icon { background: #ecfdf5; color: #059669; }
+.new-item-feature .new-icon { background: #ede9fe; color: #7c3aed; }
+.new-item-enhance .new-icon { background: #fef3c7; color: #d97706; }
+.new-item-engineering .new-icon { background: #e0f2fe; color: #0284c7; }
+
+.new-item h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.new-item p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.new-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+.tag-security { background: #ecfdf5; color: #059669; }
+.tag-new { background: #ede9fe; color: #7c3aed; }
+.tag-enhance { background: #fef3c7; color: #d97706; }
+.tag-eng { background: #e0f2fe; color: #0284c7; }
+
+@media (max-width: 1024px) {
+    .whats-new-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+    .whats-new-grid { grid-template-columns: 1fr; }
+    .whats-new { padding: 50px 0 40px; }
+}
+
+/* ===== 数据与信任统计区块 ===== */
+.trust-stats {
+    padding: 60px 0;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.trust-stats::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(59,130,246,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(139,92,246,0.15) 0%, transparent 50%);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 24px;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 20px 10px;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-top: 8px;
+}
+
+.stat-desc {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+@media (max-width: 1024px) {
+    .stats-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 640px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .stat-number { font-size: 2rem; }
+    .trust-stats { padding: 40px 0; }
+}
+
+/* ===== 工具卡片 NEW 标记 ===== */
+.tool-new-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+    color: #fff;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+
+.uuid-demo {
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.uuid-demo code {
+    font-size: 0.78rem;
+    color: #7c3aed;
+    word-break: break-all;
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+}
 
 /* 导航栏“在线使用”高亮按钮美化 */
 .nav-online-btn {

@@ -3,17 +3,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const toolNameMap = {
         'json-format': 'JSON美化工具',
         'json-diff': 'JSON比对工具',
+        'mock-data': 'Mock数据生成器',
         'code-beautify': '代码美化工具',
         'code-compress': '代码压缩工具',
         'postman': '简易Postman',
         'websocket': 'Websocket工具',
         'regexp': '正则公式速查',
-        'page-timing': '网站性能优化',
+        'page-timing': '网站性能分析',
         'en-decode': '信息编码转换',
         'trans-radix': '进制转换工具',
         'timestamp': '时间(戳)转换',
         'trans-color': '颜色转换工具',
-        'qr-code': '二维码/解码',
+        'qr-code': '二维码/条形码',
         'image-base64': '图片转Base64',
         'svg-converter': 'SVG转为图片',
         'chart-maker': '图表制作工具',
@@ -24,25 +25,25 @@ document.addEventListener('DOMContentLoaded', function() {
         'sticky-notes': '我的便签笔记',
         'html2markdown': 'Markdown转换',
         'page-monkey': '网页油猴工具',
+        'naotu': '便捷思维导图',
+        'uuid-gen': 'UUID/ID生成器',
         'crontab': 'Crontab工具',
         'loan-rate': '贷(还)款利率',
         'password': '随机密码生成',
-        'uuid-gen': 'UUID/ID生成器',
-        'devtools': 'FH开发者工具',
-        'index': '文档首页',
-        'grid-ruler': '网页标尺工具',
         'excel2json': 'Excel转JSON',
-        'naotu': '思维导图工具'
+        'grid-ruler': '网页栅格标尺',
+        'devtools': 'FH开发者工具',
+        'index': '文档首页'
     };
     
     // 工具分类映射
     const toolCategoryMap = {
-        'dev': ['json-format', 'json-diff', 'code-beautify', 'code-compress', 'postman', 'websocket', 'regexp', 'page-timing', 'devtools'],
+        'dev': ['json-format', 'json-diff', 'mock-data', 'code-beautify', 'code-compress', 'postman', 'websocket', 'regexp', 'page-timing'],
         'encode': ['en-decode', 'trans-radix', 'timestamp', 'trans-color'],
         'image': ['qr-code', 'image-base64', 'svg-converter', 'chart-maker', 'poster-maker', 'screenshot', 'color-picker'],
         'productivity': ['aiagent', 'sticky-notes', 'html2markdown', 'page-monkey', 'naotu'],
-        'calculator': ['crontab', 'loan-rate', 'password', 'uuid-gen'],
-        'other': ['grid-ruler', 'excel2json']
+        'calculator': ['uuid-gen', 'crontab', 'loan-rate', 'password'],
+        'other': ['excel2json', 'grid-ruler', 'devtools']
     };
 
     // 获取URL参数

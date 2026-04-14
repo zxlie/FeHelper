@@ -1,6 +1,6 @@
-# FeHelper（前端助手）- Chrome浏览器扩展
+# FeHelper（前端助手）- Chrome/Edge/Firefox 浏览器扩展
 
-# Web前端各种小工具集合
+# Web开发者工具箱 - 32+ 实用工具集合 (v2026.04)
 
 ## 目录
 - [简介](#简介)
@@ -10,41 +10,55 @@
 
 ## 简介
 
-FeHelper（前端助手）是一个Chrome浏览器扩展，包含了前端开发过程中经常用到的小工具集合。旨在帮助前端开发者提高工作效率。
+FeHelper（前端助手）是一个 Chrome/Edge/Firefox 浏览器扩展，包含了 Web 开发过程中经常用到的 32+ 种工具集合。始于 2011 年，历经 15 年打磨，全平台用户 300K+。
 
 ## 特性
 
-FeHelper提供了众多实用工具，包括但不限于：
-- [JSON格式化工具](/docs/json-format.md) - JSON数据的美化、格式化、压缩、转义等
-- [代码美化工具](/docs/code-beautify.md) - 美化HTML、CSS、JS等代码
+FeHelper 提供了众多实用工具，包括但不限于：
+
+### 开发工具类
+- [JSON格式化工具](/docs/json-format.md) - JSON数据的美化、格式化、压缩、BigInt精度处理、排序、编辑、下载
+- [JSON比对工具](/docs/json-diff.md) - 两个JSON内容的自动键值比较，高亮差异点
+- [Mock数据生成器](/docs/mock-data.md) - 快速生成各种测试数据，支持JSON/CSV/SQL/XML输出
+- [代码美化工具](/docs/code-beautify.md) - 美化HTML、CSS、JS、XML、SQL等代码
 - [代码压缩工具](/docs/code-compress.md) - 压缩HTML、CSS、JS等代码
-- [二维码生成器](/docs/qr-code.md) - 将文本或URL转换为二维码
-- [页面性能检测](/docs/page-timing.md) - 分析网页加载性能
-- [网页截图工具](/docs/screenshot.md) - 网页滚动截屏
-- [字符串编解码](/docs/en-decode.md) - 各种编码/解码工具
-- [正则表达式测试](/docs/regexp.md) - 正则表达式在线测试
-- [时间转换工具](/docs/timestamp.md) - 时间戳与日期的相互转换
-- [图片Base64编码](/docs/image-base64.md) - 图片与Base64编码相互转换
-- [JSON对比工具](/docs/json-diff.md) - 比较两个JSON数据的差异
-- [颜色拾取器](/docs/color-picker.md) - 从网页上拾取颜色
-- [Postman接口调试](/docs/postman.md) - 接口调试工具
-- [Websocket调试](/docs/websocket.md) - Websocket连接测试工具
-- [便签笔记](/docs/sticky-notes.md) - 简单的便签记事本
-- [网格尺](/docs/grid-ruler.md) - 页面尺寸测量工具
-- [SVG转换器](/docs/svg-converter.md) - SVG与其他格式的转换
-- [Excel转JSON](/docs/excel2json.md) - Excel文件与JSON数据转换
-- [HTML转Markdown](/docs/html2markdown.md) - HTML代码转Markdown格式
-- [色值转换器](/docs/trans-color.md) - 不同颜色表示法之间的转换
-- [进制转换器](/docs/trans-radix.md) - 数字的进制转换
-- [密码生成器](/docs/password.md) - 随机密码生成工具
-- [Crontab解析](/docs/crontab.md) - Cron表达式解析与测试
-- [思维导图](/docs/naotu.md) - 在线思维导图工具
-- [海报制作](/docs/poster-maker.md) - 简易海报制作工具
-- [图表制作](/docs/chart-maker.md) - 数据可视化图表制作
-- [贷款计算器](/docs/loan-rate.md) - 贷款利率与还款计算
-- [页面定制](/docs/page-monkey.md) - 自定义网页样式和功能
-- [开发者工具](/docs/devtools.md) - 网页调试与检查工具
-- [AI助手](/docs/aiagent.md) - 智能AI助手功能
+- [简易Postman](/docs/postman.md) - 接口调试工具，支持GET/POST/HEAD
+- [Websocket工具](/docs/websocket.md) - Websocket连接测试与消息分析
+- [正则公式速查](/docs/regexp.md) - JavaScript/Python/PHP/Java正则表达式速查
+- [网站性能分析](/docs/page-timing.md) - 核心Web指标(LCP/FID/CLS)分析与优化建议
+
+### 编解码转换类
+- [信息编码转换](/docs/en-decode.md) - Unicode/UTF-8/URL/Base64/MD5/Hex/JWT/Gzip/字符串转义
+- [进制转换工具](/docs/trans-radix.md) - 2~36进制任意转换，BigInt引擎无精度丢失
+- [时间(戳)转换](/docs/timestamp.md) - 时间戳互转，支持时区切换、Windows FILETIME
+- [颜色转换工具](/docs/trans-color.md) - HEX/RGB颜色格式互转
+
+### 图像处理类
+- [二维码/条形码](/docs/qr-code.md) - 二维码生成/解码 + 条形码生成(Code128/EAN-13/EAN-8/UPC/ITF-14)
+- [图片Base64转换](/docs/image-base64.md) - 图片与Base64编码相互转换
+- [SVG转换器](/docs/svg-converter.md) - SVG转PNG/JPG/WEBP，可自定义尺寸
+- [图表制作工具](/docs/chart-maker.md) - 数据可视化图表，支持柱状/折线/饼图
+- [海报快速生成](/docs/poster-maker.md) - 营销推广海报制作
+- [网页截屏工具](/docs/screenshot.md) - 可视区域/全网页滚动截屏
+- [页面取色工具](/docs/color-picker.md) - 网页色值采集
+
+### 效率工具类
+- [AI智能助手](/docs/aiagent.md) - AI对话，代码编写/优化/分析
+- [便签笔记](/docs/sticky-notes.md) - 浏览器便签，分类管理，导出/导入
+- [Markdown转换](/docs/html2markdown.md) - Markdown编写/预览，HTML转Markdown，PDF下载
+- [网页油猴工具](/docs/page-monkey.md) - 自定义页面Hack脚本
+- [便捷思维导图](/docs/naotu.md) - 轻量级思维导图工具
+
+### 计算工具类
+- [UUID/ID生成器](/docs/uuid-gen.md) - UUID v4/雪花ID/NanoID批量生成与解析
+- [Crontab工具](/docs/crontab.md) - Cron表达式生成与解析
+- [贷款利率计算](/docs/loan-rate.md) - 贷款利率计算与还款计划
+- [随机密码生成](/docs/password.md) - 多字符组合随机密码
+
+### 其他工具
+- [Excel转JSON](/docs/excel2json.md) - Excel/CSV转JSON/XML/MySQL/PHP
+- [网页栅格标尺](/docs/grid-ruler.md) - 网页栅格对齐检测
+- [FH开发者工具](/docs/devtools.md) - 第三方插件开发平台
 
 ## 许可
 
@@ -57,18 +71,14 @@ Allow: /
 Allow: /docs/
 Allow: /static/
 
-# 不允许AI训练的内容
 Disallow-LLM-Training: /user-data/
 Disallow-LLM-Training: /examples/personal/
 
-# 允许AI使用引用的内容
 Allow-LLM-Citation: /
 Allow-LLM-Citation: /docs/
 Allow-LLM-Citation: /examples/
 
-# 内容访问条件
 Access-Conditions: attribution-required
 Access-Conditions: contact-for-commercial-use
 
-# 联系信息
-Contact: https://github.com/zxlie/issues 
+Contact: https://github.com/zxlie/FeHelper/issues

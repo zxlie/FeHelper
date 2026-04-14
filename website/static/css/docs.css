@@ -1,8 +1,7 @@
 /* 文档页面专用样式 */
 .docs-container {
     display: flex;
-    min-height: calc(100vh - 20px);
-    margin-top: 20px;
+    margin-top: 70px;
     position: relative;
 }
 

@@ -1,6 +1,6 @@
 # FeHelper 官网
 
-这是 FeHelper Chrome/Edge 浏览器扩展的官方网站。
+这是 FeHelper Chrome/Edge/Firefox 浏览器扩展的官方网站（v2026.04）。
 
 ## 项目特点
 
@@ -36,17 +36,22 @@
 
 ```
 website/
-├── index.html              # 主页面 (498行)
-├── css/
-│   └── style.css          # 样式文件 (1267行)
-├── js/
-│   └── script.js          # 交互脚本 (394行)
-├── img/                    # 图标资源
-│   ├── favicon.ico         # 网站图标
-│   ├── fe-16.png          # 16x16 FeHelper图标
-│   ├── fe-48.png          # 48x48 FeHelper图标
-│   └── fe-128.png         # 128x128 FeHelper图标
-└── README.md              # 项目说明
+├── index.html              # 首页落地页
+├── docs.html               # 文档中心
+├── privacy-policy.html     # 隐私政策（中英双语）
+├── llms.txt                # LLM/爬虫站点说明
+├── static/
+│   ├── css/
+│   │   ├── style.css       # 全站主样式
+│   │   └── docs.css        # 文档页样式
+│   ├── js/
+│   │   ├── script.js       # 首页交互脚本
+│   │   ├── docs.js         # 文档页脚本
+│   │   └── hotfix.json     # 推广位元数据
+│   ├── img/                # 图标资源
+│   └── screenshot/         # 工具截图
+├── docs/                   # Markdown工具文档（30+篇）
+└── README.md               # 项目说明
 ```
 
 ## 本地开发
@@ -77,31 +82,29 @@ website/
 
 ## 更新记录
 
-### v2.2 (2024-12-19)
-- 📊 更新真实数据：GitHub 5.3K stars, 1.3K forks, Chrome Store 200K+ 用户
-- 🦊 新增Firefox浏览器支持和下载选项
-- 📖 添加"关于FeHelper"时间线，展示13年发展历程
-- 🔗 更新所有浏览器商店链接和评分数据
-- ✨ 优化GitHub数据获取逻辑，提供真实默认值
+### v3.0 (2026-04-13)
+- 全面更新首页内容，新增"v2026.04 新版亮点"和"数据与信任"区块
+- 同步 32+ 工具信息：UUID/ID 生成器、条形码、Gzip、FILETIME、BigInt 精度
+- 更新工具分类：思维导图移至效率类，UUID 加入计算类
+- 新增 UUID/ID 生成器文档 (docs/uuid-gen.md)
+- 更新 QR code / en-decode / timestamp / trans-radix 文档反映新功能
+- privacy-policy.html 添加顶部导航栏
+- 全站 copyright 更新为 2011-2026
+- llms.txt 完整重写，包含全部 32+ 工具索引
+- docs.js 工具分类与首页同步
+- SEO 优化：更新 meta、OG、Twitter Card、keywords
 
-### v2.1 (2024-12-19)
-- 🎨 添加FeHelper官方图标到网站
-- 🔖 更新favicon和多尺寸图标
-- ✨ 替换导航栏、页脚、徽章等位置的图标
-- 🚀 增强品牌视觉识别度
+### v2.2 (2024-12-19)
+- 📊 更新真实数据：GitHub 5.3K stars, Chrome Store 200K+ 用户
+- 🦊 新增 Firefox 浏览器支持和下载选项
+- 📖 添加"关于FeHelper"时间线
 
 ### v2.0 (2024-12-19)
-- ✅ 移除Google Fonts依赖，改用系统字体
+- ✅ 移除 Google Fonts 依赖，改用系统字体
 - ✅ 优化国内访问体验
-- ✅ 提升页面加载速度
-- ✅ 增强字体显示兼容性
 
 ### v1.0 (2024-12-19)
 - 🎉 初始版本发布
-- 🎨 现代化渐变设计
-- 📱 响应式布局适配
-- 🔧 功能工具可视化展示
-- 📊 GitHub数据集成
 
 ## 许可证
 
