@@ -1,7 +1,7 @@
 {
   "name": "FeHelper - JSON格式化、编解码、二维码、开发者工具箱",
   "short_name": "FeHelper",
-  "version": "2026.04.1320",
+  "version": "2026.4.1320",
   "manifest_version": 3,
   "description": "30+开发者工具集：JSON格式化/BigInt精度/对比、编解码(Base64/URL/Unicode/Gzip/JWT)、时间戳/FILETIME转换、二维码/条形码、UUID/雪花ID生成、代码美化、正则、取色、Postman、进制转换等，按需安装！",
   "icons": {
