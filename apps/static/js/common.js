@@ -26,7 +26,10 @@ export let MSG_TYPE = {
     OPEN_PAGE: 'open-page',
     DYNAMIC_TOOL_INSTALL_OR_OFFLOAD: 'dynamic-tool-install-or-offload',
 
-    DYNAMIC_ANY_THING: 'fh-dynamic-any-thing'
+    DYNAMIC_ANY_THING: 'fh-dynamic-any-thing',
+
+    AI_RUN: 'fh-ai-run',
+    AI_CHECK: 'fh-ai-check'
 
 };
 export default MSG_TYPE;

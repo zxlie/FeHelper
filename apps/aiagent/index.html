@@ -24,6 +24,16 @@
                     <a href="#" class="x-newchat-link fh-nav-btn" @click="startNewChat($event)">
                         <i class="icon-plus-circle" style="margin-right:4px;font-size:18px;vertical-align:-2px;"></i>开启新对话
                     </a>
+                    <span class="fh-ai-badge" :class="'fh-ai-' + aiProvider">
+                        <template v-if="builtinAvailable">🟢 本地AI可用</template>
+                        <template v-else>☁️ 云端AI</template>
+                        <select v-model="aiProvider" class="fh-provider-select" @change="onProviderChange">
+                            <option value="auto">自动</option>
+                            <option value="builtin-chrome" :disabled="!builtinAvailable">本地AI</option>
+                            <option value="cloud">云端</option>
+                            <option value="export">导出Prompt</option>
+                        </select>
+                    </span>
                 </h3>
             </div>
         </div>
@@ -45,6 +55,13 @@
         </div>
         <div :class="['panel-body', showHistoryPanel ? 'fh-main-shrink' : '']">
             <div class="row mod-inputs box-prompt">
+                <div class="fh-task-bar" v-show="!undergoing">
+                    <button class="fh-task-btn" @click="runTask('summarize-json')" title="分析 JSON 结构和内容">📊 JSON分析</button>
+                    <button class="fh-task-btn" @click="runTask('classify-console-error')" title="分类报错并给出修复建议">🔍 错误分类</button>
+                    <button class="fh-task-btn" @click="runTask('summarize-text')" title="提取文本要点摘要">📝 文本摘要</button>
+                    <button class="fh-task-btn" @click="runTask('extract-fields')" title="从文本中提取结构化字段">🏗 字段提取</button>
+                    <button class="fh-task-btn" @click="runTask('rewrite-prompt')" title="优化 Prompt 表达">✨ Prompt优化</button>
+                </div>
                 <form class="ui-mt-10" @submit.prevent="goChat">
                     <textarea type="text" id="prompt" ref="prompt" v-model="prompt" class="form-control" placeholder="你有什么内容想要咨询AI的？（按Enter发送，Shift+Enter换行）"
                         @keydown="onPromptKeydown"
