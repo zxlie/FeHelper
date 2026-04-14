@@ -11,7 +11,6 @@ import Awesome from './awesome.js';
 import InjectTools from './inject-tools.js';
 import Monkey from './monkey.js';
 import Statistics from './statistics.js';
-import AiRouter from './ai-router.js';
 
 
 let BgPageInstance = (function () {
@@ -619,18 +618,7 @@ let BgPageInstance = (function () {
                         return true;
                 }
                 callback && callback(request.params);
-            }
-            // Chrome 内置 AI：可用性检查
-            else if (request.type === MSG_TYPE.AI_CHECK) {
-                AiRouter.handleAiCheck(callback);
-                return true;
-            }
-            // Chrome 内置 AI：执行任务
-            else if (request.type === MSG_TYPE.AI_RUN) {
-                AiRouter.handleAiRun(request, callback);
-                return true;
-            }
-            else {
+            } else {
                 callback && callback();
             }
 

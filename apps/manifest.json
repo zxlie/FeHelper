@@ -30,8 +30,7 @@
     "activeTab",
     "storage",
     "notifications",
-    "unlimitedStorage",
-    "offscreen"
+    "unlimitedStorage"
   ],
   "host_permissions": [
     "http://*/*",

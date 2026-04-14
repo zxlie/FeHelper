@@ -35,9 +35,7 @@ new Vue({
         hideDemo: false,
         undergoing: false,
         messages: [],
-        showHistoryPanel: false,
-        aiProvider: 'auto',
-        builtinAvailable: false
+        showHistoryPanel: false
     },
     computed: {
         groupedHistory() {
@@ -65,6 +63,7 @@ new Vue({
     mounted: function () {
         this.$refs.prompt.focus();
         this.hideDemo = !!(new URL(location.href)).searchParams.get('hideDemo');
+        // 加载本地历史
         const local = localStorage.getItem('fh-aiagent-history');
         if(local){
             try {
@@ -72,15 +71,6 @@ new Vue({
             } catch(e) {}
         }
         this.loadPatchHotfix();
-
-        // 探测 Chrome 内置 AI 可用性
-        AI.checkBuiltinAI().then(status => {
-            this.builtinAvailable = (status === 'available');
-        });
-
-        // 恢复上次选择的 provider
-        const saved = localStorage.getItem('fh-ai-provider');
-        if (saved) this.aiProvider = saved;
     },
     methods: {
 
@@ -138,23 +128,10 @@ new Vue({
             return backticksCount % 2 === 0 && !inCodeBlock;
         },
 
-        onProviderChange() {
-            localStorage.setItem('fh-ai-provider', this.aiProvider);
-        },
-
-        runTask(taskId) {
-            if (this.undergoing) return;
-            if (!this.prompt || !this.prompt.trim()) {
-                showToast('请先在输入框中输入要分析的内容');
-                return;
-            }
-            this.sendMessage(this.prompt, { provider: this.aiProvider, task: taskId });
-            this.$nextTick(() => this.prompt = '');
-        },
-
-        sendMessage(prompt, opts = {}) {
+        sendMessage(prompt){
             if(this.undergoing) return;
             if(this.respResult.id){
+                // 先存储上一轮对话到历史
                 this.history.push({
                     id: this.respResult.id,
                     sendTime: this.respResult.sendTime,
@@ -173,7 +150,9 @@ new Vue({
             this.tempId = '';
             let respContent = '';
 
+            // 1. 先把用户输入 push 到 messages
             this.messages.push({ role: 'user', content: prompt });
+            // 新增：用户消息push到currentSession
             this.currentSession.push({
                 role: 'user',
                 id: 'user-' + Date.now(),
@@ -181,21 +160,7 @@ new Vue({
                 content: prompt
             });
 
-            const provider = opts.provider || this.aiProvider || 'auto';
-            const task = opts.task || 'free-chat';
-
-            // export 模式特殊处理：同步返回
-            if (provider === 'export') {
-                const result = AI.exportPromptBundle(this.messages);
-                let exportContent = marked(result.content);
-                this.respResult = { id: result.id, sendTime, message: prompt, respTime: sendTime, respContent: exportContent };
-                this.currentSession.push({ role: 'assistant', id: result.id, time: sendTime, content: exportContent });
-                this.undergoing = false;
-                this.$nextTick(() => this.scrollToBottom());
-                return;
-            }
-
-            AI.ask(this.messages, (respJson, done) => {
+            AI.askCoderLLM(this.messages, (respJson, done) => {
                 if(done){
                     this.undergoing = false;
                     if(this.respResult.id && this.respResult.respContent){
@@ -222,6 +187,7 @@ new Vue({
                 }
                 let id = respJson.id;
                 let rawContent = respJson.content || '';
+                // 检查多轮代码补全场景
                 const lastAssistantMsg = this.currentSession.slice().reverse().find(m => m.role === 'assistant');
                 const lastIsCodeBlock = lastAssistantMsg && /```\s*$/.test(lastAssistantMsg.content.trim());
                 const thisIsCodeBlock = /^```/.test(rawContent.trim());
@@ -235,9 +201,10 @@ new Vue({
                 respContent = marked(respContent);
                 if(this.tempId !== id) {
                     this.tempId = id;
-                    let dateTime = new Date((respJson.created || Math.floor(Date.now()/1000)) * 1000);
+                    let dateTime = new Date(respJson.created * 1000);
                     let respTime = dateTime.format('yyyy/MM/dd HH:mm:ss');
                     this.respResult = { id,sendTime,message:prompt,respTime,respContent };
+                    // 新增：助手回复push到currentSession
                     this.currentSession.push({
                         role: 'assistant',
                         id,
@@ -246,24 +213,20 @@ new Vue({
                     });
                 }else{
                     this.respResult.respContent = respContent;
+                    // 更新最后一条助手消息内容
                     if(this.currentSession.length && this.currentSession[this.currentSession.length-1].role==='assistant'){
                         this.currentSession[this.currentSession.length-1].content = respContent;
                     }
                 }
                 this.$nextTick(() => this.scrollToBottom());
-            }, { provider, task }).catch(err => {
-                this.undergoing = false;
-                let errorContent = marked('⚠️ AI 请求失败：' + (err.message || String(err)) + '\n\n请尝试切换到其他 AI 引擎。');
-                this.currentSession.push({ role: 'assistant', id: 'err-' + Date.now(), time: sendTime, content: errorContent });
-                this.$nextTick(() => this.scrollToBottom());
-            });
+            });            
         },
 
         scrollToBottom(){
             this.$refs.boxResult.scrollTop = this.$refs.boxResult.scrollHeight;
         },
         goChat(){
-            this.sendMessage(this.prompt, { provider: this.aiProvider });
+            this.sendMessage(this.prompt);
             this.$nextTick(() => this.prompt='');
         },
 

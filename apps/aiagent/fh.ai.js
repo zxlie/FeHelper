@@ -1,101 +1,119 @@
+import EncodeUtils from '../en-decode/endecode-lib.js';
 /**
- * FeHelper AI 统一入口
- * provider 路由：builtin-chrome → cloud → export
+ * 用零一万物大模型来进行流式问答输出
  */
-
-import BuiltinProvider from './providers/builtin-chrome.js';
-import CloudProvider from './providers/cloud.js';
-
 let AI = (() => {
-
-    let _builtinStatus = null; // 缓存探测结果
-
     /**
-     * 探测 Chrome 内置 AI 是否可用
-     * @returns {Promise<string>} 'available' | 'downloadable' | 'downloading' | 'unavailable' | 'unsupported'
-     */
-    async function checkBuiltinAI() {
-        try {
-            const resp = await BuiltinProvider.check();
-            _builtinStatus = resp?.ok ? resp.availability : 'unsupported';
-        } catch {
-            _builtinStatus = 'unsupported';
-        }
-        return _builtinStatus;
-    }
-
-    function getBuiltinStatus() {
-        return _builtinStatus;
-    }
-
-    /**
-     * 统一 AI 调用入口
-     * @param {string|Array} messages - 用户输入或多轮消息
-     * @param {function} receivingCallback - (msg, done) 流式/结果回调
-     * @param {object} opts
-     * @param {string} opts.provider - 'auto' | 'builtin-chrome' | 'cloud' | 'export'
-     * @param {string} opts.task - 任务类型（仅 builtin-chrome 生效）
-     * @param {string} opts.apiKey - 云端自定义 API Key
-     * @param {object} opts.context - 页面上下文
-     */
-    async function ask(messages, receivingCallback, opts = {}) {
-        let provider = opts.provider || 'auto';
-
-        // auto 模式：内置可用则用内置，否则降级云端
-        if (provider === 'auto') {
-            if (_builtinStatus === null) await checkBuiltinAI();
-            provider = _builtinStatus === 'available' ? 'builtin-chrome' : 'cloud';
-        }
-
-        switch (provider) {
-            case 'builtin-chrome':
-                return BuiltinProvider.ask(messages, receivingCallback, opts);
-
-            case 'cloud':
-                return CloudProvider.ask(messages, receivingCallback, opts);
-
-            case 'export':
-                return exportPromptBundle(messages, opts);
-
-            default:
-                throw new Error('Unknown AI provider: ' + provider);
-        }
-    }
-
-    /**
-     * 导出 prompt 到剪贴板（无 AI 可用时的降级方案）
-     */
-    function exportPromptBundle(messages, opts = {}) {
-        let text;
-        if (typeof messages === 'string') {
-            text = messages;
-        } else if (Array.isArray(messages)) {
-            text = messages
-                .filter(m => m.role !== 'system')
-                .map(m => `[${m.role}] ${m.content}`)
-                .join('\n\n');
-        } else {
-            text = String(messages);
-        }
-
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(text);
-        }
-
-        return {
-            id: 'export-' + Date.now(),
-            content: '💡 Prompt 已复制到剪贴板，请粘贴到你常用的 AI 工具中使用。\n\n---\n\n' + text
-        };
-    }
-
-    /**
-     * 向后兼容：直接调用云端 LLM
+     * 用 SiliconFlow 大模型（CoderVM）进行流式问答输出，支持多轮上下文对话
+     * @param {Array} messages 聊天历史数组，每项格式: {role: 'user'|'assistant', content: string}
+     * @param {function} receivingCallback 每次收到新内容时的回调，参数为 message 对象
+     * @param {string} apiKey 可选，API Key
+     * @example
+     * const messages = [
+     *   { role: 'user', content: '你好' },
+     *   { role: 'assistant', content: '你好，有什么可以帮您？' },
+     *   { role: 'user', content: '帮我写个排序算法' }
+     * ];
+     * AI.askCoderLLM(messages, callback);
      */
     async function askCoderLLM(messages, receivingCallback, apiKey) {
-        return ask(messages, receivingCallback, { provider: 'cloud', apiKey });
-    }
+        // 默认插入system prompt
+        const systemPrompt = {
+            role: 'system',
+            content: '你是由FeHelper提供的，一个专为开发者服务的AI助手。' +
+            '你的目标是精准理解开发者的技术需求，并以最简洁、直接、专业的方式输出高质量代码，并且保证代码的完整性。' +
+            '请避免无关的解释和冗余描述，只输出开发者真正需要的代码和必要的技术要点说明。' +
+            '遇到不明确的需求时，优先追问关键细节，绝不输出与开发无关的内容。' +
+            '如果生成的是代码，一定要用```的markdown代码块包裹，并使用markdown语法渲染。'
+        };
+        let msgs;
+        if (typeof messages === 'string') {
+            // 单轮对话，自动组装为数组
+            msgs = [systemPrompt, { role: 'user', content: messages }];
+        } else if (Array.isArray(messages)) {
+            // 多轮对话，插入system prompt（如未包含）
+            const hasSystemPrompt = messages.some(m => m.role === 'system' && m.content === systemPrompt.content);
+            msgs = hasSystemPrompt ? messages : [systemPrompt, ...messages];
+        } else {
+            // 其他类型，降级为空对话
+            msgs = [systemPrompt];
+        }
 
-    return { ask, askCoderLLM, checkBuiltinAI, getBuiltinStatus, exportPromptBundle };
+        const defaultKey = 'c2stamJ5eGlldmVmdmhnbnBnbGF3cmxlZ25uam9rY25kc3BpYndjZmh1d2Ntbm9jbmxp';
+        const url = 'https://api.siliconflow.cn/v1/chat/completions';
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey || EncodeUtils.base64Decode(defaultKey)}`
+            },
+            body: JSON.stringify({
+                "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+                "messages": msgs, // 直接传递多轮历史
+                "stream": true, // 开启流式输出
+                "max_tokens": 4096,
+                "enable_thinking": true,
+                "thinking_budget": 4096,
+                "min_p": 0.05,
+                "stop": [],
+                "temperature": 0.7,
+                "top_p": 0.7,
+                "top_k": 50,
+                "frequency_penalty": 0.5,
+                "n": 1,
+                "response_format": {
+                    "type": "text"
+                }
+            })
+        };
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            // 处理流式返回（text/event-stream）
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let buffer = '';
+            let done = false;
+            const msg = {id:'',content:''};
+            while (!done) {
+                const { value, done: readerDone } = await reader.read();
+                done = readerDone;
+                if (value) {
+                    buffer += decoder.decode(value, { stream: true });
+                    // 以换行分割，逐条处理
+                    let lines = buffer.split('\n');
+                    // 最后一行可能不完整，留到下次
+                    buffer = lines.pop();
+                    for (let line of lines) {
+                        line = line.trim();
+                        if (!line || !line.startsWith('data:')) continue;
+                        let jsonStr = line.replace(/^data:/, '').trim();
+                        if (jsonStr === '[DONE]') continue;
+                        try {
+                            let obj = JSON.parse(jsonStr);
+                            if (obj.choices && obj.choices[0] && obj.choices[0].delta) {
+                                msg.id = obj.id;
+                                msg.created = obj.created;
+                                msg.content += obj.choices[0].delta.content;
+                                receivingCallback && receivingCallback(msg);
+                            }
+                        } catch (e) {
+                            // 忽略解析失败的片段
+                        }
+                    }
+                }
+            }
+            receivingCallback && receivingCallback(null,true);
+        } catch (error) {
+            console.error('Error fetching coderVM stream:', error);
+        }
+    }
+    
+    return {askCoderLLM};
 })();
 
+
 export default AI;
+
