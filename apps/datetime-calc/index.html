@@ -110,9 +110,37 @@
                                             <button class="btn btn-sm btn-warning time-toggle-btn">⏸️ 暂停</button>
                                         </div>
                                     </label>
+                                    <div class="timezone-current-row">
+                                        <label>模拟时区</label>
+                                        <select class="form-control current-timezone-select">
+                                            <option value="Pacific/Midway">中途岛 (GMT-11)</option>
+                                            <option value="America/Adak">阿达克 (GMT-10)</option>
+                                            <option value="Pacific/Honolulu">夏威夷 (GMT-10)</option>
+                                            <option value="America/Anchorage">安克雷奇 (GMT-9)</option>
+                                            <option value="America/Los_Angeles">洛杉矶 (GMT-8)</option>
+                                            <option value="America/Denver">丹佛 (GMT-7)</option>
+                                            <option value="America/Chicago">芝加哥 (GMT-6)</option>
+                                            <option value="America/New_York">纽约 (GMT-5)</option>
+                                            <option value="America/Halifax">哈利法克斯 (GMT-4)</option>
+                                            <option value="America/Argentina/Buenos_Aires">布宜诺斯艾利斯 (GMT-3)</option>
+                                            <option value="Atlantic/Azores">亚速尔群岛 (GMT-1)</option>
+                                            <option value="Europe/London">伦敦 (GMT+0)</option>
+                                            <option value="Europe/Berlin">柏林 (GMT+1)</option>
+                                            <option value="Europe/Athens">雅典 (GMT+2)</option>
+                                            <option value="Europe/Moscow">莫斯科 (GMT+3)</option>
+                                            <option value="Asia/Dubai">迪拜 (GMT+4)</option>
+                                            <option value="Asia/Karachi">卡拉奇 (GMT+5)</option>
+                                            <option value="Asia/Dhaka">达卡 (GMT+6)</option>
+                                            <option value="Asia/Bangkok">曼谷 (GMT+7)</option>
+                                            <option value="Asia/Shanghai" selected>北京 (GMT+8)</option>
+                                            <option value="Asia/Tokyo">东京 (GMT+9)</option>
+                                            <option value="Australia/Sydney">悉尼 (GMT+10)</option>
+                                            <option value="Pacific/Auckland">奥克兰 (GMT+12)</option>
+                                        </select>
+                                    </div>
                                     <div class="current-time-grid">
                                         <div class="time-item">
-                                            <label>当前本地时间</label>
+                                            <label>当前选择时区时间</label>
                                             <input type="text" class="form-control time-display" readonly title="点击复制">
                                         </div>
                                         <div class="time-item">
@@ -471,4 +499,3 @@
 
     </body>
 </html>
-

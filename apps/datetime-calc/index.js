@@ -15,6 +15,7 @@ var AppState = {
         timestampMs: 0
     },
     isTimeRunning: true,
+    selectedTimezone: 'Asia/Shanghai',
     
     // 智能时间解析器
     smartParser: {
@@ -111,7 +112,15 @@ var TimeUtils = {
             };
         }
         
-        // 尝试解析为日期字符串
+        // 尝试按当前选择时区解析日期字符串，便于模拟海外用户系统时间
+        var normalizedInput = this.normalizeDateTimeInput(input);
+        if (normalizedInput) {
+            return {
+                timestamp: getUTCTimestampFromLocal(normalizedInput, AppState.selectedTimezone),
+                format: '日期字符串(' + AppState.selectedTimezone + ')'
+            };
+        }
+
         var date = new Date(input);
         if (!isNaN(date.getTime())) {
             return {
@@ -126,12 +135,14 @@ var TimeUtils = {
     // 格式化时间戳为各种格式
     formatTimestamp: function(timestamp) {
         var date = new Date(timestamp);
+        var selectedTimezone = AppState.selectedTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         
         return [
-            { label: '标准格式', value: this.formatDate(date, 'YYYY-MM-DD HH:mm:ss') },
+            { label: '选择时区时间', value: this.formatInTimezone(date, selectedTimezone) + ' (' + selectedTimezone + ')' },
             { label: 'Unix时间戳(秒)', value: Math.floor(timestamp / 1000).toString() },
             { label: 'Unix时间戳(毫秒)', value: timestamp.toString() },
             { label: 'UTC时间', value: this.formatDate(new Date(date.getTime() + date.getTimezoneOffset() * 60000), 'YYYY-MM-DD HH:mm:ss') + ' UTC' },
+            { label: '本地标准格式', value: this.formatDate(date, 'YYYY-MM-DD HH:mm:ss') },
             { label: '本地格式', value: date.toLocaleString('zh-CN') },
             { label: '相对时间', value: this.getRelativeTime(date) },
             { label: 'ISO 8601', value: date.toISOString() }
@@ -154,6 +165,42 @@ var TimeUtils = {
             .replace('HH', hour)
             .replace('mm', minute)
             .replace('ss', second);
+    },
+
+    formatInTimezone: function(date, timezone) {
+        var fmt = new Intl.DateTimeFormat('zh-CN', {
+            timeZone: timezone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+        var parts = fmt.formatToParts(date);
+        var get = function(type) {
+            var item = parts.find(function(part) { return part.type === type; });
+            return item ? item.value : '00';
+        };
+        var hour = get('hour') === '24' ? '00' : get('hour');
+        return get('year') + '-' + get('month') + '-' + get('day') + ' ' + hour + ':' + get('minute') + ':' + get('second');
+    },
+
+    normalizeDateTimeInput: function(input) {
+        var value = String(input || '').trim().replace(/\//g, '-').replace('T', ' ');
+        var dateOnly = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+        var dateTime = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/);
+        var m = dateTime || dateOnly;
+        if (!m) return '';
+        var pad = function(num) { return String(num).padStart(2, '0'); };
+        var y = m[1];
+        var mon = pad(m[2]);
+        var d = pad(m[3]);
+        var h = dateTime ? pad(m[4]) : '00';
+        var min = dateTime ? pad(m[5]) : '00';
+        var s = dateTime ? pad(m[6] || '0') : '00';
+        return y + '-' + mon + '-' + d + ' ' + h + ':' + min + ':' + s;
     },
     
     // 获取相对时间
@@ -364,6 +411,17 @@ var TimestampApp = {
                 self.copyToClipboard(this.value);
             });
         });
+
+        var currentTimezoneSelect = DOMUtils.$('.current-timezone-select');
+        if (currentTimezoneSelect) {
+            currentTimezoneSelect.addEventListener('change', function() {
+                AppState.selectedTimezone = this.value;
+                var baseTime = AppState.currentTime.timestampMs ? new Date(AppState.currentTime.timestampMs) : new Date();
+                AppState.currentTime.local = TimeUtils.formatInTimezone(baseTime, AppState.selectedTimezone);
+                self.updateTimeDisplay();
+                self.parseSmartTime();
+            });
+        }
         
         // 快捷操作按钮
         var quickButtons = DOMUtils.$$('.quick-buttons .btn');
@@ -484,6 +542,15 @@ var TimestampApp = {
     initUI: function() {
         // 设置初始标签页
         this.setActiveTab(AppState.activeTab);
+
+        var timezoneSelect = DOMUtils.$('.current-timezone-select');
+        if (timezoneSelect) {
+            var browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if (Array.prototype.some.call(timezoneSelect.options, function(option) { return option.value === browserTimezone; })) {
+                AppState.selectedTimezone = browserTimezone;
+            }
+            timezoneSelect.value = AppState.selectedTimezone;
+        }
         
         // 初始化时间显示
         this.updateTimeDisplay();
@@ -524,7 +591,7 @@ var TimestampApp = {
         
         function updateTime() {
             var now = new Date();
-            AppState.currentTime.local = TimeUtils.formatDate(now, 'YYYY-MM-DD HH:mm:ss');
+            AppState.currentTime.local = TimeUtils.formatInTimezone(now, AppState.selectedTimezone);
             AppState.currentTime.timestamp = Math.floor(now.getTime() / 1000);
             AppState.currentTime.timestampMs = now.getTime();
             

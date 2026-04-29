@@ -126,6 +126,24 @@
     outline: none;
 }
 
+.timezone-current-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.timezone-current-row label {
+    flex: 0 0 auto;
+    margin: 0;
+    color: #495057;
+    font-weight: 600;
+}
+
+.timezone-current-row select {
+    max-width: 260px;
+}
+
 /* 操作面板样式 */
 .actions-panel {
     padding: 20px;

@@ -86,6 +86,7 @@ export function initializeEditor(template) {
   
   // 添加从模板中检测到的硬编码文本作为可编辑字段
   const existingDefaults = allFields.map(field => field.default);
+  window.currentDetectedTextFields = [];
   
   hardcodedTexts.forEach((text, index) => {
     // 检查文本是否已存在于字段中，或者是否是常见文本
@@ -98,12 +99,15 @@ export function initializeEditor(template) {
         label = text;
       }
       
-      allFields.push({
+      const detectedField = {
         name: `detected_text_${index}`,
         type: 'text',
         label: label,
-        default: text
-      });
+        default: text,
+        originalText: text
+      };
+      allFields.push(detectedField);
+      window.currentDetectedTextFields.push(detectedField);
     }
   });
 
@@ -318,7 +322,7 @@ export function initializeEditor(template) {
   updatePosterPreview();
   
   // 自动切换到编辑标签页
-  const editorTab = document.querySelector('.panel-tab[data-tab="editor-tab"]');
+  const editorTab = document.querySelector('.panel-tab[data-tab="editor"]');
   if (editorTab) {
     editorTab.click();
   }
@@ -407,6 +411,37 @@ function updatePosterPreview() {
   // 生成预览HTML
   const previewHTML = window.currentTemplate.template(window.currentValues);
   posterPreview.innerHTML = previewHTML;
+  applyDetectedTextOverrides(posterPreview);
+}
+
+function applyDetectedTextOverrides(root) {
+  const detectedFields = window.currentDetectedTextFields || [];
+  if (!detectedFields.length) return;
+
+  const replacements = detectedFields
+    .map(field => ({
+      from: field.originalText,
+      to: window.currentValues[field.name]
+    }))
+    .filter(item => item.from && item.to !== undefined && item.to !== item.from);
+
+  if (!replacements.length) return;
+
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  while (walker.nextNode()) {
+    textNodes.push(walker.currentNode);
+  }
+
+  textNodes.forEach(node => {
+    let value = node.nodeValue;
+    replacements.forEach(item => {
+      if (value.trim() === item.from) {
+        value = value.replace(item.from, item.to);
+      }
+    });
+    node.nodeValue = value;
+  });
 }
 
 // 下载海报

@@ -56,7 +56,7 @@ window.TampermonkeyParser = (function () {
             mStyle: '',
             mRequireJs: all('require').join(','),
             mRunAt: runAt,
-            mAllFrames: !!first('all-frames') || meta['noframes'] ? false : false,
+            mAllFrames: !!first('all-frames') && !meta['noframes'],
             mWorld: 'MAIN',
             mRefresh: 0,
             mDisabled: false,

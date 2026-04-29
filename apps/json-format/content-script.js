@@ -123,6 +123,26 @@ window.JsonAutoFormat = (() => {
         ].join('')
     };
 
+    let _mountFormatterShell = () => {
+        if (document.getElementById('jfToolbar')) {
+            return;
+        }
+
+        let originalContent = document.getElementById('jfOriginalContent');
+        if (!originalContent) {
+            originalContent = document.createElement('div');
+            originalContent.id = 'jfOriginalContent';
+            originalContent.style.display = 'none';
+
+            while (document.body.firstChild) {
+                originalContent.appendChild(document.body.firstChild);
+            }
+            document.body.appendChild(originalContent);
+        }
+
+        $('body').prepend(_getHtmlFragment());
+    };
+
     let _createSettingPanel = () => {
         let html = `<div id="jfSettingPanel" class="mod-setting-panel">
             <h4>基本配置项</h4>
@@ -713,13 +733,7 @@ window.JsonAutoFormat = (() => {
             }
 
             $('html').addClass('fh-jf');
-            $('body').prepend(_getHtmlFragment());
-            let preLength = $('body>pre').remove().length;
-            if (!preLength) {
-                Array.prototype.slice.call(document.body.childNodes).forEach(node => {
-                    (node.nodeType === Node.TEXT_NODE) && node.remove();
-                });
-            }
+            _mountFormatterShell();
 
             formatOptions.originalSource = JSON.stringify(jsonObj);
 

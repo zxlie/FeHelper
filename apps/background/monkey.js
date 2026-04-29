@@ -283,22 +283,40 @@ const buildFinalCode = (monkey) => {
 };
 
 /* ================== 注入实现 ================== */
-const _injectCss = (tabId, allFrames, css) => {
+const _buildTarget = (tabId, allFrames, frameId) => {
+    if (typeof frameId === 'number') return { tabId, frameIds: [frameId] };
+    if (allFrames) return { tabId, allFrames: true };
+    return { tabId };
+};
+
+const _injectCss = (tabId, allFrames, frameId, css, monkey) => {
     try {
         chrome.scripting.insertCSS({
-            target: { tabId, allFrames },
+            target: _buildTarget(tabId, allFrames, frameId),
             css
-        }).catch(() => {});
-    } catch (e) {}
+        }).catch((err) => {
+            log({
+                id: monkey && monkey.id, name: (monkey && monkey.mName) || '', level: 'error',
+                msg: 'css inject failed: ' + ((err && err.message) || err),
+                url: '(tab ' + tabId + ')', time: Date.now()
+            });
+        });
+    } catch (e) {
+        log({
+            id: monkey && monkey.id, name: (monkey && monkey.mName) || '', level: 'error',
+            msg: 'css inject failed: ' + ((e && e.message) || e),
+            url: '(tab ' + tabId + ')', time: Date.now()
+        });
+    }
 };
 
 // MAIN world 没有 chrome.runtime，需要在 ISOLATED world 中常驻一个桥接监听器，
 // 通过 window.postMessage 接收 MAIN world 抛出的日志，再转发到 background。
 // 返回 Promise，调用方需 await 以保证桥接器在 user script 之前就位（否则启动期日志会丢）。
-const _injectLogBridge = (tabId, allFrames) => {
+const _injectLogBridge = (tabId, allFrames, frameId) => {
     try {
         return chrome.scripting.executeScript({
-            target: { tabId, allFrames },
+            target: _buildTarget(tabId, allFrames, frameId),
             func: function () {
                 if (window.__fhMonkeyBridgeReady) return;
                 window.__fhMonkeyBridgeReady = true;
@@ -350,13 +368,19 @@ const _injectLogBridge = (tabId, allFrames) => {
             },
             world: 'ISOLATED',
             injectImmediately: true
-        }).catch(() => {});
+        }).catch((err) => {
+            log({
+                id: '__bridge__', name: 'page-monkey', level: 'error',
+                msg: 'bridge inject failed: ' + ((err && err.message) || err),
+                url: '(tab ' + tabId + ')', time: Date.now()
+            });
+        });
     } catch (_) {
         return Promise.resolve();
     }
 };
 
-const _injectScript = (tabId, monkey) => {
+const _injectScript = (tabId, frameId, monkey) => {
     let allFrames = !!monkey.mAllFrames;
     let world = monkey.mWorld === 'ISOLATED' ? 'ISOLATED' : 'MAIN';
     let finalCode = buildFinalCode(monkey);
@@ -364,12 +388,12 @@ const _injectScript = (tabId, monkey) => {
     // 必须先等 ISOLATED 桥接器就位（MAIN/ISOLATED 模式都需要：
     // ISOLATED 模式下 user script 也通过 postMessage 走桥接，统一通道）。
     // 否则 user script 启动期的早期日志/@require 请求会丢失。
-    let bridgeReady = _injectLogBridge(tabId, allFrames) || Promise.resolve();
+    let bridgeReady = _injectLogBridge(tabId, allFrames, frameId) || Promise.resolve();
 
     const exec = (worldOption, isFallback) => {
         try {
             chrome.scripting.executeScript({
-                target: { tabId, allFrames },
+                target: _buildTarget(tabId, allFrames, frameId),
                 func: function (code) {
                     try { (0, eval)(code); } catch (e) {
                         // 注入阶段的 eval 错误也走桥接
@@ -392,7 +416,7 @@ const _injectScript = (tabId, monkey) => {
                     log({
                         id: monkey.id, name: monkey.mName || '', level: 'error',
                         msg: 'inject failed: ' + ((err && err.message) || err),
-                        url: '(tab ' + tabId + ')', time: Date.now()
+                        url: '(tab ' + tabId + ', frame ' + (frameId || 0) + ')', time: Date.now()
                     });
                 }
             });
@@ -403,12 +427,12 @@ const _injectScript = (tabId, monkey) => {
     bridgeReady.then(() => exec(world, false), () => exec(world, false));
 };
 
-const injectMonkey = (tabId, monkey) => {
+const injectMonkey = (tabId, frameId, monkey) => {
     let allFrames = !!monkey.mAllFrames;
     if (monkey.mStyle && monkey.mStyle.trim()) {
-        _injectCss(tabId, allFrames, monkey.mStyle);
+        _injectCss(tabId, allFrames, frameId, monkey.mStyle, monkey);
     }
-    _injectScript(tabId, monkey);
+    _injectScript(tabId, frameId, monkey);
     _hit(monkey.id);
 };
 
@@ -438,6 +462,7 @@ const start = (params) => {
     try {
         if (!params || !params.url || params.tabId == null) return true;
         let runAt = params.runAt || 'document-end';
+        let frameId = typeof params.frameId === 'number' ? params.frameId : 0;
 
         chrome.storage.local.get(PAGE_MONKEY_LOCAL_STORAGE_KEY, (resps) => {
             let raw, storageMode = false;
@@ -456,7 +481,8 @@ const start = (params) => {
                 .filter(cm => !cm.mDisabled)
                 .filter(cm => (cm.mRunAt || 'document-end') === runAt)
                 .filter(cm => isMatch(cm, params.url))
-                .forEach(cm => injectMonkey(params.tabId, cm));
+                .filter(cm => frameId === 0 || !!cm.mAllFrames)
+                .forEach(cm => injectMonkey(params.tabId, frameId, cm));
 
             if (storageMode) {
                 let data = {}; data[PAGE_MONKEY_LOCAL_STORAGE_KEY] = raw;
