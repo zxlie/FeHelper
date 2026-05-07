@@ -6,6 +6,10 @@
   "dependencies": {
     "imagemin-mozjpeg": "^10.0.0"
   },
+  "overrides": {
+    "fast-xml-parser": "^5.7.0",
+    "postcss": "^8.5.14"
+  },
   "devDependencies": {
     "@babel/code-frame": "^7.27.1",
     "@babel/core": "^7.26.10",
