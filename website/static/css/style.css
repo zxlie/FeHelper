@@ -1506,8 +1506,10 @@ body {
 }
 
 .promo-video-frame {
+    position: relative;
     max-width: 1080px;
     margin: 0 auto;
+    aspect-ratio: 16 / 9;
     border-radius: 20px;
     overflow: hidden;
     background: var(--bg-dark);
@@ -1516,9 +1518,12 @@ body {
 }
 
 .promo-video-frame video {
+    position: absolute;
+    inset: 0;
     display: block;
     width: 100%;
-    aspect-ratio: 16 / 9;
+    height: 100%;
+    object-fit: contain;
     background: var(--bg-dark);
 }
 
