@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "FeHelper-前端助手",
   "main": "index.js",
-  "dependencies": {
-    "imagemin-mozjpeg": "^10.0.0"
-  },
   "overrides": {
     "fast-xml-parser": "^5.7.0",
     "postcss": "^8.5.14"
@@ -23,6 +20,7 @@
     "gulp-htmlmin": "^5.0.1",
     "gulp-if": "^3.0.0",
     "gulp-imagemin": "^7.1.0",
+    "imagemin-mozjpeg": "^10.0.0",
     "gulp-jsonminify": "^1.1.0",
     "gulp-uglify-es": "^3.0.0",
     "gulp-uglifycss": "^1.0.9",
