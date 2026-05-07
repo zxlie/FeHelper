@@ -16,9 +16,9 @@
 
 **[English](README_EN.md) | [日本語](README_JA.md) | [한국어](README_KO.md)**
 
-[官网](https://fehelper.com) · [在线文档](https://fehelper.com/docs.html) · [Chrome 商店](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad) · [问题反馈](https://github.com/zxlie/FeHelper/issues) · [观看 18 秒介绍视频](https://raw.githubusercontent.com/zxlie/FeHelper/master/website/static/video/fehelper-promo.mp4)
+[官网](https://fehelper.com) · [在线文档](https://fehelper.com/docs.html) · [Chrome 商店](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad) · [问题反馈](https://github.com/zxlie/FeHelper/issues) · [观看 20 秒介绍视频](https://raw.githubusercontent.com/zxlie/FeHelper/master/website/static/video/fehelper-promo.mp4)
 
-[![FeHelper 18 秒介绍视频](website/static/video/fehelper-promo.gif)](https://raw.githubusercontent.com/zxlie/FeHelper/master/website/static/video/fehelper-promo.mp4)
+[![FeHelper 20 秒介绍视频](website/static/video/fehelper-promo.gif)](https://raw.githubusercontent.com/zxlie/FeHelper/master/website/static/video/fehelper-promo.mp4)
 
 </div>
 
