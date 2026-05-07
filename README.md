@@ -18,6 +18,8 @@
 
 [官网](https://fehelper.com) · [在线文档](https://fehelper.com/docs.html) · [Chrome 商店](https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad) · [问题反馈](https://github.com/zxlie/FeHelper/issues)
 
+<video src="website/static/video/fehelper-promo.mp4" controls muted loop playsinline width="100%" poster="website/static/screenshot/popup.png"></video>
+
 </div>
 
 ---
