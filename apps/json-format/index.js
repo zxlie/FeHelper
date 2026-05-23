@@ -33,18 +33,18 @@ new Vue({
         jsonPathResults: [],
         jsonPathError: '',
         copyButtonState: 'normal', // normal, copying, success, error
-        jsonPathExamples: [
-            { path: '$', description: '根对象' },
-            { path: '$.data', description: '获取data属性' },
-            { path: '$.data.*', description: '获取data下的所有属性' },
-            { path: '$.data[0]', description: '获取data数组的第一个元素' },
-            { path: '$.data[*]', description: '获取data数组的所有元素' },
-            { path: '$.data[?(@.name)]', description: '获取data数组中有name属性的元素' },
-            { path: '$..name', description: '递归查找所有name属性' },
-            { path: '$.data[0:3]', description: '获取data数组的前3个元素' },
-            { path: '$.data[-1]', description: '获取data数组的最后一个元素' },
-            { path: '$.*.price', description: '获取所有子对象的price属性' }
-        ]
+	        jsonPathExamples: [
+	            { path: '$', description: '根对象（类似 jq: .）' },
+	            { path: '$.data', description: '获取data属性（类似 jq: .data）' },
+	            { path: '$.data.*', description: '获取data下的所有属性' },
+	            { path: '$.data[0]', description: '获取data数组的第一个元素' },
+	            { path: '$.data[*]', description: '获取data数组的所有元素（类似 jq: .data[]）' },
+	            { path: '$.data[?(@.name)]', description: '获取data数组中有name属性的元素' },
+	            { path: '$..name', description: '递归查找所有name属性' },
+	            { path: '$.data[0:3]', description: '获取data数组的前3个元素' },
+	            { path: '$.data[-1]', description: '获取data数组的最后一个元素' },
+	            { path: '$.*.price', description: '获取所有子对象的price属性' }
+	        ]
     },
     mounted: function () {
         // 自动开关灯控制

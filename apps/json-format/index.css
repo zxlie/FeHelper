@@ -152,6 +152,23 @@ html.fh-jf .x-toolbar {
 html.fh-jf .x-toolbar.x-inpage {
     margin:10px 20px;
 }
+
+/* 小屏适配：工具栏/标题过长时允许横向滚动（修复“导航无法滑动/滚动”类问题） */
+@media (max-width: 900px) {
+    html.fh-jf .panel-heading {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    html.fh-jf .panel-title {
+        white-space: nowrap;
+    }
+    html.fh-jf .x-toolbar.x-inpage {
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+}
 .panel-title>a.x-other-tools {
     top: 0px;
 }

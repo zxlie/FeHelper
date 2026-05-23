@@ -10,6 +10,9 @@ export default (() => {
         };
         if (codeConfig.world) opts.world = codeConfig.world;
         chrome.scripting.executeScript(opts, function () {
+            if (chrome.runtime.lastError) {
+                console.warn('InjectTools._execFunc failed:', chrome.runtime.lastError);
+            }
             callback && callback.apply(this, arguments);
         });
     };
@@ -26,6 +29,9 @@ export default (() => {
         };
         if (world) opts.world = world;
         chrome.scripting.executeScript(opts, function () {
+            if (chrome.runtime.lastError) {
+                console.warn('InjectTools._execJs failed:', chrome.runtime.lastError);
+            }
             callback && callback.apply(this, arguments);
         });
     };
@@ -60,6 +66,9 @@ export default (() => {
                                 target: {tabId, allFrames: af},
                                 files: codeConfig.files
                             }, function () {
+                                if (chrome.runtime.lastError) {
+                                    console.warn('InjectTools.insertCSS(files) failed:', chrome.runtime.lastError);
+                                }
                                 callback && callback.apply(this, arguments);
                             });
                         } else {
@@ -67,6 +76,9 @@ export default (() => {
                                 target: {tabId, allFrames: af},
                                 files: codeConfig.files
                             }, function () {
+                                if (chrome.runtime.lastError) {
+                                    console.warn('InjectTools.executeScript(files) failed:', chrome.runtime.lastError);
+                                }
                                 if (codeConfig.func) {
                                     _execFunc(tabId, af, codeConfig, callback);
                                 } else if (codeConfig.js) {
@@ -81,6 +93,9 @@ export default (() => {
                             target: {tabId, allFrames: af},
                             css: codeConfig.css
                         }, function () {
+                            if (chrome.runtime.lastError) {
+                                console.warn('InjectTools.insertCSS(css) failed:', chrome.runtime.lastError);
+                            }
                             callback && callback.apply(this, arguments);
                         });
                     } else if (codeConfig.func) {

@@ -54,7 +54,7 @@
                     <button class="xjf-btn xjf-btn-left" @click="uniEncode">Uni编码</button><button class="xjf-btn xjf-btn-mid" @click="uniDecode">Uni解码</button><button class="xjf-btn xjf-btn-right" @click="urlDecode">URL解码</button>
                 </span>
                 <span class="x-split">|</span>
-                <button class="xjf-btn" @click="openJsonPathModal">JSONPath查询</button>
+                <button class="xjf-btn" @click="openJsonPathModal">JSON提取（JSONPath / jq替代）</button>
 
                 <span id="optionBar"></span>
             </div>
@@ -73,11 +73,11 @@
                 </div>
             </div>
 
-            <!-- JSONPath查询模态框 -->
+            <!-- JSON 提取（JSONPath / jq替代）模态框 -->
             <div id="jsonPathModal" class="jsonpath-modal" v-show="showJsonPathModal" @click="closeJsonPathModal">
                 <div class="jsonpath-modal-content" @click.stop>
                     <div class="jsonpath-modal-header">
-                        <h3>JSONPath查询</h3>
+                        <h3>JSON提取（JSONPath / jq替代）</h3>
                         <div class="jsonpath-header-controls">
                             <input type="text" class="xjf-input jsonpath-header-input" v-model="jsonPathQuery" 
                                    placeholder="JSONPath表达式 (如: $.data.items[*].name)" 
@@ -128,11 +128,11 @@
                 </div>
             </div>
     
-            <!-- JSONPath示例模态框 -->
+            <!-- JSON 提取示例模态框 -->
             <div id="jsonPathExamplesModal" class="jsonpath-modal v-cloak" v-show="showJsonPathExamplesModal" @click="closeJsonPathExamplesModal">
                 <div class="jsonpath-modal-content" @click.stop>
                     <div class="jsonpath-modal-header">
-                        <h3>JSONPath查询示例</h3>
+                        <h3>JSON提取示例（JSONPath）</h3>
                         <span class="jsonpath-modal-close" @click="closeJsonPathExamplesModal">&times;</span>
                     </div>
                     <div class="jsonpath-modal-body">

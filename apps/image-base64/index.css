@@ -76,6 +76,10 @@ form {display: none}
     background: #fcfcfc;
     border:1px solid #ddd;
 }
+.x-result-actions {
+    margin-top: 8px;
+    text-align: right;
+}
 .-e-x-footer {
 	text-align:center;
 	font-size:12px;

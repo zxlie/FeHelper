@@ -96,7 +96,9 @@ let BgPageInstance = (function () {
     };
 
     // 往当前页面直接注入脚本，不再使用content-script的配置了
-    let _injectContentScripts = function (tabId) {
+    let _injectContentScripts = function (tabId, opts) {
+        opts = opts || {};
+        const silent = opts.silent !== false;
 
         // FH工具脚本注入
         Awesome.getInstalledTools().then(tools => {
@@ -111,6 +113,14 @@ let BgPageInstance = (function () {
                 files: jsFiles,
                 func: (names) => { names.forEach(n => { try { let fn = window[n]; fn && fn(); } catch(e) {} }); },
                 args: [initFuncNames]
+            }, () => {
+                if (!silent && chrome.runtime.lastError) {
+                    console.warn('inject content scripts failed:', chrome.runtime.lastError);
+                    notifyText({
+                        message: '内容脚本注入失败：请检查扩展“网站访问权限”（若为“点击时”，请再次点击图标触发；或将该站点设为“在所有网站上”）。',
+                        autoClose: 4000
+                    });
+                }
             });
         });
 
@@ -121,7 +131,11 @@ let BgPageInstance = (function () {
             // 注入js脚本
             list.filter(tool => (tools[tool].contentScriptJs || tools[tool].contentScript))
                     .map(tool => Awesome.getContentScript(tool).then(js => {
-                        InjectTools.inject(tabId, { js });
+                        InjectTools.inject(tabId, { js }, () => {
+                            if (!silent && chrome.runtime.lastError) {
+                                console.warn('inject devtool content script failed:', chrome.runtime.lastError);
+                            }
+                        });
                     }));
         });
     };
@@ -489,6 +503,35 @@ let BgPageInstance = (function () {
                 _updateBrowserAction(request.action, request.showTips, request.menuOnly);
                 callback && callback();
             }
+            // Popup 打开：兜底注入内容脚本（兼容 Chrome「站点访问权限=点击时」导致的注入缺失）
+            else if (request.type === 'fh-popup-opened') {
+                chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                    const activeTab = tabs && tabs[0];
+                    const tabId = activeTab && activeTab.id;
+                    const url = activeTab && activeTab.url;
+
+                    // 不可注入页面（chrome:// / edge:// / about: 等）直接提示
+                    const injectable = /^(http(s)?|file):\/\//.test(url || '') && blacklist.every(reg => !reg.test(url || ''));
+                    if (!tabId || !injectable) {
+                        notifyText({
+                            message: '当前页面不支持注入脚本（可能是浏览器内置页面或未授权站点）。请在普通网页中使用，或在扩展管理里为该站点放行“网站访问权限”。',
+                            autoClose: 3500
+                        });
+                        callback && callback({ok: false, reason: 'not_injectable', url});
+                        return;
+                    }
+
+                    // 先注入 tabId 标记，再注入工具内容脚本
+                    InjectTools.inject(tabId, { func: (id) => { window.__FH_TAB_ID__ = id; }, args: [tabId] }, () => {
+                        if (chrome.runtime.lastError) {
+                            console.warn('fh-popup-opened: inject __FH_TAB_ID__ failed:', chrome.runtime.lastError);
+                        }
+                        _injectContentScripts(tabId, {silent: false});
+                        callback && callback({ok: true});
+                    });
+                });
+                return true;
+            }
             // 截屏
             else if (request.type === MSG_TYPE.CAPTURE_VISIBLE_PAGE) {
                 _captureVisibleTab(callback);
@@ -676,7 +719,7 @@ let BgPageInstance = (function () {
             if (String(changeInfo.status).toLowerCase() === "complete") {
                 if(/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))){
                     InjectTools.inject(tabId, { func: (id) => { window.__FH_TAB_ID__ = id; }, args: [tabId] });
-                    _injectContentScripts(tabId);
+                    _injectContentScripts(tabId, {silent: true});
                 }
             }
         });
