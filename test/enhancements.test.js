@@ -122,4 +122,23 @@ describe('evalCore 安全替换', () => {
         new Function('var localVar = "modified"')();
         expect(localVar).toBe('original');
     });
+
+    it('Issue #565: 保存原生 Function 可绕开“ES5 解析器”限制', () => {
+        const nativeFunction = Function;
+        try {
+            globalThis.__FH_NATIVE_FUNCTION__ = nativeFunction;
+            globalThis.Function = function (code) {
+                if (String(code).includes('const ')) {
+                    throw new SyntaxError("The keyword 'const' is reserved");
+                }
+                return nativeFunction(code);
+            };
+
+            expect(() => Function('const a = 1; return a;')()).toThrow(/const/);
+            expect(globalThis.__FH_NATIVE_FUNCTION__('const a = 1; return a;')()).toBe(1);
+        } finally {
+            globalThis.Function = nativeFunction;
+            delete globalThis.__FH_NATIVE_FUNCTION__;
+        }
+    });
 });

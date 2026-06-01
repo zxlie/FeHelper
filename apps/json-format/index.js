@@ -110,6 +110,7 @@ new Vue({
         // 安全的JSON.stringify：
         // - 让 BigInt 在最终字符串中显示为未加引号的纯数字（用于显示与再解析）
         // - 普通 number 若为科学计数法，转为完整字符串（仍是数字）
+        // - BigNumberLike（json-bigint 对长小数的表示）转换为普通数字文本，避免输出 {s,e,c}
         safeStringify(obj, space) {
             const tagged = JSON.stringify(obj, function(key, value) {
                 if (typeof value === 'bigint') {
@@ -120,12 +121,48 @@ new Vue({
                     // 转成完整字符串，再在末尾转换为数字文本（通过占位）
                     return `__FH_NUMSTR__${value.toLocaleString('fullwide', {useGrouping: false})}`;
                 }
+                if (value && typeof value === 'object' && typeof value.s === 'number' && typeof value.e === 'number' && Array.isArray(value.c)) {
+                    let numText = '';
+                    try {
+                        if (typeof value.toString === 'function' && value.toString !== Object.prototype.toString) {
+                            const result = value.toString();
+                            if (typeof result === 'string' && result !== '[object Object]') {
+                                numText = result;
+                            }
+                        }
+                    } catch (_) {}
+                    if (!numText) {
+                        const sign = value.s < 0 ? '-' : '';
+                        const CHUNK_SIZE = 14;
+                        let digits = '';
+                        for (let i = 0; i < value.c.length; i++) {
+                            let chunkStr = Math.abs(value.c[i]).toString();
+                            if (i > 0) chunkStr = chunkStr.padStart(CHUNK_SIZE, '0');
+                            digits += chunkStr;
+                        }
+                        digits = digits.replace(/^0+/, '') || '0';
+                        const decimalIndex = value.e + 1;
+                        if (decimalIndex <= 0) {
+                            const zeros = '0'.repeat(Math.abs(decimalIndex));
+                            let fraction = (zeros + digits).replace(/0+$/, '');
+                            numText = fraction ? (sign + '0.' + fraction) : (sign + '0');
+                        } else if (decimalIndex >= digits.length) {
+                            numText = sign + digits + '0'.repeat(decimalIndex - digits.length);
+                        } else {
+                            const intPart = digits.slice(0, decimalIndex);
+                            let fracPart = digits.slice(decimalIndex).replace(/0+$/, '');
+                            numText = fracPart ? (sign + intPart + '.' + fracPart) : (sign + intPart);
+                        }
+                    }
+                    return `__FH_BIGNUM__${numText}`;
+                }
                 return value;
             }, space);
             // 去掉占位符外层引号，恢复为裸数字文本
             return tagged
                 .replace(/"__FH_BIGINT__(-?\d+)"/g, '$1')
-                .replace(/"__FH_NUMSTR__(-?\d+)"/g, '$1');
+                .replace(/"__FH_NUMSTR__(-?\d+)"/g, '$1')
+                .replace(/"__FH_BIGNUM__(-?\d+(?:\.\d+)?)"/g, '$1');
         },
         // 安全获取localStorage值（在沙盒环境中可能不可用）
         safeGetLocalStorage(key) {
@@ -223,8 +260,19 @@ new Vue({
                                 jsonObj = new Function("return " + jsonObj)();
                             }
                         }
-                    } catch (exxx) {
+                } catch (exxx) {
                         this.errorMsg = exxx.message;
+                        // 常见场景：Windows 路径等包含未转义反斜杠，JSON.parse 会报 Invalid escape / Unexpected token
+                        try {
+                            const msg = String(this.errorMsg || '');
+                            if (
+                                (msg.includes('Invalid escape') || msg.includes('Unexpected token') || msg.includes('Bad escaped character')) &&
+                                source.includes('\\')
+                            ) {
+                                this.errorMsg +=
+                                    '（提示：JSON 字符串中的反斜杠需要写成 \\\\。例如 Windows 路径应写为 "C:\\\\a\\\\b"；请贴出可复制的原始 JSON 文本以便确认）';
+                            }
+                        } catch (_) {}
                     }
                 }
             }
@@ -367,10 +415,24 @@ new Vue({
                 if (!this.jsonLintSwitch) {
                     return;
                 }
-                let lintResult = JsonLint.lintDetect(editor.getValue());
+                const raw = editor.getValue();
+                let lintResult = JsonLint.lintDetect(raw);
                 if (!isNaN(lintResult.line)) {
+                    let backslashHint = '';
+                    try {
+                        const lines = String(raw).split(/\r?\n/);
+                        const lineText = lines[lintResult.line] || '';
+                        const ch = lineText[lintResult.col] || '';
+                        if (String(raw).includes('\\') && (ch === '\\' || lineText.includes('\\'))) {
+                            backslashHint =
+                                '<div style="margin-top:8px;color:#b94a48;">' +
+                                '提示：JSON 字符串中的反斜杠需要写成 <code>\\\\</code>。例如 Windows 路径应写为：<code>\"C:\\\\a\\\\b\"</code>' +
+                                '</div>';
+                        }
+                    } catch (_) {}
                     this.placeHolder = '<div id="errorTips">' +
                         '<div id="tipsBox">错误位置：' + (lintResult.line + 1) + '行，' + (lintResult.col + 1) + '列；缺少字符或字符不正确</div>' +
+                        backslashHint +
                         '<div id="errorCode">' + lintResult.dom + '</div></div>';
                 }
             });

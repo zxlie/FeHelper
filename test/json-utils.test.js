@@ -277,6 +277,21 @@ describe('safeStringify', () => {
         expect(result).not.toContain('"9958158950201197888"');
     });
 
+    it('Issue #564: BigNumberLike 长小数不泄漏 {s,e,c}', () => {
+        const obj = {
+            lng: { s: 1, e: 2, c: [105, 38392232829072] },
+            lat: { s: 1, e: 1, c: [29, 13750290402230, 20000000000000] },
+            height: { s: 1, e: 2, c: [470, 34421912730450] },
+        };
+        const result = safeStringify(obj);
+        expect(result).toBe(
+            '{"lng":105.38392232829072,"lat":29.137502904022302,"height":470.3442191273045}',
+        );
+        expect(result).not.toContain('"s"');
+        expect(result).not.toContain('"e"');
+        expect(result).not.toContain('"c"');
+    });
+
     it('普通数字不受影响', () => {
         const obj = { val: 42 };
         expect(safeStringify(obj)).toBe('{"val":42}');

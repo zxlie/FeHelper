@@ -10,3 +10,6 @@ output-firefox/
 output-edge/
 promo-video/
 .vscode/    
+.pw-userdata-fehelper/
+.pw-userdata-fehelper-warm/
+.pw-userdata-fehelper-headless/

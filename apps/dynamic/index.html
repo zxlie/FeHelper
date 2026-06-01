@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>FeHelper</title>
+    <script>
+        // 保留原生 Function 引用，避免被 evalCore 覆盖后只能按 ES5 语法解析（会导致 const/let/=> 报错）
+        window.__FH_NATIVE_FUNCTION__ = Function;
+    </script>
     <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
     <script src="index.js" type="text/javascript"></script>

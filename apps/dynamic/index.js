@@ -59,7 +59,8 @@ let DynamicTool = (() => {
                 }
                 allJs = allJs.map(f => values[1][f]).join(';');
                 if (allJs.length) {
-                    try { new Function(allJs)(); } catch(e) { console.error('动态工具JS执行失败', e); }
+                    const NativeFunction = window.__FH_NATIVE_FUNCTION__ || Function;
+                    try { NativeFunction(allJs)(); } catch(e) { console.error('动态工具JS执行失败', e); }
                 }
             });
         });

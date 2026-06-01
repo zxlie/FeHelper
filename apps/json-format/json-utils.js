@@ -223,13 +223,17 @@ export function safeStringify(obj, space) {
             if (typeof value === 'number' && value.toString().includes('e')) {
                 return `__FH_NUMSTR__${value.toLocaleString('fullwide', { useGrouping: false })}`;
             }
+            if (isBigNumberLike(value)) {
+                return `__FH_BIGNUM__${getBigNumberDisplayString(value)}`;
+            }
             return value;
         },
         space,
     );
     return tagged
         .replace(/"__FH_BIGINT__(-?\d+)"/g, '$1')
-        .replace(/"__FH_NUMSTR__(-?\d+)"/g, '$1');
+        .replace(/"__FH_NUMSTR__(-?\d+)"/g, '$1')
+        .replace(/"__FH_BIGNUM__(-?\d+(?:\.\d+)?)"/g, '$1');
 }
 
 // ─── 日期格式化（替代 Date.prototype.format 的纯函数版本）──
