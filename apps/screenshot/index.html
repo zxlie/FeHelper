@@ -4,11 +4,12 @@
     <title>FeHelper网页截屏工具</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="index.css"/>
+    <link rel="stylesheet" href="../static/css/fehelper-tools.css">
     <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     <script type="text/javascript" src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
 </head>
-<body>
+<body class="fh-modern">
 
 <div class="wrapper" id="pageContainer">
     <div class="panel panel-default" style="margin-bottom: 0px;">
@@ -16,16 +17,17 @@
             <h3 class="panel-title">
                 <a href="https://fehelper.com" target="_blank" class="x-a-high">
                     <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：网页截屏工具
-                    <span class="x-switch">Tips：从右键菜单进行网页截屏，效果更佳！（初次安装可能需要重启浏览器哦~~~）</span>
-                    <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
-                    <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+                    <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">SP</i>请作者喝咖啡</a>
+                    <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 工具市场</a>
             </h3>
         </div>
     </div>
 
+    <div class="fh-page-tip">从右键菜单进行网页截屏，效果更佳。初次安装后如果菜单未出现，请重启浏览器。</div>
+
     <div class="panel-body">
         <div class="row" ref="resultBox" >
-            <h5 class="x-title c-d">&gt;&gt;&nbsp;完整截图
+            <h5 class="x-title c-d">完整截图
                 <input id="btnSave" class="btn btn-warning btn-sm ui-fl-r" type="button" value="保存图片到本地" @click="save">
             </h5>
             <div class="panel panel-default img-container" id="imageEditor">

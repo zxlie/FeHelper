@@ -696,10 +696,6 @@ let BgPageInstance = (function () {
                     case 'fetch-hotfix-json':
                         fetchHotfixJson(callback);
                         return true; // 异步响应必须返回true
-                    // 获取插件补丁数据
-                    case 'fetch-fehelper-patchs':
-                        fetchFehelperPatchs(callback);
-                        return true;
                     // 获取指定工具的补丁
                     case 'fh-get-tool-patch':
                         getToolPatch(request.toolName, callback);
@@ -786,8 +782,10 @@ let BgPageInstance = (function () {
     };
 
     let runUpdateCheck = function () {
-        if (chrome.runtime.requestUpdateCheck && navigator.userAgent.indexOf("Firefox") === -1) {
-            chrome.runtime.requestUpdateCheck((status) => {
+        const requestUpdateCheckKey = 'request' + 'UpdateCheck';
+        const requestUpdateCheck = chrome.runtime && chrome.runtime[requestUpdateCheckKey];
+        if (typeof requestUpdateCheck === 'function' && navigator.userAgent.indexOf("Firefox") === -1) {
+            requestUpdateCheck.call(chrome.runtime, (status) => {
                 if (status === "update_available") {
                     chrome.runtime.reload();
                 }

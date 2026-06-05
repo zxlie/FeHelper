@@ -621,7 +621,7 @@ var TimestampApp = {
         AppState.isTimeRunning = !AppState.isTimeRunning;
         var toggleBtn = DOMUtils.$('.time-toggle-btn');
         if (toggleBtn) {
-            DOMUtils.setText(toggleBtn, AppState.isTimeRunning ? '⏸️ 暂停' : '▶️ 开始');
+            DOMUtils.setText(toggleBtn, AppState.isTimeRunning ? ' 暂停' : ' 开始');
             toggleBtn.className = AppState.isTimeRunning ? 'btn btn-sm btn-warning time-toggle-btn' : 'btn btn-sm btn-success time-toggle-btn';
         }
     },
@@ -669,7 +669,7 @@ var TimestampApp = {
             AppState.smartParser.results = [];
             AppState.smartParser.detectedFormat = '';
             
-            DOMUtils.setHTML(resultContainer, '<div class="alert alert-danger">❌ ' + error.message + '</div>');
+            DOMUtils.setHTML(resultContainer, '<div class="alert alert-danger">错误：' + error.message + '</div>');
             DOMUtils.setHTML(formatHints, '');
         }
     },
@@ -721,7 +721,7 @@ var TimestampApp = {
             html += '<div class="code-block">' +
                 '<div class="code-header">' +
                 '<span class="code-lang">' + code.lang + '</span>' +
-                '<button class="btn btn-xs btn-default" onclick="TimestampApp.copyToClipboard(\'' + code.code.replace(/'/g, "\\'").replace(/\n/g, '\\n') + '\')">📋 复制</button>' +
+                '<button class="btn btn-xs btn-default" onclick="TimestampApp.copyToClipboard(\'' + code.code.replace(/'/g, "\\'").replace(/\n/g, '\\n') + '\')"> 复制</button>' +
                 '</div>' +
                 '<pre class="code-content">' + code.code + '</pre>' +
                 '</div>';

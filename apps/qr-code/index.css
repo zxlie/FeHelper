@@ -311,6 +311,7 @@ form {
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    min-width: 0;
 }
 
 .qr-left {
@@ -449,6 +450,17 @@ form {
     background: #fafafa;
     border-radius: 6px;
     padding: 20px;
+    max-width: 100%;
+    overflow: auto;
+}
+
+#preview canvas,
+#preview img,
+#preview svg,
+#barcodeSvg {
+    max-width: 100%;
+    height: auto;
+    box-sizing: border-box;
 }
 
 /* 确保图标选择区域样式正确 */
@@ -639,4 +651,65 @@ form {
     position: relative;
     top: -4px;
     font-weight: normal;
+}
+
+body.fh-modern .qr-header-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 0 0 auto;
+    gap: 8px;
+    min-width: 0;
+    margin-left: auto;
+}
+
+body.fh-modern .title-text-wrapper-text {
+    position: static;
+    top: auto;
+    margin-left: 0;
+}
+
+body.fh-modern .qr-header-actions .x-switch,
+body.fh-modern .qr-header-actions .x-other-tools,
+body.fh-modern .qr-header-actions .x-donate-link {
+    margin: 0;
+}
+
+body.fh-modern .qr-header-actions .x-switch {
+    position: static;
+    top: auto;
+    min-height: 30px;
+    padding: 0 11px;
+    border: 1px solid #bfdbfe;
+    border-radius: 999px;
+    background: var(--fh-primary-soft);
+    box-shadow: none;
+    color: #1d4ed8;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+body.fh-modern .qr-header-actions .x-switch::before {
+    width: 15px;
+    height: 15px;
+    margin-right: 6px;
+}
+
+body.fh-modern .qr-header-actions .x-switch:hover {
+    border-color: #93c5fd;
+    background: #dbeafe;
+    color: #1e40af;
+    box-shadow: none;
+    transform: translateY(-1px);
+}
+
+body.fh-modern .qr-header-actions .x-donate-link,
+body.fh-modern .qr-header-actions .x-donate-link:hover {
+    text-decoration: none;
 }

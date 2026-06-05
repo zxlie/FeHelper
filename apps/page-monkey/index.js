@@ -386,7 +386,7 @@ new Vue({
             if (idx >= 0) this.$set(this.cachedMonkeys, idx, JSON.parse(JSON.stringify(this.editCM)));
             else this.cachedMonkeys.push(JSON.parse(JSON.stringify(this.editCM)));
             this.persist();
-            this.toast('✅ 已保存并生效');
+            this.toast('已保存并生效');
             if (closeAfter) this.closeEditor(true);
         },
 
@@ -535,7 +535,7 @@ new Vue({
             this.cachedMonkeys.push(copy);
             this.persist();
             this.showTemplateModal = false;
-            this.toast(`✅ 已安装「${copy.mName}」`);
+            this.toast(`已安装「${copy.mName}」`);
         },
 
         /* ============ 导入导出 ============ */
@@ -592,7 +592,7 @@ new Vue({
             }).then(text => {
                 this.handleImportText(text, url);
             }).catch(e => {
-                this.toast('❌ 下载失败：' + e.message);
+                this.toast('下载失败：' + e.message);
             });
         },
 
@@ -642,7 +642,7 @@ new Vue({
                     if (m) { this.mergeMonkeys([migrate(m)]); return; }
                 } catch (e) {}
             }
-            this.toast('❌ 无法识别此文件格式：' + name);
+            this.toast('无法识别此文件格式：' + name);
         },
 
         parseLegacyFhJs(text) {
@@ -699,7 +699,7 @@ new Vue({
             });
             this.persist();
             this.showImportModal = false;
-            this.toast(`✅ 导入完成：新增 ${imported} 个，覆盖 ${replaced} 个`);
+            this.toast(`导入完成：新增 ${imported} 个，覆盖 ${replaced} 个`);
         },
 
         /* ============ 日志 ============ */

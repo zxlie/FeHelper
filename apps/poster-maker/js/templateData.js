@@ -356,7 +356,7 @@ export const wechatMomentsTemplates = [
       { name: 'mainImage', type: 'image', label: '主图', default: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80' },
       { name: 'bgColor', type: 'color', label: '背景颜色', default: '#f7f7f7' },
       { name: 'accentColor', type: 'color', label: '强调色', default: '#576b95' },
-      { name: 'content', type: 'textarea', label: '内容', default: '和好友共度美好时光，感恩遇见 🙏' },
+      { name: 'content', type: 'textarea', label: '内容', default: '和好友共度美好时光，感恩遇见。' },
       { name: 'time', type: 'text', label: '时间', default: '昨天 20:30' },
     ],
     template: (data) => `

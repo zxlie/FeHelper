@@ -62,7 +62,7 @@ export function setupEventListeners() {
     });
   }
 
-  // 打赏鼓励
+  // 请作者喝咖啡
   const donateLink = document.getElementById('donate-link');
   if (donateLink) {
     donateLink.addEventListener('click', (event) => {
@@ -76,7 +76,7 @@ export function setupEventListeners() {
     });
   }
 
-  // 探索更多实用工具
+  // 工具市场
   const otherTools = document.getElementById('other-tools');
   if (otherTools) {
     otherTools.addEventListener('click', (event) => {

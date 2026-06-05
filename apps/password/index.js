@@ -54,20 +54,25 @@ new Vue({
         },
 
 
-        copyResult: function () {
+        copyResult: async function () {
             // 选中要复制的内容
             this.getResult();
 
-            if ('clipboard' in navigator) {
-                navigator.clipboard.writeText(this.resultContent)
-                .then(() => {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                try {
+                    await navigator.clipboard.writeText(this.resultContent);
                     this.showToastMsg('复制成功！');
-                })
-                .catch(err => {
-                    console.error('复制失败: ', err);
-                });
-            }else{
-                alert("您的浏览器不支持 clipboard API, 请手动复制")
+                    return;
+                } catch (err) {
+                    // 权限受限时继续走传统复制兜底。
+                }
+            }
+
+            try {
+                const ok = document.execCommand('copy');
+                this.showToastMsg(ok ? '复制成功！' : '复制失败，请手动复制');
+            } catch (err) {
+                this.showToastMsg('复制失败，请手动复制');
             }
         },
         showToastMsg: function(msg) {

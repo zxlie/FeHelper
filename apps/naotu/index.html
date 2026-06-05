@@ -6,16 +6,35 @@
 	<link rel="shortcut icon" href="../static/img/favicon.ico">
 	<link rel="stylesheet" href="../static/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="../static/css/fehelper-tools.css">
 
 </head>
-<body>
-<div id="mainContainer">
-	<h1 class="editor-title"><a href="https://fehelper.com" target="_blank" class="x-a-high">
-		<img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：脑图工具
-	</h1>
-	<kityminder-editor on-init="initEditor(editor, minder)"></kityminder-editor>
+<body class="fh-modern">
+<div id="mainContainer" class="wrapper">
+	<div class="panel-heading">
+		<h3 class="panel-title">
+			<span>
+				<a href="https://fehelper.com" target="_blank" class="x-a-high">
+					<img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>
+				<span class="page-title-suffix">| 脑图工具</span>
+			</span>
+			<a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">SP</i>请作者喝咖啡</a>
+			<a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 工具市场</a>
+		</h3>
+	</div>
 
-	<div class="my-naotu-list">
+	<div class="panel-body naotu-shell">
+		<section class="naotu-hero">
+			<div>
+				<h2>本地脑图归档</h2>
+				<p>MV3 环境下脑图编辑器已受限，当前页面保留历史文件导出和在线版迁移入口。</p>
+			</div>
+			<button type="button" class="btn btn-primary" @click="exportNaotu('json')">全部导出为 JSON</button>
+		</section>
+
+		<kityminder-editor on-init="initEditor(editor, minder)"></kityminder-editor>
+
+		<div class="my-naotu-list">
 
 		<div class="mm-tips">
 			很抱歉，按Google Chrome Extension的平台要求，必须升级到MV3；因此脑图功能基本无法在Extension中使用！<br/>
@@ -44,6 +63,7 @@
 				</tr>
 			</tbody>
 		</table>
+		</div>
 	</div>
 </div>
 

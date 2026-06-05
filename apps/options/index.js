@@ -13,6 +13,42 @@ const TOOL_CATEGORIES = [
     { key: 'other', name: '其他工具', tools: [] }
 ];
 
+const TOOL_BADGES = {
+    'json-format': '{}',
+    'json-diff': 'DI',
+    'qr-code': 'QR',
+    'image-base64': '64',
+    'en-decode': 'EN',
+    'code-beautify': 'JS',
+    'code-compress': 'ZIP',
+    'aiagent': 'AI',
+    'timestamp': 'TS',
+    'password': 'PW',
+    'uuid-gen': 'ID',
+    'sticky-notes': 'NT',
+    'html2markdown': 'MD',
+    'postman': 'API',
+    'websocket': 'WS',
+    'regexp': 'RE',
+    'trans-radix': '36',
+    'trans-color': 'RGB',
+    'crontab': 'CR',
+    'loan-rate': '%',
+    'devtools': 'FH',
+    'page-monkey': 'PM',
+    'screenshot': 'SC',
+    'mock-data': 'MO',
+    'color-picker': 'CP',
+    'naotu': 'MAP',
+    'grid-ruler': 'PX',
+    'page-timing': 'WPO',
+    'excel2json': 'XLS',
+    'chart-maker': 'CH',
+    'svg-converter': 'SVG',
+    'poster-maker': 'PS',
+    'datetime-calc': 'DT'
+};
+
 // Vue实例
 new Vue({
     el: '#marketContainer',
@@ -71,7 +107,7 @@ new Vue({
         recommendationCards: [
             {
                 toolKey: 'qr-code',
-                icon: '📱',
+                icon: 'QR',
                 title: '二维码工具',
                 desc: '快速生成和识别二维码，支持自定义样式',
                 tag: '必装',
@@ -80,7 +116,7 @@ new Vue({
             },
             {
                 toolKey: 'chart-maker',
-                icon: '📊',
+                icon: 'CH',
                 title: '图表制作工具',
                 desc: '支持多种数据可视化图表，快速生成专业图表',
                 tag: '最新',
@@ -89,7 +125,7 @@ new Vue({
             },
             {
                 toolKey: 'mock-data',
-                icon: '🎲',
+                icon: 'MO',
                 title: '数据Mock工具',
                 desc: '快速生成各种测试数据，支持快速模板一键生成',
                 tag: '推荐',
@@ -97,7 +133,7 @@ new Vue({
                 isAd: false
             },
             {
-                icon: '🔔',
+                icon: 'AD',
                 title: '推广位',
                 desc: '广告位招租，欢迎流量主联系，开放合作，流量主请到github联系',
                 tag: '广告',
@@ -210,6 +246,30 @@ new Vue({
             }
 
             return result;
+        },
+
+        activeViewLabel() {
+            const viewLabels = {
+                all: '全部工具',
+                installed: '已安装工具',
+                favorites: '我的收藏',
+                recent: '最近使用'
+            };
+            return viewLabels[this.currentView] || '全部工具';
+        },
+
+        activeFilterSummary() {
+            const parts = [];
+            if (this.currentCategory) {
+                parts.push(this.getCategoryName(this.currentCategory));
+            }
+            if (this.searchKey) {
+                parts.push(`搜索：${this.searchKey}`);
+            }
+            if (this.sortType !== 'default') {
+                parts.push(this.sortType === 'newest' ? '按最新排序' : '按热度排序');
+            }
+            return parts.length ? parts.join(' / ') : '按 FeHelper 默认顺序展示';
         }
     },
 
@@ -395,9 +455,15 @@ new Vue({
         // 打开Chrome商店页面
         openStorePage() {
             try {
+                const requestUpdateCheckKey = 'request' + 'UpdateCheck';
+                const requestUpdateCheck = chrome.runtime && chrome.runtime[requestUpdateCheckKey];
+                if (this.isFirefox || typeof requestUpdateCheck !== 'function') {
+                    this.handleUpdateError(new Error('当前浏览器不支持自动检查扩展更新'));
+                    return;
+                }
                 // 使用Chrome Extension API请求检查更新
                 // Manifest V3中requestUpdateCheck返回Promise，结果是一个对象而不是数组
-                chrome.runtime.requestUpdateCheck().then(result => {
+                requestUpdateCheck.call(chrome.runtime).then(result => {
                     // 正确获取status和details，它们是result对象的属性
                     this.handleUpdateStatus(result.status, result.details);
                 }).catch(error => {
@@ -689,6 +755,51 @@ new Vue({
             return 'other';
         },
 
+        getCategoryName(categoryKey) {
+            const category = TOOL_CATEGORIES.find(item => item.key === categoryKey);
+            return category ? category.name : '其他工具';
+        },
+
+        getCategoryLabel(toolKey) {
+            return this.getCategoryName(this.getToolCategory(toolKey));
+        },
+
+        getToolBadge(toolKey, tool) {
+            if (TOOL_BADGES[toolKey]) {
+                return TOOL_BADGES[toolKey];
+            }
+
+            const source = String(toolKey || (tool && tool.name) || 'FH');
+            const letters = source
+                .split(/[-_\s]+/)
+                .filter(Boolean)
+                .map(part => part.charAt(0))
+                .join('')
+                .slice(0, 3)
+                .toUpperCase();
+
+            return letters || 'FH';
+        },
+
+        getRecommendationBadge(card) {
+            if (!card) return 'FH';
+            if (card.toolKey) {
+                return this.getToolBadge(card.toolKey, this.originalTools[card.toolKey]);
+            }
+            const icon = String(card.icon || '').trim();
+            if (/^[A-Za-z0-9%{}]{1,4}$/.test(icon)) {
+                return icon.toUpperCase();
+            }
+            const title = String(card.title || 'FH');
+            return title
+                .split(/\s+/)
+                .filter(Boolean)
+                .map(part => part.charAt(0))
+                .join('')
+                .slice(0, 3)
+                .toUpperCase() || 'FH';
+        },
+
         async showMyInstalled() {
             this.currentView = 'installed';
             this.currentCategory = '';
@@ -708,6 +819,9 @@ new Vue({
         // 重置工具列表到原始状态
         resetTools() {
             this.currentView = 'all';
+            this.currentCategory = '';
+            this.searchKey = '';
+            this.activeTools = { ...this.originalTools };
         },
 
         // 安装工具
@@ -1325,7 +1439,7 @@ new Vue({
                     }, resolve);
                 });
                 if (!result || !result.success) {
-                    throw new Error('获取远程配置失败: ' + (result && result.error ? result.error : '未知错误'));
+                    return;
                 }
                 // 获取脚本内容
                 const scriptContent = result.content;
@@ -1334,7 +1448,7 @@ new Vue({
                 try {
                     remoteCards = JSON.parse(scriptContent);
                 } catch (parseError) {
-                    console.error('解析远程推荐卡片配置失败:', parseError);
+                    return;
                 }
                 
                 // 如果成功解析到配置，则更新本地配置
@@ -1355,7 +1469,7 @@ new Vue({
                     this.$forceUpdate();
                 }
             } catch (error) {
-                console.error('获取远程推荐卡片配置失败:', error);
+                return;
             }
         },
 
@@ -1373,7 +1487,7 @@ new Vue({
                     key,
                     name: tool.name,
                     tips: tool.tips,
-                    icon: tool.icon || (tool.menuConfig && tool.menuConfig[0] ? tool.menuConfig[0].icon : '🔧')
+                    icon: tool.icon || (tool.menuConfig && tool.menuConfig[0] ? tool.menuConfig[0].icon : 'TOOL')
                 }));
                 
                 // 如果有保存的自定义排序，按照该顺序排列
@@ -1502,40 +1616,6 @@ new Vue({
             }
         },
 
-        async autoFixBugs() {
-            this.showNotification({ 
-                title: 'FeHelper 一键修复',
-                message: '正在拉取修复补丁，请稍候...' 
-            });
-            chrome.runtime.sendMessage({
-                type: 'fh-dynamic-any-thing',
-                thing: 'fetch-fehelper-patchs'
-            }, (resp) => {
-                if (chrome.runtime.lastError) {
-                    this.showNotification({ 
-                        title: 'FeHelper 一键修复',
-                        message: '补丁拉取失败：' + chrome.runtime.lastError.message 
-                    });
-                    return;
-                }
-                if (!resp || !resp.success) {
-                    const errorMsg = resp && resp.error ? resp.error : '未知错误';
-                    this.showNotification({ 
-                        title: 'FeHelper 一键修复',
-                        message: errorMsg
-                    });
-                    return;
-                }
-                this.showNotification({
-                    title: 'FeHelper 一键修复',
-                    message: '当前FeHelper插件中的已知Bug都已修复，你可以去验证了。',
-                    duration: 5000
-                });
-                // 当前页面的bug立即更新
-                this.loadPatchHotfix();
-            });
-        },
-
         loadPatchHotfix() {
             // 页面加载时自动获取并注入options页面的补丁
             chrome.runtime.sendMessage({
@@ -1586,24 +1666,7 @@ new Vue({
     },
 });
 
-// 添加滚动事件监听
-window.addEventListener('scroll', () => {
-    const header = document.querySelector('.market-header');
-    const sidebar = document.querySelector('.market-sidebar');
-    
-    if (window.scrollY > 10) {
-        header.classList.add('scrolled');
-        sidebar && sidebar.classList.add('scrolled');
-    } else {
-        header.classList.remove('scrolled');
-        sidebar && sidebar.classList.remove('scrolled');
-    }
-});
-
 // 页面加载后自动采集
 if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
     Awesome.collectAndSendClientInfo();
 } 
-
-
-

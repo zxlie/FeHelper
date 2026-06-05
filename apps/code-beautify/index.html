@@ -5,10 +5,11 @@
     <meta charset="UTF-8">
     <link rel="shortcut icon" href="../static/img/favicon.ico">
     <link rel="stylesheet" href="index.css"/>
+    <link rel="stylesheet" href="../static/css/fehelper-tools.css">
     <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
 </head>
-<body>
+<body class="fh-modern">
 <div class="wrapper" id="pageContainer">
     <div class="panel panel-default" style="margin-bottom: 0px;">
         <div class="panel-heading">
@@ -16,14 +17,14 @@
                 <a href="https://fehelper.com" target="_blank" class="x-a-high">
                     <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：代码美化 - <span id="codeTitle">{{selectedType}}</span>
                 <span class="example-links">
-                    <a href="javascript:;" @click="loadExample('js',$event)" class="example-link">JS示例</a>
-                    <a href="javascript:;" @click="loadExample('css',$event)" class="example-link">CSS示例</a>
-                    <a href="javascript:;" @click="loadExample('html',$event)" class="example-link">HTML示例</a>
-                    <a href="javascript:;" @click="loadExample('xml',$event)" class="example-link">XML示例</a>
-                    <a href="javascript:;" @click="loadExample('sql',$event)" class="example-link">SQL示例</a>
+                    <a href="#" @click.prevent="loadExample('js',$event)" class="example-link">JS示例</a>
+                    <a href="#" @click.prevent="loadExample('css',$event)" class="example-link">CSS示例</a>
+                    <a href="#" @click.prevent="loadExample('html',$event)" class="example-link">HTML示例</a>
+                    <a href="#" @click.prevent="loadExample('xml',$event)" class="example-link">XML示例</a>
+                    <a href="#" @click.prevent="loadExample('sql',$event)" class="example-link">SQL示例</a>
                 </span>
-                <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
-                <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+                <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">SP</i>请作者喝咖啡</a>
+                <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 工具市场</a>
             </h3>
         </div>
     </div>

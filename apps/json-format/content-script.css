@@ -807,6 +807,400 @@ html.fh-jf svg:not(:root) {
     transform: translateY(-1px);
 }
 
+/* 自动格式化页顶部工作条 */
+html.fh-jf .x-toolbar.fh-json-viewbar {
+    box-sizing: border-box;
+    display: flex;
+    width: auto;
+    min-height: 42px;
+    margin: 0 -8px 12px;
+    padding: 6px 10px;
+    align-items: center;
+    gap: 8px;
+    border: 0;
+    border-bottom: 1px solid #dbe3ef;
+    border-radius: 0;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04), 0 10px 24px rgba(15, 23, 42, 0.08);
+    color: #1f2937;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 12px;
+    line-height: 1.2;
+    overflow: visible;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar[style*="display: block"],
+html.fh-jf .x-toolbar.fh-json-viewbar[style*="display:block"] {
+    display: flex !important;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar * {
+    box-sizing: border-box;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar .x-split {
+    display: none;
+}
+
+html.fh-jf .fh-viewbar-brand,
+html.fh-jf .fh-viewbar-main,
+html.fh-jf .fh-viewbar-actions,
+html.fh-jf .fh-viewbar-group {
+    display: flex;
+    align-items: center;
+}
+
+html.fh-jf .fh-viewbar-brand {
+    flex: 0 0 auto;
+    gap: 8px;
+    min-width: 138px;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-decoration: none;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-logo img {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-title {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 8px;
+    border: 1px solid #dbeafe;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap !important;
+}
+
+html.fh-jf .fh-viewbar-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: visible;
+    scrollbar-width: none;
+}
+
+html.fh-jf .fh-viewbar-main::-webkit-scrollbar {
+    display: none;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-group {
+    flex: 0 0 auto;
+    min-height: 30px;
+    gap: 4px;
+    padding: 3px;
+    border: 1px solid #d8dee9;
+    border-radius: 999px;
+    background: #f8fafc;
+    white-space: nowrap !important;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar .fh-sort-group {
+    display: inline-flex;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar .x-stitle {
+    padding: 0 7px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+html.fh-jf .fh-radio-pill,
+html.fh-jf .fh-toggle-pill {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    color: #475569;
+    cursor: pointer;
+    font-weight: 700;
+    white-space: nowrap !important;
+}
+
+html.fh-jf .fh-radio-pill input,
+html.fh-jf .fh-toggle-pill input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+html.fh-jf .fh-radio-pill span,
+html.fh-jf .fh-toggle-pill span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    padding: 0 9px;
+    border-radius: 999px;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+    white-space: nowrap !important;
+}
+
+html.fh-jf .fh-radio-pill:hover span,
+html.fh-jf .fh-toggle-pill:hover span {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+html.fh-jf .fh-radio-pill input:checked + span,
+html.fh-jf .fh-toggle-pill input:checked + span {
+    background: #2563eb;
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+html.fh-jf .fh-toggle-pill input:checked + span {
+    background: #0f8a5f;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar .xjf-btn {
+    width: auto;
+    height: 24px;
+    min-width: 0;
+    margin: 0;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #475569;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 24px;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar .xjf-btn:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar .xjf-btn:active,
+html.fh-jf .fh-viewbar-actions > *:active {
+    transform: translateY(1px);
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar #jsonGetCorrectCnt {
+    color: #b45309;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar #optionBar.fh-option-bar {
+    display: inline-flex !important;
+    position: static !important;
+    align-items: center;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar #optionBar.fh-option-bar:empty {
+    display: none !important;
+}
+
+html.fh-jf .fh-viewbar-actions {
+    position: static;
+    top: auto;
+    flex: 0 0 auto;
+    float: none;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    color: #64748b;
+    cursor: default;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+html.fh-jf .fh-viewbar-actions > .x-settings,
+html.fh-jf .fh-viewbar-actions > #toggleBtn,
+html.fh-jf .fh-viewbar-actions > .x-donate-link,
+html.fh-jf .fh-viewbar-actions > .x-other-tools {
+    position: static;
+    top: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    margin: 0;
+    padding: 0 10px;
+    border: 1px solid #d8dee9;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: none;
+    color: #475569;
+    cursor: pointer;
+    float: none;
+    gap: 5px;
+    text-decoration: none;
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+    white-space: nowrap !important;
+}
+
+html.fh-jf .fh-viewbar-actions > .x-settings:hover,
+html.fh-jf .fh-viewbar-actions > #toggleBtn:hover,
+html.fh-jf .fh-viewbar-actions > .x-other-tools:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    color: #0f172a;
+    box-shadow: none;
+}
+
+html.fh-jf .fh-viewbar-actions > .x-settings svg {
+    width: 13px;
+    height: 13px;
+    fill: currentColor;
+}
+
+html.fh-jf .fh-viewbar-actions > .x-donate-link {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+    color: #0f8a5f;
+}
+
+html.fh-jf .fh-viewbar-actions > .x-donate-link:hover {
+    border-color: #86efac;
+    background: #dcfce7;
+    color: #047857;
+    box-shadow: none;
+}
+
+html.fh-jf .fh-viewbar-actions > .x-donate-link a,
+html.fh-jf .fh-viewbar-actions > .x-other-tools,
+html.fh-jf .fh-viewbar-actions > #toggleBtn {
+    color: inherit;
+    text-decoration: none;
+}
+
+html.fh-jf .fh-viewbar-actions > .x-donate-link a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap !important;
+}
+
+html.fh-jf .fh-viewbar-actions > .x-settings span,
+html.fh-jf .fh-viewbar-actions > .x-donate-link span,
+html.fh-jf .fh-viewbar-actions > .x-other-tools span {
+    white-space: nowrap !important;
+}
+
+html.fh-jf .fh-viewbar-actions .nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #d1fae5;
+    color: #047857;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: 1;
+}
+
+html.fh-jf .fh-viewbar-actions > .x-other-tools {
+    border-color: #dbeafe;
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 0 11px;
+}
+
+html.fh-jf .fh-viewbar-actions > .x-other-tools:hover {
+    border-color: #bfdbfe;
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+html.fh-jf .fh-viewbar-actions > .x-donate-link-us,
+html.fh-jf .fh-viewbar-actions > .x-other-tools-us {
+    display: none;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar .mod-setting-panel {
+    top: calc(100% + 8px);
+    right: 10px;
+    overflow: hidden;
+    border: 1px solid #d8dee9;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.16);
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse {
+    position: fixed;
+    top: 8px;
+    right: 8px;
+    left: auto;
+    width: auto;
+    min-height: 34px;
+    margin: 0;
+    padding: 4px;
+    border: 1px solid #dbe3ef;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-brand,
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-main,
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > .x-settings,
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > .x-donate-link,
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > .x-other-tools {
+    display: none;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions,
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > #toggleBtn {
+    display: inline-flex;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > #toggleBtn {
+    min-height: 26px;
+    padding: 0 12px;
+    border: 0;
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+@media (max-width: 960px) {
+    html.fh-jf .x-toolbar.fh-json-viewbar {
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    html.fh-jf .fh-viewbar-brand {
+        min-width: 0;
+    }
+
+    html.fh-jf .fh-viewbar-main {
+        order: 3;
+        width: 100%;
+    }
+
+    html.fh-jf .fh-viewbar-actions {
+        margin-left: auto;
+    }
+}
+
 /*================ 皮肤：theme-default ===================*/
 html.fh-jf body.theme-default {
     background-color: #fff;
@@ -1060,6 +1454,47 @@ html.fh-jf .theme-dark .x-other-tools {
     background-color: #222;
     border: 1px solid #444;
     color: #ddd;
+}
+html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar {
+    border-bottom-color: #30363d;
+    background: rgba(22, 27, 34, 0.98);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04), 0 12px 28px rgba(0, 0, 0, 0.32);
+    color: #d6dee7;
+}
+html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar .fh-viewbar-title,
+html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar .fh-viewbar-group,
+html.fh-jf body.theme-dark .fh-viewbar-actions > .x-settings,
+html.fh-jf body.theme-dark .fh-viewbar-actions > #toggleBtn {
+    border-color: #30363d;
+    background: #1f2630;
+    color: #c9d1d9;
+}
+html.fh-jf body.theme-dark .fh-radio-pill:hover span,
+html.fh-jf body.theme-dark .fh-toggle-pill:hover span,
+html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar .xjf-btn:hover {
+    background: #30363d;
+    color: #f0f6fc;
+}
+html.fh-jf body.theme-dark .fh-viewbar-actions > .x-donate-link {
+    border-color: #22543d;
+    background: #10291f;
+    color: #7ee2ac;
+}
+html.fh-jf body.theme-dark .fh-viewbar-actions > .x-donate-link a {
+    color: inherit;
+}
+html.fh-jf body.theme-dark .fh-viewbar-actions .nav-icon {
+    background: #164832;
+    color: #9af0bc;
+}
+html.fh-jf body.theme-dark .fh-viewbar-actions > .x-other-tools {
+    border-color: #25456f;
+    background: #14253f;
+    color: #9cc8ff;
+}
+html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar.t-collapse {
+    border-color: #30363d;
+    background: rgba(22, 27, 34, 0.98);
 }
 
 /*================ 皮肤：theme-vscode ===================*/

@@ -194,7 +194,7 @@ window.Formatter = (function () {
                 font-family: Arial, sans-serif;
             `;
             downloadInfo.innerHTML = `
-                <div style="color: #1976d2; font-weight: bold; margin-bottom: 8px;">📋 沙盒模式 - JSON内容</div>
+                <div style="color: #1976d2; font-weight: bold; margin-bottom: 8px;">沙盒模式 - JSON内容</div>
                 <div style="color: #666; font-size: 14px; margin-bottom: 10px;">由于浏览器安全限制，无法直接下载。请复制以下内容并保存为 .json 文件：</div>
                 <button onclick="
                     let textarea = this.parentElement.nextElementSibling;
@@ -1202,6 +1202,10 @@ window.Formatter = (function () {
                             formattingMsg.show();
                             break;
                         case 'FORMATTED':
+                            if (!msg[1]) {
+                                formatSync(jsonStr, skin, escapeJsonString);
+                                return;
+                            }
                             formattingMsg.hide();
                             jfContent.html(msg[1]);
                             _buildOptionBar();

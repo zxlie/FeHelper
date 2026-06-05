@@ -3,48 +3,102 @@
     <head>
         <title>FeHelper弹出页面</title>
         <meta charset="utf-8">
-		<link rel="stylesheet" href="index.css" />
-		<script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
-		<script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+        <link rel="stylesheet" href="index.css" />
+        <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+        <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
     </head>
     <body>
-        <div id="pageContainer" class="fe-whole-page" :class="getLayoutClasses()">
-            <div class="fe-function-title">FeHelper<span>({{manifest.version}})</span></div>
-            
-            <!-- 加载状态 -->
-            <div v-if="isLoading" class="fe-loading">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">加载工具列表中...</div>
-            </div>
-            
-            <!-- 工具列表 -->
-            <ul v-else-if="installedToolsCount > 0" class="fe-function-list" :class="{'few-tools': installedToolsCount <= 3}">
-                <li v-for="tool in Object.keys(fhTools)" :class="'-x-' + tool" @click="runHelper(tool)" v-if="fhTools[tool].installed">
-                    <b>{{ fhTools[tool].icon || fhTools[tool].menuConfig[0].icon}}</b>
-                    <span class="tool-name">{{fhTools[tool].name}}</span>
-                </li>
-            </ul>
-            
-            <!-- 如果没有工具 -->
-            <div v-else-if="!isLoading" class="fe-no-tools">
-                <div class="no-tools-message">
-                    <p>暂无已安装的工具</p>
-                    <button @click="openOptionsPage()" class="install-tools-btn">去安装工具</button>
+        <div id="pageContainer" class="fh-popup" :class="getLayoutClasses()">
+            <header class="fh-header">
+                <div class="fh-brand">
+                    <img class="fh-brand-mark" src="../static/img/fe-48.png" alt="" aria-hidden="true" />
+                    <div class="fh-brand-copy">
+                        <strong>FeHelper</strong>
+                        <span>v{{ manifest.version || '-' }}</span>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="fe-feedback">
-                <a href="https://github.com/zxlie/FeHelper/issues" @click="openUrl($event)" target="_blank" tabindex="-1" class="x-github" title="提交意见反馈">
-                    <svg version="1.1" width="14" height="14" viewBox="0 0 426.667 426.667" style="enable-background:new 0 0 426.667 426.667;" xml:space="preserve">
-                        <path d="M384,0H42.667C19.093,0,0.213,19.093,0.213,42.667L0,426.667l85.333-85.333H384c23.573,0,42.667-19.093,42.667-42.667v-256C426.667,19.093,407.573,0,384,0z M234.667,256H192v-42.667h42.667V256z M234.667,170.667H192V85.333h42.667V170.667z"/>
-                    </svg>反馈
-                </a> 
+                <div class="fh-header-meta">
+                    <span>{{ installedToolsCount }} 个工具</span>
+                    <button type="button" class="fh-icon-button" @click="openOptionsPage" title="FeHelper配置" aria-label="FeHelper配置">
+                        <span aria-hidden="true"></span>
+                    </button>
+                </div>
+            </header>
 
-                <span class="x-settings" @click="openOptionsPage()" title="FeHelper配置">
-                    <svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" width="14">
-                        <path fill="currentColor" d="M12 2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-1 9H5V9h6v2zm0-4H5V5h6v2z"/>
-                    </svg>更多</span>
+            <div class="fh-search">
+                <span class="fh-search-icon" aria-hidden="true"></span>
+                <input
+                    ref="searchInput"
+                    v-model.trim="searchKey"
+                    type="search"
+                    class="fh-search-input"
+                    placeholder="搜索工具、命令或用途"
+                    autocomplete="off"
+                    spellcheck="false"
+                    aria-label="搜索 FeHelper 工具"
+                    @input="syncActiveTool"
+                />
+                <kbd>/</kbd>
             </div>
+
+            <div v-if="isLoading" class="fh-loading" aria-live="polite">
+                <div class="fh-skeleton -title"></div>
+                <div class="fh-skeleton -row"></div>
+                <div class="fh-skeleton -row"></div>
+                <div class="fh-skeleton -row"></div>
+            </div>
+
+            <div v-else-if="installedToolsCount === 0" class="fh-empty">
+                <img class="fh-empty-mark" src="../static/img/fe-48.png" alt="" aria-hidden="true" />
+                <strong>还没有安装工具</strong>
+                <p>进入工具库安装常用工具后，这里会变成你的快捷入口。</p>
+                <button type="button" class="fh-primary-button" @click="openOptionsPage">打开工具库</button>
+            </div>
+
+            <main v-else class="fh-command-list" role="listbox" aria-label="FeHelper工具列表">
+                <div v-if="flatVisibleTools.length === 0" class="fh-empty -compact">
+                    <strong>没有匹配的工具</strong>
+                    <p>换一个关键词，或者去工具库查看完整列表。</p>
+                </div>
+                <template v-else>
+                    <section v-for="group in visibleGroups" :key="group.key" class="fh-section">
+                        <div class="fh-section-title">
+                            <span>{{ group.title }}</span>
+                            <span>{{ group.countLabel }}</span>
+                        </div>
+                        <button
+                            v-for="tool in group.tools"
+                            :key="group.key + '-' + tool.key"
+                            type="button"
+                            class="fh-tool-row"
+                            :class="{ 'is-active': tool.key === activeToolKey }"
+                            role="option"
+                            :aria-selected="tool.key === activeToolKey ? 'true' : 'false'"
+                            @click="runHelper(tool.key)"
+                            @mouseenter="setActiveTool(tool.key)"
+                        >
+                            <span class="fh-tool-badge" aria-hidden="true">{{ tool.badge }}</span>
+                            <span class="fh-tool-copy">
+                                <strong>{{ tool.name }}</strong>
+                                <small>{{ tool.shortTips }}</small>
+                            </span>
+                            <span class="fh-tool-meta">
+                                <span v-if="tool.favorite" class="fh-favorite-label">收藏</span>
+                                <kbd v-if="getShortcut(tool.key)" :title="getShortcutTitle(tool.key)">{{ getShortcut(tool.key) }}</kbd>
+                            </span>
+                        </button>
+                    </section>
+                </template>
+            </main>
+
+            <footer class="fh-footer">
+                <span>↑↓ 选择 · Enter 打开</span>
+                <nav aria-label="FeHelper快捷操作">
+                    <button type="button" @click="openOptionsPage">工具库</button>
+                    <button type="button" @click="openOptionsPage">设置</button>
+                    <a href="https://github.com/zxlie/FeHelper/issues" @click="openUrl($event)" target="_blank">反馈</a>
+                </nav>
+            </footer>
         </div>
         <script src="../static/js/dark-mode.js"></script>
         <script type="module" src="index.js"></script>

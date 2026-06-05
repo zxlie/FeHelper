@@ -19,14 +19,14 @@ export default (function () {
     // 邮件菜单配置项
     let defaultMenuOptions = {
         'download-crx': {
-            icon: '♥',
+            icon: 'DL',
             text: '插件下载分享',
             onClick: function (info, tab) {
                 CrxDownloader.downloadCrx(tab);
             }
         },
         'fehelper-setting': {
-            icon: '❂',
+            icon: 'SET',
             text: 'FeHelper设置',
             onClick: function (info, tab) {
                 chrome.runtime.openOptionsPage();

@@ -26,6 +26,27 @@ new Vue({
             elm.click();
             elm.remove();
         },
+
+        openOptionsPage: function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (window.chrome && chrome.runtime && chrome.runtime.openOptionsPage) {
+                chrome.runtime.openOptionsPage();
+            }
+        },
+
+        openDonateModal: function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
+                chrome.runtime.sendMessage({
+                    type: 'fh-dynamic-any-thing',
+                    thing: 'open-donate-modal',
+                    params: { toolName: 'naotu' }
+                });
+            }
+        },
+
         myNaotu: function () {
             this.showSavedNaotuList = !this.showSavedNaotuList;
         },

@@ -12,7 +12,7 @@ let AUTO_DECODE = 'jsonformat:auto-decode';
 new Vue({
     el: '#pageContainer',
     data: {
-        defaultResultTpl: '<div class="x-placeholder"><img src="../json-format/json-demo.jpg" alt="json-placeholder"></div>',
+        defaultResultTpl: '<div class="x-placeholder"><div class="fh-empty-state"><div class="fh-empty-mark">JSON</div><strong>粘贴 JSON 后自动格式化</strong><p>支持 BigInt、JSONP、嵌套转义解析和 JSONPath 提取。</p></div></div>',
         placeHolder: '',
         jsonFormattedSource: '',
         errorMsg: '',
@@ -47,10 +47,12 @@ new Vue({
 	        ]
     },
     mounted: function () {
-        // 自动开关灯控制
-        DarkModeMgr.turnLightAuto();
+        // 自动开关灯控制；本地预览时没有 chrome runtime，避免阻断工具初始化。
+        if (window.chrome && chrome.runtime && window.DarkModeMgr) {
+            DarkModeMgr.turnLightAuto();
+        }
 
-        this.placeHolder = this.defaultResultTpl;
+        this.setResultPlaceholder(this.defaultResultTpl);
 
         // 安全获取localStorage值（在沙盒环境中可能不可用）
         this.autoDecode = this.safeGetLocalStorage(AUTO_DECODE) === 'true';
@@ -107,6 +109,14 @@ new Vue({
         this.loadPatchHotfix();
     },
     methods: {
+        setResultPlaceholder(html) {
+            this.placeHolder = html || '';
+            const resultEl = document.querySelector('#jfContent');
+            if (resultEl) {
+                resultEl.innerHTML = this.placeHolder;
+            }
+        },
+
         // 安全的JSON.stringify：
         // - 让 BigInt 在最终字符串中显示为未加引号的纯数字（用于显示与再解析）
         // - 普通 number 若为科学计数法，转为完整字符串（仍是数字）
@@ -184,6 +194,9 @@ new Vue({
         },
 
         loadPatchHotfix() {
+            if (!window.chrome || !chrome.runtime || !chrome.runtime.sendMessage) {
+                return;
+            }
             // 页面加载时自动获取并注入页面的补丁
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
@@ -222,7 +235,7 @@ new Vue({
 
         format: function () {
             this.errorMsg = '';
-            this.placeHolder = this.defaultResultTpl;
+            this.setResultPlaceholder(this.defaultResultTpl);
             this.jfCallbackName_start = '';
             this.jfCallbackName_end = '';
 
@@ -337,7 +350,7 @@ new Vue({
                 if (this.jsonLintSwitch) {
                     return this.lintOn();
                 } else {
-                    this.placeHolder = '<span class="x-error">' + this.errorMsg + '</span>';
+                    this.setResultPlaceholder('<span class="x-error">' + this.errorMsg + '</span>');
                     return false;
                 }
             }
@@ -374,15 +387,22 @@ new Vue({
         updateWrapperHeight: function () {
             let curLayout = this.safeGetLocalStorage(LOCAL_KEY_OF_LAYOUT);
             let elPc = document.querySelector('#pageContainer');
+            if (!elPc) {
+                return;
+            }
             if (curLayout === 'up-down') {
                 elPc.style.height = 'auto';
             } else {
-                elPc.style.height = Math.max(elPc.scrollHeight, document.body.scrollHeight) + 'px';
+                elPc.style.height = '100dvh';
             }
         },
 
         changeLayout: function (type) {
             let elPc = document.querySelector('#pageContainer');
+            type = type === 'up-down' ? 'up-down' : 'left-right';
+            if (!elPc || !this.$refs.btnLeftRight || !this.$refs.btnUpDown) {
+                return;
+            }
             if (type === 'up-down') {
                 elPc.classList.remove('layout-left-right');
                 elPc.classList.add('layout-up-down');
@@ -396,6 +416,11 @@ new Vue({
             }
             this.safeSetLocalStorage(LOCAL_KEY_OF_LAYOUT, type);
             this.updateWrapperHeight();
+            this.$nextTick(() => {
+                if (editor && typeof editor.refresh === 'function') {
+                    editor.refresh();
+                }
+            });
         },
 
         setCache: function () {
@@ -430,10 +455,10 @@ new Vue({
                                 '</div>';
                         }
                     } catch (_) {}
-                    this.placeHolder = '<div id="errorTips">' +
+                    this.setResultPlaceholder('<div id="errorTips">' +
                         '<div id="tipsBox">错误位置：' + (lintResult.line + 1) + '行，' + (lintResult.col + 1) + '列；缺少字符或字符不正确</div>' +
                         backslashHint +
-                        '<div id="errorCode">' + lintResult.dom + '</div></div>';
+                        '<div id="errorCode">' + lintResult.dom + '</div></div>');
                 }
             });
             return false;

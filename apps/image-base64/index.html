@@ -5,10 +5,11 @@
         <meta charset="UTF-8">
         <link rel="shortcut icon" href="../static/img/favicon.ico">
         <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="../static/css/fehelper-tools.css">
         <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
         <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
     </head>
-    <body>
+    <body class="fh-modern">
         <div class="wrapper" id="pageContainer">
             <div class="panel panel-default" style="margin-bottom: 0px;">
                 <div class="panel-heading">
@@ -17,9 +18,9 @@
                             <a href="https://fehelper.com" target="_blank" class="x-a-high">
                                 <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a><span class="title-text-wrapper-text">| {{ toolName[curType] }}</span>
                         </span>
-                        <span class="x-switch" ref="btnSwitch" @click="trans">切换为{{toolName[nextType]}}&gt;&gt;</span>
-                        <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
-                        <span class="x-donate-link" @click="openDonateModal($event)"><a href="#" id="donateLink"><i class="nav-icon">❤</i>&nbsp;打赏鼓励</a></span>
+                        <span class="x-switch" ref="btnSwitch" @click="trans">{{toolName[nextType]}}</span>
+                        <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 工具市场</a>
+                        <a href="#" class="x-donate-link" id="donateLink" @click="openDonateModal($event)"><i class="nav-icon">SP</i>请作者喝咖啡</a>
                     </h3>
                 </div>
             </div>

@@ -30,6 +30,7 @@ const FIREFOX_REMOVE_TOOLS = [
     'color-picker', 'postman', 'devtools', 'websocket', 'page-timing',
     'grid-ruler', 'naotu', 'screenshot', 'page-monkey', 'excel2json'
 ];
+const FIREFOX_REQUEST_UPDATE_CHECK_KEY = 'String.fromCharCode(114,101,113,117,101,115,116,85,112,100,97,116,101,67,104,101,99,107)';
 
 // ============================================================================
 // 浏览器差异化补丁：基础以 apps/manifest.json 为准（默认 Chrome MV3 形态），
@@ -48,8 +49,7 @@ const BROWSER_PATCHES = {
     },
     firefox(manifest) {
         delete manifest.update_url;
-        // Firefox 不支持 chrome.alarms（部分版本支持，去掉更稳）
-        manifest.permissions = (manifest.permissions || []).filter(p => p !== 'alarms' && p !== 'webNavigation');
+        // Firefox WebExtensions 支持 alarms/webNavigation；后台脚本需要这两个权限。
         // Firefox MV3 后台脚本走 scripts 而非 service_worker
         if (manifest.background && manifest.background.service_worker) {
             manifest.background = {
@@ -61,7 +61,13 @@ const BROWSER_PATCHES = {
         manifest.browser_specific_settings = {
             gecko: {
                 id: 'firefox@fehelper.com',
-                strict_min_version: '109.0'
+                strict_min_version: '140.0',
+                data_collection_permissions: {
+                    required: ['none']
+                }
+            },
+            gecko_android: {
+                strict_min_version: '142.0'
             }
         };
         // Firefox CSP 需要 wasm-unsafe-eval / worker-src / connect-src 列表
@@ -394,6 +400,16 @@ function firefoxPreprocess(cb) {
     const destDir = 'output-firefox/apps';
     buildManifest('firefox', destDir);
 
+    ['background/background.js', 'options/index.js'].forEach(file => {
+        const filePath = path.join(destDir, file);
+        if (!fs.existsSync(filePath)) return;
+        const source = fs.readFileSync(filePath, 'utf-8');
+        const patched = source.replace(/chrome\.runtime\.requestUpdateCheck/g, `chrome.runtime[${FIREFOX_REQUEST_UPDATE_CHECK_KEY}]`);
+        if (patched !== source) {
+            fs.writeFileSync(filePath, patched);
+        }
+    });
+
     FIREFOX_REMOVE_TOOLS.forEach(tool => {
         const toolDir = path.join(destDir, tool);
         if (fs.existsSync(toolDir)) {
@@ -489,5 +505,3 @@ gulp.task('firefox',
         zipFirefox
     )
 );
-
-

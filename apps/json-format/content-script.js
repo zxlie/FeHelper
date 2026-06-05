@@ -90,27 +90,31 @@ window.JsonAutoFormat = (() => {
         };
 
         return [
-            '<div id="jfToolbar" class="x-toolbar" style="display:none">' +
-            '    <a href="https://fehelper.com" target="_blank" class="x-a-title">' +
-            '        <img src="' + chrome.runtime.getURL('static/img/fe-16.png') + '" alt="fehelper"/> FeHelper</a>' +
-            '    <span class="x-b-title"></span>' +
-            '    <span class="x-sort">' +
-            '        <span class="x-split">|</span>' +
-            '        <span class="x-stitle">排序：</span>' +
-            '        <label for="sort_null">默认</label><input type="radio" name="jsonsort" id="sort_null" value="0" checked>' +
-            '        <label for="sort_asc">升序</label><input type="radio" name="jsonsort" id="sort_asc" value="1">' +
-            '        <label for="sort_desc">降序</label><input type="radio" name="jsonsort" id="sort_desc" value="-1">' +
-            '        <label for="nestedEscapeParseToggle">嵌套转义解析</label><input type="checkbox" id="nestedEscapeParseToggle">' + 
-            '    </span>' +
-            '    <span class="x-fix-encoding"><span class="x-split">|</span><button class="xjf-btn" id="jsonGetCorrectCnt">乱码修正</button></span>' +
-            '    <span id="optionBar"></span>' +
-            '    <span class="fe-feedback">' +
-            '       <span class="x-settings"><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" width="14">' +
+            '<div id="jfToolbar" class="x-toolbar fh-json-viewbar" style="display:none">' +
+            '    <div class="fh-viewbar-brand">' +
+            '        <a href="https://fehelper.com" target="_blank" class="x-a-title fh-viewbar-logo">' +
+            '            <img src="' + chrome.runtime.getURL('static/img/fe-16.png') + '" alt="FeHelper"/><span>FeHelper</span></a>' +
+            '        <span class="x-b-title fh-viewbar-title">JSON 格式化</span>' +
+            '    </div>' +
+            '    <div class="fh-viewbar-main">' +
+            '        <span class="x-sort fh-viewbar-group fh-sort-group">' +
+            '            <span class="x-split">|</span>' +
+            '            <span class="x-stitle">排序</span>' +
+            '            <label class="fh-radio-pill" for="sort_null"><input type="radio" name="jsonsort" id="sort_null" value="0" checked><span>默认</span></label>' +
+            '            <label class="fh-radio-pill" for="sort_asc"><input type="radio" name="jsonsort" id="sort_asc" value="1"><span>升序</span></label>' +
+            '            <label class="fh-radio-pill" for="sort_desc"><input type="radio" name="jsonsort" id="sort_desc" value="-1"><span>降序</span></label>' +
+            '            <label class="fh-toggle-pill" for="nestedEscapeParseToggle"><input type="checkbox" id="nestedEscapeParseToggle"><span>嵌套解析</span></label>' +
+            '        </span>' +
+            '        <span class="x-fix-encoding fh-viewbar-group"><span class="x-split">|</span><button class="xjf-btn" id="jsonGetCorrectCnt">乱码修正</button></span>' +
+            '        <span id="optionBar" class="fh-viewbar-group fh-option-bar"></span>' +
+            '    </div>' +
+            '    <span class="fe-feedback fh-viewbar-actions">' +
+            '       <span class="x-settings" title="高级定制"><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" width="14">' +
             '           <path fill-rule="evenodd" d="M14 8.77v-1.6l-1.94-.64-.45-1.09.88-1.84-1.13-1.13-1.81.91-1.09-.45-.69-1.92h-1.6l-.63 1.94-1.11.45-1.84-.88-1.13 1.13.91 1.81-.45 1.09L0 7.23v1.59l1.94.64.45 1.09-.88 1.84 1.13 1.13 1.81-.91 1.09.45.69 1.92h1.59l.63-1.94 1.11-.45 1.84.88 1.13-1.13-.92-1.81.47-1.09L14 8.75v.02zM7 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"></path>' +
-            '       </svg>高级定制</span>' +
-            '       <a id="toggleBtn" title="展开或收起工具栏">隐藏&gt;&gt;</a>' +
-            '       <span class="x-donate-link' + (isInUSA() ? ' x-donate-link-us' : '') + '"><a href="#" id="donateLink"><i class="nav-icon">❤</i>&nbsp;打赏鼓励</a></span>' +
-            '       <a class="x-other-tools' + (isInUSA() ? ' x-other-tools-us' : '') + '" style="cursor:pointer"><i class="icon-plus-circle">+</i>探索 <span class="tool-market-badge">工具市场</span></a>' +
+            '       </svg><span>高级定制</span></span>' +
+            '       <a id="toggleBtn" title="展开或收起工具栏">收起</a>' +
+            '       <span class="x-donate-link' + (isInUSA() ? ' x-donate-link-us' : '') + '"><a href="#" id="donateLink"><i class="nav-icon">SP</i><span>请作者喝咖啡</span></a></span>' +
+            '       <a class="x-other-tools' + (isInUSA() ? ' x-other-tools-us' : '') + '" style="cursor:pointer"><span>工具市场</span></a>' +
             '    </span>' +
             '</div>',
             '<div id="formattingMsg"><span class="x-loading"></span>格式化中...</div>',
@@ -342,10 +346,10 @@ window.JsonAutoFormat = (() => {
         let tgBtn = $('.fe-feedback #toggleBtn');
         if (formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW) {
             toolBarClassList.remove('t-collapse');
-            tgBtn.html('隐藏&gt;&gt;');
+            tgBtn.html('收起');
         } else {
             toolBarClassList.add('t-collapse');
-            tgBtn.html('&lt;&lt;');
+            tgBtn.html('展开');
         }
         tgBtn.click(function (e) {
             e.preventDefault();
@@ -355,11 +359,11 @@ window.JsonAutoFormat = (() => {
             showToolBar = !showToolBar;
             if (showToolBar) {
                 toolBarClassList.remove('t-collapse');
-                tgBtn.html('隐藏&gt;&gt;');
+                tgBtn.html('收起');
                 formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW = true;
             } else {
                 toolBarClassList.add('t-collapse');
-                tgBtn.html('&lt;&lt;');
+                tgBtn.html('展开');
                 formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW = false;
             }
             $('#jfToolbar input[name="alwaysShowToolbar"]').prop('checked', showToolBar);

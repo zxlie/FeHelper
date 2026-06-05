@@ -100,21 +100,21 @@ new Vue({
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('./sw.js')
                         .then((registration) => {
-                            console.log('✅ FeHelper Mock Server 已注册:', registration.scope);
+                            console.log('已启用 FeHelper Mock Server 已注册:', registration.scope);
                             // 通知Vue组件Mock服务器已就绪
                             window.dispatchEvent(new CustomEvent('mockServerReady'));
                         })
                         .catch((error) => {
-                            console.warn('❌ Mock Server 注册失败:', error);
+                            console.warn('未通过 Mock Server 注册失败:', error);
                         });
                 });
             } else {
-                console.warn('❌ 当前浏览器不支持Service Worker');
+                console.warn('未通过 当前浏览器不支持Service Worker');
             }
             
             // 监听Mock服务器就绪事件
             window.addEventListener('mockServerReady', () => {
-                console.log('🎉 Mock服务器已就绪，可以测试POST请求了！');
+                console.log('Mock服务器已就绪，可以测试POST请求了！');
                 // 可以在这里添加一些UI提示
             });
         },
@@ -155,7 +155,12 @@ new Vue({
                 }
                 this.resultContent = result || '无数据';
             });
-            xhr.open(method, url);
+            try {
+                xhr.open(method, url);
+            } catch (e) {
+                this.showRequestError('请求地址无效：' + e.message);
+                return;
+            }
 
             let isPost = false;
             let hasContentTypeHeader = false;
@@ -165,21 +170,39 @@ new Vue({
             }
 
             // 设置请求头：Header
-            this.headerList.forEach(id => {
-                let headerKey = $(`#header_key_${id}`).val();
-                let headerVal = $(`#header_value_${id}`).val();
+            let requestHeaders = [];
+            for (const id of this.headerList) {
+                let headerKey = ($(`#header_key_${id}`).val() || '').trim();
+                let headerVal = ($(`#header_value_${id}`).val() || '').trim();
                 if (headerKey && headerVal) {
-                    xhr.setRequestHeader(headerKey, headerVal);
-                    // 检查是否已经设置了Content-Type
-                    if (headerKey.toLowerCase() === 'content-type') {
-                        hasContentTypeHeader = true;
+                    if (!this.isValidHeaderName(headerKey)) {
+                        this.showRequestError('请求头名称无效：' + headerKey);
+                        return;
                     }
+                    requestHeaders.push({ key: headerKey, value: headerVal });
                 }
-            });
+            }
+
+            for (const header of requestHeaders) {
+                try {
+                    xhr.setRequestHeader(header.key, header.value);
+                } catch (e) {
+                    this.showRequestError('请求头设置失败：' + e.message);
+                    return;
+                }
+                if (header.key.toLowerCase() === 'content-type') {
+                    hasContentTypeHeader = true;
+                }
+            }
 
             // 如果没有手动设置Content-Type，且启用了默认的urlencoded，则设置默认的Content-Type
             if (isPost && !hasContentTypeHeader && this.urlencodedDefault) {
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                try {
+                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                } catch (e) {
+                    this.showRequestError('默认请求头设置失败：' + e.message);
+                    return;
+                }
             }
 
             // 根据Content-Type处理请求体
@@ -187,11 +210,10 @@ new Vue({
             if (isPost && body) {
                 // 获取Content-Type
                 let contentType = '';
-                this.headerList.forEach(id => {
-                    let headerKey = $(`#header_key_${id}`).val();
-                    let headerVal = $(`#header_value_${id}`).val();
-                    if (headerKey && headerKey.toLowerCase() === 'content-type') {
-                        contentType = headerVal;
+                requestHeaders.forEach(header => {
+                    // 检查是否已经设置了Content-Type
+                    if (header.key.toLowerCase() === 'content-type') {
+                        contentType = header.value;
                     }
                 });
                 
@@ -215,7 +237,26 @@ new Vue({
                 }
             }
 
-            xhr.send(requestBody);
+            try {
+                xhr.send(requestBody);
+            } catch (e) {
+                this.showRequestError('请求发送失败：' + e.message);
+            }
+        },
+
+        isValidHeaderName(name) {
+            return /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/.test(name);
+        },
+
+        showRequestError(message) {
+            this.resultContent = message;
+            this.errorMsgForJson = message;
+            this.responseHeaders = [];
+            this.$nextTick(() => {
+                if (this.$refs.resultContainer) {
+                    this.$refs.resultContainer.classList.remove('hide');
+                }
+            });
         },
 
         addHeader() {

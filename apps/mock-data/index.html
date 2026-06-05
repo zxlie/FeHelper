@@ -4,30 +4,30 @@
     <meta charset="utf-8"/>
     <title>数据Mock工具 - FeHelper</title>
     <link rel="stylesheet" href="index.css"/>
+    <link rel="stylesheet" href="../static/css/fehelper-tools.css">
     <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
 </head>
 
-<body>
+<body class="fh-modern">
     <div class="wrapper" id="pageContainer">
         <!-- 现代化顶部导航栏 -->
         <div class="main-navbar">
             <div class="navbar-brand">
                 <a href="https://fehelper.com" target="_blank" class="brand-link">
-                    <img src="../static/img/fe-16.png" alt="fehelper"/> 
+                    <img src="../static/img/fe-16.png" alt="fehelper"/>
                     <span class="brand-text">FeHelper</span>
                     <span class="brand-subtitle">数据Mock工具</span>
                 </a>
             </div>
-            <div class="navbar-actions">
-                <a href="#" @click="openOptionsPage($event)" class="nav-item other-tools-link">
-                    <i class="nav-icon">⊕</i>
-                    <span>探索更多实用工具</span>
-                    <span class="tool-market-badge">工具市场</span>
+            <div class="navbar-actions fh-tool-actions">
+                <a href="#" @click="openOptionsPage($event)" class="nav-item other-tools-link x-other-tools">
+                    <i class="icon-plus-circle"></i>
+                    <span>工具市场</span>
+
                 </a>
-                <a href="#" @click="openDonateModal($event)" class="nav-item donate-link">
-                    <i class="nav-icon">❤</i>
-                    <span>打赏鼓励</span>
+                <a href="#" @click="openDonateModal($event)" class="nav-item donate-link x-donate-link">
+                    <i class="nav-icon">SP</i><span>请作者喝咖啡</span>
                 </a>
             </div>
         </div>
@@ -61,22 +61,22 @@
                         <div class="data-type-section">
                             <h4>选择数据类型</h4>
                             <div class="data-type-tabs">
-                                <button class="data-tab" 
+                                <button class="data-tab"
                                         :class="{ active: activeTab === 'personal' }"
                                         @click="activeTab = 'personal'">
                                     个人信息
                                 </button>
-                                <button class="data-tab" 
+                                <button class="data-tab"
                                         :class="{ active: activeTab === 'business' }"
                                         @click="activeTab = 'business'">
                                     商业数据
                                 </button>
-                                <button class="data-tab" 
+                                <button class="data-tab"
                                         :class="{ active: activeTab === 'technical' }"
                                         @click="activeTab = 'technical'">
                                     技术数据
                                 </button>
-                                <button class="data-tab" 
+                                <button class="data-tab"
                                         :class="{ active: activeTab === 'custom' }"
                                         @click="activeTab = 'custom'">
                                     自定义数据
@@ -171,7 +171,7 @@
                                 </div>
                                 <button @click="addCustomField" class="btn btn-primary">添加字段</button>
                             </div>
-                            
+
                             <div v-if="customFields.length > 0" class="custom-fields-list">
                                 <h5>已添加字段</h5>
                                 <div v-for="(field, index) in customFields" :key="index" class="custom-field-item">
@@ -214,7 +214,7 @@
                             </div>
                             <div class="result-content">
                                 <div v-if="!generatedData" class="empty-result">
-                                    <div class="empty-icon">📊</div>
+                                    <div class="empty-icon">数据</div>
                                     <div class="empty-text">
                                         <h5>暂无生成结果</h5>
                                         <p>请选择数据字段并点击"生成数据"按钮</p>
@@ -232,4 +232,4 @@
     <script type="text/javascript" src="fake-data-lib.js"></script>
     <script type="text/javascript" src="index.js"></script>
 </body>
-</html> 
+</html>

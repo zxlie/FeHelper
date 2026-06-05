@@ -5,10 +5,11 @@
     <meta charset="UTF-8">
     <link rel="shortcut icon" href="../static/img/favicon.ico">
     <link rel="stylesheet" href="index.css"/>
+    <link rel="stylesheet" href="../static/css/fehelper-tools.css">
     <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
 </head>
-<body>
+<body class="fh-modern">
 
 <div class="wrapper" id="pageContainer">
     <div class="panel panel-default" style="margin-bottom: 0px;">
@@ -16,8 +17,8 @@
             <h3 class="panel-title">
                 <a href="https://fehelper.com" target="_blank" class="x-a-high">
                     <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper：</a>AI（智能助手）
-                    <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
-                    <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+                    <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">SP</i>请作者喝咖啡</a>
+                    <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 工具市场</a>
                     <a href="#" class="x-history-link fh-nav-btn" @click="onHistoryClick($event)">
                         <i class="icon-clock" style="margin-right:4px;font-size:18px;vertical-align:-2px;"></i>历史对话
                     </a>
@@ -25,7 +26,7 @@
                         <i class="icon-plus-circle" style="margin-right:4px;font-size:18px;vertical-align:-2px;"></i>开启新对话
                     </a>
                     <a href="#" class="x-settings-link fh-nav-btn" @click.prevent="showSettings = !showSettings">
-                        ⚙ AI设置
+                        AI设置
                     </a>
                 </h3>
             </div>
@@ -51,7 +52,7 @@
             <div class="fh-settings-panel">
                 <div class="fh-settings-header">
                     <span>AI 设置</span>
-                    <button class="fh-settings-close" @click="showSettings=false">✕</button>
+                    <button class="fh-settings-close" @click="showSettings=false">关闭</button>
                 </div>
                 <div class="fh-settings-body">
                     <div class="fh-settings-row">
@@ -83,7 +84,7 @@
                     </template>
                     <div class="fh-settings-actions">
                         <button class="btn btn-sm btn-primary" @click="saveAiSettings">保存设置</button>
-                        <span v-if="settingsSaved" class="fh-settings-saved">✓ 已保存</span>
+                        <span v-if="settingsSaved" class="fh-settings-saved">已保存</span>
                     </div>
                 </div>
             </div>
@@ -91,7 +92,7 @@
         <!-- No API Key Warning -->
         <div v-if="showApiKeyWarning" class="fh-apikey-warning">
             <div class="fh-apikey-warning-inner">
-                <p>🔑 尚未配置 API Key，请先完成设置</p>
+                <p>尚未配置 API Key，请先完成设置</p>
                 <p>
                     前往 <a href="https://cloud.siliconflow.cn" target="_blank">cloud.siliconflow.cn</a> 注册获取免费 API Key
                 </p>
@@ -109,7 +110,7 @@
             </div>
             <div class="row mod-inputs box-result" ref="boxResult">
                 <div class="row box-tips" v-if="!hideDemo">
-                    <div>你好，我是你的专属AI助理，不管你是要查BUG、写代码、还是要咨询什么技术问题，你都可以跟我说，我会竭尽全力帮你解决，比如你可以这样问我👇👇👇</div>
+                    <div>你好，我是你的专属AI助理，不管你是要查BUG、写代码、还是要咨询什么技术问题，你都可以跟我说，我会竭尽全力帮你解决。可以参考下面这些问题。</div>
                     <ul class="x-demos clearfix">
                         <li v-for="demo in demos" @click="sendMessage(demo)">{{demo}}</li>
                     </ul>
@@ -154,5 +155,4 @@
 <script type="module" src="index.js"></script>
 </body>
 </html>
-
 

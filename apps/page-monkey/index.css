@@ -135,8 +135,8 @@ a:hover { text-decoration: underline; }
     float: none !important;
     right: auto !important;
     top: auto !important;
-    margin: 0 10px 0 0 !important;
-    padding: 4px 12px !important;
+    margin: 0 !important;
+    padding: 0 11px !important;
 }
 
 /* ============ 子工具栏（page-monkey 自有功能按钮） ============ */

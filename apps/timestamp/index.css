@@ -76,11 +76,8 @@ thead th {
 
 /* 顶部升级提示样式 */
 #fh-timestamp-upgrade-tip {
-    width: 100vw;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 2000000;
+    width: 100%;
+    position: static;
     background: linear-gradient(90deg,#ff2d55 0%,#ff9800 100%);
     color: #fff;
     font-size: 20px;
@@ -105,6 +102,137 @@ thead th {
 }
 body {
     padding-top: 70px !important;
+}
+
+body.fh-modern {
+    padding-top: 0 !important;
+}
+
+body.fh-modern #fh-timestamp-upgrade-tip {
+    margin: 0 0 12px;
+    padding: 12px 14px;
+    border: 1px solid #fed7aa;
+    border-radius: var(--fh-radius);
+    background: var(--fh-warning-soft);
+    box-shadow: none;
+    color: #9a3412;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-align: left;
+}
+
+body.fh-modern .fh-tip-link {
+    color: var(--fh-primary);
+    font-size: 14px;
+    font-weight: 900;
+    animation: none;
+}
+
+body.fh-modern .x-gmt-setting {
+    position: static;
+    top: auto;
+    right: auto;
+    float: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    color: var(--fh-muted);
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+body.fh-modern .x-gmt-setting select {
+    width: min(260px, 32vw);
+    display: inline-flex;
+}
+
+body.fh-modern .mod-stamp {
+    padding: 16px 14px 18px;
+}
+
+body.fh-modern .mod-stamp .x-cnt {
+    padding: 10px 14px 24px;
+}
+
+body.fh-modern .mod-stamp .x-cnt > .row,
+body.fh-modern .mod-stamp > .row.x-cnt {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+}
+
+body.fh-modern .mod-stamp .x-cnt > .row + .row {
+    margin-top: 10px;
+}
+
+body.fh-modern .mod-stamp .row > span {
+    min-width: 120px;
+    color: var(--fh-text);
+    font-weight: 700;
+}
+
+body.fh-modern .mod-stamp .form-control {
+    margin: 0 !important;
+}
+
+body.fh-modern .mod-time-input {
+    width: auto;
+    min-width: 82px;
+    padding-right: 14px;
+    padding-left: 14px;
+}
+
+body.fh-modern #txtNowDate,
+body.fh-modern #txtSrcStamp,
+body.fh-modern #txtLocale,
+body.fh-modern #txtDesDate,
+body.fh-modern #txtDesStamp {
+    width: 300px;
+    max-width: 100%;
+}
+
+body.fh-modern #txtNowS,
+body.fh-modern #txtNowMs {
+    width: 150px;
+}
+
+body.fh-modern .fh-filetime-source {
+    flex: 1 1 360px;
+    min-width: 260px;
+}
+
+body.fh-modern .fh-filetime-result {
+    flex: 1 1 320px;
+    min-width: 260px;
+}
+
+@media (max-width: 760px) {
+    body.fh-modern .x-gmt-setting {
+        width: 100%;
+        justify-content: space-between;
+        margin-left: 0;
+    }
+
+    body.fh-modern .x-gmt-setting select {
+        width: min(100%, 260px);
+    }
+
+    body.fh-modern .mod-stamp .row > span,
+    body.fh-modern .mod-stamp .form-control,
+    body.fh-modern #txtNowDate,
+    body.fh-modern #txtSrcStamp,
+    body.fh-modern #txtLocale,
+    body.fh-modern #txtDesDate,
+    body.fh-modern #txtDesStamp,
+    body.fh-modern #txtNowS,
+    body.fh-modern #txtNowMs {
+        width: 100%;
+    }
 }
 
 .panel-no-margin-bottom {

@@ -6,10 +6,11 @@
     <link rel="shortcut icon" href="../static/img/favicon.ico">
     <link rel="stylesheet" href="../static/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="index.css"/>
+    <link rel="stylesheet" href="../static/css/fehelper-tools.css">
     <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
 </head>
-<body>
+<body class="fh-modern">
 
 <div id="pageContainer" class="fh-app wrapper" v-cloak>
 
@@ -22,12 +23,11 @@
                 <span class="fh-pm-version">v2</span>
 
                 <a class="x-other-tools" @click="openOptionsPage($event)">
-                    <i class="icon-plus-circle"></i> 探索更多实用工具
-                    <span class="tool-market-badge">工具市场</span>
+                    <i class="icon-plus-circle"></i> 工具市场
                 </a>
-                <span class="x-donate-link" @click="openDonateModal($event)">
-                    <a href="#" id="donateLink"><i class="nav-icon">❤</i>&nbsp;打赏鼓励</a>
-                </span>
+                <a href="#" class="x-donate-link" id="donateLink" @click="openDonateModal($event)">
+                    <i class="nav-icon">SP</i>请作者喝咖啡
+                </a>
             </h3>
         </div>
     </div>
@@ -36,17 +36,17 @@
     <div class="fh-subbar">
         <div class="fh-toolbar" v-if="!editing">
             <button class="fh-btn fh-btn-primary" @click="createMonkey()">
-                <span>＋</span> 新建脚本
+                新建脚本
             </button>
             <button class="fh-btn" @click="openTemplateModal()">模板市场</button>
             <button class="fh-btn" @click="openImportModal()">导入</button>
             <button class="fh-btn" @click="exportAll()">导出全部</button>
             <span class="fh-toolbar-split"></span>
             <button class="fh-btn fh-btn-icon" @click="openLogPanel()" :title="'运行日志' + (errorBadge ? '（' + errorBadge + ' 个错误）' : '')">
-                📋<span v-if="errorBadge" class="fh-badge-dot">{{errorBadge}}</span>
+                日志<span v-if="errorBadge" class="fh-badge-dot">{{errorBadge}}</span>
             </button>
             <button class="fh-btn fh-btn-icon" @click="toggleTheme()" :title="'切换' + (isDark ? '明亮' : '暗色') + '模式'">
-                {{ isDark ? '☀️' : '🌙' }}
+                {{ isDark ? '明亮' : '暗色' }}
             </button>
         </div>
 
@@ -59,7 +59,7 @@
             <button class="fh-btn" @click="toggleEditMode()" :title="editWithUI ? '切换为 .user.js 纯代码模式' : '切换为表单模式'">
                 {{ editWithUI ? '代码模式' : '表单模式' }}
             </button>
-            <button class="fh-btn fh-btn-icon" @click="toggleTheme()" :title="'切换主题'">{{ isDark ? '☀️' : '🌙' }}</button>
+            <button class="fh-btn fh-btn-icon" @click="toggleTheme()" :title="'切换主题'">{{ isDark ? '明亮' : '暗色' }}</button>
         </div>
     </div>
 
@@ -70,28 +70,28 @@
         <!-- Stats -->
         <div class="fh-stats">
             <div class="fh-stat">
-                <div class="fh-stat-icon">🐵</div>
+                <div class="fh-stat-icon">脚本</div>
                 <div>
                     <div class="fh-stat-value">{{ cachedMonkeys.length }}</div>
                     <div class="fh-stat-label">脚本总数</div>
                 </div>
             </div>
             <div class="fh-stat">
-                <div class="fh-stat-icon" style="background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(34,197,94,0.2));">✅</div>
+                <div class="fh-stat-icon" style="background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(34,197,94,0.2));">启用</div>
                 <div>
                     <div class="fh-stat-value">{{ enabledCount }}</div>
                     <div class="fh-stat-label">启用中</div>
                 </div>
             </div>
             <div class="fh-stat">
-                <div class="fh-stat-icon" style="background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(251,191,36,0.2));">⏸</div>
+                <div class="fh-stat-icon" style="background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(251,191,36,0.2));">停用</div>
                 <div>
                     <div class="fh-stat-value">{{ disabledCount }}</div>
                     <div class="fh-stat-label">已停用</div>
                 </div>
             </div>
             <div class="fh-stat">
-                <div class="fh-stat-icon" style="background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(99,102,241,0.2));">⚡</div>
+                <div class="fh-stat-icon" style="background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(99,102,241,0.2));">执行</div>
                 <div>
                     <div class="fh-stat-value">{{ totalHits }}</div>
                     <div class="fh-stat-label">累计执行次数</div>
@@ -102,7 +102,7 @@
         <!-- 筛选 -->
         <div class="fh-filter-bar">
             <div class="fh-search">
-                <span class="fh-search-icon">🔍</span>
+                <span class="fh-search-icon"></span>
                 <input type="text" v-model="search" placeholder="搜索名称、规则、标签..." />
             </div>
             <div class="fh-filter-tabs">
@@ -120,16 +120,16 @@
         <div class="fh-bulk-bar" v-if="selectedIds.length">
             <span style="font-weight:600;">已选 {{selectedIds.length}} 项</span>
             <div class="fh-spacer"></div>
-            <button class="fh-btn" @click="bulkToggle(false)">✅ 启用</button>
-            <button class="fh-btn" @click="bulkToggle(true)">⏸ 停用</button>
-            <button class="fh-btn" @click="bulkExport()">📤 导出</button>
-            <button class="fh-btn" @click="bulkRemove()">🗑 删除</button>
+            <button class="fh-btn" @click="bulkToggle(false)">启用</button>
+            <button class="fh-btn" @click="bulkToggle(true)">停用</button>
+            <button class="fh-btn" @click="bulkExport()">导出</button>
+            <button class="fh-btn" @click="bulkRemove()">删除</button>
             <button class="fh-btn" @click="selectedIds = []">取消选择</button>
         </div>
 
         <!-- 卡片列表 -->
         <div v-if="!filteredMonkeys.length" class="fh-empty">
-            <div class="fh-empty-icon">🐒</div>
+            <div class="fh-empty-icon">空</div>
             <h3>{{ cachedMonkeys.length ? '没有匹配的脚本' : '还没有任何脚本' }}</h3>
             <p v-if="!cachedMonkeys.length">点击右上角"新建脚本"开始定制网页，或从"模板市场"快速导入预设。</p>
             <p v-else>试试清空搜索条件或切换筛选状态</p>
@@ -156,10 +156,10 @@
                 </div>
 
                 <div class="fh-card-meta">
-                    <span class="fh-tag tag-runat">⏱ {{ runAtLabel(cm.mRunAt) }}</span>
-                    <span class="fh-tag tag-world">🌐 {{ cm.mWorld === 'ISOLATED' ? '隔离' : '主世界' }}</span>
-                    <span class="fh-tag tag-frame" v-if="cm.mAllFrames">🪟 全 frame</span>
-                    <span class="fh-tag tag-hits">⚡ {{ cm.mHits || 0 }} 次</span>
+                    <span class="fh-tag tag-runat">时机 {{ runAtLabel(cm.mRunAt) }}</span>
+                    <span class="fh-tag tag-world">{{ cm.mWorld === 'ISOLATED' ? '隔离' : '主世界' }}</span>
+                    <span class="fh-tag tag-frame" v-if="cm.mAllFrames">全 frame</span>
+                    <span class="fh-tag tag-hits">执行 {{ cm.mHits || 0 }} 次</span>
                     <span class="fh-tag" v-for="t in (cm.mTags || [])" :key="t">#{{t}}</span>
                 </div>
 
@@ -200,10 +200,10 @@
         </div>
 
         <div class="fh-editor-tabs" v-if="editWithUI">
-            <div class="fh-editor-tab" :class="{active: tab === 'meta'}" @click="tab = 'meta'">📋 基本信息</div>
-            <div class="fh-editor-tab" :class="{active: tab === 'code'}" @click="tab = 'code'">⚡ 注入脚本</div>
-            <div class="fh-editor-tab" :class="{active: tab === 'style'}" @click="tab = 'style'">🎨 注入 CSS</div>
-            <div class="fh-editor-tab" :class="{active: tab === 'advanced'}" @click="tab = 'advanced'">⚙️ 高级</div>
+            <div class="fh-editor-tab" :class="{active: tab === 'meta'}" @click="tab = 'meta'">基本信息</div>
+            <div class="fh-editor-tab" :class="{active: tab === 'code'}" @click="tab = 'code'">注入脚本</div>
+            <div class="fh-editor-tab" :class="{active: tab === 'style'}" @click="tab = 'style'">注入 CSS</div>
+            <div class="fh-editor-tab" :class="{active: tab === 'advanced'}" @click="tab = 'advanced'">高级</div>
         </div>
 
         <div class="fh-editor-body">
@@ -245,10 +245,10 @@
                 </div>
 
                 <div class="fh-field fh-test-url">
-                    <div class="fh-test-url-label">🧪 测试匹配（输入实际页面 URL，立即看是否命中）</div>
+                    <div class="fh-test-url-label">测试匹配（输入实际页面 URL，立即看是否命中）</div>
                     <input class="fh-input" type="text" v-model="testUrl" placeholder="https://www.baidu.com/s?wd=fehelper"/>
                     <div style="margin-top:6px;font-size:12px;" v-if="testUrl">
-                        最终结果：<b :style="{color: matchResult ? 'var(--success)' : 'var(--danger)'}">{{ matchResult ? '✅ 该 URL 会执行此脚本' : '❌ 该 URL 不会执行' }}</b>
+                        最终结果：<b :style="{color: matchResult ? 'var(--success)' : 'var(--danger)'}">{{ matchResult ? '该 URL 会执行此脚本' : '该 URL 不会执行' }}</b>
                     </div>
                 </div>
             </div>
@@ -260,7 +260,7 @@
                         <textarea ref="mScript" id="mScript"></textarea>
                     </div>
                     <div class="fh-help">
-                        💡 提示：脚本默认运行在页面 <kbd>MAIN</kbd> 世界，可访问页面 jQuery、Vue 等全局变量；如需更高隔离请在「高级」中切换为 ISOLATED。
+                        提示：脚本默认运行在页面 <kbd>MAIN</kbd> 世界，可访问页面 jQuery、Vue 等全局变量；如需更高隔离请在「高级」中切换为 ISOLATED。
                     </div>
                 </div>
 
@@ -288,7 +288,7 @@
                         <div class="fh-segment-item" :class="{active: editCM.mRunAt === 'document-idle'}" @click="setRunAt('document-idle')">document-idle <span style="opacity:0.7;">全部加载完</span></div>
                     </div>
                     <div class="fh-help">
-                        🚀 <b>document-start</b>：DOM 还没构建，可在页面 JS 跑之前提前 hook（如重写 fetch / XHR）；
+                        快速 <b>document-start</b>：DOM 还没构建，可在页面 JS 跑之前提前 hook（如重写 fetch / XHR）；
                         <b>document-end</b>（默认）：DOM 构建完，但图片可能还在加载；
                         <b>document-idle</b>：所有资源都加载完。
                     </div>
@@ -370,7 +370,7 @@
     <div class="fh-modal-mask" v-if="showTemplateModal" @click.self="showTemplateModal = false">
         <div class="fh-modal">
             <div class="fh-modal-head">
-                <div class="fh-modal-title">📦 模板市场</div>
+                <div class="fh-modal-title">模板市场</div>
                 <button class="fh-modal-close" @click="showTemplateModal = false">×</button>
             </div>
             <div class="fh-modal-body">
@@ -391,7 +391,7 @@
     <div class="fh-modal-mask" v-if="showImportModal" @click.self="showImportModal = false">
         <div class="fh-modal">
             <div class="fh-modal-head">
-                <div class="fh-modal-title">📥 导入脚本</div>
+                <div class="fh-modal-title">导入脚本</div>
                 <button class="fh-modal-close" @click="showImportModal = false">×</button>
             </div>
             <div class="fh-modal-body">
@@ -418,10 +418,10 @@
     <div class="fh-modal-mask" v-if="showLogModal" @click.self="showLogModal = false">
         <div class="fh-modal" style="max-width:960px;">
             <div class="fh-modal-head">
-                <div class="fh-modal-title">📋 运行日志 <span style="font-size:12px;color:var(--text-soft);font-weight:400;margin-left:8px;">最近 300 条</span></div>
+                <div class="fh-modal-title">运行日志 <span style="font-size:12px;color:var(--text-soft);font-weight:400;margin-left:8px;">最近 300 条</span></div>
                 <div style="display:flex;gap:8px;">
-                    <button class="fh-btn fh-btn-sm" @click="loadLogs()">🔄 刷新</button>
-                    <button class="fh-btn fh-btn-sm fh-btn-danger" @click="clearLogs()">🗑 清空</button>
+                    <button class="fh-btn fh-btn-sm" @click="loadLogs()">刷新</button>
+                    <button class="fh-btn fh-btn-sm fh-btn-danger" @click="clearLogs()">清空</button>
                     <button class="fh-modal-close" @click="showLogModal = false">×</button>
                 </div>
             </div>
@@ -445,10 +445,10 @@
     <div class="fh-modal-mask" v-if="dialog.visible" @click.self="onDialogCancel()">
         <div class="fh-confirm" :class="'is-' + (dialog.type || 'info')">
             <div class="fh-confirm-icon">
-                <span v-if="dialog.type === 'danger'">⚠️</span>
-                <span v-else-if="dialog.type === 'warning'">⚡</span>
-                <span v-else-if="dialog.type === 'success'">✅</span>
-                <span v-else>💡</span>
+                <span v-if="dialog.type === 'danger'">警告</span>
+                <span v-else-if="dialog.type === 'warning'">提示</span>
+                <span v-else-if="dialog.type === 'success'">完成</span>
+                <span v-else></span>
             </div>
             <div class="fh-confirm-body">
                 <div class="fh-confirm-title">{{ dialog.title }}</div>

@@ -70,6 +70,18 @@ th.x-op {
     margin-left: 20px;
 }
 
+body.fh-modern .fh-page-tip {
+    margin: 0 0 12px;
+    padding: 11px 14px;
+    border: 1px solid #bfdbfe;
+    border-radius: var(--fh-radius);
+    background: var(--fh-primary-soft);
+    color: #1e40af;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.55;
+}
+
 /* 为canvas添加样式 */
 #imageEditor canvas {
     display: block;

@@ -1,125 +1,180 @@
 <!DOCTYPE HTML>
 <html lang="zh-CN" class="fh-jf">
     <head>
-        <title>JSON格式化查看工具</title>
+        <title>JSON 格式化工具</title>
         <meta charset="UTF-8">
         <link rel="stylesheet" href="index.css" />
 		<script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
         <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
     </head>
     <body class="theme-default">
-        <div class="wrapper wp-json" id="pageContainer">
-            <div class="panel panel-default" style="margin-bottom: 0px;">
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        <a href="https://fehelper.com" target="_blank" class="x-a-high">
-                            <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：JSON格式化
-                        <span class="x-xdemo" ref="demoLink1" @click="setDemo">示例1：JSON片段</span>
-                        <a class="x-xdemo" href="http://t.weather.sojson.com/api/weather/city/101030100" target="_blank">示例2：在线JSON</a>
-                        <a class="x-xdemo" href="/options/index.html?query=数据Mock工具" target="_blank" class="fh-tip-link" @click="jumpToMockDataTool($event)">获取更多Mock数据</a>
-
-                        <span id="layoutBar">
-                            <button id="btnLeftRight" ref="btnLeftRight" class="selected" @click="changeLayout('left-right')">左右布局</button><button id="btnUpDown" ref="btnUpDown" @click="changeLayout('up-down')">上下布局</button>
-                        </span>
-                        <a class="x-other-tools" v-if="!isInUSAFlag" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
-                        <span class="x-donate-link" v-if="!isInUSAFlag" @click="openDonateModal($event)"><a href="#" id="donateLink"><i class="nav-icon">❤</i>&nbsp;打赏鼓励</a></span>
-                    </h3>
-                </div>
-            </div>
-
-            <div class="x-toolbar x-inpage">
-
-                <button id="btnFormat" class="btn btn-primary btn-xs ui-mr-10" @click="format">格式化</button>
-                <button id="btnCompress" class="btn btn-success btn-xs" @click="compress">压缩</button>
-                <span class="x-split">|</span>
-                <input type="checkbox" v-model="jsonLintSwitch" id="jsonLint" @click="lintOn"><label for="jsonLint">JSONLint</label>
-                <span class="x-split">|</span>
-                <input type="checkbox" v-model="autoDecode" id="endecode" @click="autoDecodeFn"><label for="endecode">自动解码</label>
-                <span class="x-split">|</span>
-                <input type="checkbox" v-model="overrideJson" id="jsonOvrd" @click="setCache"><label for="jsonOvrd">节点编辑</label>
-                <span class="x-split">|</span>
-                <input type="checkbox" v-model="nestedEscapeParse" id="nestedEscapeParse" @click="nestedEscapeParseFn"><label for="nestedEscapeParse">嵌套转义解析</label>
-                <span class="x-split">|</span>
-                <span class="x-sort">
-                    <span class="x-stitle">排序：</span>
-                    <label for="sort_null">默认</label>
-                    <input type="radio" name="jsonsort" id="sort_null" value="0" checked @click="format">
-                    <label for="sort_asc">升序</label>
-                    <input type="radio" name="jsonsort" id="sort_asc" value="1" @click="format">
-                    <label for="sort_desc">降序</label>
-                    <input type="radio" name="jsonsort" id="sort_desc" value="-1" @click="format">
-                </span>
-                <span class="x-split">|</span>
-                <span class="x-endecode">
-                    <button class="xjf-btn xjf-btn-left" @click="uniEncode">Uni编码</button><button class="xjf-btn xjf-btn-mid" @click="uniDecode">Uni解码</button><button class="xjf-btn xjf-btn-right" @click="urlDecode">URL解码</button>
-                </span>
-                <span class="x-split">|</span>
-                <button class="xjf-btn" @click="openJsonPathModal">JSON提取（JSONPath / jq替代）</button>
-
-                <span id="optionBar"></span>
-            </div>
-
-            <div class="panel-body mod-json">
-                <div class="row panel-txt">
-                    <textarea class="form-control mod-textarea" id="jsonSource" placeholder="在这里粘贴您需要进行格式化的JSON代码" ref="jsonBox"></textarea>
+        <div class="wrapper wp-json fh-json-tool" id="pageContainer">
+            <header class="fh-tool-header">
+                <div class="fh-brand-block">
+                    <a href="https://fehelper.com" target="_blank" class="fh-brand">
+                        <img src="../static/img/fe-16.png" alt="FeHelper">
+                        <span>FeHelper</span>
+                    </a>
+                    <div class="fh-title-block">
+                        <h1>JSON 格式化</h1>
+                        <p>解析、校验、压缩、JSONPath 提取和长数字保护。</p>
+                    </div>
                 </div>
 
-                <div class="row rst-item" id="modJsonResult">
-                    <div id="formattingMsg"><span class="x-loading"></span>格式化中...</div>
-                    <div id="jfCallbackName_start" class="callback-name" v-html="jfCallbackName_start"></div>
-                    <div id="jfContent" v-html="placeHolder"></div>
-                    <pre id="jfContent_pre"></pre>
-                    <div id="jfCallbackName_end" class="callback-name" v-html="jfCallbackName_end"></div>
-                </div>
-            </div>
+                <nav class="fh-header-actions" aria-label="JSON 示例和工具入口">
+                    <button type="button" class="fh-link-action" ref="demoLink1" @click="setDemo">JSON 片段</button>
+                    <a class="fh-link-action" href="http://t.weather.sojson.com/api/weather/city/101030100" target="_blank">在线 JSON</a>
+                    <a class="fh-link-action" href="/options/index.html?query=数据Mock工具" target="_blank" @click="jumpToMockDataTool($event)">Mock 数据</a>
+                    <button type="button" class="fh-link-action x-other-tools" v-if="!isInUSAFlag" @click="openOptionsPage($event)">工具市场</button>
+                    <button type="button" class="fh-link-action fh-donate-action x-donate-link" v-if="!isInUSAFlag" @click="openDonateModal($event)">请作者喝咖啡</button>
+                </nav>
+            </header>
 
-            <!-- JSON 提取（JSONPath / jq替代）模态框 -->
+            <section class="x-toolbar x-inpage fh-command-bar" aria-label="JSON 操作">
+                <div class="fh-command-group fh-command-primary">
+                    <button type="button" id="btnFormat" class="xjf-btn fh-btn-primary" @click="format">格式化</button>
+                    <button type="button" id="btnCompress" class="xjf-btn fh-btn-secondary" @click="compress">压缩</button>
+                </div>
+
+                <div id="layoutBar" class="fh-command-group fh-segmented" aria-label="布局">
+                    <button type="button" id="btnLeftRight" ref="btnLeftRight" class="selected" @click="changeLayout('left-right')">左右</button>
+                    <button type="button" id="btnUpDown" ref="btnUpDown" @click="changeLayout('up-down')">上下</button>
+                </div>
+
+                <div class="fh-command-group fh-switch-group">
+                    <label class="fh-switch" for="jsonLint">
+                        <input type="checkbox" v-model="jsonLintSwitch" id="jsonLint" @click="lintOn">
+                        <span class="fh-switch-ui"></span>
+                        <span>JSONLint</span>
+                    </label>
+                    <label class="fh-switch" for="endecode">
+                        <input type="checkbox" v-model="autoDecode" id="endecode" @click="autoDecodeFn">
+                        <span class="fh-switch-ui"></span>
+                        <span>自动解码</span>
+                    </label>
+                    <label class="fh-switch" for="jsonOvrd">
+                        <input type="checkbox" v-model="overrideJson" id="jsonOvrd" @click="setCache">
+                        <span class="fh-switch-ui"></span>
+                        <span>节点编辑</span>
+                    </label>
+                    <label class="fh-switch" for="nestedEscapeParse">
+                        <input type="checkbox" v-model="nestedEscapeParse" id="nestedEscapeParse" @click="nestedEscapeParseFn">
+                        <span class="fh-switch-ui"></span>
+                        <span>嵌套解析</span>
+                    </label>
+                </div>
+
+                <div class="fh-command-group x-sort fh-radio-group" role="radiogroup" aria-label="排序">
+                    <span class="x-stitle">排序</span>
+                    <label class="fh-radio-pill" for="sort_null">
+                        <input type="radio" name="jsonsort" id="sort_null" value="0" checked @click="format">
+                        <span>默认</span>
+                    </label>
+                    <label class="fh-radio-pill" for="sort_asc">
+                        <input type="radio" name="jsonsort" id="sort_asc" value="1" @click="format">
+                        <span>升序</span>
+                    </label>
+                    <label class="fh-radio-pill" for="sort_desc">
+                        <input type="radio" name="jsonsort" id="sort_desc" value="-1" @click="format">
+                        <span>降序</span>
+                    </label>
+                </div>
+
+                <div class="fh-command-group x-endecode">
+                    <button type="button" class="xjf-btn xjf-btn-left" @click="uniEncode">Uni 编码</button>
+                    <button type="button" class="xjf-btn xjf-btn-mid" @click="uniDecode">Uni 解码</button>
+                    <button type="button" class="xjf-btn xjf-btn-right" @click="urlDecode">URL 解码</button>
+                </div>
+
+                <div class="fh-command-group fh-command-tail">
+                    <button type="button" class="xjf-btn fh-jsonpath-trigger" @click="openJsonPathModal">JSON 提取</button>
+                    <span id="optionBar" class="fh-option-bar"></span>
+                </div>
+            </section>
+
+            <main class="panel-body mod-json fh-workspace">
+                <section class="fh-pane fh-input-pane">
+                    <div class="fh-pane-header">
+                        <div>
+                            <h2>输入</h2>
+                            <p>粘贴 JSON、JSONP 或被转义的 JSON 字符串。</p>
+                        </div>
+                        <span class="fh-pane-meta">CodeMirror</span>
+                    </div>
+                    <div class="row panel-txt">
+                        <textarea class="form-control mod-textarea" id="jsonSource" placeholder="在这里粘贴需要格式化的 JSON 代码" ref="jsonBox"></textarea>
+                    </div>
+                </section>
+
+                <section class="fh-pane fh-result-pane">
+                    <div class="fh-pane-header">
+                        <div>
+                            <h2>解析结果</h2>
+                            <p>支持树形查看、折叠、元数据和节点回写。</p>
+                        </div>
+                        <span class="fh-pane-meta">Result</span>
+                    </div>
+                    <div class="row rst-item" id="modJsonResult">
+                        <div id="formattingMsg"><span class="x-loading"></span>格式化中...</div>
+                        <div id="jfCallbackName_start" class="callback-name" v-html="jfCallbackName_start"></div>
+                        <div id="jfContent"></div>
+                        <pre id="jfContent_pre"></pre>
+                        <div id="jfCallbackName_end" class="callback-name" v-html="jfCallbackName_end"></div>
+                    </div>
+                </section>
+            </main>
+
             <div id="jsonPathModal" class="jsonpath-modal" v-show="showJsonPathModal" @click="closeJsonPathModal">
                 <div class="jsonpath-modal-content" @click.stop>
                     <div class="jsonpath-modal-header">
-                        <h3>JSON提取（JSONPath / jq替代）</h3>
-                        <div class="jsonpath-header-controls">
-                            <input type="text" class="xjf-input jsonpath-header-input" v-model="jsonPathQuery" 
-                                   placeholder="JSONPath表达式 (如: $.data.items[*].name)" 
-                                   @keyup.enter="executeJsonPath">
-                            <button class="xjf-btn jsonpath-header-btn" @click="executeJsonPath" :disabled="!jsonPathQuery.trim()">查询</button>
-                            <button class="xjf-btn xjf-btn-examples jsonpath-header-btn" @click="showJsonPathExamples">示例</button>
+                        <div>
+                            <h3>JSON 提取</h3>
+                            <p>用 JSONPath 快速定位数组、字段和深层节点。</p>
                         </div>
-                        <span class="jsonpath-modal-close" @click="closeJsonPathModal">&times;</span>
+                        <button type="button" class="jsonpath-modal-close" @click="closeJsonPathModal" aria-label="关闭">&times;</button>
                     </div>
                     <div class="jsonpath-modal-body">
-                        
-                        <!-- 查询结果区域 -->
+                        <div class="jsonpath-query-panel">
+                            <label for="jsonPathQueryInput">JSONPath 表达式</label>
+                            <div class="jsonpath-header-controls">
+                                <input id="jsonPathQueryInput" type="text" class="xjf-input jsonpath-header-input" v-model="jsonPathQuery"
+                                       placeholder="例如：$.data.items[*].name"
+                                       @keyup.enter="executeJsonPath">
+                                <button type="button" class="xjf-btn jsonpath-header-btn" @click="executeJsonPath" :disabled="!jsonPathQuery.trim()">查询</button>
+                                <button type="button" class="xjf-btn xjf-btn-examples jsonpath-header-btn" @click="showJsonPathExamples">示例</button>
+                            </div>
+                        </div>
+
                         <div class="jsonpath-results-section" v-if="jsonPathQuery && (jsonPathResults.length > 0 || jsonPathError)">
                             <div class="jsonpath-query-info">
-                                <strong>查询表达式：</strong> <code>{{jsonPathQuery}}</code>
+                                <span>查询表达式 <code>{{jsonPathQuery}}</code></span>
                                 <span class="jsonpath-result-count" v-if="!jsonPathError">找到 {{jsonPathResults.length}} 个结果</span>
                             </div>
-                                            <div class="jsonpath-result-actions" v-if="jsonPathResults.length > 0">
-                        <button class="xjf-btn" 
-                                :class="{
-                                    'xjf-btn-copying': copyButtonState === 'copying',
-                                    'xjf-btn-success': copyButtonState === 'success',
-                                    'xjf-btn-error': copyButtonState === 'error'
-                                }"
-                                @click="copyJsonPathResults"
-                                :disabled="copyButtonState === 'copying'">
-                            <span v-if="copyButtonState === 'normal'">复制结果</span>
-                            <span v-if="copyButtonState === 'copying'">复制中...</span>
-                            <span v-if="copyButtonState === 'success'">✓ 复制成功</span>
-                            <span v-if="copyButtonState === 'error'">✗ 复制失败</span>
-                        </button>
-                        <button class="xjf-btn" @click="downloadJsonPathResults">下载结果</button>
-                    </div>
-                        <div class="jsonpath-results" v-if="jsonPathResults.length > 0">
-                            <div class="jsonpath-result-item" v-for="(result, index) in jsonPathResults" :key="index">
-                                <div class="jsonpath-result-path">路径: <code>{{result.path}}</code></div>
-                                <pre class="jsonpath-result-value">{{formatJsonPathResult(result.value)}}</pre>
+                            <div class="jsonpath-result-actions" v-if="jsonPathResults.length > 0">
+                                <button type="button" class="xjf-btn"
+                                        :class="{
+                                            'xjf-btn-copying': copyButtonState === 'copying',
+                                            'xjf-btn-success': copyButtonState === 'success',
+                                            'xjf-btn-error': copyButtonState === 'error'
+                                        }"
+                                        @click="copyJsonPathResults"
+                                        :disabled="copyButtonState === 'copying'">
+                                    <span v-if="copyButtonState === 'normal'">复制结果</span>
+                                    <span v-if="copyButtonState === 'copying'">复制中...</span>
+                                    <span v-if="copyButtonState === 'success'">复制成功</span>
+                                    <span v-if="copyButtonState === 'error'">复制失败</span>
+                                </button>
+                                <button type="button" class="xjf-btn" @click="downloadJsonPathResults">下载结果</button>
                             </div>
-                        </div>
-                        <div class="jsonpath-no-results" v-if="jsonPathResults.length === 0 && !jsonPathError">
-                            <p>未找到匹配的结果</p>
-                        </div>
+                            <div class="jsonpath-results" v-if="jsonPathResults.length > 0">
+                                <div class="jsonpath-result-item" v-for="(result, index) in jsonPathResults" :key="index">
+                                    <div class="jsonpath-result-path">路径 <code>{{result.path}}</code></div>
+                                    <pre class="jsonpath-result-value">{{formatJsonPathResult(result.value)}}</pre>
+                                </div>
+                            </div>
+                            <div class="jsonpath-no-results" v-if="jsonPathResults.length === 0 && !jsonPathError">
+                                <p>未找到匹配的结果</p>
+                            </div>
                             <div class="jsonpath-error" v-if="jsonPathError">
                                 <p class="error-msg">{{jsonPathError}}</p>
                             </div>
@@ -127,13 +182,15 @@
                     </div>
                 </div>
             </div>
-    
-            <!-- JSON 提取示例模态框 -->
+
             <div id="jsonPathExamplesModal" class="jsonpath-modal v-cloak" v-show="showJsonPathExamplesModal" @click="closeJsonPathExamplesModal">
-                <div class="jsonpath-modal-content" @click.stop>
+                <div class="jsonpath-modal-content jsonpath-examples-modal" @click.stop>
                     <div class="jsonpath-modal-header">
-                        <h3>JSON提取示例（JSONPath）</h3>
-                        <span class="jsonpath-modal-close" @click="closeJsonPathExamplesModal">&times;</span>
+                        <div>
+                            <h3>JSONPath 示例</h3>
+                            <p>点击任意表达式填入查询框。</p>
+                        </div>
+                        <button type="button" class="jsonpath-modal-close" @click="closeJsonPathExamplesModal" aria-label="关闭">&times;</button>
                     </div>
                     <div class="jsonpath-modal-body">
                         <div class="jsonpath-examples">

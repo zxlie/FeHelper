@@ -127,6 +127,7 @@ new Vue({
                         if (res.error) {
                             this.resultContent = res.error;
                         } else {
+                            this.resultContent = '';
                             this.urlResult = res;
                         }
                     } else if(this.selectedType === 'jwtDecode') {
@@ -166,6 +167,7 @@ new Vue({
         clear: function () {
             this.sourceContent = '';
             this.resultContent = '';
+            this.urlResult = null;
         },
 
         getResult: function () {

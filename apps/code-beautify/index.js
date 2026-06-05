@@ -181,17 +181,17 @@ new Vue({
                 success: {
                     background: 'linear-gradient(135deg, #4ade80 0%, #16a34a 100%)',
                     borderColor: '#22c55e',
-                    icon: '✓'
+                    icon: 'OK'
                 },
                 error: {
                     background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                     borderColor: '#f87171',
-                    icon: '✕'
+                    icon: 'ERR'
                 },
                 warning: {
                     background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                     borderColor: '#fbbf24',
-                    icon: '⚠'
+                    icon: 'WARN'
                 }
             };
             

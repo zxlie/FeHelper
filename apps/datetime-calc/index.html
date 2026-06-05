@@ -6,8 +6,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon" href="../static/img/favicon.ico">
         <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="../static/css/fehelper-tools.css">
     </head>
-    <body>
+    <body class="fh-modern">
 
     <div class="wrapper" id="app">
         <div class="panel panel-default" style="margin-bottom: 0px;">
@@ -15,8 +16,8 @@
                 <h3 class="panel-title">
                     <a href="https://fehelper.com" target="_blank" class="x-a-high">
                         <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：时间戳计算器
-                    <a href="#" class="x-donate-link"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
-                    <a class="x-other-tools"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+                    <a href="#" class="x-donate-link"><i class="nav-icon">SP</i>请作者喝咖啡</a>
+                    <a class="x-other-tools"><i class="icon-plus-circle"></i> 工具市场</a>
                 </h3>
             </div>
         </div>
@@ -25,22 +26,22 @@
         <div class="tab-container">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
-                    <a href="#">🧠 智能解析</a>
+                    <a href="#"> 智能解析</a>
                 </li>
                 <li role="presentation">
-                    <a href="#">💻 代码生成</a>
+                    <a href="#"> 代码生成</a>
                 </li>
                 <li role="presentation">
-                    <a href="#">🧮 时间计算</a>
+                    <a href="#"> 时间计算</a>
                 </li>
                 <li role="presentation">
-                    <a href="#">📊 批量转换</a>
+                    <a href="#"> 批量转换</a>
                 </li>
                 <li role="presentation">
-                    <a href="#">🌍 时区专家</a>
+                    <a href="#"> 时区专家</a>
                 </li>
                 <li role="presentation">
-                    <a href="#">🗄️ 数据库</a>
+                    <a href="#"> 数据库</a>
                 </li>
             </ul>
 
@@ -49,7 +50,7 @@
                 <!-- 智能解析模块 -->
                 <div role="tabpanel" class="tab-pane active" id="smart-parser">
                     <div class="tool-section">
-                        <h4 class="section-title">🧠 智能时间解析器</h4>
+                        <h4 class="section-title"> 智能时间解析器</h4>
                         <p class="section-desc">支持20+种时间格式自动识别，包括Unix时间戳、ISO 8601、RFC 3339、数据库格式等</p>
                         
                         <div class="parser-main-layout">
@@ -58,24 +59,19 @@
                                 <!-- 快捷操作模块 -->
                                 <div class="quick-actions-module">
                                     <label class="module-label">
-                                        <span class="label-icon">⚡</span>
+                                        <span class="label-icon"></span>
                                         快捷操作
                                     </label>
                                     <div class="quick-buttons-grid">
-                                        <button class="btn btn-outline-primary btn-sm quick-btn" data-action="now">
-                                            🕐 当前时间
+                                        <button class="btn btn-outline-primary btn-sm quick-btn" data-action="now">当前时间
                                         </button>
-                                        <button class="btn btn-outline-success btn-sm quick-btn" data-action="today">
-                                            📅 今天开始
+                                        <button class="btn btn-outline-success btn-sm quick-btn" data-action="today">今天开始
                                         </button>
-                                        <button class="btn btn-outline-info btn-sm quick-btn" data-action="yesterday">
-                                            📆 昨天
+                                        <button class="btn btn-outline-info btn-sm quick-btn" data-action="yesterday">昨天
                                         </button>
-                                        <button class="btn btn-outline-warning btn-sm quick-btn" data-action="week_start">
-                                            🗓️ 本周开始
+                                        <button class="btn btn-outline-warning btn-sm quick-btn" data-action="week_start">本周开始
                                         </button>
-                                        <button class="btn btn-outline-secondary btn-sm quick-btn" data-action="month_start">
-                                            📊 本月开始
+                                        <button class="btn btn-outline-secondary btn-sm quick-btn" data-action="month_start">本月开始
                                         </button>
                                     </div>
                                 </div>
@@ -83,7 +79,7 @@
                                 <!-- 输入时间模块 -->
                                 <div class="input-time-module">
                                     <label class="module-label">
-                                        <span class="label-icon">📝</span>
+                                        <span class="label-icon"></span>
                                         输入时间（支持多种格式）
                                     </label>
                                     <div class="input-group-custom">
@@ -91,8 +87,8 @@
                                                  placeholder="试试输入：&#10;• 1749722690（时间戳）&#10;• 2025-06-12 18:06:25&#10;• now / today / yesterday&#10;• 2025/06/12&#10;• Jun 12, 2025"
                                                  rows="6"></textarea>
                                         <div class="input-actions">
-                                            <button class="btn btn-primary parse-btn">🔍 解析</button>
-                                            <button class="btn btn-secondary clear-input-btn">🗑️ 清空</button>
+                                            <button class="btn btn-primary parse-btn">解析</button>
+                                            <button class="btn btn-secondary clear-input-btn"> 清空</button>
                                         </div>
                                     </div>
                                     <div class="format-hints"></div>
@@ -104,10 +100,9 @@
                                 <!-- 当前时间模块 -->
                                 <div class="current-time-module">
                                     <label class="module-label">
-                                        <span class="label-icon">🕒</span>
-                                        当前时间
+                                        <span class="label-icon"></span>当前时间
                                         <div class="time-control-inline">
-                                            <button class="btn btn-sm btn-warning time-toggle-btn">⏸️ 暂停</button>
+                                            <button class="btn btn-sm btn-warning time-toggle-btn"> 暂停</button>
                                         </div>
                                     </label>
                                     <div class="timezone-current-row">
@@ -157,7 +152,7 @@
                                 <!-- 解析结果模块 -->
                                 <div class="parse-results-module">
                                     <label class="module-label">
-                                        <span class="label-icon">📋</span>
+                                        <span class="label-icon"></span>
                                         解析结果
                                     </label>
                                     <div class="result-container"></div>
@@ -170,7 +165,7 @@
                 <!-- 代码生成模块 -->
                 <div role="tabpanel" class="tab-pane" id="code-generator" style="display: none;">
                     <div class="tool-section">
-                        <h4 class="section-title">💻 多语言代码生成器</h4>
+                        <h4 class="section-title"> 多语言代码生成器</h4>
                         <p class="section-desc">根据时间值生成各种编程语言的时间处理代码</p>
                         
                         <div class="main-layout">
@@ -178,7 +173,7 @@
                             <div class="left-panel">
                                 <div class="panel-section">
                                     <label class="input-label">
-                                        <span class="label-icon">⚡</span>
+                                        <span class="label-icon"></span>
                                         时间输入与语言选择
                                     </label>
                                     <div class="input-group">
@@ -197,7 +192,7 @@
                                                 <option value="sql">SQL</option>
                                             </select>
                                         </div>
-                                        <button class="btn btn-primary generate-btn">🔨 生成代码</button>
+                                        <button class="btn btn-primary generate-btn">生成代码</button>
                                     </div>
                                 </div>
                             </div>
@@ -206,7 +201,7 @@
                             <div class="right-panel">
                                 <div class="panel-section">
                                     <label class="result-label">
-                                        <span class="label-icon">💻</span>
+                                        <span class="label-icon"></span>
                                         生成的代码（点击代码块可复制）
                                     </label>
                                     <div class="code-results"></div>
@@ -219,7 +214,7 @@
                 <!-- 时间计算模块 -->
                 <div role="tabpanel" class="tab-pane" id="time-calculator" style="display: none;">
                     <div class="tool-section">
-                        <h4 class="section-title">🧮 时间计算器</h4>
+                        <h4 class="section-title">时间计算器</h4>
                         <p class="section-desc">进行时间差计算、时间加减运算等复杂时间计算</p>
                         
                         <div class="calculator-container">
@@ -228,7 +223,7 @@
                                 <div class="left-calc-panel">
                                     <div class="calc-section">
                                         <label class="input-label">
-                                            <span class="label-icon">⏰</span>
+                                            <span class="label-icon"></span>
                                             时间差计算
                                         </label>
                                         <div class="calc-input-group">
@@ -242,7 +237,7 @@
                                                     <input type="text" class="form-control end-time" placeholder="结束时间（如：2024-01-02 15:30:00）">
                                                 </div>
                                             </div>
-                                            <button class="btn btn-primary calc-btn">📊 计算时间差</button>
+                                            <button class="btn btn-primary calc-btn"> 计算时间差</button>
                                         </div>
                                         <div class="calc-results"></div>
                                     </div>
@@ -252,7 +247,7 @@
                                 <div class="right-calc-panel">
                                     <div class="calc-section">
                                         <label class="input-label">
-                                            <span class="label-icon">➕➖</span>
+                                            <span class="label-icon"></span>
                                             时间加减运算
                                         </label>
                                         <div class="calc-input-group">
@@ -263,8 +258,8 @@
                                                 </div>
                                                 <div class="operation-select-group">
                                                     <select class="form-control operation-select">
-                                                        <option value="add">➕ 增加</option>
-                                                        <option value="subtract">➖ 减去</option>
+                                                        <option value="add">增加</option>
+                                                        <option value="subtract">减去</option>
                                                     </select>
                                                 </div>
                                                 <div class="amount-group">
@@ -282,7 +277,7 @@
                                                 </div>
                                             </div>
                                             
-                                            <button class="btn btn-success calc-add-btn">🧮 计算结果</button>
+                                            <button class="btn btn-success calc-add-btn">计算结果</button>
                                         </div>
                                         <div class="calc-results add-subtract-results"></div>
                                     </div>
@@ -295,7 +290,7 @@
                 <!-- 批量转换模块 -->
                 <div role="tabpanel" class="tab-pane" id="batch-converter" style="display: none;">
                     <div class="tool-section">
-                        <h4 class="section-title">📊 批量转换器</h4>
+                        <h4 class="section-title"> 批量转换器</h4>
                         <p class="section-desc">批量处理时间数据</p>
                         
                         <div class="main-layout">
@@ -303,15 +298,15 @@
                             <div class="left-panel">
                                 <div class="panel-section">
                                     <label class="input-label">
-                                        <span class="label-icon">📝</span>
+                                        <span class="label-icon"></span>
                                         批量时间输入（每行一个）
                                     </label>
                                     <div class="batch-input-group">
                                         <textarea class="form-control batch-input" rows="10" 
                                                  placeholder="输入多个时间值，每行一个：&#10;1699999999&#10;2024-01-15 10:30:45&#10;now&#10;today&#10;2024/01/15"></textarea>
                                         <div class="batch-actions">
-                                            <button class="btn btn-primary batch-convert-btn">🔄 批量转换</button>
-                                            <button class="btn btn-secondary batch-clear-btn">🗑️ 清空</button>
+                                            <button class="btn btn-primary batch-convert-btn"> 批量转换</button>
+                                            <button class="btn btn-secondary batch-clear-btn"> 清空</button>
                                         </div>
                                     </div>
                                 </div>
@@ -321,7 +316,7 @@
                             <div class="right-panel">
                                 <div class="panel-section">
                                     <label class="result-label">
-                                        <span class="label-icon">📊</span>
+                                        <span class="label-icon"></span>
                                         转换结果
                                         <span class="result-stats"></span>
                                     </label>
@@ -335,7 +330,7 @@
                 <!-- 时区专家模块 -->
                 <div role="tabpanel" class="tab-pane" id="timezone-expert" style="display: none;">
                     <div class="tool-section">
-                        <h4 class="section-title">🌍 时区转换专家</h4>
+                        <h4 class="section-title"> 时区转换专家</h4>
                         <p class="section-desc">精确的时区转换，支持夏令时和历史时区数据</p>
                         
                         <div class="main-layout">
@@ -343,7 +338,7 @@
                             <div class="left-panel">
                                 <div class="panel-section">
                                     <label class="input-label">
-                                        <span class="label-icon">🌍</span>
+                                        <span class="label-icon"></span>
                                         时区转换设置
                                     </label>
                                     <div class="timezone-input-group">
@@ -355,73 +350,73 @@
                                             <div class="from-timezone">
                                                 <label class="form-label">从时区</label>
                                                 <select class="form-control from-timezone-select">
-                                                    <option value="Pacific/Midway">🇺🇸 中途岛 (GMT-11)</option>
-                                                    <option value="America/Adak">🇺🇸 阿达克 (GMT-10)</option>
-                                                    <option value="Pacific/Honolulu">🇺🇸 夏威夷 (GMT-10)</option>
-                                                    <option value="America/Anchorage">🇺🇸 安克雷奇 (GMT-9)</option>
-                                                    <option value="America/Los_Angeles">🇺🇸 洛杉矶 (PST, GMT-8)</option>
-                                                    <option value="America/Denver">🇺🇸 丹佛 (MST, GMT-7)</option>
-                                                    <option value="America/Chicago">🇺🇸 芝加哥 (CST, GMT-6)</option>
-                                                    <option value="America/New_York">🇺🇸 纽约 (EST, GMT-5)</option>
-                                                    <option value="America/Caracas">🇻🇪 加拉加斯 (GMT-4)</option>
-                                                    <option value="America/Santiago">🇨🇱 圣地亚哥 (GMT-4)</option>
-                                                    <option value="America/Halifax">🇨🇦 哈利法克斯 (GMT-4)</option>
-                                                    <option value="America/St_Johns">🇨🇦 圣约翰斯 (GMT-3:30)</option>
-                                                    <option value="America/Argentina/Buenos_Aires">🇦🇷 布宜诺斯艾利斯 (GMT-3)</option>
-                                                    <option value="America/Sao_Paulo">🇧🇷 圣保罗 (GMT-3)</option>
-                                                    <option value="Atlantic/Azores">🇵🇹 亚速尔群岛 (GMT-1)</option>
-                                                    <option value="Europe/London">🇬🇧 伦敦 (GMT+0)</option>
-                                                    <option value="Europe/Berlin">🇩🇪 柏林 (CET, GMT+1)</option>
-                                                    <option value="Europe/Paris">🇫🇷 巴黎 (CET, GMT+1)</option>
-                                                    <option value="Europe/Athens">🇬🇷 雅典 (EET, GMT+2)</option>
-                                                    <option value="Europe/Istanbul">🇹🇷 伊斯坦布尔 (GMT+3)</option>
-                                                    <option value="Europe/Moscow">🇷🇺 莫斯科 (GMT+3)</option>
-                                                    <option value="Asia/Dubai">🇦🇪 迪拜 (GMT+4)</option>
-                                                    <option value="Asia/Karachi">🇵🇰 卡拉奇 (GMT+5)</option>
-                                                    <option value="Asia/Dhaka">🇧🇩 达卡 (GMT+6)</option>
-                                                    <option value="Asia/Bangkok">🇹🇭 曼谷 (GMT+7)</option>
-                                                    <option value="Asia/Shanghai">🇨🇳 北京 (GMT+8)</option>
-                                                    <option value="Asia/Tokyo">🇯🇵 东京 (GMT+9)</option>
-                                                    <option value="Australia/Sydney">🇦🇺 悉尼 (GMT+10)</option>
-                                                    <option value="Pacific/Auckland">🇳🇿 奥克兰 (GMT+12)</option>
+                                                    <option value="Pacific/Midway">中途岛 (GMT-11)</option>
+                                                    <option value="America/Adak">阿达克 (GMT-10)</option>
+                                                    <option value="Pacific/Honolulu">夏威夷 (GMT-10)</option>
+                                                    <option value="America/Anchorage">安克雷奇 (GMT-9)</option>
+                                                    <option value="America/Los_Angeles">洛杉矶 (PST, GMT-8)</option>
+                                                    <option value="America/Denver">丹佛 (MST, GMT-7)</option>
+                                                    <option value="America/Chicago">芝加哥 (CST, GMT-6)</option>
+                                                    <option value="America/New_York">纽约 (EST, GMT-5)</option>
+                                                    <option value="America/Caracas">加拉加斯 (GMT-4)</option>
+                                                    <option value="America/Santiago">圣地亚哥 (GMT-4)</option>
+                                                    <option value="America/Halifax">哈利法克斯 (GMT-4)</option>
+                                                    <option value="America/St_Johns">圣约翰斯 (GMT-3:30)</option>
+                                                    <option value="America/Argentina/Buenos_Aires">布宜诺斯艾利斯 (GMT-3)</option>
+                                                    <option value="America/Sao_Paulo">圣保罗 (GMT-3)</option>
+                                                    <option value="Atlantic/Azores">亚速尔群岛 (GMT-1)</option>
+                                                    <option value="Europe/London">伦敦 (GMT+0)</option>
+                                                    <option value="Europe/Berlin">柏林 (CET, GMT+1)</option>
+                                                    <option value="Europe/Paris">巴黎 (CET, GMT+1)</option>
+                                                    <option value="Europe/Athens">雅典 (EET, GMT+2)</option>
+                                                    <option value="Europe/Istanbul">伊斯坦布尔 (GMT+3)</option>
+                                                    <option value="Europe/Moscow">莫斯科 (GMT+3)</option>
+                                                    <option value="Asia/Dubai">迪拜 (GMT+4)</option>
+                                                    <option value="Asia/Karachi">卡拉奇 (GMT+5)</option>
+                                                    <option value="Asia/Dhaka">达卡 (GMT+6)</option>
+                                                    <option value="Asia/Bangkok">曼谷 (GMT+7)</option>
+                                                    <option value="Asia/Shanghai">北京 (GMT+8)</option>
+                                                    <option value="Asia/Tokyo">东京 (GMT+9)</option>
+                                                    <option value="Australia/Sydney">悉尼 (GMT+10)</option>
+                                                    <option value="Pacific/Auckland">奥克兰 (GMT+12)</option>
                                                 </select>
                                             </div>
                                             <div class="to-timezone">
                                                 <label class="form-label">到时区</label>
                                                 <select class="form-control to-timezone-select">
-                                                    <option value="Pacific/Midway">🇺🇸 中途岛 (GMT-11)</option>
-                                                    <option value="America/Adak">🇺🇸 阿达克 (GMT-10)</option>
-                                                    <option value="Pacific/Honolulu">🇺🇸 夏威夷 (GMT-10)</option>
-                                                    <option value="America/Anchorage">🇺🇸 安克雷奇 (GMT-9)</option>
-                                                    <option value="America/Los_Angeles">🇺🇸 洛杉矶 (PST, GMT-8)</option>
-                                                    <option value="America/Denver">🇺🇸 丹佛 (MST, GMT-7)</option>
-                                                    <option value="America/Chicago">🇺🇸 芝加哥 (CST, GMT-6)</option>
-                                                    <option value="America/New_York">🇺🇸 纽约 (EST, GMT-5)</option>
-                                                    <option value="America/Caracas">🇻🇪 加拉加斯 (GMT-4)</option>
-                                                    <option value="America/Santiago">🇨🇱 圣地亚哥 (GMT-4)</option>
-                                                    <option value="America/Halifax">🇨🇦 哈利法克斯 (GMT-4)</option>
-                                                    <option value="America/St_Johns">🇨🇦 圣约翰斯 (GMT-3:30)</option>
-                                                    <option value="America/Argentina/Buenos_Aires">🇦🇷 布宜诺斯艾利斯 (GMT-3)</option>
-                                                    <option value="America/Sao_Paulo">🇧🇷 圣保罗 (GMT-3)</option>
-                                                    <option value="Atlantic/Azores">🇵🇹 亚速尔群岛 (GMT-1)</option>
-                                                    <option value="Europe/London">🇬🇧 伦敦 (GMT+0)</option>
-                                                    <option value="Europe/Berlin">🇩🇪 柏林 (CET, GMT+1)</option>
-                                                    <option value="Europe/Paris">🇫🇷 巴黎 (CET, GMT+1)</option>
-                                                    <option value="Europe/Athens">🇬🇷 雅典 (EET, GMT+2)</option>
-                                                    <option value="Europe/Istanbul">🇹🇷 伊斯坦布尔 (GMT+3)</option>
-                                                    <option value="Europe/Moscow">🇷🇺 莫斯科 (GMT+3)</option>
-                                                    <option value="Asia/Dubai">🇦🇪 迪拜 (GMT+4)</option>
-                                                    <option value="Asia/Karachi">🇵🇰 卡拉奇 (GMT+5)</option>
-                                                    <option value="Asia/Dhaka">🇧🇩 达卡 (GMT+6)</option>
-                                                    <option value="Asia/Bangkok">🇹🇭 曼谷 (GMT+7)</option>
-                                                    <option value="Asia/Shanghai">🇨🇳 北京 (GMT+8)</option>
-                                                    <option value="Asia/Tokyo">🇯🇵 东京 (GMT+9)</option>
-                                                    <option value="Australia/Sydney">🇦🇺 悉尼 (GMT+10)</option>
-                                                    <option value="Pacific/Auckland">🇳🇿 奥克兰 (GMT+12)</option>
+                                                    <option value="Pacific/Midway">中途岛 (GMT-11)</option>
+                                                    <option value="America/Adak">阿达克 (GMT-10)</option>
+                                                    <option value="Pacific/Honolulu">夏威夷 (GMT-10)</option>
+                                                    <option value="America/Anchorage">安克雷奇 (GMT-9)</option>
+                                                    <option value="America/Los_Angeles">洛杉矶 (PST, GMT-8)</option>
+                                                    <option value="America/Denver">丹佛 (MST, GMT-7)</option>
+                                                    <option value="America/Chicago">芝加哥 (CST, GMT-6)</option>
+                                                    <option value="America/New_York">纽约 (EST, GMT-5)</option>
+                                                    <option value="America/Caracas">加拉加斯 (GMT-4)</option>
+                                                    <option value="America/Santiago">圣地亚哥 (GMT-4)</option>
+                                                    <option value="America/Halifax">哈利法克斯 (GMT-4)</option>
+                                                    <option value="America/St_Johns">圣约翰斯 (GMT-3:30)</option>
+                                                    <option value="America/Argentina/Buenos_Aires">布宜诺斯艾利斯 (GMT-3)</option>
+                                                    <option value="America/Sao_Paulo">圣保罗 (GMT-3)</option>
+                                                    <option value="Atlantic/Azores">亚速尔群岛 (GMT-1)</option>
+                                                    <option value="Europe/London">伦敦 (GMT+0)</option>
+                                                    <option value="Europe/Berlin">柏林 (CET, GMT+1)</option>
+                                                    <option value="Europe/Paris">巴黎 (CET, GMT+1)</option>
+                                                    <option value="Europe/Athens">雅典 (EET, GMT+2)</option>
+                                                    <option value="Europe/Istanbul">伊斯坦布尔 (GMT+3)</option>
+                                                    <option value="Europe/Moscow">莫斯科 (GMT+3)</option>
+                                                    <option value="Asia/Dubai">迪拜 (GMT+4)</option>
+                                                    <option value="Asia/Karachi">卡拉奇 (GMT+5)</option>
+                                                    <option value="Asia/Dhaka">达卡 (GMT+6)</option>
+                                                    <option value="Asia/Bangkok">曼谷 (GMT+7)</option>
+                                                    <option value="Asia/Shanghai">北京 (GMT+8)</option>
+                                                    <option value="Asia/Tokyo">东京 (GMT+9)</option>
+                                                    <option value="Australia/Sydney">悉尼 (GMT+10)</option>
+                                                    <option value="Pacific/Auckland">奥克兰 (GMT+12)</option>
                                                 </select>
                                             </div>
                                         </div>
-                                        <button class="btn btn-primary timezone-convert-btn">🔄 转换时区</button>
+                                        <button class="btn btn-primary timezone-convert-btn"> 转换时区</button>
                                     </div>
                                 </div>
                             </div>
@@ -430,7 +425,7 @@
                             <div class="right-panel">
                                 <div class="panel-section">
                                     <label class="result-label">
-                                        <span class="label-icon">⏰</span>
+                                        <span class="label-icon"></span>
                                         转换结果
                                     </label>
                                     <div class="timezone-results"></div>
@@ -443,7 +438,7 @@
                 <!-- 数据库工具模块 -->
                 <div role="tabpanel" class="tab-pane" id="database-tools" style="display: none;">
                     <div class="tool-section">
-                        <h4 class="section-title">🗄️ 数据库时间工具</h4>
+                        <h4 class="section-title">数据库时间工具</h4>
                         <p class="section-desc">生成各种数据库的时间格式和SQL查询语句</p>
                         
                         <div class="main-layout">
@@ -451,7 +446,7 @@
                             <div class="left-panel">
                                 <div class="panel-section">
                                     <label class="input-label">
-                                        <span class="label-icon">⚙️</span>
+                                        <span class="label-icon"></span>
                                         数据库配置
                                     </label>
                                     <div class="db-input-group">
@@ -462,13 +457,13 @@
                                         <div class="db-type-selector">
                                             <label class="form-label">选择数据库类型</label>
                                             <select class="form-control db-type-select">
-                                                <option value="mysql">🐬 MySQL</option>
-                                                <option value="postgresql">🐘 PostgreSQL</option>
-                                                <option value="sqlite">📱 SQLite</option>
-                                                <option value="mongodb">🍃 MongoDB</option>
+                                                <option value="mysql">MySQL</option>
+                                                <option value="postgresql">PostgreSQL</option>
+                                                <option value="sqlite">SQLite</option>
+                                                <option value="mongodb">MongoDB</option>
                                             </select>
                                         </div>
-                                        <button class="btn btn-primary db-generate-btn">🔧 生成格式</button>
+                                        <button class="btn btn-primary db-generate-btn">生成格式</button>
                                     </div>
                                 </div>
                             </div>
@@ -477,7 +472,7 @@
                             <div class="right-panel">
                                 <div class="panel-section">
                                     <label class="result-label">
-                                        <span class="label-icon">📄</span>
+                                        <span class="label-icon"></span>
                                         数据库格式与SQL语句
                                     </label>
                                     <div class="db-results"></div>

@@ -101,3 +101,101 @@ a.x-a-high, a.x-a-high:visited {
 th.th-op {
     width:100px;
 }
+
+body.fh-modern {
+    height: auto;
+    overflow: auto;
+}
+
+body.fh-modern h1.editor-title {
+    display: none;
+}
+
+body.fh-modern kityminder-editor {
+    display: none;
+}
+
+body.fh-modern .naotu-shell {
+    min-height: calc(100dvh - 116px);
+}
+
+body.fh-modern .naotu-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+    padding: 14px;
+    border: 1px solid var(--fh-line);
+    border-radius: var(--fh-radius);
+    background: var(--fh-subtle);
+}
+
+body.fh-modern .naotu-hero h2 {
+    margin: 0;
+    color: var(--fh-text);
+    font-size: 18px;
+    font-weight: 800;
+}
+
+body.fh-modern .naotu-hero p {
+    margin: 6px 0 0;
+    color: var(--fh-muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+body.fh-modern .my-naotu-list {
+    margin: 0;
+}
+
+body.fh-modern .my-naotu-list .mm-tips {
+    margin: 0 0 14px;
+    padding: 14px 16px;
+    border: 1px solid #bfdbfe;
+    border-radius: var(--fh-radius);
+    background: var(--fh-primary-soft);
+    color: #1e40af;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+body.fh-modern .my-naotu-list .mm-tips a {
+    color: var(--fh-primary);
+    font-weight: 800;
+}
+
+body.fh-modern .x-y {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 36px;
+    margin: 0 0 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--fh-line);
+    color: var(--fh-text);
+    font-size: 14px;
+    font-weight: 900;
+}
+
+body.fh-modern .x-toolbox {
+    float: none;
+    margin-left: 0;
+}
+
+body.fh-modern .my-naotu-list .x-toolbox a.x-tool {
+    color: var(--fh-primary);
+    font-weight: 800;
+}
+
+body.fh-modern .my-naotu-list table {
+    margin-bottom: 0;
+}
+
+@media (max-width: 760px) {
+    body.fh-modern .naotu-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

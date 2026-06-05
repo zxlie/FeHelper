@@ -5,23 +5,21 @@
         <meta charset="UTF-8">
         <link rel="shortcut icon" href="../static/img/favicon.ico">
         <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="../static/css/fehelper-tools.css">
         <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
         <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
     </head>
-    <body>
-
-    <!-- 醒目升级提示 -->
-    <div id="fh-timestamp-upgrade-tip">
-        时间戳转化工具已经升级了，功能更强大更好用，请点击安装新版：
-        <a href="/options/index.html?query=时间戳计算器" target="_blank" class="fh-tip-link">时间戳计算器</a>
-    </div>
+    <body class="fh-modern">
 
     <div class="wrapper" id="pageContainer">
         <div class="panel panel-default panel-no-margin-bottom">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <a href="https://fehelper.com" target="_blank" class="x-a-high">
-                        <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：时间戳转换工具
+                    <span>
+                        <a href="https://fehelper.com" target="_blank" class="x-a-high">
+                            <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>
+                        <span class="page-title-suffix">| 时间戳转换工具</span>
+                    </span>
 
                     <span class="x-gmt-setting">
                         选择时区：<select class="form-control" v-model="curGMT">
@@ -57,9 +55,15 @@
             </div>
         </div>
 
+        <!-- 醒目升级提示 -->
+        <div id="fh-timestamp-upgrade-tip">
+            时间戳转化工具已经升级了，功能更强大更好用，请点击安装新版：
+            <a href="/options/index.html?query=时间戳计算器" target="_blank" class="fh-tip-link">时间戳计算器</a>
+        </div>
+
 
         <div class="panel-body mod-stamp">
-        <h4 class="x-wd">&gt;&gt; Unix时间戳定义</h4>
+        <h4 class="x-wd">Unix时间戳定义</h4>
         <div class="x-cnt">
             <div class="row">
                 <span>现在的当地时间为：</span>
@@ -73,7 +77,7 @@
             </div>
         </div>
 
-        <h4 class="x-wd">&gt;&gt; Unix时间戳 转 当地时间</h4>
+        <h4 class="x-wd">Unix时间戳 转 当地时间</h4>
         <div class="row x-cnt">
             <input class="form-control ui-d-ib" id="txtSrcStamp" ref="txtSrcStamp" v-model="txtSrcStamp" type="text" placeholder="时间戳(eg:1388307215)" tabindex="1">
             <select ref="selSecFrom" id="selSecFrom" v-model="secFrom" class="form-control x-sel-sec">
@@ -84,7 +88,7 @@
             <input class="form-control ui-d-ib" id="txtDesDate" ref="txtDesDate" v-model="txtDesDate" type="text" readonly @click="copyToClipboard($event.target.value)">
         </div>
 
-        <h4 class="x-wd">&gt;&gt; 当地时间 转 Unix时间戳</h4>
+        <h4 class="x-wd">当地时间 转 Unix时间戳</h4>
         <div class="row x-cnt">
             <input class="form-control ui-d-ib" id="txtLocale" ref="txtLocale" v-model="txtLocale" type="text" placeholder="时间(eg:2015-04-01 10:01:01.620)">
             <input class="mod-time-input form-control ui-d-ib btn btn-primary ui-ml-10 ui-mr-10" id="btnLocaleToStamp" @click="localeToStamp()" class="-e-btn" type="button" value="转换" tabindex="-1">
@@ -95,15 +99,15 @@
             </select>
         </div>
 
-        <h4 class="x-wd">&gt;&gt; Windows FILETIME 转换</h4>
-        <div class="row x-cnt">
-            <input class="form-control ui-d-ib" v-model="txtFileTime" type="text" placeholder="Windows FILETIME (eg: 133574880000000000)">
+        <h4 class="x-wd">Windows FILETIME 转换</h4>
+        <div class="row x-cnt fh-filetime-row">
+            <input class="form-control ui-d-ib fh-filetime-source" v-model="txtFileTime" type="text" placeholder="Windows FILETIME (eg: 133574880000000000)">
             <input class="mod-time-input form-control ui-d-ib btn btn-primary ui-ml-10 ui-mr-10" @click="fileTimeToDate()" type="button" value="FileTime→日期" tabindex="-1">
             <input class="mod-time-input form-control ui-d-ib btn btn-default ui-ml-10 ui-mr-10" @click="dateToFileTime()" type="button" value="当前时间→FileTime" tabindex="-1">
-            <input class="form-control ui-d-ib" v-model="txtFileTimeResult" type="text" readonly @click="copyToClipboard($event.target.value)">
+            <input class="form-control ui-d-ib fh-filetime-result" v-model="txtFileTimeResult" type="text" readonly @click="copyToClipboard($event.target.value)">
         </div>
 
-        <h4 class="x-wd">&gt;&gt; 世界时钟</h4>
+        <h4 class="x-wd">世界时钟</h4>
         <table class="table table-bordered table-responsive">
             <thead>
             <tr>
