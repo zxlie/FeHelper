@@ -6,7 +6,7 @@ import Statistics from '../background/statistics.js';
 // 工具分类定义
 const TOOL_CATEGORIES = [
     { key: 'dev', name: '开发工具类', tools: ['json-format', 'json-diff', 'code-beautify', 'code-compress', 'postman', 'websocket', 'regexp','page-timing'] },
-    { key: 'encode', name: '编解码转换类', tools: ['en-decode', 'trans-radix', 'timestamp', 'trans-color'] },
+    { key: 'encode', name: '编解码转换类', tools: ['en-decode', 'trans-radix', 'bytes-converter', 'timestamp', 'trans-color'] },
     { key: 'image', name: '图像处理类', tools: ['qr-code', 'image-base64', 'svg-converter', 'chart-maker', 'poster-maker' ,'screenshot', 'color-picker'] },
     { key: 'productivity', name: '效率工具类', tools: ['aiagent', 'sticky-notes', 'html2markdown', 'page-monkey'] },
     { key: 'calculator', name: '计算工具类', tools: ['crontab', 'loan-rate', 'password', 'uuid-gen'] },

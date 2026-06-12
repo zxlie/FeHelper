@@ -150,6 +150,14 @@ let toolMap = {
             text: '进制转换工具'
         }]
     },
+    'bytes-converter': {
+        name: '字节大小转换',
+        tips: '支持 Bit、Byte、KB、MB、GB、TB、PB 之间的实时换算，支持二进制/十进制两种模式',
+        menuConfig: [{
+            icon: '⇌',
+            text: '字节大小转换'
+        }]
+    },
     'trans-color': {
         name: '颜色转换工具',
         tips: '支持HEX颜色到RGB格式的互转，比如HEX颜色「#43ad7f」转RGB后为「rgb(67, 173, 127)」',
