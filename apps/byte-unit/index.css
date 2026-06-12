@@ -1,0 +1,323 @@
+@import url("../static/css/bootstrap.min.css");
+
+.fh-byte-tool {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+body.fh-modern .main-navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+body.fh-modern .main-navbar .navbar-brand {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+body.fh-modern .main-navbar .brand-link {
+    max-width: 100%;
+}
+
+body.fh-modern .main-navbar .fh-tool-actions {
+    flex: 0 0 auto;
+}
+
+body.fh-modern .fh-byte-panel {
+    padding: 0;
+}
+
+body.fh-modern .fh-byte-panel .fh-page-tip {
+    margin: 0 0 18px;
+}
+
+body.fh-modern .fh-byte-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+body.fh-modern .fh-byte-control,
+body.fh-modern .fh-byte-summary,
+body.fh-modern .fh-byte-table-panel {
+    min-width: 0;
+}
+
+body.fh-modern .fh-byte-control,
+body.fh-modern .fh-byte-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+body.fh-modern .fh-byte-section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+body.fh-modern .fh-byte-section-head > div:first-child {
+    min-width: 0;
+}
+
+body.fh-modern .fh-byte-section-head h2 {
+    margin: 0 0 6px;
+    color: var(--fh-text);
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+body.fh-modern .fh-byte-section-head p {
+    margin: 0;
+    color: var(--fh-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+body.fh-modern .fh-byte-control {
+    padding: 24px;
+    border: 1px solid var(--fh-line);
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 38%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 255, 0.96));
+    box-shadow: 0 22px 46px rgba(31, 42, 68, 0.08);
+}
+
+body.fh-modern .fh-byte-summary {
+    min-height: 100%;
+    padding: 24px;
+    border: 1px solid rgba(37, 99, 235, 0.14);
+    border-radius: 20px;
+    background:
+        linear-gradient(160deg, rgba(37, 99, 235, 0.07), rgba(15, 138, 95, 0.04)),
+        #ffffff;
+    box-shadow: 0 18px 40px rgba(37, 99, 235, 0.08);
+}
+
+body.fh-modern .fh-byte-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(160px, 1fr));
+    gap: 14px;
+}
+
+body.fh-modern .fh-byte-field {
+    min-width: 0;
+}
+
+body.fh-modern .fh-byte-field label {
+    display: block;
+    margin: 0 0 8px;
+    color: var(--fh-text);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+
+body.fh-modern .fh-byte-field .form-control {
+    height: 46px;
+    border-radius: 12px;
+    font-size: 15px;
+}
+
+body.fh-modern .fh-byte-field-value .form-control {
+    font-family: var(--fh-mono);
+    font-size: 16px;
+}
+
+body.fh-modern .fh-byte-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+body.fh-modern .fh-byte-actions .btn {
+    min-width: 96px;
+}
+
+body.fh-modern .fh-byte-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 2px;
+}
+
+body.fh-modern .fh-byte-preset {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid var(--fh-line);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.88);
+    color: var(--fh-text);
+    font-family: var(--fh-mono);
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.18s ease;
+}
+
+body.fh-modern .fh-byte-preset:hover {
+    border-color: rgba(37, 99, 235, 0.24);
+    background: var(--fh-primary-soft);
+    color: var(--fh-primary);
+    transform: translateY(-1px);
+}
+
+body.fh-modern .fh-byte-result-main {
+    display: flex;
+    align-items: center;
+    min-height: 112px;
+    padding: 20px 22px;
+    border: 1px solid rgba(37, 99, 235, 0.16);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    color: var(--fh-primary);
+    font-family: var(--fh-mono);
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.55;
+    word-break: break-word;
+}
+
+body.fh-modern .fh-byte-empty {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 176px;
+    padding: 22px;
+    border: 1px dashed rgba(37, 99, 235, 0.24);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.7);
+}
+
+body.fh-modern .fh-byte-empty strong {
+    margin-bottom: 8px;
+    color: var(--fh-text);
+    font-size: 18px;
+    font-weight: 800;
+}
+
+body.fh-modern .fh-byte-empty p {
+    margin: 0;
+    color: var(--fh-muted);
+    line-height: 1.6;
+}
+
+body.fh-modern .fh-byte-empty-mark {
+    margin-bottom: 12px;
+    color: rgba(37, 99, 235, 0.78);
+    font-family: var(--fh-mono);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+}
+
+body.fh-modern .fh-byte-error {
+    padding: 14px 16px;
+    border: 1px solid rgba(180, 83, 9, 0.22);
+    border-radius: 14px;
+    background: var(--fh-warning-soft);
+    color: var(--fh-warning);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.6;
+}
+
+body.fh-modern .fh-byte-table-panel {
+    margin-top: 18px;
+    padding: 22px 22px 18px;
+}
+
+body.fh-modern .fh-byte-table-scroll {
+    overflow-x: auto;
+    margin-top: 14px;
+}
+
+body.fh-modern .fh-byte-table {
+    margin-bottom: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+}
+
+body.fh-modern .fh-byte-table thead > tr > th {
+    border-bottom-width: 1px;
+}
+
+body.fh-modern .fh-byte-table tbody > tr > td {
+    vertical-align: middle;
+}
+
+body.fh-modern .fh-byte-table tbody > tr > td:last-child {
+    cursor: pointer;
+    color: var(--fh-primary);
+    font-family: var(--fh-mono);
+    font-weight: 700;
+}
+
+body.fh-modern .fh-byte-table tbody > tr.active > td {
+    background: rgba(37, 99, 235, 0.08);
+}
+
+@media (max-width: 1080px) {
+    body.fh-modern .fh-byte-layout {
+        grid-template-columns: 1fr;
+    }
+
+    body.fh-modern .fh-byte-summary {
+        min-height: 0;
+    }
+}
+
+@media (max-width: 820px) {
+    body.fh-modern .fh-byte-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    body.fh-modern .main-navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    body.fh-modern .main-navbar .fh-tool-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    body.fh-modern .fh-byte-control,
+    body.fh-modern .fh-byte-summary,
+    body.fh-modern .fh-byte-table-panel {
+        padding: 18px;
+        border-radius: 16px;
+    }
+
+    body.fh-modern .fh-byte-section-head {
+        flex-direction: column;
+    }
+
+    body.fh-modern .fh-byte-section-head h2 {
+        font-size: 20px;
+    }
+
+    body.fh-modern .fh-byte-result-main {
+        min-height: 0;
+        font-size: 18px;
+    }
+
+    body.fh-modern .fh-byte-actions .btn {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+}

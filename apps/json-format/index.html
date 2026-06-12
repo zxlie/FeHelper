@@ -88,6 +88,7 @@
 
                 <div class="fh-command-group fh-command-tail">
                     <button type="button" class="xjf-btn fh-jsonpath-trigger" @click="openJsonPathModal">JSON 提取</button>
+                    <button type="button" class="xjf-btn fh-jsonpath-trigger" @click="openTableViewModal">表格视图</button>
                     <span id="optionBar" class="fh-option-bar"></span>
                 </div>
             </section>
@@ -197,6 +198,60 @@
                             <div class="jsonpath-example-item" v-for="example in jsonPathExamples" :key="example.path" @click="useJsonPathExample(example.path)">
                                 <div class="jsonpath-example-path"><code>{{example.path}}</code></div>
                                 <div class="jsonpath-example-desc">{{example.description}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="jsonTableViewModal" class="jsonpath-modal v-cloak" v-show="showTableViewModal" @click="closeTableViewModal">
+                <div class="jsonpath-modal-content jsonpath-examples-modal fh-tableview-modal" @click.stop>
+                    <div class="jsonpath-modal-header">
+                        <div>
+                            <h3>表格视图</h3>
+                            <p>{{ tableViewTitle || '将当前 JSON 转为更适合列表阅读的表格。' }}</p>
+                        </div>
+                        <button type="button" class="jsonpath-modal-close" @click="closeTableViewModal" aria-label="关闭">&times;</button>
+                    </div>
+                    <div class="jsonpath-modal-body">
+                        <div class="jsonpath-error" v-if="tableViewError">
+                            <p class="error-msg">{{tableViewError}}</p>
+                        </div>
+                        <div v-else class="fh-tableview-wrap">
+                            <div class="fh-tableview-meta">
+                                <span>来源：<code>{{tableViewSourcePath}}</code></span>
+                                <span v-if="tableViewMode === 'grid'">列数 {{ tableViewColumns.length }} / 行数 {{ tableViewRows.length }}</span>
+                                <span v-else>字段数 {{ tableViewRows.length }}</span>
+                            </div>
+                            <div class="fh-tableview-scroll" v-if="tableViewMode === 'grid'">
+                                <table class="fh-tableview-table">
+                                    <thead>
+                                        <tr>
+                                            <th v-for="column in tableViewColumns" :key="column">{{column}}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="row in tableViewRows" :key="row.id">
+                                            <td v-for="column in tableViewColumns" :key="column">{{row.cells[column]}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="fh-tableview-scroll" v-else>
+                                <table class="fh-tableview-table fh-tableview-kv">
+                                    <thead>
+                                        <tr>
+                                            <th>字段</th>
+                                            <th>值</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="row in tableViewRows" :key="row.id">
+                                            <td>{{row.key}}</td>
+                                            <td>{{row.value}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

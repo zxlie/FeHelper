@@ -297,6 +297,7 @@ let Awesome = (() => {
         try {
             const nav = navigator;
             const screenInfo = window.screen;
+            const protocol = window.location && window.location.protocol ? window.location.protocol : '';
             const lang = nav.language || nav.userLanguage || '';
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
             const ua = nav.userAgent;
@@ -310,6 +311,7 @@ let Awesome = (() => {
             const connection = nav.connection || nav.mozConnection || nav.webkitConnection || {};
             const screenOrientation = screenInfo.orientation ? screenInfo.orientation.type : '';
             const touchSupport = ('ontouchstart' in window) || (nav.maxTouchPoints > 0);
+            const cookieEnabled = protocol === 'file:' ? '' : nav.cookieEnabled;
             let memoryJSHeapSize = '';
             if (window.performance && window.performance.memory) {
                 memoryJSHeapSize = window.performance.memory.jsHeapSizeLimit;
@@ -330,7 +332,7 @@ let Awesome = (() => {
                 rtt: connection.rtt || '',
                 online: nav.onLine,
                 touchSupport,
-                cookieEnabled: nav.cookieEnabled,
+                cookieEnabled,
                 doNotTrack: nav.doNotTrack,
                 appVersion: nav.appVersion,
                 appName: nav.appName,
@@ -362,4 +364,3 @@ let Awesome = (() => {
 })();
 
 export default Awesome;
-

@@ -3,16 +3,5 @@
  * 用于处理所有示例数据的点击事件
  */
 (function() {
-    window.addEventListener('DOMContentLoaded', function() {
-        // 获取所有示例按钮并绑定事件
-        document.querySelectorAll('.example-button').forEach(function(button) {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const exampleType = this.getAttribute('data-example');
-                if (window.vueApp && typeof window.vueApp.fillExample === 'function') {
-                    window.vueApp.fillExample(exampleType);
-                }
-            });
-        });
-    });
-})(); 
+    // 保留文件占位，避免历史打包脚本丢失入口；示例按钮事件已迁移到 Vue 模板内联绑定。
+})();

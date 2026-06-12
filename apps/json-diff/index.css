@@ -33,17 +33,19 @@ body[browser-extension] .wp-json .mod-json {
     border-bottom: 1px solid #eee;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .json-examples span {
     font-size: 14px;
     color: #666;
-    margin-right: 10px;
+    margin-right: 0;
 }
 
 .json-examples a {
     display: inline-block;
-    margin-right: 15px;
+    margin-right: 0;
     color: #337ab7;
     text-decoration: none;
     font-size: 14px;
@@ -57,7 +59,41 @@ body[browser-extension] .wp-json .mod-json {
 .result-display {
     margin-left: auto !important;
     font-size: 14px !important;
-    white-space: nowrap;
+    white-space: normal;
+}
+
+.compare-mode-switch {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #d8e2f5;
+    border-radius: 999px;
+    background: #f7f9fc;
+    padding: 2px;
+}
+
+.mode-button {
+    border: 0;
+    background: transparent;
+    color: #4b5563;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+
+.mode-button.active {
+    background: #1f6feb;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(31, 111, 235, 0.22);
+}
+
+.CodeMirror-linebackground.fh-diff-line-left {
+    background: rgba(221, 68, 68, 0.16);
+}
+
+.CodeMirror-linebackground.fh-diff-line-right {
+    background: rgba(75, 162, 255, 0.16);
 }
 
 .box-wrapper-left {
@@ -131,4 +167,15 @@ body[browser-extension] .wp-json .mod-json {
     background-color: #e6edff;
     box-shadow: 0 2px 5px rgba(0,0,0,0.15);
     transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+    .json-examples {
+        align-items: flex-start;
+    }
+
+    .result-display {
+        width: 100%;
+        margin-left: 0 !important;
+    }
 }

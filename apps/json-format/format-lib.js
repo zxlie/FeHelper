@@ -385,7 +385,7 @@ window.Formatter = (function () {
      * chrome 下复制到剪贴板
      * @param text
      */
-    let _copyToClipboard = function (text) {
+    let _copyToClipboard = function (text, successMsg) {
         let input = document.createElement('textarea');
         input.style.position = 'fixed';
         input.style.opacity = 0;
@@ -395,7 +395,7 @@ window.Formatter = (function () {
         document.execCommand('Copy');
         document.body.removeChild(input);
 
-        toast('Json片段复制成功，随处粘贴可用！')
+        toast(successMsg || 'Json片段复制成功，随处粘贴可用！')
     };
 
 
@@ -840,6 +840,7 @@ window.Formatter = (function () {
         $('<span class="x-split">|</span>').appendTo(optionBar);
         let buttonFormatted = $('<button class="xjf-btn xjf-btn-left">元数据</button>').appendTo(optionBar);
         let buttonCollapseAll = $('<button class="xjf-btn xjf-btn-mid">折叠所有</button>').appendTo(optionBar);
+        let buttonCopyPlain = $('<button class="xjf-btn xjf-btn-right" style="display:none;">复制文本</button>').appendTo(optionBar);
         let plainOn = false;
 
         buttonFormatted.bind('click', function (e) {
@@ -848,14 +849,26 @@ window.Formatter = (function () {
                 jfPre.hide();
                 jfContent.show();
                 buttonFormatted.text('元数据');
+                buttonCopyPlain.hide();
             } else {
                 plainOn = true;
                 jfPre.show();
                 jfContent.hide();
                 buttonFormatted.text('格式化');
+                buttonCopyPlain.show();
             }
 
             jfStatusBar && jfStatusBar.hide();
+        });
+
+        buttonCopyPlain.bind('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!cachedJsonString) {
+                toast('暂无可复制的格式化结果，请先执行格式化。');
+                return;
+            }
+            _copyToClipboard(cachedJsonString, '格式化后的 JSON 已复制到剪贴板！');
         });
 
         buttonCollapseAll.bind('click', function (e) {

@@ -12,6 +12,7 @@ import {
     getBigNumberDisplayString,
     parseWithBigInt,
     deepParseJSONStrings,
+    unpackTopLevelEscapedJSON,
     uniEncode,
     uniDecode,
     safeStringify,
@@ -239,6 +240,31 @@ describe('deepParseJSONStrings', () => {
         expect(deepParseJSONStrings(null)).toBeNull();
         expect(deepParseJSONStrings(42)).toBe(42);
         expect(deepParseJSONStrings('str')).toBe('str');
+    });
+});
+
+describe('unpackTopLevelEscapedJSON', () => {
+    it('解包顶层被双引号包裹的转义 JSON 数组', () => {
+        const input = '"[{ \\"PropertyName\\" : \\"DisplayName\\", \\"PropertyValue\\" : \\"test\\", \\"PropertyType\\" : \\"plaintext\\" }]"';
+        const result = unpackTopLevelEscapedJSON(JSON.parse(input));
+
+        expect(Array.isArray(result)).toBe(true);
+        expect(result[0]).toEqual({
+            PropertyName: 'DisplayName',
+            PropertyValue: 'test',
+            PropertyType: 'plaintext',
+        });
+    });
+
+    it('解包后仍保留大整数精度', () => {
+        const input = JSON.parse('"{\\"id\\":1234567890123456789}"');
+        const result = unpackTopLevelEscapedJSON(input);
+
+        expect(result.id).toBe(BigInt('1234567890123456789'));
+    });
+
+    it('保持普通字符串不变', () => {
+        expect(unpackTopLevelEscapedJSON('hello world')).toBe('hello world');
     });
 });
 

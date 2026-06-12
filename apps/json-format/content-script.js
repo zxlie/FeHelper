@@ -696,6 +696,9 @@ window.JsonAutoFormat = (() => {
                 }
             }
         }
+        if (formatOptions.NESTED_ESCAPE_PARSE && typeof jsonObj === 'string') {
+            jsonObj = _unpackTopLevelEscapedJSON(jsonObj);
+        }
         try {
             // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
             source = JSON.stringify(jsonObj);
@@ -704,6 +707,36 @@ window.JsonAutoFormat = (() => {
             return;
         }
         return jsonObj;
+    };
+
+    let _unpackTopLevelEscapedJSON = function (value) {
+        if (typeof value !== 'string' || !value.trim()) {
+            return value;
+        }
+
+        try {
+            const parsed = JSON.parse(value);
+            if (_isJSONContainer(parsed)) {
+                return parsed;
+            }
+        } catch (e) {}
+
+        return value;
+    };
+
+    let _isJSONContainer = function (value) {
+        if (typeof value !== 'object' || value === null) return false;
+        if (!Array.isArray(value) && Object.prototype.toString.call(value) !== '[object Object]') return false;
+        if (
+            value &&
+            typeof value.s === 'number' &&
+            typeof value.e === 'number' &&
+            Array.isArray(value.c) &&
+            Object.keys(value).length === 3
+        ) {
+            return false;
+        }
+        return true;
     };
 
     /**

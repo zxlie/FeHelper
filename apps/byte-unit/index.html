@@ -1,0 +1,130 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+    <head>
+        <title>存储单位转换工具</title>
+        <meta charset="UTF-8">
+        <link rel="shortcut icon" href="../static/img/favicon.ico">
+        <link rel="stylesheet" href="../static/css/fehelper-tools.css">
+        <link rel="stylesheet" href="index.css">
+        <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+        <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+    </head>
+    <body class="fh-modern">
+        <div class="wrapper fh-byte-tool" id="pageContainer">
+            <div class="main-navbar">
+                <div class="navbar-brand">
+                    <a href="https://fehelper.com" target="_blank" class="brand-link">
+                        <img src="../static/img/fe-16.png" alt="fehelper"/>
+                        <span class="brand-text">FeHelper</span>
+                        <span class="brand-subtitle">存储单位转换工具</span>
+                    </a>
+                </div>
+                <div class="navbar-actions fh-tool-actions">
+                    <a href="#" @click="openOptionsPage($event)" class="nav-item other-tools-link x-other-tools">
+                        <span>工具市场</span>
+                    </a>
+                    <a href="#" @click="openDonateModal($event)" class="nav-item donate-link x-donate-link">
+                        <i class="nav-icon">SP</i><span>请作者喝咖啡</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-body fh-byte-panel">
+                    <div class="fh-page-tip">
+                        支持 <strong>B / KB / MB / GB / TB</strong> 双向换算，适合文件大小、接口限额、缓存配额和带宽说明场景。
+                    </div>
+
+                    <div class="fh-byte-layout">
+                        <section class="control-panel fh-byte-control">
+                            <div class="fh-byte-section-head">
+                                <div>
+                                    <h2>存储单位换算</h2>
+                                    <p>输入任意数值后，会同步生成目标换算和全部单位结果。</p>
+                                </div>
+                                <button type="button" class="btn btn-default btn-sm" @click="swapUnits">交换单位</button>
+                            </div>
+
+                            <div class="fh-byte-form">
+                                <div class="fh-byte-field fh-byte-field-value">
+                                    <label for="byteValue">输入数值</label>
+                                    <input id="byteValue" type="text" class="form-control" v-model.trim="inputValue" placeholder="例如：1024">
+                                </div>
+                                <div class="fh-byte-field">
+                                    <label for="fromUnit">来源单位</label>
+                                    <select id="fromUnit" class="form-control" v-model="fromUnit">
+                                        <option v-for="unit in units" :key="unit" :value="unit">{{unit}}</option>
+                                    </select>
+                                </div>
+                                <div class="fh-byte-field">
+                                    <label for="toUnit">目标单位</label>
+                                    <select id="toUnit" class="form-control" v-model="toUnit">
+                                        <option v-for="unit in units" :key="unit" :value="unit">{{unit}}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="fh-byte-actions">
+                                <button type="button" class="btn btn-primary" @click="convert">立即换算</button>
+                                <button type="button" class="btn btn-default" @click="fillExample">填入示例</button>
+                                <button type="button" class="btn btn-default" @click="clearAll">清空</button>
+                            </div>
+
+                            <div class="fh-byte-presets">
+                                <button type="button" class="fh-byte-preset" @click="applyPreset('1024', 'MB', 'GB')">1024 MB → GB</button>
+                                <button type="button" class="fh-byte-preset" @click="applyPreset('2048', 'B', 'KB')">2048 B → KB</button>
+                                <button type="button" class="fh-byte-preset" @click="applyPreset('1.5', 'GB', 'MB')">1.5 GB → MB</button>
+                            </div>
+                        </section>
+
+                        <section class="result-panel fh-byte-summary">
+                            <div class="fh-byte-section-head">
+                                <div>
+                                    <h2>换算结果</h2>
+                                    <p>结果区支持一键复制，方便贴到文档或工单里。</p>
+                                </div>
+                                <button type="button" class="btn btn-default btn-sm" @click="copyResult" :disabled="!resultText">复制结果</button>
+                            </div>
+
+                            <div v-if="errorMsg" class="fh-byte-error">{{errorMsg}}</div>
+                            <div v-else-if="resultText" class="fh-byte-result-main">{{resultText}}</div>
+                            <div v-else class="fh-byte-empty">
+                                <div class="fh-byte-empty-mark">SIZE</div>
+                                <strong>输入数值后立即查看结果</strong>
+                                <p>你可以直接输入、切换单位，或点击上面的快捷示例。</p>
+                            </div>
+                        </section>
+                    </div>
+
+                    <section class="tool-panel fh-byte-table-panel" v-if="conversionRows.length">
+                        <div class="fh-byte-section-head">
+                            <div>
+                                <h2>全部单位</h2>
+                                <p>点击任意结果即可复制对应数值和单位。</p>
+                            </div>
+                        </div>
+                        <div class="fh-byte-table-scroll">
+                            <table class="table table-bordered table-hover fh-byte-table">
+                                <thead>
+                                    <tr>
+                                        <th>单位</th>
+                                        <th>值</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="row in conversionRows" :key="row.unit" :class="{ active: row.unit === toUnit }">
+                                        <td>{{row.unit}}</td>
+                                        <td @click="copyToClipboard(row.value + ' ' + row.unit)">{{row.value}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+        <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+        <script src="../static/js/utils.js"></script>
+        <script type="module" src="index.js"></script>
+    </body>
+</html>

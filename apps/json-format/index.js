@@ -2,6 +2,8 @@
  * FeHelper Json Format Tools
  */
 
+import { buildTableViewData } from './table-utils.js';
+
 // 一些全局变量
 let editor = {};
 let LOCAL_KEY_OF_LAYOUT = 'local-layout-key';
@@ -33,6 +35,13 @@ new Vue({
         jsonPathResults: [],
         jsonPathError: '',
         copyButtonState: 'normal', // normal, copying, success, error
+        showTableViewModal: false,
+        tableViewError: '',
+        tableViewMode: 'grid',
+        tableViewTitle: '',
+        tableViewSourcePath: '',
+        tableViewColumns: [],
+        tableViewRows: [],
 	        jsonPathExamples: [
 	            { path: '$', description: '根对象（类似 jq: .）' },
 	            { path: '$.data', description: '获取data属性（类似 jq: .data）' },
@@ -290,6 +299,10 @@ new Vue({
                 }
             }
 
+            if (!this.errorMsg.length && this.nestedEscapeParse && typeof jsonObj === 'string') {
+                jsonObj = unpackTopLevelEscapedJSON(jsonObj);
+            }
+
             // 是json格式，可以进行JSON自动格式化
             if (jsonObj != null && typeof jsonObj === "object" && !this.errorMsg.length) {
                 try {
@@ -503,6 +516,40 @@ new Vue({
                 this.safeSetLocalStorage('jsonformat:nested-escape-parse', this.nestedEscapeParse);
                 this.format();
             });
+        },
+
+        openTableViewModal: function() {
+            this.tableViewError = '';
+            this.tableViewTitle = '';
+            this.tableViewSourcePath = '';
+            this.tableViewColumns = [];
+            this.tableViewRows = [];
+            this.tableViewMode = 'grid';
+
+            let source = this.jsonFormattedSource || editor.getValue();
+            if (!source.trim()) {
+                this.tableViewError = '请先输入 JSON 数据';
+                this.showTableViewModal = true;
+                return;
+            }
+
+            try {
+                const jsonObj = parseWithBigInt(source);
+                const tableViewData = buildTableViewData(jsonObj);
+                this.tableViewMode = tableViewData.mode;
+                this.tableViewTitle = tableViewData.title;
+                this.tableViewSourcePath = tableViewData.sourcePath;
+                this.tableViewRows = tableViewData.rows;
+                this.tableViewColumns = tableViewData.columns || [];
+            } catch (error) {
+                this.tableViewError = error.message || '表格视图生成失败';
+            }
+
+            this.showTableViewModal = true;
+        },
+
+        closeTableViewModal: function() {
+            this.showTableViewModal = false;
         },
 
         // JSONPath查询功能
@@ -920,6 +967,34 @@ function deepParseJSONStrings(obj) {
         return newObj;
     }
     return obj;
+}
+
+function unpackTopLevelEscapedJSON(value) {
+    if (typeof value !== 'string' || !value.trim()) {
+        return value;
+    }
+
+    try {
+        const parsed = parseWithBigInt(value);
+        if (
+            typeof parsed === 'object' &&
+            parsed !== null &&
+            (Array.isArray(parsed) || Object.prototype.toString.call(parsed) === '[object Object]') &&
+            !(
+                parsed &&
+                typeof parsed.s === 'number' &&
+                typeof parsed.e === 'number' &&
+                Array.isArray(parsed.c) &&
+                Object.keys(parsed).length === 3
+            )
+        ) {
+            return deepParseJSONStrings(parsed);
+        }
+    } catch (e) {
+        // 保持原字符串，沿用旧行为
+    }
+
+    return value;
 }
 
 

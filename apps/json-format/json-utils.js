@@ -166,6 +166,19 @@ export function deepParseJSONStrings(obj) {
     return obj;
 }
 
+export function unpackTopLevelEscapedJSON(value) {
+    if (typeof value !== 'string' || !value.trim()) return value;
+
+    try {
+        const parsed = parseWithBigInt(value);
+        if (_isDeepParsable(parsed)) {
+            return deepParseJSONStrings(parsed);
+        }
+    } catch (_) {}
+
+    return value;
+}
+
 function _isDeepParsable(parsed) {
     if (typeof parsed !== 'object' || parsed === null) return false;
     if (!Array.isArray(parsed) && Object.prototype.toString.call(parsed) !== '[object Object]') return false;

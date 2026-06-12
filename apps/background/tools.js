@@ -12,11 +12,11 @@ let toolMap = {
         }]
     },
     'json-diff': {
-        name: 'Json比对工具',
-        tips: '支持两个JSON内容的自动键值比较，并高亮显示差异点，同时也能判断JSON是否合法',
+        name: '内容比对工具',
+        tips: '支持 JSON 结构化比对，也支持任意文本、代码、日志、Markdown 的按行对比',
         menuConfig: [{
             icon: 'JD',
-            text: 'JSON比对器'
+            text: '内容比对器'
         }]
     },
     'qr-code': {
@@ -84,6 +84,14 @@ let toolMap = {
         menuConfig: [{
             icon: 'TS',
             text: '时间(戳)转换'
+        }]
+    },
+    'byte-unit': {
+        name: '存储单位转换',
+        tips: '支持 B、KB、MB、GB、TB 之间的双向换算，适合文件大小和容量说明场景',
+        menuConfig: [{
+            icon: 'SIZE',
+            text: '存储单位转换'
         }]
     },
     'password': {

@@ -216,23 +216,24 @@ html.fh-jf .x-toolbar.fh-command-bar {
     top: 0;
     z-index: 30;
     margin: 0;
-    padding: 10px;
+    padding: 8px;
     border-radius: var(--fh-radius);
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-wrap: nowrap;
+    gap: 6px;
     background: rgba(255, 255, 255, 0.94);
     box-shadow: var(--fh-shadow);
     user-select: none;
 }
 
 .fh-command-group {
-    min-height: 34px;
-    padding: 3px;
+    min-height: 30px;
+    padding: 2px;
     display: inline-flex;
+    flex: 0 0 auto;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
     border: 1px solid var(--fh-line-soft);
     border-radius: 999px;
     background: var(--fh-surface-soft);
@@ -243,12 +244,17 @@ html.fh-jf .x-toolbar.fh-command-bar {
     background: var(--fh-surface);
 }
 
+.fh-command-tail {
+    gap: 1px;
+    margin-left: 0;
+}
+
 html.fh-jf .xjf-btn,
 html.fh-jf #btnLeftRight,
 html.fh-jf #btnUpDown {
     min-width: 0;
-    height: 28px;
-    padding: 0 11px;
+    height: 24px;
+    padding: 0 8px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -257,8 +263,8 @@ html.fh-jf #btnUpDown {
     background: transparent;
     box-shadow: none;
     color: var(--fh-muted);
-    font-size: 12px;
-    font-weight: 650;
+    font-size: 11px;
+    font-weight: 620;
     line-height: 1;
     text-shadow: none;
     cursor: pointer;
@@ -274,7 +280,7 @@ html.fh-jf #btnUpDown:hover {
 }
 
 html.fh-jf .fh-btn-primary {
-    min-width: 72px;
+    min-width: 58px;
     color: #ffffff;
     border-color: var(--fh-accent);
     background: var(--fh-accent);
@@ -309,20 +315,20 @@ html.fh-jf #btnUpDown.selected,
 }
 
 .fh-switch-group {
-    gap: 8px;
+    gap: 4px;
 }
 
 .fh-switch {
     position: relative;
-    height: 28px;
+    height: 24px;
     margin: 0;
-    padding: 0 8px 0 3px;
+    padding: 0 6px 0 2px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     border-radius: 999px;
     color: var(--fh-muted);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 560;
     cursor: pointer;
     white-space: nowrap;
@@ -339,8 +345,8 @@ html.fh-jf .fh-command-bar .fh-radio-pill input {
 }
 
 .fh-switch-ui {
-    width: 28px;
-    height: 16px;
+    width: 24px;
+    height: 14px;
     padding: 2px;
     border: 1px solid #cbd3df;
     border-radius: 999px;
@@ -350,8 +356,8 @@ html.fh-jf .fh-command-bar .fh-radio-pill input {
 
 .fh-switch-ui::after {
     content: "";
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     display: block;
     border-radius: 50%;
     background: #ffffff;
@@ -366,17 +372,17 @@ html.fh-jf .fh-command-bar .fh-radio-pill input {
 }
 
 .fh-switch input:checked + .fh-switch-ui::after {
-    transform: translateX(12px);
+    transform: translateX(10px);
 }
 
 .fh-radio-group {
-    gap: 4px;
+    gap: 2px;
 }
 
 html.fh-jf .x-toolbar .x-stitle {
-    padding: 0 7px 0 8px;
+    padding: 0 5px 0 6px;
     color: var(--fh-faint);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
 }
 
@@ -386,23 +392,25 @@ html.fh-jf .x-toolbar .x-stitle {
 }
 
 .fh-radio-pill span {
-    height: 28px;
-    padding: 0 10px;
+    height: 24px;
+    padding: 0 8px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border: 1px solid transparent;
     border-radius: 999px;
     color: var(--fh-muted);
-    font-size: 12px;
-    font-weight: 650;
+    font-size: 11px;
+    font-weight: 620;
     white-space: nowrap !important;
 }
 
 .fh-option-bar {
     display: inline-flex;
+    flex: 0 0 auto;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
+    white-space: nowrap;
 }
 
 .fh-option-bar:empty {
@@ -993,6 +1001,80 @@ html.fh-jf .mod-json .callback-name {
     line-height: 1.5;
 }
 
+.fh-tableview-modal {
+    max-width: min(1100px, 92vw);
+}
+
+.fh-tableview-wrap {
+    display: grid;
+    gap: 12px;
+}
+
+.fh-tableview-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    color: var(--fh-muted);
+    font-size: 12px;
+    font-weight: 720;
+}
+
+.fh-tableview-meta code {
+    padding: 2px 6px;
+    border: 1px solid var(--fh-line-soft);
+    border-radius: 999px;
+    background: #f8fafc;
+    color: var(--fh-text);
+    font-family: var(--fh-mono);
+}
+
+.fh-tableview-scroll {
+    max-height: min(60dvh, 620px);
+    overflow: auto;
+    border: 1px solid var(--fh-line-soft);
+    border-radius: var(--fh-radius);
+}
+
+.fh-tableview-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.fh-tableview-table th,
+.fh-tableview-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--fh-line-soft);
+    border-right: 1px solid var(--fh-line-soft);
+    vertical-align: top;
+    text-align: left;
+    font-size: 12px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.fh-tableview-table th:last-child,
+.fh-tableview-table td:last-child {
+    border-right: 0;
+}
+
+.fh-tableview-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #f8fafc;
+    color: var(--fh-text);
+    font-weight: 800;
+}
+
+.fh-tableview-kv td:first-child {
+    width: 220px;
+    background: #fafcff;
+    font-weight: 720;
+}
+
 body.theme-dark {
     --fh-bg: #151922;
     --fh-surface: #1d2430;
@@ -1041,6 +1123,7 @@ body.theme-dark .fh-pane-meta,
 body.theme-dark .jsonpath-modal-close,
 body.theme-dark .fh-empty-state,
 body.theme-dark .jsonpath-result-value,
+body.theme-dark .fh-tableview-meta code,
 body.theme-dark .xjf-input,
 body.theme-dark .jsonpath-header-input {
     background: var(--fh-surface-soft) !important;
@@ -1072,6 +1155,19 @@ body.theme-dark .jsonpath-example-path code {
 
 body.theme-dark .jsonpath-example-item:hover {
     background: rgba(93, 141, 245, 0.16);
+}
+
+body.theme-dark .fh-tableview-scroll,
+body.theme-dark .fh-tableview-table {
+    background: var(--fh-surface);
+}
+
+body.theme-dark .fh-tableview-table th {
+    background: #202836;
+}
+
+body.theme-dark .fh-tableview-kv td:first-child {
+    background: #1b2330;
 }
 
 @media (max-width: 1100px) {
