@@ -53,7 +53,7 @@ html.fh-jf a:focus {
     text-decoration: none;
 }
 
-.v-cloak {
+[v-cloak] {
     display: none !important;
 }
 
@@ -239,14 +239,22 @@ html.fh-jf .x-toolbar.fh-command-bar {
     background: var(--fh-surface-soft);
 }
 
-.fh-command-primary,
-.fh-command-tail {
+.fh-command-primary {
     background: var(--fh-surface);
 }
 
-.fh-command-tail {
-    gap: 1px;
-    margin-left: 0;
+html.fh-jf .fh-ai-tool-btn {
+    border-color: rgba(37, 99, 235, 0.24) !important;
+    background: #eef5ff !important;
+    color: #1d4ed8 !important;
+    font-weight: 800;
+}
+
+html.fh-jf .fh-ai-tool-btn:hover,
+html.fh-jf .fh-ai-tool-btn:focus {
+    border-color: rgba(37, 99, 235, 0.5) !important;
+    background: #dbeafe !important;
+    color: #1e40af !important;
 }
 
 html.fh-jf .xjf-btn,
@@ -472,26 +480,75 @@ html.fh-jf .fh-command-bar > .x-split {
     background: linear-gradient(180deg, #ffffff, #f8fafc);
 }
 
+.fh-pane-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+}
+
+.fh-pane-ai-action {
+    height: 24px;
+    padding: 0 10px;
+    border: 1px solid rgba(37, 99, 235, 0.32);
+    border-radius: 999px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+html.fh-jf .fh-pane-ai-action.fh-ai-tool-btn {
+    border-color: rgba(37, 99, 235, 0.5) !important;
+    background: #2563eb !important;
+    color: #ffffff !important;
+}
+
+html.fh-jf .fh-pane-ai-action.fh-ai-tool-btn:hover,
+html.fh-jf .fh-pane-ai-action.fh-ai-tool-btn:focus {
+    border-color: rgba(37, 99, 235, 0.6) !important;
+    background: #1d4ed8 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 22px rgba(37, 99, 235, 0.24);
+}
+
+.fh-pane-ai-action:active {
+    transform: translateY(1px);
+}
+
+.fh-pane-actions .fh-option-bar {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.fh-pane-actions .fh-option-bar:empty {
+    display: none;
+}
+
+.fh-pane-actions > .xjf-btn,
+.fh-pane-actions .fh-option-bar .xjf-btn {
+    border-color: var(--fh-line-soft);
+    background: #ffffff;
+}
+
+.fh-pane-actions > .xjf-btn:hover,
+.fh-pane-actions .fh-option-bar .xjf-btn:hover {
+    border-color: var(--fh-line);
+    background: var(--fh-surface-soft);
+}
+
 .fh-pane-header h2 {
     margin: 0;
     color: var(--fh-text);
     font-size: 14px;
     line-height: 1.2;
     font-weight: 760;
-}
-
-.fh-pane-meta {
-    height: 24px;
-    padding: 0 8px;
-    display: inline-flex;
-    align-items: center;
-    border: 1px solid var(--fh-line);
-    border-radius: 999px;
-    background: #ffffff;
-    color: var(--fh-faint);
-    font-family: var(--fh-mono);
-    font-size: 11px;
-    white-space: nowrap;
 }
 
 .fh-workspace .row {
@@ -1119,7 +1176,6 @@ body.theme-dark .jsonpath-modal-header {
 body.theme-dark .fh-brand,
 body.theme-dark .fh-command-group,
 body.theme-dark .fh-link-action,
-body.theme-dark .fh-pane-meta,
 body.theme-dark .jsonpath-modal-close,
 body.theme-dark .fh-empty-state,
 body.theme-dark .jsonpath-result-value,

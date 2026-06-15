@@ -1,0 +1,341 @@
+.fh-inline-ai-panel {
+    margin: 10px 0;
+    border: 1px solid #d8deea;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgba(31, 42, 68, 0.08);
+    color: #182134;
+    overflow: hidden;
+}
+
+.fh-inline-ai-modal-mask {
+    position: fixed;
+    inset: 0;
+    z-index: 10000010;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.42);
+}
+
+.fh-inline-ai-modal {
+    width: min(880px, calc(100vw - 48px));
+    max-height: min(720px, calc(100vh - 48px));
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #d8deea;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);
+    color: #182134;
+    overflow: hidden;
+}
+
+.fh-inline-ai-head {
+    min-height: 46px;
+    padding: 9px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid #e7ebf2;
+    background: #f8fafc;
+}
+
+.fh-inline-ai-title {
+    min-width: 0;
+}
+
+.fh-inline-ai-title strong {
+    display: block;
+    overflow: hidden;
+    color: #182134;
+    font-size: 13px;
+    line-height: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fh-inline-ai-title span {
+    display: block;
+    overflow: hidden;
+    color: #68748a;
+    font-size: 12px;
+    line-height: 17px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fh-inline-ai-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+}
+
+.fh-inline-ai-actions button {
+    height: 28px;
+    padding: 0 9px;
+    border: 1px solid #d8deea;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #31405a;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.fh-inline-ai-actions button:hover,
+.fh-inline-ai-actions button:focus {
+    border-color: rgba(37, 99, 235, 0.42);
+    color: #1d4ed8;
+}
+
+.fh-inline-ai-actions button:active {
+    transform: translateY(1px);
+}
+
+.fh-inline-ai-actions button:disabled {
+    cursor: not-allowed;
+    opacity: 0.54;
+}
+
+.fh-inline-ai-apply {
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #ffffff !important;
+}
+
+.fh-inline-ai-close {
+    width: 28px;
+    padding: 0 !important;
+    font-size: 18px !important;
+}
+
+.fh-inline-ai-body {
+    padding: 10px 12px 12px;
+    min-height: 0;
+}
+
+.fh-inline-ai-status {
+    min-height: 18px;
+    margin-bottom: 6px;
+    color: #68748a;
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.fh-inline-ai-status:empty {
+    display: none;
+}
+
+.fh-inline-ai-output,
+.fh-inline-ai-error {
+    margin: 0;
+    padding: 10px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 13px;
+    line-height: 1.58;
+}
+
+.fh-inline-ai-output {
+    max-height: 320px;
+    overflow: auto;
+    border: 1px solid #e7ebf2;
+    background: #ffffff;
+    color: #182134;
+}
+
+.fh-inline-ai-markdown {
+    white-space: normal;
+}
+
+.fh-inline-ai-markdown > :first-child {
+    margin-top: 0;
+}
+
+.fh-inline-ai-markdown > :last-child {
+    margin-bottom: 0;
+}
+
+.fh-inline-ai-markdown p,
+.fh-inline-ai-markdown ul,
+.fh-inline-ai-markdown ol,
+.fh-inline-ai-markdown blockquote,
+.fh-inline-ai-markdown pre,
+.fh-inline-ai-markdown table {
+    margin: 0 0 8px;
+}
+
+.fh-inline-ai-markdown h1,
+.fh-inline-ai-markdown h2,
+.fh-inline-ai-markdown h3,
+.fh-inline-ai-markdown h4,
+.fh-inline-ai-markdown h5,
+.fh-inline-ai-markdown h6 {
+    margin: 10px 0 6px;
+    color: inherit;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.fh-inline-ai-markdown ul,
+.fh-inline-ai-markdown ol {
+    padding-left: 20px;
+}
+
+.fh-inline-ai-markdown li + li {
+    margin-top: 3px;
+}
+
+.fh-inline-ai-markdown code {
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: #f1f5f9;
+    color: #1e3a8a;
+    font-family: Consolas, Monaco, "Courier New", monospace;
+    font-size: 12px;
+}
+
+.fh-inline-ai-markdown pre {
+    padding: 8px 10px;
+    overflow: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #f8fafc;
+    white-space: pre;
+    word-break: normal;
+}
+
+.fh-inline-ai-markdown pre code {
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    white-space: inherit;
+}
+
+.fh-inline-ai-markdown blockquote {
+    padding-left: 10px;
+    border-left: 3px solid #d8deea;
+    color: #4b5870;
+}
+
+.fh-inline-ai-markdown a {
+    color: #1d4ed8;
+    text-decoration: none;
+}
+
+.fh-inline-ai-markdown a:hover,
+.fh-inline-ai-markdown a:focus {
+    text-decoration: underline;
+}
+
+.fh-inline-ai-modal-output {
+    max-height: min(540px, calc(100vh - 190px));
+}
+
+.fh-inline-ai-output:empty::before {
+    content: "等待 AI 输出...";
+    color: #8b96a8;
+}
+
+.fh-inline-ai-error {
+    border: 1px solid rgba(200, 58, 66, 0.22);
+    background: #fff4f4;
+    color: #a72f36;
+}
+
+.fh-ai-tool-btn {
+    border-color: rgba(37, 99, 235, 0.25) !important;
+    background: #eaf1ff !important;
+    color: #1d4ed8 !important;
+}
+
+.fh-ai-tool-btn:hover,
+.fh-ai-tool-btn:focus {
+    border-color: rgba(37, 99, 235, 0.46) !important;
+    background: #dce9ff !important;
+}
+
+.fh-ai-tool-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.56;
+}
+
+html[dark-mode="on"] .fh-inline-ai-panel,
+html.dark-mode .fh-inline-ai-panel,
+html[dark-mode="on"] .fh-inline-ai-modal,
+html.dark-mode .fh-inline-ai-modal {
+    border-color: #314159;
+    background: #1d283b;
+    color: #e9edf5;
+    box-shadow: none;
+}
+
+html[dark-mode="on"] .fh-inline-ai-head,
+html.dark-mode .fh-inline-ai-head {
+    border-color: #314159;
+    background: #202c40;
+}
+
+html[dark-mode="on"] .fh-inline-ai-title strong,
+html.dark-mode .fh-inline-ai-title strong {
+    color: #e9edf5;
+}
+
+html[dark-mode="on"] .fh-inline-ai-title span,
+html.dark-mode .fh-inline-ai-title span,
+html[dark-mode="on"] .fh-inline-ai-status,
+html.dark-mode .fh-inline-ai-status {
+    color: #aab5c8;
+}
+
+html[dark-mode="on"] .fh-inline-ai-actions button,
+html.dark-mode .fh-inline-ai-actions button,
+html[dark-mode="on"] .fh-inline-ai-output,
+html.dark-mode .fh-inline-ai-output {
+    border-color: #314159;
+    background: #172033;
+    color: #e9edf5;
+}
+
+html[dark-mode="on"] .fh-inline-ai-markdown code,
+html.dark-mode .fh-inline-ai-markdown code {
+    background: #26364f;
+    color: #bfdbfe;
+}
+
+html[dark-mode="on"] .fh-inline-ai-markdown pre,
+html.dark-mode .fh-inline-ai-markdown pre {
+    border-color: #314159;
+    background: #111827;
+}
+
+html[dark-mode="on"] .fh-inline-ai-markdown pre code,
+html.dark-mode .fh-inline-ai-markdown pre code {
+    background: transparent;
+    color: inherit;
+}
+
+html[dark-mode="on"] .fh-inline-ai-markdown blockquote,
+html.dark-mode .fh-inline-ai-markdown blockquote {
+    border-color: #40516b;
+    color: #c4cedd;
+}
+
+html[dark-mode="on"] .fh-inline-ai-markdown a,
+html.dark-mode .fh-inline-ai-markdown a {
+    color: #93c5fd;
+}
+
+html[dark-mode="on"] .fh-inline-ai-error,
+html.dark-mode .fh-inline-ai-error {
+    border-color: rgba(248, 113, 113, 0.3);
+    background: rgba(127, 29, 29, 0.28);
+    color: #fecaca;
+}

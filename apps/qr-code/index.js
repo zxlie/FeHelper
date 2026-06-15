@@ -1,6 +1,15 @@
 /**
  * FeHelper QR Code Tools
  */
+import {
+    copyInlineAiResult,
+    createInlineAiState,
+    renderInlineMarkdown,
+    resetInlineAiState,
+    runInlineToolAi,
+    setInlineAiGuide
+} from '../aiagent/fh.ai-inline.js';
+
 new Vue({
     el: '#pageContainer',
     data: {
@@ -11,7 +20,16 @@ new Vue({
         previewSrc: '',
         resultContent: '',
         qrEncodeMode: true,
-        showResult: false
+        showResult: false,
+        aiPanel: createInlineAiState(),
+        qrRecipes: [
+            { key: 'wifi', label: 'Wi-Fi', prompt: '生成 Wi-Fi 二维码：SSID=，密码=，加密=WPA。' },
+            { key: 'contact', label: '名片', prompt: '生成联系人二维码：姓名=，公司=，手机=，邮箱=，网址=。' },
+            { key: 'event', label: '日程', prompt: '生成日程二维码：标题=，地点=，开始时间=，结束时间=。' },
+            { key: 'sms', label: '短信', prompt: '生成短信二维码：手机号=，内容=。' },
+            { key: 'email', label: '邮件', prompt: '生成邮件二维码：收件人=，主题=，正文=。' },
+            { key: 'geo', label: '位置', prompt: '生成位置二维码：地址或经纬度=。' }
+        ]
         ,codeType: 'qrcode',
         barcodeFormat: 'CODE128',
         barcodeMode: false
@@ -83,10 +101,30 @@ new Vue({
 
         this.loadPatchHotfix();
     },
+    computed: {
+        aiPanelResultHtml() {
+            return renderInlineMarkdown(this.aiPanel.result);
+        },
+        aiPanelInputSource() {
+            if (this.aiPanel.taskKey === 'audit-qr') {
+                return this.textContent;
+            }
+            if (this.aiPanel.taskKey === 'inspect-decode') {
+                return this.resultContent;
+            }
+            return '';
+        },
+        aiPanelInputHtml() {
+            return renderInlineMarkdown(this.aiPanelInputSource);
+        }
+    },
 
     methods: {
 
         loadPatchHotfix() {
+            if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
+                return;
+            }
             // 页面加载时自动获取并注入页面的补丁
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
@@ -363,6 +401,84 @@ new Vue({
                     alert('请先生成二维码！');
                 }
             }
+        },
+
+        useQrRecipe: function(recipe) {
+            if (!recipe) return;
+            this.codeType = 'qrcode';
+            this.textContent = recipe.prompt;
+            resetInlineAiState(this.aiPanel);
+            this.$nextTick(() => {
+                this.$refs.codeSource && this.$refs.codeSource.focus();
+            });
+        },
+
+        closeAiPanel: function() {
+            resetInlineAiState(this.aiPanel);
+        },
+
+        copyAiResult: function() {
+            copyInlineAiResult(this.aiPanel);
+        },
+
+        askAiForDecodedResult: function() {
+            if (!this.resultContent) {
+                setInlineAiGuide(this.aiPanel, {
+                    taskKey: 'inspect-decode',
+                    title: 'AI 识别内容',
+                    subtitle: '先粘贴或上传二维码图片。',
+                    result: '解码成功后，AI 会判断内容类型、提取关键信息，并标出短链、支付、跳转或可疑参数。'
+                });
+                return;
+            }
+            runInlineToolAi(this.aiPanel, {
+                toolKey: 'qr-code',
+                taskKey: 'inspect-decode',
+                title: 'AI 识别内容',
+                subtitle: '只分析解码文本，不上传图片。',
+                instruction: '请识别当前二维码解码文本的类型，提取关键字段，指出风险点和建议操作。重点关注短链、支付参数、未知域名、可疑跳转、Wi-Fi 密码、名片字段和日程字段。不要要求用户再次上传图片。',
+                inputLabel: '当前解码结果',
+                input: this.resultContent,
+                resultLabel: '图片状态',
+                result: this.previewSrc ? (this.previewSrc.indexOf('data:') === 0 ? '已加载本地或剪贴板图片。' : `图片来源：${this.previewSrc}`) : '',
+                meta: {
+                    模式: '解码'
+                },
+                outputHint: '按“类型 / 关键信息 / 风险 / 建议”四段输出，保持紧凑。',
+                canApply: false
+            });
+        },
+
+        askAiForQrQuality: function() {
+            if (!this.textContent.trim()) {
+                setInlineAiGuide(this.aiPanel, {
+                    taskKey: 'audit-qr',
+                    title: 'AI 扫码体检',
+                    subtitle: '先生成或填写内容。',
+                    result: 'AI 会检查内容长度、颜色对比、图标遮挡和条形码格式约束。'
+                });
+                return;
+            }
+            runInlineToolAi(this.aiPanel, {
+                toolKey: 'qr-code',
+                taskKey: 'audit-qr',
+                title: 'AI 扫码体检',
+                subtitle: '检查当前载荷和参数是否容易被扫码。',
+                instruction: '请检查当前二维码或条形码的可扫性。重点判断内容长度、格式是否标准、颜色对比是否足够、图标是否可能遮挡、尺寸是否合理，以及条形码格式是否匹配输入。不要改写内容，给出可执行的调整建议。',
+                inputLabel: '当前载荷',
+                input: this.textContent,
+                resultLabel: '当前参数',
+                result: '',
+                meta: {
+                    类型: this.codeType,
+                    条形码格式: this.codeType === 'barcode' ? this.barcodeFormat : '',
+                    尺寸: this.codeType === 'qrcode' ? this.qrSize : '',
+                    颜色: this.codeType === 'qrcode' ? this.qrColor : '',
+                    图标: this.codeType === 'qrcode' ? this.useIcon : ''
+                },
+                outputHint: '先给体检结论，再列最多 4 条调整建议。',
+                canApply: false
+            });
         },
 
         openOptionsPage: function(event ){

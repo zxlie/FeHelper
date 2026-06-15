@@ -160,7 +160,7 @@ window.Formatter = (function () {
         let dt = (new Date()).format('yyyyMMddHHmmss');
         let blob = new Blob([content], {type: 'application/octet-stream'});
 
-        let button = $('<button class="xjf-btn xjf-btn-right">下载JSON</button>').appendTo('#optionBar');
+        let button = $('<button class="xjf-btn xjf-btn-right">下载</button>').appendTo('#optionBar');
 
         // 检查是否在沙盒化iframe中
         function isSandboxed() {
@@ -839,8 +839,8 @@ window.Formatter = (function () {
 
         $('<span class="x-split">|</span>').appendTo(optionBar);
         let buttonFormatted = $('<button class="xjf-btn xjf-btn-left">元数据</button>').appendTo(optionBar);
-        let buttonCollapseAll = $('<button class="xjf-btn xjf-btn-mid">折叠所有</button>').appendTo(optionBar);
-        let buttonCopyPlain = $('<button class="xjf-btn xjf-btn-right" style="display:none;">复制文本</button>').appendTo(optionBar);
+        let buttonCollapseAll = $('<button class="xjf-btn xjf-btn-mid">折叠</button>').appendTo(optionBar);
+        let buttonCopyPlain = $('<button class="xjf-btn xjf-btn-right" style="display:none;">复制</button>').appendTo(optionBar);
         let plainOn = false;
 
         buttonFormatted.bind('click', function (e) {
@@ -854,7 +854,7 @@ window.Formatter = (function () {
                 plainOn = true;
                 jfPre.show();
                 jfContent.hide();
-                buttonFormatted.text('格式化');
+                buttonFormatted.text('树形');
                 buttonCopyPlain.show();
             }
 
@@ -877,12 +877,12 @@ window.Formatter = (function () {
                 buttonFormatted.trigger('click');
             }
 
-            if (buttonCollapseAll.text() === '折叠所有') {
-                buttonCollapseAll.text('展开所有');
+            if (buttonCollapseAll.text() === '折叠') {
+                buttonCollapseAll.text('展开');
                 // 递归折叠所有层级的对象和数组，确保所有内容都被折叠
                 collapse($('#jfContent .item-object, #jfContent .item-block'));
             } else {
-                buttonCollapseAll.text('折叠所有');
+                buttonCollapseAll.text('折叠');
                 // 展开所有内容
                 $('.item-object,.item-block').removeClass('collapsed');
             }

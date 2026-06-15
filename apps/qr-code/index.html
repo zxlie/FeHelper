@@ -4,20 +4,21 @@
     <title>二维码生成工具</title>
     <meta charset="UTF-8">
     <link rel="shortcut icon" href="../static/img/favicon.ico">
-    <link rel="stylesheet" href="index.css" />
     <link rel="stylesheet" href="../static/css/fehelper-tools.css">
+    <link rel="stylesheet" href="../static/css/fh-ai-inline.css" />
+    <link rel="stylesheet" href="index.css" />
     <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
 </head>
 <body class="fh-modern">
 
     <div class="wrapper" id="pageContainer">
-        <div class="panel panel-default" style="margin-bottom: 0px;">
+        <header class="qr-topbar">
             <div class="panel-heading">
                 <h3 class="panel-title">
                     <span class="title-text-wrapper">
                         <a href="https://fehelper.com" target="_blank" class="x-a-high">
-                            <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a><span class="title-text-wrapper-text">| {{codeType==='barcode'?'条形码':''}}{{codeType!=='barcode'?'二维码':''}}{{qrEncodeMode? '生成':'解码'}}器</span>
+                            <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a><span class="title-text-wrapper-text">{{codeType==='barcode'?'条形码':''}}{{codeType!=='barcode'?'二维码':''}}{{qrEncodeMode? '生成':'解码'}}器</span>
                     </span>
                     <span class="fh-tool-actions qr-header-actions">
                         <button type="button" class="x-switch qr-mode-switch" ref="btnSwitch" @click="trans">{{!qrEncodeMode? '生成二维码' : '解码/扫码'}}</button>
@@ -26,24 +27,27 @@
                     </span>
                 </h3>
             </div>
-        </div>
+        </header>
 
         <div class="panel-body mod-json">
 
             <div v-if="qrEncodeMode">
                 <div class="qr-layout">
-                    <!-- 左侧：文本输入区域 -->
-                    <div class="qr-left">
-                        <div class="section-title">输入内容</div>
-                        <textarea class="form-control mod-textarea" id="codeSource" ref="codeSource" v-model="textContent" placeholder="在这里填写需要生成二维码的任意内容"></textarea>
-                    </div>
+                    <section class="qr-card qr-left">
+                        <div class="section-title">
+                            <span>待生成内容</span>
+                        </div>
+                        <textarea class="form-control mod-textarea" id="codeSource" ref="codeSource" v-model="textContent" placeholder="输入链接、文本，或描述 Wi-Fi / 名片 / 日程二维码"></textarea>
+                        <div class="qr-recipe-row" v-show="codeType==='qrcode'">
+                            <button type="button" v-for="recipe in qrRecipes" :key="recipe.key" @click="useQrRecipe(recipe)">{{recipe.label}}</button>
+                        </div>
+                    </section>
 
-                    <!-- 中间：操作区域 -->
-                    <div class="qr-center">
-                        <div class="section-title">参数设置</div>
+                    <section class="qr-card qr-center">
+                        <div class="section-title">参数</div>
                         <div class="control-panel">
                             <div class="control-item">
-                                <label>类型：</label>
+                                <label>类型</label>
                                 <select v-model="codeType" @change="convert()" class="x-select">
                                     <option value="qrcode">二维码</option>
                                     <option value="barcode">条形码</option>
@@ -51,7 +55,7 @@
                             </div>
 
                             <div class="control-item" v-show="codeType==='barcode'">
-                                <label>格式：</label>
+                                <label>格式</label>
                                 <select v-model="barcodeFormat" @change="convert()" class="x-select">
                                     <option value="CODE128">Code 128</option>
                                     <option value="CODE39">Code 39</option>
@@ -63,47 +67,69 @@
                             </div>
 
                             <div class="control-item" v-show="codeType==='qrcode'">
-                                <label>尺寸：</label>
+                                <label>尺寸</label>
                                 <input name="opt_width" type="text" id="opt_width" v-model="qrSize" size="4" maxlength="4"/>
-                            </div>
-                            
-                            <div class="control-item" v-show="codeType==='qrcode'">
-                                <label>颜色：</label>
-                                <input type="text" id="opt_fc" v-model="qrColor" size="10" />
                             </div>
 
                             <div class="control-item" v-show="codeType==='qrcode'">
+                                <label>颜色</label>
+                                <input type="text" id="opt_fc" v-model="qrColor" size="10" />
+                            </div>
+
+                            <div class="control-item qr-icon-control" v-show="codeType==='qrcode'">
+                                <label>图标</label>
                                 <div class="radio ui-d-ib x-icons">
-                                    图标：<label><input id="remove_icon" name="qr_icon" type="radio" value="no" v-model="useIcon" @click="convert()">不要</label>
+                                    <label><input id="remove_icon" name="qr_icon" type="radio" value="no" v-model="useIcon" @click="convert()">不要</label>
                                     <label><input id="default_icon" name="qr_icon" type="radio" value="default" v-model="useIcon" @click="convert()">默认</label>
                                     <label><input id="upload_icon" name="qr_icon" type="radio" value="custom" v-model="useIcon" @click="$refs.fileBox.click()">上传</label>
                                 </div>
                             </div>
 
-                            <div class="control-item">
+                            <div class="control-actions">
                                 <button id="confirm_button" class="btn btn-success" @click="convert()">{{codeType==='barcode' ? '生成条形码' : '生成二维码'}}</button>
                             </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <!-- 右侧：结果预览区域 -->
-                    <div class="qr-right">
+                    <section class="qr-card qr-right">
                         <div class="section-title">
-                            生成结果
+                            <span>生成结果</span>
                             <div class="action-buttons" v-if="showResult">
+                                <button type="button" class="btn-action fh-ai-tool-btn" @click="askAiForQrQuality" :disabled="!textContent.trim()">AI 体检</button>
                                 <button class="btn-action" id="copy_button" @click="copyQR">复制</button>
                                 <button class="btn-action" id="download_button" @click="downloadQR">下载</button>
                             </div>
                         </div>
                         <div id="preview"><svg id="barcodeSvg" style="display:none"></svg></div>
-                    </div>
+                    </section>
                 </div>
+                <section class="fh-inline-ai-panel qr-ai-panel qr-ai-panel-below" v-if="aiPanel.visible && aiPanel.taskKey === 'audit-qr'">
+                    <div class="fh-inline-ai-head">
+                        <div class="fh-inline-ai-title">
+                            <strong>{{aiPanel.title}}</strong>
+                            <span v-if="aiPanel.subtitle">{{aiPanel.subtitle}}</span>
+                        </div>
+                        <div class="fh-inline-ai-actions">
+                            <button type="button" @click="copyAiResult" :disabled="!aiPanel.result">复制</button>
+                            <button type="button" class="fh-inline-ai-close" @click="closeAiPanel" aria-label="关闭">&times;</button>
+                        </div>
+                    </div>
+                    <div class="fh-inline-ai-body">
+                        <div class="fh-inline-ai-input" v-if="aiPanelInputHtml">
+                            <div class="fh-inline-ai-section-label">输入内容</div>
+                            <div class="fh-inline-ai-output fh-inline-ai-markdown fh-inline-ai-input-content" v-html="aiPanelInputHtml"></div>
+                        </div>
+                        <div class="fh-inline-ai-status">{{aiPanel.statusText}}</div>
+                        <div class="fh-inline-ai-output fh-inline-ai-markdown" v-if="!aiPanel.error" v-html="aiPanelResultHtml"></div>
+                        <pre class="fh-inline-ai-error" v-if="aiPanel.error">{{aiPanel.error}}</pre>
+                    </div>
+                </section>
             </div>
 
             <!-- 二维码解码模式 -->
             <div class="qr-decoder-layout" v-if="!qrEncodeMode">
                 <!-- 左侧：图片上传/预览 -->
-                <div class="decoder-left">
+                <section class="qr-card decoder-left">
                     <div class="section-title">上传或粘贴图片</div>
                     <div class="upload-panel" ref="panelBox">
                         <img id="decodePreview" alt="" :src="previewSrc" v-show="!!previewSrc.length">
@@ -116,13 +142,37 @@
                         1、支持<i>屏幕截图</i>后直接在此处粘贴进行解码<br/>
                         2、支持<i>复制文件、复制图片</i>在线地址在此处直接粘贴进行解码
                     </div>
-                </div>
+                </section>
 
                 <!-- 右侧：解码结果 -->
-                <div class="decoder-right">
-                    <div class="section-title">解码结果</div>
+                <section class="qr-card decoder-right">
+                    <div class="section-title">
+                        <span>解码结果</span>
+                        <button type="button" class="btn-action fh-ai-tool-btn" @click="askAiForDecodedResult" :disabled="!resultContent">AI 识别</button>
+                    </div>
                     <textarea id="decodeResult" title="点击自动选择" placeholder="解码结果将显示在这里..." readonly ref="resultBox" @click="select()" v-model="resultContent" class="form-control mod-textarea"></textarea>
-                </div>
+                    <section class="fh-inline-ai-panel qr-ai-panel" v-if="aiPanel.visible">
+                        <div class="fh-inline-ai-head">
+                            <div class="fh-inline-ai-title">
+                                <strong>{{aiPanel.title}}</strong>
+                                <span v-if="aiPanel.subtitle">{{aiPanel.subtitle}}</span>
+                            </div>
+                            <div class="fh-inline-ai-actions">
+                                <button type="button" @click="copyAiResult" :disabled="!aiPanel.result">复制</button>
+                                <button type="button" class="fh-inline-ai-close" @click="closeAiPanel" aria-label="关闭">&times;</button>
+                            </div>
+                        </div>
+                        <div class="fh-inline-ai-body">
+                            <div class="fh-inline-ai-input" v-if="aiPanelInputHtml">
+                                <div class="fh-inline-ai-section-label">输入内容</div>
+                                <div class="fh-inline-ai-output fh-inline-ai-markdown fh-inline-ai-input-content" v-html="aiPanelInputHtml"></div>
+                            </div>
+                            <div class="fh-inline-ai-status">{{aiPanel.statusText}}</div>
+                            <div class="fh-inline-ai-output fh-inline-ai-markdown" v-if="!aiPanel.error" v-html="aiPanelResultHtml"></div>
+                            <pre class="fh-inline-ai-error" v-if="aiPanel.error">{{aiPanel.error}}</pre>
+                        </div>
+                    </section>
+                </section>
             </div>
 
         </div>
@@ -142,6 +192,7 @@
     <script type="text/javascript" src="../static/vendor/jquery/jquery.qrcode.min.js"></script>
     <script type="text/javascript" src="../static/vendor/zxing/zxing.min.js"></script>
     <script type="text/javascript" src="../static/vendor/jsbarcode/JsBarcode.all.min.js"></script>
-    <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript" src="../html2markdown/libs/marked.js"></script>
+    <script type="module" src="index.js"></script>
 </body>
 </html>

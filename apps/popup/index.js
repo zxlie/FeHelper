@@ -4,6 +4,7 @@
 
 import Awesome from '../background/awesome.js'
 import MSG_TYPE from '../static/js/common.js';
+import AI from '../aiagent/fh.ai.js';
 
 const POPUP_RECENT_TOOLS = 'popup_recent_tools';
 const USER_USAGE_DATA_KEY = 'FH_USER_USAGE_DATA';
@@ -219,6 +220,7 @@ new Vue({
         }
 
         this.loadTools();
+        this.refreshAiModelSnapshot();
         this.loadPatchHotfix();
     },
 
@@ -252,6 +254,31 @@ new Vue({
     },
 
     methods: {
+        async refreshAiModelSnapshot() {
+            try {
+                const result = await AI.getBuiltInAvailability();
+                await chrome.storage.local.set({
+                    fh_ai_builtin_status_snapshot: {
+                        status: result.availability,
+                        progress: result.availability === 'available' ? 1 : 0,
+                        message: result.message || '',
+                        checkedAt: Date.now(),
+                        source: 'popup'
+                    }
+                });
+            } catch (error) {
+                await chrome.storage.local.set({
+                    fh_ai_builtin_status_snapshot: {
+                        status: 'error',
+                        progress: 0,
+                        message: error && error.message ? error.message : 'AI 模型状态检测失败',
+                        checkedAt: Date.now(),
+                        source: 'popup'
+                    }
+                });
+            }
+        },
+
         loadPatchHotfix() {
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',

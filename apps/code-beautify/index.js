@@ -1,6 +1,16 @@
 /**
  * FeHelper 代码美化工具
  */
+import {
+    copyInlineAiResult,
+    createInlineAiState,
+    getInlineAiTaskFromUrl,
+    renderInlineMarkdown,
+    resetInlineAiState,
+    runInlineToolAi,
+    setInlineAiGuide
+} from '../aiagent/fh.ai-inline.js';
+
 new Vue({
     el: '#pageContainer',
     data: {
@@ -8,6 +18,7 @@ new Vue({
         sourceContent: '',
         resultContent: '',
         showCopyBtn: false,
+        aiPanel: createInlineAiState(),
         examples: {
             js: `function foo(){var x=10;if(x>5){return x*2;}else{return x/2;}}`,
             css: `.header{position:fixed;top:0;left:0;width:100%;background:#fff;z-index:100;}.header .logo{float:left;margin:10px;}.header .nav{float:right;}`,
@@ -37,11 +48,21 @@ new Vue({
         //输入框聚焦
         this.$refs.codeSource.focus();
         this.loadPatchHotfix();
+        this.handleInlineAiLaunch();
+    },
+
+    computed: {
+        aiPanelResultHtml: function () {
+            return renderInlineMarkdown(this.aiPanel.result);
+        }
     },
 
     methods: {
 
         loadPatchHotfix() {
+            if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
+                return;
+            }
             // 页面加载时自动获取并注入页面的补丁
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
@@ -160,6 +181,57 @@ new Vue({
 
             let txt = this.$refs.jfContentBox.textContent;
             _copyToClipboard(txt);
+        },
+
+        handleInlineAiLaunch: function () {
+            const task = getInlineAiTaskFromUrl();
+            if (!task) return;
+            setInlineAiGuide(this.aiPanel, {
+                taskKey: task,
+                title: 'AI读代码',
+                subtitle: '先格式化，再让 AI 补充意图和风险点。',
+                result: '粘贴 JS、CSS、HTML、XML 或 SQL 后点击“格式化”。格式化完成后会出现“AI读代码”，AI 会基于结果做简短解读和可读性建议。'
+            });
+        },
+
+        closeAiPanel: function () {
+            resetInlineAiState(this.aiPanel);
+        },
+
+        copyAiResult: function () {
+            copyInlineAiResult(this.aiPanel);
+        },
+
+        applyAiPanelResult: function () {
+            this.aiPanel.statusText = '当前任务只提供解读和建议，不直接改写代码';
+        },
+
+        askAiForCode: function () {
+            const formatted = this.$refs.jfContentBox ? this.$refs.jfContentBox.textContent.trim() : '';
+            if (!this.sourceContent.trim()) {
+                setInlineAiGuide(this.aiPanel, {
+                    taskKey: 'explain-code',
+                    title: 'AI读代码',
+                    subtitle: '请先粘贴代码。',
+                    result: '这个入口只在格式化后使用。先粘贴代码并点击“格式化”，再让 AI 解读代码意图和潜在问题。'
+                });
+                return;
+            }
+            runInlineToolAi(this.aiPanel, {
+                toolKey: 'code-beautify',
+                taskKey: 'explain-code',
+                title: 'AI读代码',
+                subtitle: `${this.selectedType} 代码的意图和风险点。`,
+                instruction: '请基于格式化后的代码输出：1. 这段代码在做什么；2. 最多 5 个潜在问题或可读性建议；3. 如果存在明显错误，给出局部修正片段。不要重写整段代码，除非当前代码极短。',
+                inputLabel: '当前源代码',
+                input: this.sourceContent,
+                resultLabel: '当前格式化结果',
+                result: formatted,
+                outputHint: '输出保持紧凑，用短段落或编号列表即可。',
+                meta: {
+                    语言: this.selectedType
+                }
+            });
         },
 
         /**

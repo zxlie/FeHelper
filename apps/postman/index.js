@@ -1,6 +1,15 @@
 /**
  * FeHelper 简易版Postman
  */
+import {
+    copyInlineAiResult,
+    createInlineAiState,
+    getInlineAiTaskFromUrl,
+    renderInlineMarkdown,
+    resetInlineAiState,
+    runInlineToolAi,
+    setInlineAiGuide
+} from '../aiagent/fh.ai-inline.js';
 
 const JSON_SORT_TYPE_KEY = 'json_sort_type_key';
 new Vue({
@@ -12,6 +21,7 @@ new Vue({
         funcName: '',
         paramContent: '',
         responseHeaders: [],
+        responseStatus: '',
         jfCallbackName_start: '',
         jfCallbackName_end: '',
         errorMsgForJson: '',
@@ -19,13 +29,17 @@ new Vue({
         headerList: [new Date() * 1],
         urlencodedDefault: 1,
         urlParams: [],
-        paramMode:'kv' // kv、json
+        paramMode:'kv', // kv、json
+        aiPanel: createInlineAiState()
     },
 
     computed: {
         // 计算属性：根据当前参数内容格式返回按钮文字
         paramModeText() {
             return this.detectParamFormat() === 'kv' ? 'JSON' : 'URL-KV';
+        },
+        aiPanelResultHtml() {
+            return renderInlineMarkdown(this.aiPanel.result);
         }
     },
 
@@ -67,10 +81,14 @@ new Vue({
         this.$refs.url.focus();
         this.loadPatchHotfix();
         this.initMockServer();
+        this.handleInlineAiLaunch();
     },
     methods: {
 
         loadPatchHotfix() {
+            if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
+                return;
+            }
             // 页面加载时自动获取并注入页面的补丁
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
@@ -125,7 +143,185 @@ new Vue({
             });
         },
 
+        getHeaderEntriesForAi() {
+            return this.headerList.map(id => {
+                const key = ($(`#header_key_${id}`).val() || '').trim();
+                const value = ($(`#header_value_${id}`).val() || '').trim();
+                return key ? { key, value } : null;
+            }).filter(Boolean);
+        },
+
+        getRequestHeadersForAi() {
+            return this.getHeaderEntriesForAi()
+                .map(header => `${header.key}: ${header.value}`)
+                .join('\n');
+        },
+
+        getQueryParamsForAi() {
+            const params = [];
+            try {
+                const base = window.location && window.location.origin ? window.location.origin : 'https://fehelper.local';
+                const url = new URL(this.urlContent || '', base);
+                url.searchParams.forEach((value, key) => {
+                    params.push(`${key}=${value}`);
+                });
+            } catch (e) {
+                this.urlParams.forEach(item => {
+                    if (item.key || item.value) {
+                        params.push(`${item.key || ''}=${item.value || ''}`);
+                    }
+                });
+            }
+            return params.join('\n');
+        },
+
+        getEffectiveContentTypeForAi() {
+            const contentTypeHeader = this.getHeaderEntriesForAi()
+                .find(header => header.key.toLowerCase() === 'content-type');
+            if (contentTypeHeader) {
+                return `${contentTypeHeader.value}（手动设置）`;
+            }
+            if (this.methodContent.toLowerCase() === 'post' && this.urlencodedDefault) {
+                return 'application/x-www-form-urlencoded（FeHelper POST 默认携带）';
+            }
+            return '未设置';
+        },
+
+        getBodyFormatForAi() {
+            const content = (this.paramContent || '').trim();
+            if (!content) return '无请求体';
+            if (/^[\[{]/.test(content)) {
+                try {
+                    JSON.parse(content);
+                    return 'JSON（语法合法）';
+                } catch (e) {
+                    return `疑似 JSON，但解析失败：${e.message}`;
+                }
+            }
+            if (content.includes('=') && (content.includes('&') || content.split('=').length === 2)) {
+                return 'URL-KV / x-www-form-urlencoded';
+            }
+            return '原始文本';
+        },
+
+        buildAiRequestInfo() {
+            const requestHeaders = this.getRequestHeadersForAi();
+            const queryParams = this.getQueryParamsForAi();
+            return [
+                `Method & URL:\n${this.methodContent} ${this.urlContent || '(未填写 URL)'}`,
+                queryParams ? `Query Params:\n${queryParams}` : '',
+                requestHeaders ? `Request Headers:\n${requestHeaders}` : 'Request Headers:\n(未设置)',
+                `Effective Content-Type:\n${this.getEffectiveContentTypeForAi()}`,
+                `Body Format:\n${this.getBodyFormatForAi()}`,
+                this.paramContent ? `Body:\n${this.paramContent}` : ''
+            ].filter(Boolean).join('\n\n');
+        },
+
+        buildAiResponseInfo() {
+            const responseHeaders = this.responseHeaders
+                .filter(item => item && item[0])
+                .map(item => `${item[0]}: ${item[1] || ''}`)
+                .join('\n');
+            return [
+                this.responseStatus ? `Status:\n${this.responseStatus}` : '',
+                this.resultContent ? `Body:\n${this.resultContent}` : '',
+                responseHeaders ? `Response Headers:\n${responseHeaders}` : '',
+                this.errorMsgForJson ? `JSON 解析错误:\n${this.errorMsgForJson}` : ''
+            ].filter(Boolean).join('\n\n');
+        },
+
+        handleInlineAiLaunch() {
+            const task = getInlineAiTaskFromUrl();
+            if (!task) return;
+            setInlineAiGuide(this.aiPanel, {
+                taskKey: task,
+                title: 'AI辅助调试',
+                subtitle: '围绕请求、响应和解析状态定位接口问题。',
+                result: '填写 URL、方法、Headers 和 Body 后，可以直接用“AI辅助调试”检查 Content-Type、Body 格式、鉴权、CORS 和可复现示例。请求返回后，再用“诊断响应”结合响应头、响应体和 JSON 解析错误定位问题。'
+            });
+        },
+
+        closeAiPanel() {
+            resetInlineAiState(this.aiPanel);
+        },
+
+        copyAiResult() {
+            copyInlineAiResult(this.aiPanel);
+        },
+
+        applyAiPanelResult() {
+            this.aiPanel.statusText = '当前任务只提供接口建议，不自动修改请求';
+        },
+
+        askAiForRequest() {
+            if (!this.urlContent.trim() && !this.paramContent.trim()) {
+                setInlineAiGuide(this.aiPanel, {
+                    taskKey: 'assist-debug',
+                    title: 'AI辅助调试',
+                    subtitle: '请先填写 URL 或请求参数。',
+                    result: 'AI 会检查请求方法、URL 参数、Headers、Content-Type、Body 格式、鉴权信息和可复现样例，不会在没有响应时编造服务端返回。'
+                });
+                return;
+            }
+            runInlineToolAi(this.aiPanel, {
+                toolKey: 'postman',
+                taskKey: 'assist-debug',
+                title: 'AI辅助调试',
+                subtitle: '检查请求配置并给出可执行调试方案。',
+                instruction: [
+                    '请作为 FeHelper 简易 Postman 的接口调试助手，基于当前请求现场给出可执行排查方案。',
+                    '必须检查：URL/查询参数、HTTP 方法、Headers、Content-Type、Body 格式、鉴权信息、CORS 可能性、Mock Server 适用性。',
+                    '如果没有响应，不要编造服务端返回；输出可以直接复制的 curl 或 fetch 示例，必要时给出建议 Header/Body。'
+                ].join('\n'),
+                inputLabel: '当前请求',
+                input: this.buildAiRequestInfo(),
+                resultLabel: '当前响应',
+                result: '',
+                outputHint: '用 Markdown 输出，结构为：结论、需要改的请求、可复制示例、下一步。保持紧凑。',
+                meta: {
+                    请求方式: this.methodContent,
+                    参数格式: this.getBodyFormatForAi(),
+                    默认表单Header: this.urlencodedDefault ? '开启' : '关闭'
+                }
+            });
+        },
+
+        askAiForPostman() {
+            if (!this.resultContent) {
+                setInlineAiGuide(this.aiPanel, {
+                    taskKey: 'diagnose-response',
+                    title: '诊断响应',
+                    subtitle: '请先发送请求获得响应。',
+                    result: '请求完成后，AI 会结合请求、响应头、响应体和 JSON 解析错误给出排查路径。'
+                });
+                return;
+            }
+            runInlineToolAi(this.aiPanel, {
+                toolKey: 'postman',
+                taskKey: 'diagnose-response',
+                title: '诊断响应',
+                subtitle: '根据请求和响应定位接口问题。',
+                instruction: [
+                    '请基于 FeHelper 简易 Postman 的请求和响应现场做接口调试诊断。',
+                    '必须结合状态码、响应头、响应体、JSON 解析错误、请求 Headers、Content-Type 和 Body 格式判断问题。',
+                    '优先指出最可能的根因；如果证据不足，明确还缺哪项信息；不要泛泛解释 HTTP。'
+                ].join('\n'),
+                inputLabel: '当前请求',
+                input: this.buildAiRequestInfo(),
+                resultLabel: '当前响应',
+                result: this.buildAiResponseInfo(),
+                outputHint: '用 Markdown 输出，结构为：结论、证据、请求修正、下一步。给出可复制的 Header/Body/curl/fetch 片段时使用代码块。',
+                meta: {
+                    请求方式: this.methodContent,
+                    参数格式: this.getBodyFormatForAi(),
+                    默认表单Header: this.urlencodedDefault ? '开启' : '关闭'
+                }
+            });
+        },
+
         sendRequest: function (url, method, body) {
+            this.responseStatus = '';
+            this.responseHeaders = [];
             let xhr = new XMLHttpRequest();
             xhr.addEventListener("readystatechange", (resp) => {
                 let result = 'Loading...';
@@ -135,9 +331,13 @@ new Vue({
                         break;
                     case resp.target.HEADERS_RECEIVED:
                         result = 'Headers received';
-                        this.responseHeaders = resp.target.getAllResponseHeaders().trim().split('\n').map(item => {
-                            return item.split(': ').map(x => x.trim())
-                        });
+                        this.responseStatus = `${resp.target.status || ''} ${resp.target.statusText || ''}`.trim();
+                        {
+                            const rawHeaders = resp.target.getAllResponseHeaders().trim();
+                            this.responseHeaders = rawHeaders
+                                ? rawHeaders.split('\n').map(item => item.split(': ').map(x => x.trim()))
+                                : [];
+                        }
                         break;
                     case resp.target.LOADING:
                         result = 'Loading...';
@@ -149,6 +349,7 @@ new Vue({
                             result = resp.target.responseText;
                         }
 
+                        this.responseStatus = `${resp.target.status || ''} ${resp.target.statusText || ''}`.trim();
                         this.jsonFormat(result);
                         this.renderTab();
                         break;
@@ -251,6 +452,7 @@ new Vue({
         showRequestError(message) {
             this.resultContent = message;
             this.errorMsgForJson = message;
+            this.responseStatus = '请求未发送';
             this.responseHeaders = [];
             this.$nextTick(() => {
                 if (this.$refs.resultContainer) {

@@ -2,6 +2,8 @@ import Awesome from '../background/awesome.js'
 import MSG_TYPE from '../static/js/common.js';
 import Settings from './settings.js';
 import Statistics from '../background/statistics.js';
+import AI from '../aiagent/fh.ai.js';
+import { AI_FEATURE_PACKS } from '../aiagent/fh.ai-features.js';
 
 // 工具分类定义
 const TOOL_CATEGORIES = [
@@ -47,6 +49,16 @@ const TOOL_BADGES = {
     'svg-converter': 'SVG',
     'poster-maker': 'PS',
     'datetime-calc': 'DT'
+};
+
+const AI_STATUS_TEXT = {
+    checking: '正在检测 Chrome 内置 AI 模型状态',
+    unsupported: '当前浏览器不支持 Chrome 内置 AI',
+    unavailable: '当前设备暂不满足本机 AI 运行条件',
+    downloadable: 'Gemini Nano 模型可下载，点击即可启用',
+    downloading: '正在下载 Gemini Nano 本机模型',
+    available: 'Gemini Nano 已可用，建议优先使用 FeHelper AI',
+    error: 'AI 模型状态检测失败'
 };
 
 // Vue实例
@@ -102,6 +114,11 @@ new Vue({
 
         recentCount: 0,
         versionChecked: false,
+        aiModelStatus: 'checking',
+        aiModelProgress: 0,
+        aiModelBusy: false,
+        aiModelMessage: AI_STATUS_TEXT.checking,
+        aiFeaturePacks: AI_FEATURE_PACKS,
         
         // 推荐卡片配置，后续可从服务端获取
         recommendationCards: [
@@ -168,6 +185,7 @@ new Vue({
         this.checkBrowserType();
         // 检查版本更新
         this.checkVersionUpdate();
+        this.checkBuiltInAiStatus();
         
         // 加载远程推荐卡片配置
         this.loadRemoteRecommendationCards();
@@ -270,6 +288,32 @@ new Vue({
                 parts.push(this.sortType === 'newest' ? '按最新排序' : '按热度排序');
             }
             return parts.length ? parts.join(' / ') : '按 FeHelper 默认顺序展示';
+        },
+
+        aiStatusLabel() {
+            return AI_STATUS_TEXT[this.aiModelStatus] || this.aiModelMessage || '等待检测';
+        },
+
+        aiStatusClass() {
+            return `is-${this.aiModelStatus || 'checking'}`;
+        },
+
+        aiModelProgressPercent() {
+            return Math.round(Math.max(0, Math.min(1, this.aiModelProgress || 0)) * 100);
+        },
+
+        aiPrimaryActionLabel() {
+            if (this.aiModelBusy) return this.aiModelStatus === 'downloading' ? '模型下载中' : '正在检测';
+            if (this.aiModelStatus === 'available') return '立即使用本机 AI';
+            if (this.aiModelStatus === 'downloadable' || this.aiModelStatus === 'downloading') return '下载并启用模型';
+            if (this.aiModelStatus === 'unsupported' || this.aiModelStatus === 'unavailable') return '打开云端 AI 设置';
+            return '检测 AI 能力';
+        },
+
+        aiPanelTitle() {
+            return this.aiModelStatus === 'available'
+                ? 'FeHelper AI 已就绪，核心工具可直接接入'
+                : '开启 FeHelper AI，先准备 Chrome 本机 Gemini 模型';
         }
     },
 
@@ -331,6 +375,148 @@ new Vue({
             } finally {
                 this.loading = false;
             }
+        },
+
+        async checkBuiltInAiStatus() {
+            this.aiModelStatus = 'checking';
+            this.aiModelMessage = AI_STATUS_TEXT.checking;
+            try {
+                const result = await AI.getBuiltInAvailability();
+                this.applyBuiltInAiStatus({
+                    status: result.availability,
+                    progress: result.availability === 'available' ? 1 : 0,
+                    message: result.message
+                });
+            } catch (error) {
+                this.applyBuiltInAiStatus({
+                    status: 'error',
+                    message: error && error.message ? error.message : AI_STATUS_TEXT.error
+                });
+            }
+        },
+
+        async prepareBuiltInAiModel() {
+            if (this.aiModelStatus === 'available') {
+                this.openAiAgent();
+                return;
+            }
+            if (this.aiModelStatus === 'unsupported' || this.aiModelStatus === 'unavailable') {
+                this.openAiAgent();
+                return;
+            }
+
+            this.aiModelBusy = true;
+            try {
+                await AI.prepareBuiltInModel(payload => {
+                    if (payload && payload.provider === 'builtin') {
+                        this.applyBuiltInAiStatus(payload);
+                    }
+                });
+                await chrome.storage.local.set({ fh_ai_provider: 'builtin' });
+                this.applyBuiltInAiStatus({
+                    status: 'available',
+                    progress: 1,
+                    message: AI_STATUS_TEXT.available
+                });
+                this.showInPageNotification({
+                    title: 'FeHelper AI',
+                    message: 'Gemini Nano 已准备好，可以使用本机 AI 能力。'
+                });
+            } catch (error) {
+                const message = this.formatBuiltInAiError(error);
+                this.applyBuiltInAiStatus({ status: 'error', message });
+                this.showInPageNotification({
+                    title: 'FeHelper AI',
+                    message
+                });
+            } finally {
+                this.aiModelBusy = false;
+            }
+        },
+
+        applyBuiltInAiStatus(payload) {
+            const status = payload && payload.status ? payload.status : 'error';
+            const progress = typeof payload.progress === 'number' ? payload.progress : 0;
+            const message = this.formatBuiltInAiStatus(status, progress, payload.message);
+
+            this.aiModelStatus = status;
+            this.aiModelProgress = Math.max(0, Math.min(1, progress));
+            this.aiModelMessage = message;
+
+            chrome.storage.local.set({
+                fh_ai_builtin_status_snapshot: {
+                    status,
+                    progress: this.aiModelProgress,
+                    message,
+                    checkedAt: Date.now()
+                }
+            });
+        },
+
+        formatBuiltInAiStatus(status, progress, message) {
+            if (message) return message;
+            if (status === 'downloading') {
+                const percent = Math.round(Math.max(0, Math.min(1, progress || 0)) * 100);
+                return percent > 0 && percent < 100
+                    ? `正在下载 Gemini Nano 本机模型（${percent}%），完成后会自动启用。`
+                    : '正在下载 Gemini Nano 本机模型，完成后会自动启用。';
+            }
+            return AI_STATUS_TEXT[status] || AI_STATUS_TEXT.error;
+        },
+
+        formatBuiltInAiError(error) {
+            const message = error && error.message ? error.message : AI_STATUS_TEXT.error;
+            return message.replace('BUILTIN_AI_UNAVAILABLE:', '');
+        },
+
+        async handleAiPrimaryAction() {
+            if (this.aiModelStatus === 'available') {
+                this.openAiAgent();
+                return;
+            }
+            if (this.aiModelStatus === 'checking' || this.aiModelStatus === 'error') {
+                await this.checkBuiltInAiStatus();
+                if (this.aiModelStatus === 'available') {
+                    this.openAiAgent();
+                }
+                return;
+            }
+            await this.prepareBuiltInAiModel();
+        },
+
+        async openAiAgent(prompt, aiFeature) {
+            const params = new URLSearchParams();
+            params.set('provider', 'builtin');
+            if (aiFeature) {
+                params.set('aiFeature', aiFeature);
+            }
+            if (prompt) {
+                params.set('prompt', prompt);
+                if (this.aiModelStatus === 'available') {
+                    params.set('autoSend', '1');
+                }
+            }
+            const suffix = params.toString() ? `?${params.toString()}` : '';
+            chrome.tabs.create({
+                url: chrome.runtime.getURL(`aiagent/index.html${suffix}`)
+            });
+        },
+
+        openAiFeature(pack) {
+            if (!pack) return;
+            const params = new URLSearchParams();
+            params.set('aiTask', pack.entryTask || 'guide');
+            chrome.tabs.create({
+                url: chrome.runtime.getURL(`${pack.toolKey}/index.html?${params.toString()}`)
+            });
+        },
+
+        getAiFeaturePack(toolKey) {
+            return this.aiFeaturePacks.find(pack => pack.toolKey === toolKey);
+        },
+
+        isAiEnhancedTool(toolKey) {
+            return !!this.getAiFeaturePack(toolKey);
         },
         
         // 更新"其他工具"类别，将未分类的工具添加到此类别

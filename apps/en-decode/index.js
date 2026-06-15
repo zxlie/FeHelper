@@ -2,6 +2,16 @@
  * FeHelper 信息编解码
  */
 import EncodeUtils from './endecode-lib.js';
+import {
+    copyInlineAiResult,
+    createInlineAiState,
+    getInlineAiTaskFromUrl,
+    renderInlineMarkdown,
+    resetInlineAiState,
+    runInlineToolAi,
+    setInlineAiGuide
+} from '../aiagent/fh.ai-inline.js';
+import { analyzeDecodeInput } from './ai-decode-analyzer.js';
 
 new Vue({
     el: '#pageContainer',
@@ -9,7 +19,9 @@ new Vue({
         selectedType: 'uniEncode',
         sourceContent: '',
         resultContent: '',
-        urlResult: null
+        urlResult: null,
+        aiPanel: createInlineAiState(),
+        aiBestCandidate: null
     },
 
     mounted: function () {
@@ -33,10 +45,19 @@ new Vue({
 
         this.$refs.srcText.focus();
         this.loadPatchHotfix();
+        this.handleInlineAiLaunch();
+    },
+    computed: {
+        aiPanelResultHtml() {
+            return renderInlineMarkdown(this.aiPanel.result);
+        }
     },
     methods: {
 
         loadPatchHotfix() {
+            if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
+                return;
+            }
             // 页面加载时自动获取并注入页面的补丁
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
@@ -106,20 +127,20 @@ new Vue({
                         this.resultContent = EncodeUtils.sha1Encode(this.sourceContent);
                     } else if (this.selectedType === 'htmlEntityEncode') {
 
-                        this.resultContent = he.encode(this.sourceContent, {
+                        this.resultContent = globalThis.he.encode(this.sourceContent, {
                             'useNamedReferences': true,
                             'allowUnsafeSymbols': true
                         });
                     } else if (this.selectedType === 'htmlEntityFullEncode') {
 
-                        this.resultContent = he.encode(this.sourceContent, {
+                        this.resultContent = globalThis.he.encode(this.sourceContent, {
                             'encodeEverything': true,
                             'useNamedReferences': true,
                             'allowUnsafeSymbols': true
                         });
                     } else if (this.selectedType === 'htmlEntityDecode') {
 
-                        this.resultContent = he.decode(this.sourceContent, {
+                        this.resultContent = globalThis.he.decode(this.sourceContent, {
                             'isAttributeValue': false
                         });
                     } else if (this.selectedType === 'urlParamsDecode') {
@@ -172,6 +193,86 @@ new Vue({
 
         getResult: function () {
             this.$refs.rstCode.select();
+        },
+
+        handleInlineAiLaunch() {
+            const task = getInlineAiTaskFromUrl();
+            if (!task) return;
+            setInlineAiGuide(this.aiPanel, {
+                taskKey: task,
+                title: 'AI 自动解码',
+                subtitle: '先跑本地链路探测，再让 AI 解释结果。',
+                result: '粘贴乱码、Base64、URL 参数、JWT、Cookie 或 Gzip Base64 后点击“AI 解码”。FeHelper 会自动尝试多条链路，并支持一键应用最佳结果。'
+            });
+        },
+
+        closeAiPanel() {
+            resetInlineAiState(this.aiPanel);
+            this.aiBestCandidate = null;
+        },
+
+        copyAiResult() {
+            copyInlineAiResult(this.aiPanel);
+        },
+
+        applyAiPanelResult() {
+            if (!this.aiBestCandidate) {
+                this.aiPanel.statusText = '没有可应用的解码结果';
+                return;
+            }
+
+            const candidate = this.aiBestCandidate;
+            if (candidate.selectedType) {
+                this.selectedType = candidate.selectedType;
+            }
+            this.urlResult = candidate.urlResult || null;
+            this.resultContent = candidate.urlResult ? '' : candidate.output;
+            this.aiPanel.statusText = '已应用最佳解码结果';
+        },
+
+        askAiForEncode: async function () {
+            if (!this.sourceContent.trim()) {
+                setInlineAiGuide(this.aiPanel, {
+                    taskKey: 'smart-decode',
+                    title: 'AI 自动解码',
+                    subtitle: '请先粘贴需要判断的内容。',
+                    result: 'AI 会自动尝试 URL、Base64、Unicode、HTML 实体、Gzip、JWT、Cookie 等链路，并把最可信结果放到可应用区。'
+                });
+                return;
+            }
+            this.aiBestCandidate = null;
+
+            const analysis = await analyzeDecodeInput(this.sourceContent);
+            this.aiBestCandidate = analysis.bestCandidate;
+
+            runInlineToolAi(this.aiPanel, {
+                toolKey: 'en-decode',
+                taskKey: 'smart-decode',
+                title: 'AI 自动解码',
+                subtitle: analysis.bestCandidate
+                    ? `${analysis.bestCandidate.title}，置信度 ${analysis.bestCandidate.confidence}`
+                    : '没有找到高可信链路。',
+                instruction: [
+                    '请基于 FeHelper 的本地探测结果做简短判断，不要重新编造一套链路。',
+                    '如果本地候选已经清晰，直接确认推荐链路、解释最终内容结构和风险。',
+                    '必须明确 MD5、SHA1 只能校验不能解密。',
+                    '输出要保留最终明文代码块，便于复制。'
+                ].join('\n'),
+                inputLabel: '当前原文',
+                input: this.sourceContent,
+                resultLabel: 'FeHelper 本地探测结果',
+                result: analysis.markdown,
+                initialResult: analysis.markdown,
+                preserveInitialResultOnError: true,
+                fallbackStatusText: 'AI 暂不可用，已保留本地自动解码结果',
+                outputHint: '先给结论，再给链路、最终明文和风险提示。不要输出编码百科。',
+                canApply: !!analysis.bestCandidate,
+                applyLabel: '应用最佳结果',
+                meta: {
+                    当前转换方式: this.selectedType,
+                    本地候选数: analysis.candidates.length
+                }
+            });
         },
 
         openOptionsPage: function(event) {

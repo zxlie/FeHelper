@@ -4,6 +4,74 @@
  */
 
 import AI from './fh.ai.js';
+import { getAiFeaturePack } from './fh.ai-features.js';
+
+const AI_STATUS_TEXT = {
+    unsupported: '当前浏览器不支持 Chrome 内置 AI',
+    unavailable: '当前设备暂不满足 Chrome 内置 AI 运行条件',
+    downloadable: 'Chrome 内置 AI 模型可下载，首次发送时会自动下载',
+    downloading: 'Chrome 正在下载本机 AI 模型',
+    available: 'Chrome 内置 AI 已就绪',
+    error: 'Chrome 内置 AI 状态检测失败'
+};
+
+const SAFE_HTML_TAGS = new Set([
+    'a', 'b', 'blockquote', 'br', 'code', 'del', 'div', 'em', 'h1', 'h2', 'h3',
+    'h4', 'h5', 'h6', 'hr', 'i', 'li', 'ol', 'p', 'pre', 'span', 'strong',
+    'table', 'tbody', 'td', 'th', 'thead', 'tr', 'ul'
+]);
+
+const SAFE_ATTRS = {
+    a: new Set(['href', 'target', 'rel']),
+    code: new Set(['class']),
+    span: new Set(['class']),
+    td: new Set(['colspan', 'rowspan']),
+    th: new Set(['colspan', 'rowspan'])
+};
+
+function isSafeHref(value) {
+    return /^(https?:|mailto:|#)/i.test(value || '');
+}
+
+function escapeHtml(value) {
+    const div = document.createElement('div');
+    div.textContent = value == null ? '' : String(value);
+    return div.innerHTML;
+}
+
+function sanitizeAssistantHtml(html) {
+    const template = document.createElement('template');
+    template.innerHTML = html || '';
+
+    function walk(parent) {
+        Array.from(parent.children).forEach(node => {
+            const tag = node.tagName.toLowerCase();
+            if (!SAFE_HTML_TAGS.has(tag)) {
+                node.replaceWith(document.createTextNode(node.textContent || ''));
+                return;
+            }
+            Array.from(node.attributes).forEach(attr => {
+                const name = attr.name.toLowerCase();
+                const allowed = SAFE_ATTRS[tag] && SAFE_ATTRS[tag].has(name);
+                if (!allowed || name.startsWith('on')) {
+                    node.removeAttribute(attr.name);
+                    return;
+                }
+                if (tag === 'a' && name === 'href' && !isSafeHref(attr.value)) {
+                    node.removeAttribute(attr.name);
+                }
+            });
+            if (tag === 'a' && node.getAttribute('href')) {
+                node.setAttribute('target', '_blank');
+                node.setAttribute('rel', 'noreferrer noopener');
+            }
+            walk(node);
+        });
+    }
+
+    walk(template.content);
+    return template.innerHTML;
+}
 
 new Vue({
     el: '#pageContainer',
@@ -43,9 +111,36 @@ new Vue({
         aiApiKey: '',
         aiCustomUrl: '',
         aiCustomModel: '',
-        providers: {}
+        providers: {},
+        aiBuiltinStatus: '',
+        aiBuiltinProgress: 0,
+        aiBuiltinChecking: false,
+        aiStatusMessage: '',
+        pendingAiStatusId: '',
+        initialPromptApplied: false,
+        activeAiFeature: null,
+        activeSystemContext: ''
     },
     computed: {
+        currentProviderInfo() {
+            return this.providers[this.aiProvider] || {};
+        },
+        currentProviderNeedsKey() {
+            return this.currentProviderInfo.needsKey !== false;
+        },
+        builtinStatusText() {
+            if (this.aiBuiltinChecking) {
+                return '正在检测 Chrome 内置 AI 状态';
+            }
+            return AI_STATUS_TEXT[this.aiBuiltinStatus] || '尚未检测 Chrome 内置 AI 状态';
+        },
+        builtinProgressPercent() {
+            return Math.round(Math.max(0, Math.min(1, this.aiBuiltinProgress || 0)) * 100);
+        },
+        apiKeyWarningText() {
+            const providerName = this.currentProviderInfo.name || '当前 AI 服务商';
+            return `${providerName} 尚未配置 API Key，请先完成设置。`;
+        },
         groupedHistory() {
             // 按日期分组，主题为message前20字
             const groups = {};
@@ -74,7 +169,10 @@ new Vue({
         const local = localStorage.getItem('fh-aiagent-history');
         if(local){
             try {
-                this.history = JSON.parse(local);
+                this.history = JSON.parse(local).map(item => ({
+                    ...item,
+                    respContent: sanitizeAssistantHtml(item.respContent || '')
+                }));
             } catch(e) {}
         }
         this.providers = AI.PROVIDERS;
@@ -83,9 +181,13 @@ new Vue({
             this.aiApiKey = cfg.apiKey;
             this.aiCustomUrl = cfg.customUrl;
             this.aiCustomModel = cfg.customModel;
-            if (!cfg.apiKey) {
+            if (this.currentProviderNeedsKey && !cfg.apiKey) {
                 this.showApiKeyWarning = true;
             }
+            if (this.aiProvider === 'builtin') {
+                this.refreshBuiltinStatus();
+            }
+            this.applyInitialPromptFromQuery();
         });
         this.loadPatchHotfix();
     },
@@ -146,7 +248,9 @@ new Vue({
         },
 
         sendMessage(prompt){
+            prompt = (prompt || '').trim();
             if(this.undergoing) return;
+            if(!prompt) return;
             if(this.respResult.id){
                 // 先存储上一轮对话到历史
                 this.history.push({
@@ -156,6 +260,13 @@ new Vue({
                     respTime: this.respResult.respTime,
                     respContent: this.respResult.respContent
                 });
+                this.respResult = {
+                    id: '',
+                    sendTime: '',
+                    message: '',
+                    respTime: '',
+                    respContent: ''
+                };
             }
 
             this.undergoing = true;
@@ -177,9 +288,20 @@ new Vue({
                 content: prompt
             });
 
-            AI.askCoderLLM(this.messages, (respJson, done) => {
+            AI.askCoderLLM(this.buildAiRequestMessages(), (respJson, done) => {
                 if(done){
                     this.undergoing = false;
+                    if (this.aiProvider === 'builtin' && this.aiBuiltinStatus === 'available') {
+                        this.aiStatusMessage = AI_STATUS_TEXT.available;
+                    }
+                    if (!this.respResult.id && this.pendingAiStatusId) {
+                        this.replaceBuiltInPendingMessage({
+                            role: 'assistant',
+                            id: 'empty-' + Date.now(),
+                            time: (new Date()).format('yyyy/MM/dd HH:mm:ss'),
+                            content: '<span class="resp-error">本次没有返回内容，请稍后重试或切换云端服务。</span>'
+                        });
+                    }
                     if(this.respResult.id && this.respResult.respContent){
                         const tempDiv = document.createElement('div');
                         tempDiv.innerHTML = this.respResult.respContent;
@@ -202,7 +324,13 @@ new Vue({
                     });
                     return;
                 }
-                let id = respJson.id;
+                if (respJson && respJson.type === 'status') {
+                    this.updateBuiltInStatus(respJson);
+                    this.showBuiltInPendingMessage(respJson);
+                    return;
+                }
+                this.removeBuiltInPendingMessage();
+                let id = respJson.id || `ai-${Date.now()}`;
                 let rawContent = respJson.content || '';
                 const lastAssistantMsg = this.currentSession.slice().reverse().find(m => m.role === 'assistant');
                 const lastIsCodeBlock = lastAssistantMsg && /```\s*$/.test(lastAssistantMsg.content.trim());
@@ -214,10 +342,10 @@ new Vue({
                 if(!this.validateCodeBlocks(respContent)) {
                     respContent += '\n```';
                 }
-                respContent = marked(respContent);
+                respContent = this.renderMarkdown(respContent);
                 if(this.tempId !== id) {
                     this.tempId = id;
-                    let dateTime = new Date(respJson.created * 1000);
+                    let dateTime = new Date((respJson.created || Math.floor(Date.now() / 1000)) * 1000);
                     let respTime = dateTime.format('yyyy/MM/dd HH:mm:ss');
                     this.respResult = { id,sendTime,message:prompt,respTime,respContent };
                     this.currentSession.push({
@@ -233,16 +361,26 @@ new Vue({
                     }
                 }
                 this.$nextTick(() => this.scrollToBottom());
-            }).catch(err => {
+            }, null, this.aiProvider === 'builtin' ? 'builtin' : undefined).catch(err => {
                 this.undergoing = false;
                 if (err.message && err.message.startsWith('NO_API_KEY:')) {
                     this.showApiKeyWarning = true;
                     this.messages.pop();
                     this.currentSession.pop();
                 } else {
+                    const errMessage = this.formatAiErrorMessage(err);
+                    if (err.message && err.message.startsWith('BUILTIN_AI_UNAVAILABLE:')) {
+                        this.aiBuiltinStatus = 'unavailable';
+                        this.aiStatusMessage = errMessage;
+                    }
                     const errTime = (new Date()).format('yyyy/MM/dd HH:mm:ss');
-                    const errMsg = `<span class="resp-error">请求失败：${err.message}</span>`;
-                    this.currentSession.push({ role: 'assistant', id: 'err-' + Date.now(), time: errTime, content: errMsg });
+                    const errMsg = `<span class="resp-error">请求失败：${escapeHtml(errMessage)}</span>`;
+                    this.replaceBuiltInPendingMessage({
+                        role: 'assistant',
+                        id: 'err-' + Date.now(),
+                        time: errTime,
+                        content: errMsg
+                    });
                     this.$nextTick(() => this.scrollToBottom());
                 }
             });            
@@ -254,6 +392,17 @@ new Vue({
         goChat(){
             this.sendMessage(this.prompt);
             this.$nextTick(() => this.prompt='');
+        },
+
+        buildAiRequestMessages() {
+            const messages = this.messages.slice();
+            if (!this.activeSystemContext) {
+                return messages;
+            }
+            return [
+                { role: 'system', content: this.activeSystemContext },
+                ...messages
+            ];
         },
 
         openOptionsPage: function(event) {
@@ -272,6 +421,127 @@ new Vue({
             });
         },
 
+        renderMarkdown(content) {
+            return sanitizeAssistantHtml(marked(content || ''));
+        },
+
+        async applyInitialPromptFromQuery() {
+            if (this.initialPromptApplied) return;
+            this.initialPromptApplied = true;
+            const params = new URL(location.href).searchParams;
+            const provider = params.get('provider');
+            const featureKey = params.get('aiFeature');
+            const featurePack = getAiFeaturePack(featureKey);
+            const prompt = params.get('prompt') || (featurePack && featurePack.prompt);
+            const autoSend = params.get('autoSend') === '1';
+
+            if (provider && this.providers[provider]) {
+                this.aiProvider = provider;
+            }
+            if (featurePack) {
+                this.activeAiFeature = featurePack;
+                this.activeSystemContext = featurePack.systemContext || '';
+            }
+            if (!prompt) return;
+
+            this.prompt = prompt;
+            this.hideDemo = true;
+            if (autoSend) {
+                this.$nextTick(() => {
+                    this.sendMessage(prompt);
+                    this.prompt = '';
+                });
+            }
+        },
+
+        updateBuiltInStatus(payload) {
+            if (!payload || payload.provider !== 'builtin') return;
+            this.aiBuiltinStatus = payload.status || this.aiBuiltinStatus;
+            if (typeof payload.progress === 'number') {
+                this.aiBuiltinProgress = Math.max(0, Math.min(1, payload.progress));
+            }
+            this.aiStatusMessage = this.formatBuiltInStatusMessage(payload);
+        },
+
+        formatBuiltInStatusMessage(payload) {
+            const status = payload && payload.status ? payload.status : this.aiBuiltinStatus;
+            const progress = typeof (payload && payload.progress) === 'number'
+                ? Math.round(Math.max(0, Math.min(1, payload.progress)) * 100)
+                : this.builtinProgressPercent;
+            if (status === 'downloadable') {
+                return 'Chrome 内置 AI 模型尚未下载，正在开始首次下载。首次使用可能需要几分钟。';
+            }
+            if (status === 'downloading') {
+                const suffix = progress > 0 && progress < 100 ? `（${progress}%）` : '';
+                return `Chrome 正在下载本机 AI 模型${suffix}。下载完成后会自动继续回答。`;
+            }
+            if (status === 'available') {
+                return 'Chrome 内置 AI 已就绪，正在生成回答。';
+            }
+            return (payload && payload.message) || AI_STATUS_TEXT[status] || 'Chrome 内置 AI 正在准备。';
+        },
+
+        showBuiltInPendingMessage(payload) {
+            if (this.aiProvider !== 'builtin' || !this.undergoing) return;
+            const text = this.formatBuiltInStatusMessage(payload);
+            const content = `<span class="fh-ai-inline-status">${escapeHtml(text)}</span>`;
+            const now = (new Date()).format('yyyy/MM/dd HH:mm:ss');
+            if (!this.pendingAiStatusId) {
+                this.pendingAiStatusId = 'ai-status-' + Date.now();
+                this.currentSession.push({
+                    role: 'assistant',
+                    id: this.pendingAiStatusId,
+                    time: now,
+                    content
+                });
+            } else {
+                const item = this.currentSession.find(msg => msg.id === this.pendingAiStatusId);
+                if (item) {
+                    item.time = now;
+                    item.content = content;
+                }
+            }
+            this.$nextTick(() => this.scrollToBottom());
+        },
+
+        removeBuiltInPendingMessage() {
+            if (!this.pendingAiStatusId) return;
+            this.currentSession = this.currentSession.filter(msg => msg.id !== this.pendingAiStatusId);
+            this.pendingAiStatusId = '';
+        },
+
+        replaceBuiltInPendingMessage(message) {
+            if (!this.pendingAiStatusId) {
+                this.currentSession.push(message);
+                return;
+            }
+            const index = this.currentSession.findIndex(msg => msg.id === this.pendingAiStatusId);
+            if (index >= 0) {
+                this.currentSession.splice(index, 1, message);
+            } else {
+                this.currentSession.push(message);
+            }
+            this.pendingAiStatusId = '';
+        },
+
+        async refreshBuiltinStatus() {
+            if (this.aiProvider !== 'builtin') return;
+            this.aiBuiltinChecking = true;
+            const result = await AI.getBuiltInAvailability();
+            this.aiBuiltinStatus = result.availability;
+            this.aiBuiltinProgress = result.availability === 'available' ? 1 : 0;
+            this.aiBuiltinChecking = false;
+            this.aiStatusMessage = result.message || this.builtinStatusText;
+        },
+
+        formatAiErrorMessage(err) {
+            const message = err && err.message ? err.message : '未知错误';
+            if (message.startsWith('BUILTIN_AI_UNAVAILABLE:')) {
+                return message.replace('BUILTIN_AI_UNAVAILABLE:', '');
+            }
+            return message;
+        },
+
         loadHistory(item) {
             // 渲染到主面板
             this.respResult = {
@@ -279,7 +549,7 @@ new Vue({
                 sendTime: item.sendTime,
                 message: item.message,
                 respTime: item.respTime,
-                respContent: item.respContent
+                respContent: sanitizeAssistantHtml(item.respContent || '')
             };
             this.showHistoryPanel = false;
             this.$nextTick(() => this.scrollToBottom());
@@ -288,6 +558,7 @@ new Vue({
         startNewChat(event) {
             event && event.preventDefault();
             this.messages = [];
+            this.pendingAiStatusId = '';
             this.respResult = {
                 id: '',
                 sendTime: '',
@@ -311,6 +582,12 @@ new Vue({
 
         onProviderChange() {
             this.aiApiKey = '';
+            this.showApiKeyWarning = false;
+            this.aiStatusMessage = '';
+            this.pendingAiStatusId = '';
+            if (this.aiProvider === 'builtin') {
+                this.refreshBuiltinStatus();
+            }
         },
         async saveAiSettings() {
             await AI.saveConfig({
@@ -320,7 +597,10 @@ new Vue({
                 customModel: this.aiCustomModel
             });
             this.settingsSaved = true;
-            this.showApiKeyWarning = false;
+            this.showApiKeyWarning = this.currentProviderNeedsKey && !this.aiApiKey;
+            if (this.aiProvider === 'builtin') {
+                await this.refreshBuiltinStatus();
+            }
             setTimeout(() => { this.settingsSaved = false; }, 2000);
         },
         onPromptKeydown(e) {
@@ -483,5 +763,3 @@ function showToast(msg) {
         setTimeout(() => document.body.removeChild(toast), 300);
     }, 1800);
 }
-
-

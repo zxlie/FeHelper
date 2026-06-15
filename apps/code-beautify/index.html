@@ -4,7 +4,8 @@
     <title>代码美化工具</title>
     <meta charset="UTF-8">
     <link rel="shortcut icon" href="../static/img/favicon.ico">
-    <link rel="stylesheet" href="index.css"/>
+	    <link rel="stylesheet" href="index.css"/>
+	    <link rel="stylesheet" href="../static/css/fh-ai-inline.css"/>
     <link rel="stylesheet" href="../static/css/fehelper-tools.css">
     <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
@@ -56,9 +57,28 @@
             </div>
 
             <button id="btnFormat" class="btn btn-success ui-fl-r" @click="format">格式化</button>
-            <button id="btnCopy" class="btn btn-warning ui-fl-r ui-mr-10" @click="copy" v-show="showCopyBtn">复制结果</button>
-        </div>
-        <div class="row" id="jfContent" ref="jfContentBox" v-html="resultContent"></div>
+	            <button id="btnAiCode" class="btn fh-ai-tool-btn ui-fl-r ui-mr-10" v-show="showCopyBtn" @click="askAiForCode">AI读代码</button>
+	            <button id="btnCopy" class="btn btn-warning ui-fl-r ui-mr-10" @click="copy" v-show="showCopyBtn">复制结果</button>
+	        </div>
+	        <section class="fh-inline-ai-panel" v-if="aiPanel.visible">
+	            <div class="fh-inline-ai-head">
+	                <div class="fh-inline-ai-title">
+	                    <strong>{{aiPanel.title}}</strong>
+	                    <span v-if="aiPanel.subtitle">{{aiPanel.subtitle}}</span>
+	                </div>
+	                <div class="fh-inline-ai-actions">
+	                    <button type="button" @click="copyAiResult" :disabled="!aiPanel.result">复制</button>
+	                    <button type="button" class="fh-inline-ai-apply" v-if="aiPanel.canApply" @click="applyAiPanelResult" :disabled="!aiPanel.result || aiPanel.loading">{{aiPanel.applyLabel}}</button>
+	                    <button type="button" class="fh-inline-ai-close" @click="closeAiPanel" aria-label="关闭">&times;</button>
+	                </div>
+	            </div>
+	            <div class="fh-inline-ai-body">
+	                <div class="fh-inline-ai-status">{{aiPanel.statusText}}</div>
+	                <div class="fh-inline-ai-output fh-inline-ai-markdown" v-if="!aiPanel.error" v-html="aiPanelResultHtml"></div>
+	                <pre class="fh-inline-ai-error" v-if="aiPanel.error">{{aiPanel.error}}</pre>
+	            </div>
+	        </section>
+	        <div class="row" id="jfContent" ref="jfContentBox" v-html="resultContent"></div>
     </div>
 </div>
 <script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
@@ -67,7 +87,8 @@
 <script type="text/javascript" src="beautify.js"></script>
 <script type="text/javascript" src="beautify-css.js"></script>
 <script type="text/javascript" src="../static/vendor/prism/prism.js"></script>
-<script type="text/javascript" src="index.js"></script>
+<script type="text/javascript" src="../html2markdown/libs/marked.js"></script>
+<script type="module" src="index.js"></script>
 
 </body>
 </html>

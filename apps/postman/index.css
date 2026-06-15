@@ -69,6 +69,23 @@ textarea.form-control.f-param {
     border-radius: 6px;
     border: 1px solid #eee;
 }
+
+.fh-ai-tool-btn {
+    margin-left: 8px;
+    border: 1px solid rgba(37, 99, 235, 0.24);
+    border-radius: 4px;
+    background: #eef5ff;
+    color: #1d4ed8;
+    font-weight: 600;
+}
+
+.fh-ai-tool-btn:hover,
+.fh-ai-tool-btn:focus {
+    border-color: rgba(37, 99, 235, 0.5);
+    background: #dbeafe;
+    color: #1e40af;
+}
+
 #jfContent_pre {
     border:none;
 }

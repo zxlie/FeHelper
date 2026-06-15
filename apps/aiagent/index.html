@@ -61,7 +61,7 @@
                             <option v-for="(info, key) in providers" :key="key" :value="key">{{info.name}}</option>
                         </select>
                     </div>
-                    <div class="fh-settings-row">
+                    <div class="fh-settings-row" v-if="currentProviderNeedsKey">
                         <label>API Key</label>
                         <input type="password" v-model="aiApiKey" placeholder="请输入 API Key" class="fh-settings-input" />
                     </div>
@@ -82,6 +82,22 @@
                             支持任何 OpenAI 兼容的 API 服务
                         </div>
                     </template>
+                    <template v-if="aiProvider === 'builtin'">
+                        <div class="fh-settings-hint fh-settings-hint-local">
+                            直接使用 Chrome 当前浏览器内置的 Gemini Nano，本机运行，不需要 API Key。模型首次使用可能需要下载。
+                        </div>
+                        <div class="fh-ai-provider-status">
+                            <span :class="['fh-ai-status-dot', 'is-' + aiBuiltinStatus]"></span>
+                            <span>{{builtinStatusText}}</span>
+                            <button type="button" class="fh-ai-check-btn" @click="refreshBuiltinStatus" :disabled="aiBuiltinChecking">
+                                {{aiBuiltinChecking ? '检测中' : '重新检测'}}
+                            </button>
+                        </div>
+                        <div class="fh-ai-progress" v-if="aiBuiltinStatus === 'downloading' || builtinProgressPercent > 0 && builtinProgressPercent < 100">
+                            <div class="fh-ai-progress-bar" :style="{ width: builtinProgressPercent + '%' }"></div>
+                            <span>{{builtinProgressPercent}}%</span>
+                        </div>
+                    </template>
                     <div class="fh-settings-actions">
                         <button class="btn btn-sm btn-primary" @click="saveAiSettings">保存设置</button>
                         <span v-if="settingsSaved" class="fh-settings-saved">已保存</span>
@@ -92,8 +108,8 @@
         <!-- No API Key Warning -->
         <div v-if="showApiKeyWarning" class="fh-apikey-warning">
             <div class="fh-apikey-warning-inner">
-                <p>尚未配置 API Key，请先完成设置</p>
-                <p>
+                <p>{{apiKeyWarningText}}</p>
+                <p v-if="aiProvider === 'siliconflow'">
                     前往 <a href="https://cloud.siliconflow.cn" target="_blank">cloud.siliconflow.cn</a> 注册获取免费 API Key
                 </p>
                 <button class="btn btn-sm btn-primary" @click="showSettings=true; showApiKeyWarning=false">去设置</button>
@@ -102,6 +118,10 @@
         <div :class="['panel-body', showHistoryPanel ? 'fh-main-shrink' : '']">
             <div class="row mod-inputs box-prompt">
                 <form class="ui-mt-10" @submit.prevent="goChat">
+                    <div class="fh-ai-statusbar" v-if="aiStatusMessage && aiProvider === 'builtin'">
+                        <span :class="['fh-ai-status-dot', 'is-' + aiBuiltinStatus]"></span>
+                        <span>{{aiStatusMessage}}</span>
+                    </div>
                     <textarea type="text" id="prompt" ref="prompt" v-model="prompt" class="form-control" placeholder="你有什么内容想要咨询AI的？（按Enter发送，Shift+Enter换行）"
                         @keydown="onPromptKeydown"
                     ></textarea>
@@ -155,4 +175,3 @@
 <script type="module" src="index.js"></script>
 </body>
 </html>
-

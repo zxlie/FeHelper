@@ -191,6 +191,7 @@ html.dark-mode .fh-sidebar {
 .fh-version-card,
 .fh-side-section,
 .fh-hero,
+.fh-ai-console,
 .fh-recommendations,
 .fh-tools-panel,
 .settings-dialog {
@@ -203,12 +204,14 @@ html.dark-mode .fh-sidebar {
 html[dark-mode="on"] .fh-version-card,
 html[dark-mode="on"] .fh-side-section,
 html[dark-mode="on"] .fh-hero,
+html[dark-mode="on"] .fh-ai-console,
 html[dark-mode="on"] .fh-recommendations,
 html[dark-mode="on"] .fh-tools-panel,
 html[dark-mode="on"] .settings-dialog,
 html.dark-mode .fh-version-card,
 html.dark-mode .fh-side-section,
 html.dark-mode .fh-hero,
+html.dark-mode .fh-ai-console,
 html.dark-mode .fh-recommendations,
 html.dark-mode .fh-tools-panel,
 html.dark-mode .settings-dialog {
@@ -542,6 +545,243 @@ html.dark-mode .fh-side-actions .fh-side-action.is-donate {
     padding: 18px;
 }
 
+.fh-ai-console {
+    display: grid;
+    gap: 14px;
+    padding: 18px;
+    border-color: rgba(47, 111, 237, 0.18);
+    background:
+        linear-gradient(135deg, rgba(237, 244, 255, 0.92), rgba(255, 255, 255, 0.96)),
+        var(--fh-surface);
+}
+
+.fh-ai-console.is-available {
+    border-color: rgba(31, 143, 91, 0.32);
+    background:
+        linear-gradient(135deg, rgba(234, 247, 240, 0.96), rgba(255, 255, 255, 0.96)),
+        var(--fh-surface);
+}
+
+.fh-ai-console.is-unavailable,
+.fh-ai-console.is-unsupported,
+.fh-ai-console.is-error {
+    border-color: rgba(167, 103, 19, 0.26);
+    background:
+        linear-gradient(135deg, rgba(255, 246, 223, 0.92), rgba(255, 255, 255, 0.96)),
+        var(--fh-surface);
+}
+
+html[dark-mode="on"] .fh-ai-console,
+html.dark-mode .fh-ai-console {
+    background:
+        linear-gradient(135deg, rgba(117, 167, 255, 0.13), rgba(23, 32, 51, 0.96)),
+        var(--fh-surface);
+}
+
+html[dark-mode="on"] .fh-ai-console.is-available,
+html.dark-mode .fh-ai-console.is-available {
+    background:
+        linear-gradient(135deg, rgba(116, 215, 166, 0.13), rgba(23, 32, 51, 0.96)),
+        var(--fh-surface);
+}
+
+.fh-ai-console-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: end;
+}
+
+.fh-ai-console-copy h2 {
+    margin: 0;
+    color: var(--fh-text);
+    font-size: 22px;
+    line-height: 28px;
+}
+
+.fh-ai-console-copy p:last-child {
+    max-width: 76ch;
+    margin: 8px 0 0;
+    color: var(--fh-muted);
+    font-size: 13px;
+    line-height: 20px;
+}
+
+.fh-ai-console-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.fh-ai-status-card {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr) minmax(120px, 180px);
+    gap: 10px;
+    align-items: center;
+    min-height: 48px;
+    padding: 10px 12px;
+    border: 1px solid var(--fh-line-soft);
+    border-radius: var(--fh-radius);
+    background: rgba(255, 255, 255, 0.58);
+}
+
+html[dark-mode="on"] .fh-ai-status-card,
+html.dark-mode .fh-ai-status-card {
+    background: rgba(29, 40, 59, 0.72);
+}
+
+.fh-ai-status-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: var(--fh-subtle);
+    box-shadow: 0 0 0 4px var(--fh-line-soft);
+}
+
+.fh-ai-status-dot.is-available {
+    background: var(--fh-green);
+    box-shadow: 0 0 0 4px var(--fh-green-soft);
+}
+
+.fh-ai-status-dot.is-downloadable,
+.fh-ai-status-dot.is-downloading,
+.fh-ai-status-dot.is-checking {
+    background: var(--fh-accent);
+    box-shadow: 0 0 0 4px var(--fh-accent-soft);
+}
+
+.fh-ai-status-dot.is-unavailable,
+.fh-ai-status-dot.is-unsupported,
+.fh-ai-status-dot.is-error {
+    background: var(--fh-amber);
+    box-shadow: 0 0 0 4px var(--fh-amber-soft);
+}
+
+.fh-ai-status-card strong {
+    display: block;
+    color: var(--fh-text);
+    font-size: 13px;
+    line-height: 18px;
+}
+
+.fh-ai-status-card small {
+    display: block;
+    color: var(--fh-subtle);
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.fh-ai-progress {
+    position: relative;
+    height: 20px;
+    overflow: hidden;
+    border: 1px solid var(--fh-line-soft);
+    border-radius: 999px;
+    background: var(--fh-surface-soft);
+}
+
+.fh-ai-progress span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--fh-green);
+    transition: width var(--fh-motion);
+}
+
+.fh-ai-progress em {
+    position: relative;
+    z-index: 1;
+    display: block;
+    color: var(--fh-text);
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 760;
+    line-height: 18px;
+    text-align: center;
+}
+
+.fh-ai-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.fh-ai-feature-card {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    min-height: 108px;
+    padding: 12px;
+    border: 1px solid var(--fh-line-soft);
+    border-radius: var(--fh-radius);
+    color: var(--fh-text);
+    background: rgba(255, 255, 255, 0.66);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color var(--fh-motion), box-shadow var(--fh-motion), transform var(--fh-motion), background var(--fh-motion);
+}
+
+.fh-ai-feature-card:hover {
+    border-color: rgba(47, 111, 237, 0.26);
+    box-shadow: 0 10px 22px rgba(32, 48, 79, 0.08);
+}
+
+.fh-ai-feature-card:active {
+    transform: scale(0.985);
+}
+
+html[dark-mode="on"] .fh-ai-feature-card,
+html.dark-mode .fh-ai-feature-card {
+    background: rgba(29, 40, 59, 0.7);
+}
+
+.fh-ai-feature-badge {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(47, 111, 237, 0.14);
+    border-radius: var(--fh-radius);
+    color: var(--fh-accent-dark);
+    background: var(--fh-accent-soft);
+    font-size: 10px;
+    font-weight: 820;
+}
+
+.fh-ai-feature-card span:nth-child(2) {
+    min-width: 0;
+}
+
+.fh-ai-feature-card strong {
+    display: block;
+    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    line-height: 18px;
+}
+
+.fh-ai-feature-card small {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--fh-muted);
+    font-size: 12px;
+    line-height: 17px;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.fh-ai-feature-card em {
+    grid-column: 2;
+    color: var(--fh-accent-dark);
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 760;
+}
+
 .fh-section-head,
 .fh-table-head {
     margin-bottom: 14px;
@@ -819,6 +1059,12 @@ html.dark-mode .fh-side-actions .fh-side-action.is-donate {
     border-radius: 999px;
     background: var(--fh-surface-soft);
     border: 1px solid var(--fh-line-soft);
+}
+
+.tool-meta .tool-meta-ai {
+    color: var(--fh-accent-dark);
+    background: var(--fh-accent-soft);
+    border-color: rgba(47, 111, 237, 0.18);
 }
 
 .tool-actions {
@@ -1269,7 +1515,17 @@ html.dark-mode .fh-side-actions .fh-side-action.is-donate {
     .fh-sidebar,
     .fh-hero,
     .fh-toolbar,
+    .fh-ai-console-main,
+    .fh-ai-status-card,
     .fh-recommendation-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .fh-ai-console-actions {
+        justify-content: flex-start;
+    }
+
+    .fh-ai-feature-grid {
         grid-template-columns: 1fr;
     }
 

@@ -90,3 +90,30 @@ export function buildTableViewData(input) {
 
     throw new Error('当前 JSON 不适合表格展示。建议使用对象数组，或包含对象数组字段的 JSON。');
 }
+
+export function isRenderableTableViewData(tableViewData) {
+    if (!tableViewData || !Array.isArray(tableViewData.rows) || !tableViewData.rows.length) {
+        return false;
+    }
+    if (tableViewData.mode === 'grid') {
+        return Array.isArray(tableViewData.columns) && tableViewData.columns.length > 0;
+    }
+    return tableViewData.mode === 'keyValue';
+}
+
+export function buildRenderableTableViewData(input) {
+    const tableViewData = buildTableViewData(input);
+    if (!isRenderableTableViewData(tableViewData)) {
+        throw new Error('当前 JSON 没有可表格化的数据。');
+    }
+    return tableViewData;
+}
+
+export function canBuildTableViewData(input) {
+    try {
+        buildRenderableTableViewData(input);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}

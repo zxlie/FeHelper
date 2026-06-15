@@ -2,8 +2,9 @@
 <html lang="zh-CN" class="fh-jf">
     <head>
         <title>JSON 格式化工具</title>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="index.css" />
+	        <meta charset="UTF-8">
+	        <link rel="stylesheet" href="index.css" />
+	        <link rel="stylesheet" href="../static/css/fh-ai-inline.css" />
 		<script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
         <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
     </head>
@@ -86,11 +87,6 @@
                     <button type="button" class="xjf-btn xjf-btn-right" @click="urlDecode">URL 解码</button>
                 </div>
 
-                <div class="fh-command-group fh-command-tail">
-                    <button type="button" class="xjf-btn fh-jsonpath-trigger" @click="openJsonPathModal">JSON 提取</button>
-                    <button type="button" class="xjf-btn fh-jsonpath-trigger" @click="openTableViewModal">表格视图</button>
-                    <span id="optionBar" class="fh-option-bar"></span>
-                </div>
             </section>
 
             <main class="panel-body mod-json fh-workspace">
@@ -98,9 +94,8 @@
                     <div class="fh-pane-header">
                         <div>
                             <h2>输入</h2>
-                            <p>粘贴 JSON、JSONP 或被转义的 JSON 字符串。</p>
+                            <p>粘贴 JSON、JSONP 或转义 JSON。</p>
                         </div>
-                        <span class="fh-pane-meta">CodeMirror</span>
                     </div>
                     <div class="row panel-txt">
                         <textarea class="form-control mod-textarea" id="jsonSource" placeholder="在这里粘贴需要格式化的 JSON 代码" ref="jsonBox"></textarea>
@@ -111,9 +106,14 @@
                     <div class="fh-pane-header">
                         <div>
                             <h2>解析结果</h2>
-                            <p>支持树形查看、折叠、元数据和节点回写。</p>
+                            <p>{{resultPaneHint}}</p>
                         </div>
-                        <span class="fh-pane-meta">Result</span>
+                        <div class="fh-pane-actions">
+                            <button type="button" class="fh-pane-ai-action fh-ai-tool-btn" v-if="errorMsg" @click="askAiForJsonRepair">AI 修复</button>
+                            <button type="button" class="xjf-btn fh-jsonpath-trigger" v-if="jsonActionReady && !errorMsg" @click="openJsonPathModal">提取</button>
+                            <button type="button" class="xjf-btn fh-jsonpath-trigger" v-if="tableViewReady && !errorMsg" @click="openTableViewModal">表格</button>
+                            <span id="optionBar" class="fh-option-bar" v-show="jsonActionReady && !errorMsg"></span>
+                        </div>
                     </div>
                     <div class="row rst-item" id="modJsonResult">
                         <div id="formattingMsg"><span class="x-loading"></span>格式化中...</div>
@@ -124,6 +124,27 @@
                     </div>
                 </section>
             </main>
+
+            <div class="fh-inline-ai-modal-mask" v-if="aiPanel.visible" @click.self="closeAiPanel">
+                <section class="fh-inline-ai-modal" role="dialog" aria-modal="true" aria-labelledby="jsonAiRepairTitle">
+                    <div class="fh-inline-ai-head">
+                        <div class="fh-inline-ai-title">
+                            <strong id="jsonAiRepairTitle">{{aiPanel.title}}</strong>
+                            <span v-if="aiPanel.subtitle">{{aiPanel.subtitle}}</span>
+                        </div>
+                        <div class="fh-inline-ai-actions">
+                            <button type="button" @click="copyAiResult" :disabled="!aiPanel.result">复制</button>
+                            <button type="button" class="fh-inline-ai-apply" v-if="aiPanel.canApply" @click="applyAiPanelResult" :disabled="!aiPanel.result || aiPanel.loading">{{aiPanel.applyLabel}}</button>
+                            <button type="button" class="fh-inline-ai-close" @click="closeAiPanel" aria-label="关闭">&times;</button>
+                        </div>
+                    </div>
+                    <div class="fh-inline-ai-body">
+                        <div class="fh-inline-ai-status">{{aiPanel.statusText}}</div>
+                        <div class="fh-inline-ai-output fh-inline-ai-markdown fh-inline-ai-modal-output" v-if="!aiPanel.error" v-html="aiPanelResultHtml"></div>
+                        <pre class="fh-inline-ai-error fh-inline-ai-modal-output" v-if="aiPanel.error">{{aiPanel.error}}</pre>
+                    </div>
+                </section>
+            </div>
 
             <div id="jsonPathModal" class="jsonpath-modal" v-show="showJsonPathModal" @click="closeJsonPathModal">
                 <div class="jsonpath-modal-content" @click.stop>
@@ -184,7 +205,7 @@
                 </div>
             </div>
 
-            <div id="jsonPathExamplesModal" class="jsonpath-modal v-cloak" v-show="showJsonPathExamplesModal" @click="closeJsonPathExamplesModal">
+            <div id="jsonPathExamplesModal" class="jsonpath-modal" v-cloak v-show="showJsonPathExamplesModal" @click="closeJsonPathExamplesModal">
                 <div class="jsonpath-modal-content jsonpath-examples-modal" @click.stop>
                     <div class="jsonpath-modal-header">
                         <div>
@@ -204,7 +225,7 @@
                 </div>
             </div>
 
-            <div id="jsonTableViewModal" class="jsonpath-modal v-cloak" v-show="showTableViewModal" @click="closeTableViewModal">
+            <div id="jsonTableViewModal" class="jsonpath-modal" v-cloak v-show="showTableViewModal" @click="closeTableViewModal">
                 <div class="jsonpath-modal-content jsonpath-examples-modal fh-tableview-modal" @click.stop>
                     <div class="jsonpath-modal-header">
                         <div>

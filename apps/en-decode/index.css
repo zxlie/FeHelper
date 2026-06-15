@@ -219,7 +219,7 @@ body.fh-modern .mod-endecode .encode-method-group-decode .encode-pill:has(input:
 
 body.fh-modern .mod-endecode .encode-actions {
     display: grid;
-    grid-template-columns: 1fr 92px;
+    grid-template-columns: 1fr 92px 92px;
     gap: 8px;
     padding: 12px;
     border-top: 1px solid var(--fh-line);
@@ -236,6 +236,18 @@ body.fh-modern .mod-endecode .encode-actions .btn {
     font-weight: 900;
     line-height: 1;
     transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+body.fh-modern .mod-endecode .encode-actions .fh-ai-tool-btn {
+    border-color: rgba(37, 99, 235, 0.24);
+    background: #eef5ff;
+    color: #1d4ed8;
+}
+
+body.fh-modern .mod-endecode .encode-actions .fh-ai-tool-btn:hover {
+    border-color: rgba(37, 99, 235, 0.5);
+    background: #dbeafe;
+    color: #1e40af;
 }
 
 body.fh-modern .mod-endecode .encode-actions .btn:hover {

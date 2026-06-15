@@ -2,7 +2,17 @@
  * FeHelper Json Format Tools
  */
 
-import { buildTableViewData } from './table-utils.js';
+import { buildRenderableTableViewData, canBuildTableViewData } from './table-utils.js';
+import {
+    copyInlineAiResult,
+    createInlineAiState,
+    extractJsonCandidate,
+    getInlineAiTaskFromUrl,
+    renderInlineMarkdown,
+    resetInlineAiState,
+    runInlineToolAi,
+    setInlineAiGuide
+} from '../aiagent/fh.ai-inline.js';
 
 // 一些全局变量
 let editor = {};
@@ -18,6 +28,8 @@ new Vue({
         placeHolder: '',
         jsonFormattedSource: '',
         errorMsg: '',
+        jsonActionReady: false,
+        tableViewReady: false,
         errorJsonCode: '',
         errorPos: '',
         jfCallbackName_start: '',
@@ -38,11 +50,12 @@ new Vue({
         showTableViewModal: false,
         tableViewError: '',
         tableViewMode: 'grid',
-        tableViewTitle: '',
-        tableViewSourcePath: '',
-        tableViewColumns: [],
-        tableViewRows: [],
-	        jsonPathExamples: [
+	        tableViewTitle: '',
+	        tableViewSourcePath: '',
+	        tableViewColumns: [],
+	        tableViewRows: [],
+	        aiPanel: createInlineAiState(),
+		        jsonPathExamples: [
 	            { path: '$', description: '根对象（类似 jq: .）' },
 	            { path: '$.data', description: '获取data属性（类似 jq: .data）' },
 	            { path: '$.data.*', description: '获取data下的所有属性' },
@@ -94,7 +107,6 @@ new Vue({
             }
         };
         editor.on('change', (editor, changes) => {
-            this.jsonFormattedSource = editor.getValue().replace(/\n/gm, ' ');
             this.fireChange && this.format();
         });
 
@@ -116,6 +128,24 @@ new Vue({
 
         // 页面加载时自动获取并注入json-format页面的补丁
         this.loadPatchHotfix();
+        this.handleInlineAiLaunch();
+    },
+    computed: {
+        aiPanelResultHtml() {
+            return renderInlineMarkdown(this.aiPanel.result);
+        },
+        resultPaneHint() {
+            if (this.errorMsg) {
+                return '解析失败，可用 AI 修复。';
+            }
+            if (this.tableViewReady) {
+                return '可提取字段，也可表格化查看。';
+            }
+            if (this.jsonActionReady) {
+                return '可用 JSONPath 提取字段。';
+            }
+            return '格式化后显示结构化结果。';
+        }
     },
     methods: {
         setResultPlaceholder(html) {
@@ -123,6 +153,36 @@ new Vue({
             const resultEl = document.querySelector('#jfContent');
             if (resultEl) {
                 resultEl.innerHTML = this.placeHolder;
+            }
+        },
+
+        resetResultActions() {
+            this.jsonActionReady = false;
+            this.tableViewReady = false;
+            this.resetTableViewState();
+        },
+
+        resetTableViewState() {
+            this.showTableViewModal = false;
+            this.tableViewError = '';
+            this.tableViewTitle = '';
+            this.tableViewSourcePath = '';
+            this.tableViewColumns = [];
+            this.tableViewRows = [];
+            this.tableViewMode = 'grid';
+        },
+
+        syncResultActions(source) {
+            this.resetResultActions();
+            if (!source || this.errorMsg) {
+                return;
+            }
+            try {
+                const jsonObj = parseWithBigInt(source);
+                this.jsonActionReady = jsonObj !== null && typeof jsonObj === 'object';
+                this.tableViewReady = this.jsonActionReady && canBuildTableViewData(jsonObj);
+            } catch (_) {
+                this.resetResultActions();
             }
         },
 
@@ -229,6 +289,81 @@ new Vue({
             });
         },
 
+        getJsonResultText() {
+            if (this.errorMsg) {
+                return this.errorMsg;
+            }
+            const pre = document.querySelector('#jfContent_pre');
+            if (pre && pre.textContent.trim()) {
+                return pre.textContent.trim();
+            }
+            const content = document.querySelector('#jfContent');
+            return content ? content.textContent.trim() : '';
+        },
+
+        handleInlineAiLaunch() {
+            const task = getInlineAiTaskFromUrl();
+            if (!task) return;
+            setInlineAiGuide(this.aiPanel, {
+                taskKey: task,
+                title: 'JSON AI 修复',
+                subtitle: 'AI 只在解析失败时介入，不替代格式化和校验。',
+                result: '粘贴 JSON 后点击“格式化”。如果解析失败，“解析结果”面板右上角会出现“AI 修复”，可以解释错误并生成可应用的合法 JSON。'
+            });
+        },
+
+        closeAiPanel() {
+            resetInlineAiState(this.aiPanel);
+        },
+
+        copyAiResult() {
+            copyInlineAiResult(this.aiPanel);
+        },
+
+        applyAiPanelResult() {
+            const fixedJson = extractJsonCandidate(this.aiPanel.result);
+            if (!fixedJson) {
+                this.aiPanel.statusText = '没有找到可应用的 JSON 代码块';
+                return;
+            }
+            editor.setValue(fixedJson);
+            this.format();
+            this.aiPanel.statusText = '已写回输入框并重新格式化';
+        },
+
+        askAiForJsonRepair() {
+            const input = editor && typeof editor.getValue === 'function' ? editor.getValue() : '';
+            if (!input.trim()) {
+                setInlineAiGuide(this.aiPanel, {
+                    taskKey: 'repair-json',
+                    title: 'JSON AI 修复',
+                    subtitle: '先粘贴解析失败的 JSON。',
+                    result: '这里不会做泛泛分析。请先粘贴 JSON 并点击格式化，出现解析错误后再让 AI 解释和修复。'
+                });
+                return;
+            }
+            runInlineToolAi(this.aiPanel, {
+                toolKey: 'json-format',
+                taskKey: 'repair-json',
+                title: '解释并修复 JSON 错误',
+                subtitle: '根据当前解析错误生成可应用修正版。',
+                instruction: '请只围绕当前 JSON 解析错误回答：1. 错误原因；2. 可疑位置；3. 一个合法 JSON 修正版。修正版必须放在 ```json 代码块中。不要解释 JSON 基础知识。',
+                inputLabel: '当前 JSON 输入',
+                input,
+                resultLabel: this.errorMsg ? '当前解析错误' : '当前格式化结果',
+                result: this.getJsonResultText(),
+                outputHint: '先用一两句话定位错误，再给 ```json 代码块。不要输出无关教程。',
+                canApply: true,
+                applyLabel: '应用修正版',
+                meta: {
+                    JSONLint: this.jsonLintSwitch ? '开启' : '关闭',
+                    自动解码: this.autoDecode ? '开启' : '关闭',
+                    节点编辑: this.overrideJson ? '开启' : '关闭',
+                    嵌套解析: this.nestedEscapeParse ? '开启' : '关闭'
+                }
+            });
+        },
+
         isInUSA: function () {
             // 通过时区判断是否在美国
             const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -244,6 +379,8 @@ new Vue({
 
         format: function () {
             this.errorMsg = '';
+            this.jsonFormattedSource = '';
+            this.resetResultActions();
             this.setResultPlaceholder(this.defaultResultTpl);
             this.jfCallbackName_start = '';
             this.jfCallbackName_end = '';
@@ -343,6 +480,7 @@ new Vue({
 
                     this.placeHolder = '';
                     this.jsonFormattedSource = source;
+                    this.syncResultActions(source);
 
                     // 如果是JSONP格式的，需要把方法名也显示出来
                     if (funcName != null) {
@@ -519,33 +657,29 @@ new Vue({
         },
 
         openTableViewModal: function() {
-            this.tableViewError = '';
-            this.tableViewTitle = '';
-            this.tableViewSourcePath = '';
-            this.tableViewColumns = [];
-            this.tableViewRows = [];
-            this.tableViewMode = 'grid';
+            if (!this.tableViewReady) {
+                return;
+            }
+            this.resetTableViewState();
 
-            let source = this.jsonFormattedSource || editor.getValue();
+            let source = this.jsonFormattedSource;
             if (!source.trim()) {
-                this.tableViewError = '请先输入 JSON 数据';
-                this.showTableViewModal = true;
                 return;
             }
 
             try {
                 const jsonObj = parseWithBigInt(source);
-                const tableViewData = buildTableViewData(jsonObj);
+                const tableViewData = buildRenderableTableViewData(jsonObj);
                 this.tableViewMode = tableViewData.mode;
                 this.tableViewTitle = tableViewData.title;
                 this.tableViewSourcePath = tableViewData.sourcePath;
                 this.tableViewRows = tableViewData.rows;
                 this.tableViewColumns = tableViewData.columns || [];
+                this.showTableViewModal = true;
             } catch (error) {
                 this.tableViewError = error.message || '表格视图生成失败';
+                this.showTableViewModal = true;
             }
-
-            this.showTableViewModal = true;
         },
 
         closeTableViewModal: function() {
@@ -772,6 +906,9 @@ new Vue({
 
         // 打开JSONPath查询模态框
         openJsonPathModal: function() {
+            if (!this.jsonActionReady) {
+                return;
+            }
             this.showJsonPathModal = true;
             // 清空之前的查询结果
             this.jsonPathResults = [];

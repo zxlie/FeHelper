@@ -117,6 +117,44 @@
             </div>
         </header>
 
+        <section :class="['fh-ai-console', aiStatusClass]">
+            <div class="fh-ai-console-main">
+                <div class="fh-ai-console-copy">
+                    <p class="fh-eyebrow">FeHelper AI</p>
+                    <h2>{{aiPanelTitle}}</h2>
+                    <p>{{aiModelMessage}}</p>
+                </div>
+                <div class="fh-ai-console-actions">
+                    <button type="button" class="btn btn-success" @click="handleAiPrimaryAction" :disabled="aiModelBusy">
+                        {{aiPrimaryActionLabel}}
+                    </button>
+                    <button type="button" class="btn btn-default" @click="openAiAgent()">打开 AI 助手</button>
+                    <button type="button" class="btn btn-info" @click="checkBuiltInAiStatus" :disabled="aiModelBusy">重新检测</button>
+                </div>
+            </div>
+            <div class="fh-ai-status-card">
+                <span :class="['fh-ai-status-dot', aiStatusClass]"></span>
+                <div>
+                    <strong>{{aiStatusLabel}}</strong>
+                    <small>Chrome Built-in AI / Gemini Nano</small>
+                </div>
+                <div class="fh-ai-progress" v-if="aiModelStatus === 'downloading' || aiModelProgressPercent > 0 && aiModelProgressPercent < 100">
+                    <span :style="{ width: aiModelProgressPercent + '%' }"></span>
+                    <em>{{aiModelProgressPercent}}%</em>
+                </div>
+            </div>
+            <div class="fh-ai-feature-grid">
+                <button v-for="pack in aiFeaturePacks" :key="pack.toolKey" type="button" class="fh-ai-feature-card" @click="openAiFeature(pack)">
+                    <span class="fh-ai-feature-badge">{{pack.badge}}</span>
+                    <span>
+                        <strong>{{pack.title}}</strong>
+                        <small>{{pack.desc}}</small>
+                    </span>
+                    <em>{{aiModelStatus === 'available' ? '打开工具' : '先启用模型'}}</em>
+                </button>
+            </div>
+        </section>
+
         <section class="fh-recommendations" v-if="recommendationCards && recommendationCards.length">
             <div class="fh-section-head">
                 <div>
@@ -191,6 +229,7 @@
                                 <span v-if="tool.installed">已安装</span>
                                 <span v-if="tool.systemInstalled">系统内置</span>
                                 <span v-if="tool.favorite">已收藏</span>
+                                <span v-if="isAiEnhancedTool(tool.key)" class="tool-meta-ai">AI扩展</span>
                             </div>
                         </div>
                     </div>
@@ -210,6 +249,11 @@
                                 :class="{active: tool.favorite}"
                                 @click="toggleFavorite(tool.key)">
                             {{tool.favorite ? '已收藏' : '收藏'}}
+                        </button>
+                        <button class="btn btn-info btn-xs"
+                                v-if="isAiEnhancedTool(tool.key)"
+                                @click="openAiFeature(getAiFeaturePack(tool.key))">
+                            AI入口
                         </button>
                     </div>
                 </article>

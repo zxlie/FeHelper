@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { buildTableViewData } from '../apps/json-format/table-utils.js';
+import {
+    buildRenderableTableViewData,
+    buildTableViewData,
+    canBuildTableViewData
+} from '../apps/json-format/table-utils.js';
 
 describe('json table view utils', () => {
     it('builds grid view from root object array', () => {
@@ -35,5 +39,19 @@ describe('json table view utils', () => {
         expect(result.rows).toHaveLength(2);
         expect(result.rows[0]).toHaveProperty('key');
         expect(result.rows[0]).toHaveProperty('value');
+    });
+
+    it('only marks useful table data as renderable', () => {
+        expect(canBuildTableViewData([{ id: 1 }])).toBe(true);
+        expect(canBuildTableViewData({ success: true })).toBe(true);
+        expect(canBuildTableViewData({})).toBe(false);
+        expect(canBuildTableViewData([])).toBe(false);
+        expect(canBuildTableViewData([1, 2, 3])).toBe(false);
+        expect(canBuildTableViewData([{}, {}])).toBe(false);
+    });
+
+    it('throws when renderable table data would be empty', () => {
+        expect(() => buildRenderableTableViewData({})).toThrow('没有可表格化的数据');
+        expect(() => buildRenderableTableViewData([{}, {}])).toThrow('没有可表格化的数据');
     });
 });

@@ -3,10 +3,11 @@
     <head>
         <title>简易版Postman</title>
         <meta charset="UTF-8">
-        <link rel="shortcut icon" href="../static/img/favicon.ico">
-        <link rel="stylesheet" href="../static/vendor/jquery/jquery-ui.min.css">
-        <link rel="stylesheet" href="index.css" />
-    <link rel="stylesheet" href="../static/css/fehelper-tools.css">
+	        <link rel="shortcut icon" href="../static/img/favicon.ico">
+	        <link rel="stylesheet" href="../static/vendor/jquery/jquery-ui.min.css">
+	        <link rel="stylesheet" href="index.css" />
+	        <link rel="stylesheet" href="../static/css/fh-ai-inline.css" />
+	    <link rel="stylesheet" href="../static/css/fehelper-tools.css">
         <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
         <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
     </head>
@@ -98,14 +99,35 @@
                     </div>
                 </div>
 
-                <div class="ui-mt-10">
-                    <input class="btn btn-success" type="button" value="发送请求" @click="postman()">
-                </div>
-            </div>
+	                <div class="ui-mt-10">
+	                    <input class="btn btn-success" type="button" value="发送请求" @click="postman()">
+	                    <input class="btn fh-ai-tool-btn" type="button" value="AI辅助调试" @click="askAiForRequest()">
+	                    <input class="btn fh-ai-tool-btn" type="button" value="诊断响应" @click="askAiForPostman()" :disabled="!resultContent">
+	                </div>
+	            </div>
+
+	            <section class="fh-inline-ai-panel" v-if="aiPanel.visible">
+	                <div class="fh-inline-ai-head">
+	                    <div class="fh-inline-ai-title">
+	                        <strong>{{aiPanel.title}}</strong>
+	                        <span v-if="aiPanel.subtitle">{{aiPanel.subtitle}}</span>
+	                    </div>
+	                    <div class="fh-inline-ai-actions">
+	                        <button type="button" @click="copyAiResult" :disabled="!aiPanel.result">复制</button>
+	                        <button type="button" class="fh-inline-ai-apply" v-if="aiPanel.canApply" @click="applyAiPanelResult" :disabled="!aiPanel.result || aiPanel.loading">{{aiPanel.applyLabel}}</button>
+	                        <button type="button" class="fh-inline-ai-close" @click="closeAiPanel" aria-label="关闭">&times;</button>
+	                    </div>
+	                </div>
+	                <div class="fh-inline-ai-body">
+	                    <div class="fh-inline-ai-status">{{aiPanel.statusText}}</div>
+	                    <div class="fh-inline-ai-output fh-inline-ai-markdown" v-if="!aiPanel.error" v-html="aiPanelResultHtml"></div>
+	                    <pre class="fh-inline-ai-error" v-if="aiPanel.error">{{aiPanel.error}}</pre>
+	                </div>
+	            </section>
 
 
 
-            <div ref="resultContainer" class="row hide">
+	            <div ref="resultContainer" class="row hide">
                 <div id="tabs">
                     <ul class="the-tabs">
                         <li><a href="#tab-content">数据</a></li>
@@ -164,6 +186,6 @@
     <script src="../json-format/json-bigint.js"></script>
     <script src="../json-format/format-lib.js"></script>
     <script src="../json-format/json-abc.js"></script>
-    <script type="text/javascript" src="index.js"></script>
+    <script type="module" src="index.js"></script>
     </body>
 </html>
