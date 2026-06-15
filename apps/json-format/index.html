@@ -110,9 +110,11 @@
                         </div>
                         <div class="fh-pane-actions">
                             <button type="button" class="fh-pane-ai-action fh-ai-tool-btn" v-if="errorMsg" @click="askAiForJsonRepair">AI 修复</button>
-                            <button type="button" class="xjf-btn fh-jsonpath-trigger" v-if="jsonActionReady && !errorMsg" @click="openJsonPathModal">提取</button>
-                            <button type="button" class="xjf-btn fh-jsonpath-trigger" v-if="tableViewReady && !errorMsg" @click="openTableViewModal">表格</button>
-                            <span id="optionBar" class="fh-option-bar" v-show="jsonActionReady && !errorMsg"></span>
+                            <template v-else>
+                                <button type="button" class="xjf-btn fh-jsonpath-trigger" v-if="jsonActionReady" @click="openJsonPathModal">提取</button>
+                                <button type="button" class="xjf-btn fh-jsonpath-trigger" v-if="tableViewReady" @click="openTableViewModal">表格</button>
+                                <span id="optionBar" class="fh-option-bar" v-show="jsonActionReady"></span>
+                            </template>
                         </div>
                     </div>
                     <div class="row rst-item" id="modJsonResult">

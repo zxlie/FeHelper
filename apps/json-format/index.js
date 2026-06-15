@@ -136,7 +136,7 @@ new Vue({
         },
         resultPaneHint() {
             if (this.errorMsg) {
-                return '解析失败，可用 AI 修复。';
+                return '解析失败，只保留 AI 修复。';
             }
             if (this.tableViewReady) {
                 return '可提取字段，也可表格化查看。';
@@ -156,9 +156,27 @@ new Vue({
             }
         },
 
+        setResultActionAvailability(enabled) {
+            if (typeof window !== 'undefined') {
+                window.__fhJsonResultActionsEnabled = !!enabled;
+            }
+            if (!enabled) {
+                this.clearOptionBar();
+            }
+        },
+
+        clearOptionBar() {
+            const optionBar = document.querySelector('#optionBar');
+            if (optionBar) {
+                optionBar.innerHTML = '';
+                optionBar.style.display = 'none';
+            }
+        },
+
         resetResultActions() {
             this.jsonActionReady = false;
             this.tableViewReady = false;
+            this.setResultActionAvailability(false);
             this.resetTableViewState();
         },
 
@@ -181,6 +199,7 @@ new Vue({
                 const jsonObj = parseWithBigInt(source);
                 this.jsonActionReady = jsonObj !== null && typeof jsonObj === 'object';
                 this.tableViewReady = this.jsonActionReady && canBuildTableViewData(jsonObj);
+                this.setResultActionAvailability(this.jsonActionReady && !this.errorMsg);
             } catch (_) {
                 this.resetResultActions();
             }

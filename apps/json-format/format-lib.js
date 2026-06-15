@@ -103,6 +103,27 @@ window.Formatter = (function () {
     // 转义功能开启标记
     let escapeJsonStringEnabled = false;
 
+    let _clearOptionBar = function () {
+        try {
+            $('#optionBar').html('').hide();
+        } catch (e) {
+        }
+    };
+
+    let _canRenderFormattedResult = function () {
+        try {
+            if (window.__fhJsonResultActionsEnabled === false) {
+                return false;
+            }
+            let pageContainer = document.querySelector('#pageContainer');
+            if (pageContainer && pageContainer.__vue__ && pageContainer.__vue__.errorMsg) {
+                return false;
+            }
+        } catch (e) {
+        }
+        return true;
+    };
+
     let _initElements = function () {
 
         jfContent = $('#jfContent');
@@ -155,6 +176,10 @@ window.Formatter = (function () {
      * @private
      */
     let _downloadSupport = function (content) {
+        if (!_canRenderFormattedResult()) {
+            _clearOptionBar();
+            return;
+        }
 
         // 下载链接
         let dt = (new Date()).format('yyyyMMddHHmmss');
@@ -829,12 +854,16 @@ window.Formatter = (function () {
      * @private
      */
     let _buildOptionBar = function () {
+        if (!_canRenderFormattedResult()) {
+            _clearOptionBar();
+            return;
+        }
 
         let optionBar = $('#optionBar');
         if (optionBar.length) {
-            optionBar.html('');
+            optionBar.html('').show().addClass('fh-option-bar');
         } else {
-            optionBar = $('<span id="optionBar" />').appendTo(jfContent.parent());
+            optionBar = $('<span id="optionBar" class="fh-option-bar" />').appendTo(jfContent.parent());
         }
 
         $('<span class="x-split">|</span>').appendTo(optionBar);
@@ -1212,11 +1241,20 @@ window.Formatter = (function () {
                     let msg = evt.data;
                     switch (msg[0]) {
                         case 'FORMATTING':
+                            if (!_canRenderFormattedResult()) {
+                                _clearOptionBar();
+                                return;
+                            }
                             formattingMsg.show();
                             break;
                         case 'FORMATTED':
                             if (!msg[1]) {
                                 formatSync(jsonStr, skin, escapeJsonString);
+                                return;
+                            }
+                            if (!_canRenderFormattedResult()) {
+                                formattingMsg.hide();
+                                _clearOptionBar();
                                 return;
                             }
                             formattingMsg.hide();
@@ -1258,6 +1296,10 @@ window.Formatter = (function () {
 
     // 同步的方式格式化
     let formatSync = function (jsonStr, skin, escapeJsonString) {
+        if (!_canRenderFormattedResult()) {
+            _clearOptionBar();
+            return;
+        }
         _initElements();
         
         // 设置转义功能标志
