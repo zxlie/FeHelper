@@ -41,6 +41,44 @@
                 <kbd>/</kbd>
             </div>
 
+            <section v-if="shouldShowAiRouter" class="fh-ai-router" aria-label="FeHelper AI 智能识别">
+                <div class="fh-ai-router-head">
+                    <span class="fh-ai-router-badge" aria-hidden="true">AI</span>
+                    <div class="fh-ai-router-copy">
+                        <strong>智能识别</strong>
+                        <small>{{ aiRouterStatusText }}</small>
+                    </div>
+                    <div class="fh-ai-router-controls">
+                        <button type="button" @click="inspectSearchInput" :disabled="aiRouter.loading || (!searchKey && !aiRouter.input)">识别</button>
+                        <button type="button" @click="inspectClipboard" :disabled="aiRouter.loading">剪贴板</button>
+                    </div>
+                </div>
+                <div class="fh-ai-router-body" v-if="aiRouter.analysis && aiRouter.analysis.inputType !== 'empty'">
+                    <div class="fh-ai-router-summary">
+                        <span>{{ aiRouter.analysis.confidence }}</span>
+                        <p>{{ aiRouter.analysis.summary }}</p>
+                    </div>
+                    <div class="fh-ai-router-signals" v-if="aiRouterSignals.length">
+                        <span v-for="signal in aiRouterSignals" :key="signal">{{ signal }}</span>
+                    </div>
+                    <div class="fh-ai-router-actions">
+                        <button
+                            v-for="(action, index) in aiRouterActions"
+                            :key="action.toolKey + '-' + action.taskKey"
+                            type="button"
+                            :class="{ 'is-primary': index === 0 }"
+                            :title="action.reason || action.desc"
+                            @click="runAiRouterAction(action)"
+                        >
+                            {{ action.commandLabel }}
+                        </button>
+                        <button type="button" class="fh-ai-router-refine" @click="refineAiRouterWithAi" :disabled="aiRouter.loading || !aiRouter.input">
+                            AI 精判
+                        </button>
+                    </div>
+                </div>
+            </section>
+
             <div v-if="isLoading" class="fh-loading" aria-live="polite">
                 <div class="fh-skeleton -title"></div>
                 <div class="fh-skeleton -row"></div>

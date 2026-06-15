@@ -31,7 +31,8 @@
     "storage",
     "notifications",
     "unlimitedStorage",
-    "webNavigation"
+    "webNavigation",
+    "clipboardRead"
   ],
   "host_permissions": [
     "http://*/*",
