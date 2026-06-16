@@ -21,6 +21,12 @@ let JSON_LINT = 'jsonformat:json-lint-switch';
 let EDIT_ON_CLICK = 'jsonformat:edit-on-click';
 let AUTO_DECODE = 'jsonformat:auto-decode';
 
+function syncJsonPageDarkMode(enabled) {
+    document.body.classList.toggle('theme-dark', !!enabled);
+    document.body.classList.toggle('theme-default', !enabled);
+    document.documentElement.setAttribute('data-theme', enabled ? 'dark' : 'light');
+}
+
 new Vue({
     el: '#pageContainer',
     data: {
@@ -69,8 +75,10 @@ new Vue({
 	        ]
     },
     mounted: function () {
-        // 自动开关灯控制；本地预览时没有 chrome runtime，避免阻断工具初始化。
-        if (window.chrome && chrome.runtime && window.DarkModeMgr) {
+        // JSON 工具有原生暗色主题，优先使用主题类，避免全局反色滤镜影响语法高亮。
+        if (window.DarkModeMgr && DarkModeMgr.watchAutoDarkMode) {
+            DarkModeMgr.watchAutoDarkMode(syncJsonPageDarkMode, {applyFilter: false});
+        } else if (window.chrome && chrome.runtime && window.DarkModeMgr) {
             DarkModeMgr.turnLightAuto();
         }
 

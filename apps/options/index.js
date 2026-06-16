@@ -1352,12 +1352,21 @@ new Vue({
                 return true;
             }
             
-            // 如果自动开启深色模式，检查时间
+            // 如果自动开启深色模式，优先跟随 Chrome/系统暗色模式，夜间时段兜底
             if (opts.AUTO_DARK_MODE === true || opts.AUTO_DARK_MODE === 'true') {
-                return this.isNightTime();
+                return this.prefersColorSchemeDark() || this.isNightTime();
             }
             
             return false;
+        },
+
+        // 检查 Chrome/系统是否处于暗色模式
+        prefersColorSchemeDark() {
+            try {
+                return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            } catch (error) {
+                return false;
+            }
         },
 
         // 检查当前时间是否在夜间时段（19:00-06:00）

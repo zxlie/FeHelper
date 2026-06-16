@@ -7,9 +7,27 @@ body {
     background: #f5f7fb;
 }
 
+html[data-fh-theme-pending="true"],
+html[data-fh-theme-pending="true"] body {
+    background: #111827;
+}
+
+html[data-fh-theme-pending="true"] body {
+    visibility: hidden;
+}
+
 body {
     display: flex;
     align-items: stretch;
+}
+
+html[dark-mode="on"] body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 1px #2b3548;
 }
 
 * {
@@ -764,7 +782,8 @@ kbd {
 
 html[dark-mode="on"],
 html[dark-mode="on"] body {
-    background: #111827;
+    color-scheme: dark;
+    background: #0f1726;
 }
 
 html[dark-mode="on"] .fh-popup {
@@ -783,7 +802,10 @@ html[dark-mode="on"] .fh-popup {
     background:
         linear-gradient(180deg, rgba(23, 32, 51, 0.96), rgba(17, 24, 39, 0.98)),
         var(--fh-bg);
-    border-color: #243044;
+    border-color: transparent;
+    box-shadow:
+        inset 0 0 0 1px #243044,
+        0 18px 42px rgba(2, 8, 23, 0.38);
 }
 
 html[dark-mode="on"] .fh-header,

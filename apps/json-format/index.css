@@ -60,10 +60,10 @@ html.fh-jf a:focus {
 .fh-json-tool {
     width: 100%;
     min-height: 100dvh;
-    padding: 16px;
+    padding: 8px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 6px;
     background:
         linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(15, 138, 95, 0.05) 36%, rgba(255, 255, 255, 0) 62%),
         var(--fh-bg);
@@ -79,33 +79,36 @@ html.fh-jf a:focus {
 }
 
 .fh-tool-header {
-    min-height: 72px;
-    padding: 14px 16px;
+    min-height: 42px;
+    padding: 5px 9px;
     border-radius: var(--fh-radius);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 18px;
+    gap: 12px;
 }
 
 .fh-brand-block {
+    flex: 1 1 auto;
     min-width: 0;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 8px;
+    white-space: nowrap;
 }
 
 .fh-brand {
-    height: 34px;
-    padding: 0 11px;
+    height: 26px;
+    padding: 0;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    border: 1px solid var(--fh-line);
-    border-radius: 999px;
-    background: var(--fh-surface-soft);
+    gap: 7px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     color: var(--fh-text);
-    font-weight: 700;
+    font-size: 15px;
+    font-weight: 760;
     white-space: nowrap;
 }
 
@@ -114,16 +117,24 @@ html.fh-jf a:focus {
     height: 16px;
 }
 
-.fh-title-block h1 {
+.fh-title-divider {
+    flex: 0 0 auto;
+    color: var(--fh-faint);
+    font-size: 15px;
+    line-height: 1;
+}
+
+.fh-brand-block h1 {
+    flex: 0 0 auto;
     margin: 0;
     color: var(--fh-text);
-    font-size: 20px;
+    font-size: 16px;
     line-height: 1.2;
     font-weight: 760;
     letter-spacing: 0;
+    white-space: nowrap;
 }
 
-.fh-title-block p,
 .fh-pane-header p,
 .jsonpath-modal-header p {
     margin: 4px 0 0;
@@ -133,17 +144,19 @@ html.fh-jf a:focus {
 }
 
 .fh-header-actions {
-    max-width: min(760px, 58vw);
-    height: 34px;
-    min-height: 34px;
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: min(720px, 54vw);
+    height: 30px;
+    min-height: 30px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     flex-wrap: nowrap;
     gap: 6px;
     overflow-x: auto;
-    overflow-y: visible;
-    padding: 2px 0;
+    overflow-y: hidden;
+    padding: 1px 0;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
 }
@@ -166,8 +179,8 @@ html.fh-jf .fh-header-actions > .fh-link-action {
 
 .fh-link-action {
     flex: 0 0 auto;
-    height: 30px;
-    padding: 0 10px;
+    height: 28px;
+    padding: 0 11px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -175,7 +188,7 @@ html.fh-jf .fh-header-actions > .fh-link-action {
     border-radius: 999px;
     background: var(--fh-surface);
     color: var(--fh-muted);
-    font-size: 12px;
+    font-size: 11px;
     line-height: 1;
     white-space: nowrap;
     cursor: pointer;
@@ -216,20 +229,29 @@ html.fh-jf .x-toolbar.fh-command-bar {
     top: 0;
     z-index: 30;
     margin: 0;
-    padding: 8px;
+    max-width: 100%;
+    min-height: 34px;
+    padding: 4px 6px;
     border-radius: var(--fh-radius);
     display: flex;
     align-items: center;
     flex-wrap: nowrap;
-    gap: 6px;
+    gap: 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
     background: rgba(255, 255, 255, 0.94);
     box-shadow: var(--fh-shadow);
+    scrollbar-width: none;
     user-select: none;
 }
 
+html.fh-jf .x-toolbar.fh-command-bar::-webkit-scrollbar {
+    display: none;
+}
+
 .fh-command-group {
-    min-height: 30px;
-    padding: 2px;
+    min-height: 26px;
+    padding: 1px;
     display: inline-flex;
     flex: 0 0 auto;
     align-items: center;
@@ -261,8 +283,8 @@ html.fh-jf .xjf-btn,
 html.fh-jf #btnLeftRight,
 html.fh-jf #btnUpDown {
     min-width: 0;
-    height: 24px;
-    padding: 0 8px;
+    height: 22px;
+    padding: 0 7px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -328,7 +350,7 @@ html.fh-jf #btnUpDown.selected,
 
 .fh-switch {
     position: relative;
-    height: 24px;
+    height: 22px;
     margin: 0;
     padding: 0 6px 0 2px;
     display: inline-flex;
@@ -400,8 +422,8 @@ html.fh-jf .x-toolbar .x-stitle {
 }
 
 .fh-radio-pill span {
-    height: 24px;
-    padding: 0 8px;
+    height: 22px;
+    padding: 0 7px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -435,13 +457,17 @@ html.fh-jf .fh-command-bar > .x-split {
 }
 
 .fh-workspace {
-    flex: 1;
-    min-height: 560px;
+    flex: 1 1 auto;
+    min-height: 0;
     padding: 0;
     display: grid;
-    gap: 12px;
+    gap: 8px;
     overflow: hidden;
     background: transparent;
+}
+
+#pageContainer > .fh-workspace {
+    margin: 0;
 }
 
 .fh-workspace::before,
@@ -470,14 +496,29 @@ html.fh-jf .fh-command-bar > .x-split {
 }
 
 .fh-pane-header {
-    min-height: 58px;
-    padding: 12px 14px;
+    min-height: 40px;
+    padding: 7px 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
     border-bottom: 1px solid var(--fh-line-soft);
     background: linear-gradient(180deg, #ffffff, #f8fafc);
+}
+
+.fh-pane-header > div:first-child {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.fh-pane-header p {
+    margin-top: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .fh-pane-actions {
@@ -544,9 +585,10 @@ html.fh-jf .fh-pane-ai-action.fh-ai-tool-btn:focus {
 }
 
 .fh-pane-header h2 {
+    flex: 0 0 auto;
     margin: 0;
     color: var(--fh-text);
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.2;
     font-weight: 760;
 }
@@ -1155,6 +1197,11 @@ body.theme-dark .fh-json-tool {
     color: var(--fh-text);
 }
 
+html.fh-jf body.theme-dark .x-toolbar.fh-command-bar {
+    background: rgba(29, 36, 48, 0.96);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+}
+
 body.theme-dark .fh-tool-header,
 body.theme-dark .fh-command-bar,
 body.theme-dark .fh-pane,
@@ -1192,12 +1239,33 @@ body.theme-dark .fh-input-pane .CodeMirror {
     color: var(--fh-text);
 }
 
+body.theme-dark .fh-input-pane .CodeMirror-activeline-background {
+    background: #1f2937;
+}
+
+body.theme-dark .fh-input-pane .CodeMirror-selected {
+    background: rgba(93, 141, 245, 0.24);
+}
+
+body.theme-dark .fh-input-pane .CodeMirror-focused .CodeMirror-selected {
+    background: rgba(93, 141, 245, 0.32);
+}
+
 body.theme-dark .fh-input-pane .CodeMirror-gutters {
     background: #1d2430;
     border-right-color: var(--fh-line-soft);
 }
 
+body.theme-dark .fh-input-pane .CodeMirror-linenumber {
+    color: var(--fh-faint);
+}
+
+body.theme-dark .fh-result-pane .rst-item {
+    background: #151922;
+}
+
 body.theme-dark #jfContent {
+    background: #151922;
     color: var(--fh-text);
 }
 
@@ -1207,6 +1275,11 @@ body.theme-dark .jsonpath-example-path code {
     background: #1a2230;
     border-color: var(--fh-line);
     color: var(--fh-accent-strong);
+}
+
+body.theme-dark .fh-brand {
+    border: 0;
+    background: transparent !important;
 }
 
 body.theme-dark .jsonpath-example-item:hover {
@@ -1238,20 +1311,23 @@ body.theme-dark .fh-tableview-kv td:first-child {
     }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 620px) {
     .fh-json-tool {
-        padding: 10px;
+        padding: 8px;
     }
 
     .fh-tool-header {
         min-height: 0;
+        padding: 5px 8px;
         align-items: flex-start;
         flex-direction: column;
         justify-content: flex-start;
+        gap: 6px;
     }
 
     .fh-header-actions {
         width: 100%;
+        min-width: 0;
         max-width: 100%;
         justify-content: flex-start;
     }

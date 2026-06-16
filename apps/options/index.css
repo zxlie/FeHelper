@@ -8,6 +8,7 @@ body {
     min-width: 960px;
     min-height: 100%;
     background: #f5f7fb;
+    color: var(--fh-text);
 }
 
 * {
@@ -76,7 +77,9 @@ html.dark-mode body {
     --fh-amber: #f5bd64;
     --fh-amber-soft: rgba(245, 189, 100, 0.12);
     --fh-shadow: 0 18px 42px rgba(2, 8, 23, 0.38);
+    color-scheme: dark;
     background: var(--fh-bg);
+    color: var(--fh-text);
 }
 
 .fh-console {

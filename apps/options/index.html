@@ -352,7 +352,7 @@
 
                         <div class="st-item" v-if="!isFirefox">
                             <input type="checkbox" value="AUTO_DARK_MODE" id="AUTO_DARK_MODE" v-model="selectedOpts"/>
-                            <label for="AUTO_DARK_MODE">自动开启夜间模式<span class="x-tips">19:00 到 06:00 自动启用</span></label>
+                            <label for="AUTO_DARK_MODE">自动开启夜间模式<span class="x-tips">跟随 Chrome/系统暗色模式，19:00 到 06:00 也会自动启用</span></label>
                             <a href="#" class="a-btn" @click="turnLight($event)">体验夜间模式</a>
                             <span class="x-count-down" v-cloak v-if="countDown>0">本次体验将在 {{countDown}} 秒后自动结束</span>
 

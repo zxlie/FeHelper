@@ -281,7 +281,11 @@ new Vue({
 
         this.$nextTick(() => {
             setTimeout(() => {
-                if (typeof DarkModeMgr !== 'undefined') {
+                if (typeof DarkModeMgr !== 'undefined' && DarkModeMgr.watchAutoDarkMode) {
+                    DarkModeMgr.watchAutoDarkMode(enabled => {
+                        document.documentElement.setAttribute('dark-mode', enabled ? 'on' : 'off');
+                    }, {applyFilter: false});
+                } else if (typeof DarkModeMgr !== 'undefined') {
                     DarkModeMgr.turnLightAuto();
                 }
 

@@ -1,5 +1,8 @@
 /* FeHelper tool surface baseline. Scoped by body.fh-modern. */
 body.fh-modern {
+    --fh-page-pad: 8px;
+    --fh-page-gap: 6px;
+    --fh-header-height: 42px;
     --fh-bg: #f5f7fb;
     --fh-panel: rgba(255, 255, 255, 0.96);
     --fh-panel-solid: #ffffff;
@@ -38,6 +41,443 @@ body.fh-modern {
     letter-spacing: 0;
 }
 
+body.fh-modern.theme-dark {
+    --fh-bg: #131a24;
+    --fh-panel: rgba(29, 38, 52, 0.96);
+    --fh-panel-solid: #1d2634;
+    --fh-surface-soft: #222d3c;
+    --fh-line: #344154;
+    --fh-line-strong: #4b5a70;
+    --fh-text: #e7ecf4;
+    --fh-muted: #9ea9ba;
+    --fh-faint: #7e899a;
+    --fh-subtle: #192332;
+    --fh-primary: #5d8df5;
+    --fh-primary-soft: rgba(93, 141, 245, 0.16);
+    --fh-success: #5bd69f;
+    --fh-success-soft: rgba(91, 214, 159, 0.14);
+    --fh-warning: #f6b35f;
+    --fh-warning-soft: rgba(246, 179, 95, 0.14);
+    --fh-danger: #ff7884;
+    --fh-danger-soft: rgba(255, 120, 132, 0.14);
+    --primary: #5d8df5;
+    --primary-deep: #8ab0ff;
+    --tag-bg: rgba(93, 141, 245, 0.16);
+    --tag-color: #8ab0ff;
+    --bg-grad-1: rgba(93, 141, 245, 0.12);
+    --bg-grad-2: rgba(91, 214, 159, 0.07);
+    --fh-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+    color-scheme: dark;
+    background:
+        linear-gradient(135deg, rgba(93, 141, 245, 0.12), rgba(91, 214, 159, 0.07) 38%, rgba(19, 26, 36, 0) 64%),
+        var(--fh-bg) !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .wrapper,
+body.fh-modern.theme-dark > .container,
+body.fh-modern.theme-dark main.container,
+body.fh-modern.theme-dark > .main-container {
+    background: transparent;
+}
+
+body.fh-modern.theme-dark .panel-heading,
+body.fh-modern.theme-dark .page-header,
+body.fh-modern.theme-dark .main-navbar,
+body.fh-modern.theme-dark .panel-body,
+body.fh-modern.theme-dark .tool-panel,
+body.fh-modern.theme-dark .app-container,
+body.fh-modern.theme-dark .main-container,
+body.fh-modern.theme-dark .tab-container,
+body.fh-modern.theme-dark .preview-panel,
+body.fh-modern.theme-dark .regex-visual-debugger,
+body.fh-modern.theme-dark .search-container,
+body.fh-modern.theme-dark .x-wrapper,
+body.fh-modern.theme-dark .main-content,
+body.fh-modern.theme-dark .chart-container,
+body.fh-modern.theme-dark .tips-panel,
+body.fh-modern.theme-dark .input-panel,
+body.fh-modern.theme-dark .output-panel,
+body.fh-modern.theme-dark .control-panel,
+body.fh-modern.theme-dark .result-panel,
+body.fh-modern.theme-dark .settings-panel,
+body.fh-modern.theme-dark .result-section,
+body.fh-modern.theme-dark .input-section,
+body.fh-modern.theme-dark .option-group,
+body.fh-modern.theme-dark .template-selection,
+body.fh-modern.theme-dark .editor-panel,
+body.fh-modern.theme-dark .advanced-options,
+body.fh-modern.theme-dark .x-panel,
+body.fh-modern.theme-dark .x-section,
+body.fh-modern.theme-dark .mod-timestamp,
+body.fh-modern.theme-dark .mod-radios,
+body.fh-modern.theme-dark .row.x-tips,
+body.fh-modern.theme-dark .encode-card,
+body.fh-modern.theme-dark .encode-actions,
+body.fh-modern.theme-dark .tab-content,
+body.fh-modern.theme-dark .category-section,
+body.fh-modern.theme-dark .visual-result,
+body.fh-modern.theme-dark .color-module,
+body.fh-modern.theme-dark .global-alpha-slider,
+body.fh-modern.theme-dark .mod-inputs,
+body.fh-modern.theme-dark .box-result,
+body.fh-modern.theme-dark .quick-actions-module,
+body.fh-modern.theme-dark .input-time-module,
+body.fh-modern.theme-dark #chart-wrapper,
+body.fh-modern.theme-dark .current-time-module,
+body.fh-modern.theme-dark .parse-results-module,
+body.fh-modern.theme-dark .input-zone,
+body.fh-modern.theme-dark .output-zone,
+body.fh-modern.theme-dark .result-content,
+body.fh-modern.theme-dark .info-card,
+body.fh-modern.theme-dark .performance-section,
+body.fh-modern.theme-dark .performance-card,
+body.fh-modern.theme-dark .main-inner,
+body.fh-modern.theme-dark .tab-header,
+body.fh-modern.theme-dark .nav-tabs,
+body.fh-modern.theme-dark .mod-toolbar,
+body.fh-modern.theme-dark .tbl-editor,
+body.fh-modern.theme-dark .x-sidebar,
+body.fh-modern.theme-dark .x-sidebar .x-tools,
+body.fh-modern.theme-dark .special-layout,
+body.fh-modern.theme-dark .preview-container {
+    border-color: var(--fh-line) !important;
+    background: var(--fh-panel) !important;
+    color: var(--fh-text);
+    box-shadow: var(--fh-shadow);
+}
+
+body.fh-modern.theme-dark .panel-heading,
+body.fh-modern.theme-dark .page-header,
+body.fh-modern.theme-dark .main-navbar,
+body.fh-modern.theme-dark .encode-card-head,
+body.fh-modern.theme-dark .section-title,
+body.fh-modern.theme-dark .tab-btn.active,
+body.fh-modern.theme-dark thead th,
+body.fh-modern.theme-dark .table thead th,
+body.fh-modern.theme-dark table thead th {
+    border-color: var(--fh-line) !important;
+    background: linear-gradient(180deg, #222d3c, #1d2634) !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark h1,
+body.fh-modern.theme-dark h2,
+body.fh-modern.theme-dark h3,
+body.fh-modern.theme-dark h4,
+body.fh-modern.theme-dark h5,
+body.fh-modern.theme-dark label,
+body.fh-modern.theme-dark .radio label,
+body.fh-modern.theme-dark .panel-subtitle,
+body.fh-modern.theme-dark .x-panel-title,
+body.fh-modern.theme-dark .x-wd,
+body.fh-modern.theme-dark .x-section h4,
+body.fh-modern.theme-dark .mod-value label,
+body.fh-modern.theme-dark .category-title,
+body.fh-modern.theme-dark .color-module h4,
+body.fh-modern.theme-dark .color-module h5,
+body.fh-modern.theme-dark .input-group label,
+body.fh-modern.theme-dark .alpha-value,
+body.fh-modern.theme-dark .module-label,
+body.fh-modern.theme-dark .time-item label,
+body.fh-modern.theme-dark .performance-section h3,
+body.fh-modern.theme-dark .x-sidebar ul li,
+body.fh-modern.theme-dark .special-layout label,
+body.fh-modern.theme-dark .x-title,
+body.fh-modern.theme-dark .tips i,
+body.fh-modern.theme-dark .decoder-tips i {
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .tips,
+body.fh-modern.theme-dark .x-tips,
+body.fh-modern.theme-dark .hint-text,
+body.fh-modern.theme-dark .help-block,
+body.fh-modern.theme-dark .text-muted,
+body.fh-modern.theme-dark .encode-kicker,
+body.fh-modern.theme-dark .encode-method-title em,
+body.fh-modern.theme-dark .encode-hotkey,
+body.fh-modern.theme-dark .metric-label,
+body.fh-modern.theme-dark .metric-description,
+body.fh-modern.theme-dark .format-hints {
+    color: var(--fh-muted) !important;
+}
+
+body.fh-modern.theme-dark textarea,
+body.fh-modern.theme-dark input[type="text"],
+body.fh-modern.theme-dark input[type="number"],
+body.fh-modern.theme-dark input[type="password"],
+body.fh-modern.theme-dark input[type="search"],
+body.fh-modern.theme-dark input[type="url"],
+body.fh-modern.theme-dark input[type="email"],
+body.fh-modern.theme-dark select,
+body.fh-modern.theme-dark .form-control,
+body.fh-modern.theme-dark .x-input,
+body.fh-modern.theme-dark .fh-input,
+body.fh-modern.theme-dark .fh-textarea,
+body.fh-modern.theme-dark .fh-select,
+body.fh-modern.theme-dark .input-textarea,
+body.fh-modern.theme-dark .output-textarea,
+body.fh-modern.theme-dark .mod-textarea,
+body.fh-modern.theme-dark .time-item .time-display,
+body.fh-modern.theme-dark .CodeMirror {
+    border-color: var(--fh-line) !important;
+    background: #171f2b !important;
+    color: var(--fh-text) !important;
+    box-shadow: none;
+}
+
+body.fh-modern.theme-dark textarea::placeholder,
+body.fh-modern.theme-dark input::placeholder,
+body.fh-modern.theme-dark .form-control::placeholder {
+    color: #7e899a;
+}
+
+body.fh-modern.theme-dark textarea:focus,
+body.fh-modern.theme-dark input[type="text"]:focus,
+body.fh-modern.theme-dark input[type="number"]:focus,
+body.fh-modern.theme-dark input[type="password"]:focus,
+body.fh-modern.theme-dark input[type="search"]:focus,
+body.fh-modern.theme-dark input[type="url"]:focus,
+body.fh-modern.theme-dark input[type="email"]:focus,
+body.fh-modern.theme-dark select:focus,
+body.fh-modern.theme-dark .form-control:focus,
+body.fh-modern.theme-dark .x-input:focus,
+body.fh-modern.theme-dark .fh-input:focus,
+body.fh-modern.theme-dark .fh-textarea:focus,
+body.fh-modern.theme-dark .fh-select:focus,
+body.fh-modern.theme-dark .input-textarea:focus,
+body.fh-modern.theme-dark .output-textarea:focus {
+    border-color: rgba(93, 141, 245, 0.62) !important;
+    background: #192332 !important;
+    box-shadow: 0 0 0 3px rgba(93, 141, 245, 0.18) !important;
+}
+
+body.fh-modern.theme-dark input[readonly],
+body.fh-modern.theme-dark textarea[readonly],
+body.fh-modern.theme-dark input[disabled],
+body.fh-modern.theme-dark textarea[disabled],
+body.fh-modern.theme-dark select[disabled] {
+    background: #1a2330 !important;
+    color: var(--fh-muted) !important;
+}
+
+body.fh-modern.theme-dark .btn-default,
+body.fh-modern.theme-dark .btn-secondary,
+body.fh-modern.theme-dark .btn-outline,
+body.fh-modern.theme-dark .btn-action,
+body.fh-modern.theme-dark .radix-tips,
+body.fh-modern.theme-dark .encode-pill span,
+body.fh-modern.theme-dark .x-xdemo,
+body.fh-modern.theme-dark .tab-btn,
+body.fh-modern.theme-dark .regex-item,
+body.fh-modern.theme-dark .btn-copy,
+body.fh-modern.theme-dark .quick-btn,
+body.fh-modern.theme-dark ul.box-tools li.x-addtool,
+body.fh-modern.theme-dark .x-sidebar ul li,
+body.fh-modern.theme-dark .nav-tabs > li > a,
+body.fh-modern.theme-dark .example-links a,
+body.fh-modern.theme-dark .x-toolbox a {
+    border-color: var(--fh-line) !important;
+    background: #202b3a !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .btn-primary,
+body.fh-modern.theme-dark .btn-success,
+body.fh-modern.theme-dark .btn-info,
+body.fh-modern.theme-dark #upload,
+body.fh-modern.theme-dark #generate-btn,
+body.fh-modern.theme-dark .regex-item:hover,
+body.fh-modern.theme-dark .regex-item:focus,
+body.fh-modern.theme-dark .btn-copy:hover,
+body.fh-modern.theme-dark .radix-tips:hover,
+body.fh-modern.theme-dark .quick-btn:hover,
+body.fh-modern.theme-dark ul.box-tools li.x-addtool:hover,
+body.fh-modern.theme-dark .x-sidebar ul li:hover,
+body.fh-modern.theme-dark .x-sidebar ul li.x-selected,
+body.fh-modern.theme-dark .nav-tabs > li.active > a,
+body.fh-modern.theme-dark .nav-tabs > li.active > a:hover,
+body.fh-modern.theme-dark .nav-tabs > li.active > a:focus,
+body.fh-modern.theme-dark .nav-tabs > li > a:hover,
+body.fh-modern.theme-dark .mod-radios input[type="radio"]:checked + label {
+    border-color: #5d8df5 !important;
+    background: #4b78df !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 24px rgba(32, 80, 170, 0.32);
+}
+
+body.fh-modern.theme-dark .btn-warning {
+    border-color: rgba(246, 179, 95, 0.42) !important;
+    background: var(--fh-warning-soft) !important;
+    color: #ffd39a !important;
+}
+
+body.fh-modern.theme-dark .btn-danger,
+body.fh-modern.theme-dark .alert-danger {
+    border-color: rgba(255, 120, 132, 0.42) !important;
+    background: var(--fh-danger-soft) !important;
+    color: #ffb6bd !important;
+}
+
+body.fh-modern.theme-dark .x-other-tools,
+body.fh-modern.theme-dark .panel-title > .x-switch,
+body.fh-modern.theme-dark .page-header > .x-switch,
+body.fh-modern.theme-dark .fh-tool-actions > .x-switch,
+body.fh-modern.theme-dark .fh-nav-btn {
+    border-color: rgba(93, 141, 245, 0.42) !important;
+    background: rgba(93, 141, 245, 0.16) !important;
+    color: #8ab0ff !important;
+}
+
+body.fh-modern.theme-dark .x-other-tools:hover,
+body.fh-modern.theme-dark .panel-title > .x-switch:hover,
+body.fh-modern.theme-dark .page-header > .x-switch:hover,
+body.fh-modern.theme-dark .fh-tool-actions > .x-switch:hover,
+body.fh-modern.theme-dark .fh-nav-btn:hover {
+    border-color: rgba(138, 176, 255, 0.64) !important;
+    background: rgba(93, 141, 245, 0.24) !important;
+    color: #c7d8ff !important;
+}
+
+body.fh-modern.theme-dark .x-donate-link,
+body.fh-modern.theme-dark .x-donate-link > a {
+    border-color: rgba(91, 214, 159, 0.42) !important;
+    background: rgba(91, 214, 159, 0.14) !important;
+    color: #8de8ba !important;
+}
+
+body.fh-modern.theme-dark .x-donate-link:hover,
+body.fh-modern.theme-dark .x-donate-link:hover > a {
+    border-color: rgba(141, 232, 186, 0.58) !important;
+    background: rgba(91, 214, 159, 0.2) !important;
+    color: #b8f4d4 !important;
+}
+
+body.fh-modern.theme-dark .table,
+body.fh-modern.theme-dark table.table,
+body.fh-modern.theme-dark table {
+    border-color: var(--fh-line) !important;
+    background: var(--fh-panel) !important;
+    color: var(--fh-text);
+}
+
+body.fh-modern.theme-dark .table th,
+body.fh-modern.theme-dark .table td,
+body.fh-modern.theme-dark table th,
+body.fh-modern.theme-dark table td {
+    border-color: var(--fh-line) !important;
+}
+
+body.fh-modern.theme-dark tbody tr:nth-child(odd),
+body.fh-modern.theme-dark .list-group-item,
+body.fh-modern.theme-dark .dropdown-menu,
+body.fh-modern.theme-dark .modal-content {
+    border-color: var(--fh-line) !important;
+    background: #1b2431 !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark tbody tr:nth-child(even) {
+    background: #182130;
+}
+
+body.fh-modern.theme-dark .alert,
+body.fh-modern.theme-dark .well,
+body.fh-modern.theme-dark .tips-panel,
+body.fh-modern.theme-dark .fh-page-tip {
+    border-color: var(--fh-line) !important;
+    background: #1a2330 !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .alert-info {
+    border-color: rgba(93, 141, 245, 0.42) !important;
+    background: rgba(93, 141, 245, 0.16) !important;
+    color: #c7d8ff !important;
+}
+
+body.fh-modern.theme-dark .CodeMirror-scroll,
+body.fh-modern.theme-dark .CodeMirror-gutters {
+    background: #171f2b !important;
+    border-color: var(--fh-line) !important;
+}
+
+body.fh-modern.theme-dark .CodeMirror-linenumber {
+    color: var(--fh-faint) !important;
+}
+
+body.fh-modern.theme-dark .CodeMirror-cursor {
+    border-left-color: var(--fh-primary) !important;
+}
+
+body.fh-modern.theme-dark .CodeMirror-activeline-background {
+    background: rgba(93, 141, 245, 0.12) !important;
+}
+
+body.fh-modern.theme-dark .CodeMirror-selected {
+    background: rgba(93, 141, 245, 0.22) !important;
+}
+
+body.fh-modern.theme-dark .cm-keyword { color: #c084fc !important; }
+body.fh-modern.theme-dark .cm-string { color: #86efac !important; }
+body.fh-modern.theme-dark .cm-number { color: #fbbf24 !important; }
+body.fh-modern.theme-dark .cm-comment { color: #7e899a !important; }
+body.fh-modern.theme-dark .cm-variable,
+body.fh-modern.theme-dark .cm-variable-2 { color: var(--fh-text) !important; }
+body.fh-modern.theme-dark .cm-property { color: #93c5fd !important; }
+body.fh-modern.theme-dark .cm-def { color: #fcd34d !important; }
+body.fh-modern.theme-dark .cm-operator { color: #f87171 !important; }
+body.fh-modern.theme-dark .cm-atom { color: #f472b6 !important; }
+
+body.fh-modern.theme-dark pre,
+body.fh-modern.theme-dark code,
+body.fh-modern.theme-dark kbd,
+body.fh-modern.theme-dark .x-code,
+body.fh-modern.theme-dark .rst-code,
+body.fh-modern.theme-dark .result-code,
+body.fh-modern.theme-dark .output-code {
+    border-color: var(--fh-line) !important;
+    background: #171f2b !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .preview,
+body.fh-modern.theme-dark .preview-box,
+body.fh-modern.theme-dark .result-box,
+body.fh-modern.theme-dark .output-box,
+body.fh-modern.theme-dark .upload-area,
+body.fh-modern.theme-dark .drop-zone,
+body.fh-modern.theme-dark .canvas-container,
+body.fh-modern.theme-dark .panel-content,
+body.fh-modern.theme-dark .result-container,
+body.fh-modern.theme-dark .chart-placeholder {
+    border-color: var(--fh-line) !important;
+    background: #171f2b !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .markdown-body,
+body.fh-modern.theme-dark .the-tabs,
+body.fh-modern.theme-dark .ui-widget-header,
+body.fh-modern.theme-dark .ui-widget-content {
+    border-color: var(--fh-line) !important;
+    background: #171f2b !important;
+    color: var(--fh-text) !important;
+    box-shadow: none !important;
+}
+
+body.fh-modern.theme-dark #chart-wrapper:empty {
+    background-image:
+        linear-gradient(135deg, rgba(93, 141, 245, 0.12), rgba(91, 214, 159, 0.07)),
+        linear-gradient(180deg, #1d2634, #171f2b) !important;
+}
+
+body.fh-modern.theme-dark ::selection {
+    background: rgba(93, 141, 245, 0.35);
+    color: #ffffff;
+}
+
 body.fh-modern *,
 body.fh-modern *::before,
 body.fh-modern *::after {
@@ -52,13 +492,13 @@ body.fh-modern > .main-container {
     max-width: none;
     margin-right: 0;
     margin-left: 0;
-    padding: 16px;
+    padding: var(--fh-page-pad);
 }
 
 body.fh-modern > .app-container {
-    width: calc(100% - 64px);
+    width: calc(100% - (var(--fh-page-pad) * 2));
     max-width: none;
-    margin: 0 32px 16px;
+    margin: 0 var(--fh-page-pad) var(--fh-page-pad);
     padding: 0;
 }
 
@@ -66,6 +506,20 @@ body.fh-modern .wrapper,
 body.fh-modern > .container,
 body.fh-modern main.container {
     min-height: 100dvh;
+}
+
+body.fh-modern .wrapper.fh-header-only-wrapper {
+    min-height: 0 !important;
+    padding-bottom: 0;
+}
+
+body.fh-modern .wrapper > .qr-topbar {
+    width: 100% !important;
+    margin: 0 0 var(--fh-page-gap) !important;
+}
+
+body.fh-modern .qr-topbar > .panel-heading {
+    margin: 0 !important;
 }
 
 body.fh-modern .panel {
@@ -81,8 +535,8 @@ body.fh-modern .main-navbar {
     top: 0;
     z-index: 20;
     width: 100%;
-    min-height: 72px;
-    margin: 0 0 12px;
+    min-height: var(--fh-header-height) !important;
+    margin: 0 0 var(--fh-page-gap) !important;
     border: 1px solid var(--fh-line);
     border-radius: var(--fh-radius);
     background: var(--fh-panel);
@@ -92,25 +546,40 @@ body.fh-modern .main-navbar {
 
 body.fh-modern .panel-heading,
 body.fh-modern .page-header {
-    padding: 14px 16px;
+    padding: 5px 9px !important;
 }
 
 body.fh-modern .main-navbar {
     width: 100%;
-    margin: 0 0 12px;
-    padding: 14px 16px;
+    margin: 0 0 var(--fh-page-gap) !important;
+    padding: 5px 9px !important;
 }
 
 body.fh-modern > .main-navbar {
-    width: calc(100% - 32px);
-    margin: 16px 16px 12px;
+    width: calc(100% - (var(--fh-page-pad) * 2));
+    max-width: calc(100% - (var(--fh-page-pad) * 2));
+    box-sizing: border-box;
+    margin: var(--fh-page-pad) var(--fh-page-pad) var(--fh-page-gap) !important;
 }
 
 body.fh-modern .main-navbar + .panel,
 body.fh-modern .main-navbar + .main-container {
-    width: calc(100% - 32px);
-    margin-right: 16px;
-    margin-left: 16px;
+    width: 100%;
+    margin-right: 0;
+    margin-left: 0;
+}
+
+body.fh-modern > .panel,
+body.fh-modern main.container {
+    width: calc(100% - (var(--fh-page-pad) * 2));
+    max-width: none;
+    margin-right: var(--fh-page-pad);
+    margin-left: var(--fh-page-pad);
+}
+
+body.fh-modern > .panel {
+    margin-top: var(--fh-page-pad);
+    margin-bottom: var(--fh-page-gap);
 }
 
 body.fh-modern .panel-title,
@@ -119,8 +588,8 @@ body.fh-modern .navbar-brand,
 body.fh-modern .mod-head-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
-    min-height: 42px;
+    gap: 8px;
+    min-height: 30px !important;
     color: var(--fh-text);
     font-size: 14px;
     font-weight: 800;
@@ -157,20 +626,167 @@ body.fh-modern .fh-tool-actions {
     margin-left: auto;
 }
 
+body.fh-modern .fh-unified-header {
+    display: flex !important;
+    align-items: center !important;
+}
+
+body.fh-modern .fh-tool-layout-ready {
+    width: 100%;
+    min-height: 30px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+body.fh-modern .fh-tool-brand-line {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+}
+
+body.fh-modern .fh-tool-brand-link {
+    flex: 0 0 auto;
+    height: 26px;
+}
+
+body.fh-modern .fh-tool-title-divider {
+    flex: 0 0 auto;
+    color: var(--fh-faint);
+    font-size: 15px;
+    line-height: 1;
+}
+
+body.fh-modern .fh-tool-title {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--fh-text);
+    font-size: 16px;
+    font-weight: 760;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.fh-modern .fh-tool-title .page-title-suffix,
+body.fh-modern .fh-tool-title .brand-subtitle,
+body.fh-modern .fh-tool-title .title-text-wrapper-text {
+    display: inline;
+    color: inherit !important;
+    font: inherit !important;
+    line-height: inherit !important;
+    white-space: inherit !important;
+}
+
+body.fh-modern .fh-tool-title .page-title-suffix::before,
+body.fh-modern .fh-tool-title .brand-subtitle::before,
+body.fh-modern .fh-tool-title .title-text-wrapper-text::before {
+    display: none !important;
+    content: none !important;
+}
+
+body.fh-modern .fh-tool-header-actions {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: min(720px, 54vw);
+    height: 30px;
+    min-height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1px 0;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+body.fh-modern .fh-tool-header-actions::-webkit-scrollbar {
+    display: none;
+}
+
+body.fh-modern .fh-tool-header-actions > .navbar-actions,
+body.fh-modern .fh-tool-header-actions > .mod-head-actions,
+body.fh-modern .fh-tool-header-actions > .fh-tool-actions,
+body.fh-modern .fh-tool-header-actions > .qr-header-actions {
+    min-height: 30px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    flex: 0 0 auto !important;
+    gap: 6px !important;
+    margin-left: 0 !important;
+}
+
+body.fh-modern .fh-tool-header-actions .example-links,
+body.fh-modern .fh-tool-header-actions .x-toolbox {
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 6px;
+    overflow: visible;
+}
+
+body.fh-modern .fh-tool-header-actions .x-line {
+    display: none;
+}
+
+body.fh-modern .fh-tool-header-actions .example-links a,
+body.fh-modern .fh-tool-header-actions .x-toolbox a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    padding: 0 9px;
+    border: 1px solid var(--fh-line);
+    border-radius: 999px;
+    background: var(--fh-panel-solid);
+    color: var(--fh-muted);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+body.fh-modern .fh-tool-header-actions .fh-nav-btn,
+body.fh-modern .fh-tool-header-actions .x-xdemo {
+    flex: 0 0 auto;
+}
+
+body.fh-modern .fh-tool-header-actions .x-other-tools,
+body.fh-modern .fh-tool-header-actions .x-donate-link,
+body.fh-modern .fh-tool-header-actions .x-switch,
+body.fh-modern .fh-tool-header-actions .fh-nav-btn,
+body.fh-modern .fh-tool-header-actions .x-xdemo,
+body.fh-modern .fh-tool-header-actions .example-links,
+body.fh-modern .fh-tool-header-actions .x-toolbox,
+body.fh-modern .fh-tool-header-actions .x-gmt-setting {
+    margin: 0 !important;
+    float: none !important;
+}
+
 body.fh-modern .x-a-high,
 body.fh-modern .header-link,
 body.fh-modern .brand-link {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    min-height: 34px;
-    padding: 0 11px;
-    border: 1px solid var(--fh-line);
-    border-radius: 999px;
-    background: var(--fh-surface-soft);
+    gap: 7px;
+    min-height: 26px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     color: var(--fh-text);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 15px;
+    font-weight: 760;
     text-decoration: none;
     white-space: nowrap;
 }
@@ -192,7 +808,7 @@ body.fh-modern .page-title-suffix,
 body.fh-modern .brand-subtitle,
 body.fh-modern .title-text-wrapper-text {
     color: var(--fh-text);
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 760;
     line-height: 1.2;
     white-space: nowrap;
@@ -225,7 +841,7 @@ body.fh-modern .panel-title > span:first-child:not(.x-donate-link),
 body.fh-modern .page-header > h1 {
     margin: 0;
     color: var(--fh-text);
-    font-size: 20px;
+    font-size: 16px;
     line-height: 1.2;
     font-weight: 760;
 }
@@ -252,7 +868,7 @@ body.fh-modern .fh-tool-actions > .x-switch {
     background: var(--fh-panel-solid);
     color: var(--fh-muted);
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
     line-height: 1;
     text-decoration: none;
@@ -379,9 +995,9 @@ body.fh-modern .nav-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
-    margin-right: 5px;
+    width: 17px;
+    height: 17px;
+    margin-right: 4px;
     border-radius: 999px;
     background: #d1fae5;
     color: #047857;
@@ -410,6 +1026,16 @@ body.fh-modern .panel-body {
     border-radius: var(--fh-radius);
     background: var(--fh-panel-solid);
     box-shadow: var(--fh-shadow);
+}
+
+body.fh-modern #pageContainer > .panel-body {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+}
+
+body.fh-modern #pageContainer > .panel-body.password-card {
+    max-width: none;
+    margin-top: 0 !important;
 }
 
 body.fh-modern .panel > .panel-body,
@@ -713,9 +1339,11 @@ body.fh-modern .fh-confirm-icon {
 
 /* Tool-specific containment for older standalone pages. */
 body.fh-modern main.container {
-    width: 100%;
+    width: calc(100% - (var(--fh-page-pad) * 2));
     max-width: none;
-    padding: 16px;
+    margin-right: var(--fh-page-pad);
+    margin-left: var(--fh-page-pad);
+    padding: 0;
 }
 
 body.fh-modern main.container .app-container {
@@ -771,8 +1399,8 @@ body.fh-modern .wp-json .mod-json {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 12px;
-    min-height: calc(100vh - 110px);
-    padding: 12px;
+    min-height: calc(100vh - 86px);
+    padding: 10px;
 }
 
 body.fh-modern .wp-json .json-examples {
@@ -800,7 +1428,7 @@ body.fh-modern .wp-json .mod-textarea {
 }
 
 body.fh-modern .wp-json .CodeMirror {
-    min-height: calc(100vh - 180px);
+    min-height: calc(100vh - 156px);
 }
 
 @media (max-width: 900px) {
@@ -884,29 +1512,30 @@ body.fh-modern img[alt="loading"] {
 @media (max-width: 760px) {
     body.fh-modern .wrapper,
     body.fh-modern > .container,
+    body.fh-modern main.container,
     body.fh-modern .main-navbar {
         width: 100%;
         max-width: none;
         margin-right: 0;
         margin-left: 0;
-        padding-right: 8px;
-        padding-left: 8px;
+        padding-right: var(--fh-page-gap);
+        padding-left: var(--fh-page-gap);
     }
 
     body.fh-modern .main-navbar {
         width: 100%;
         margin: 0 0 8px;
-        padding: 12px;
+        padding: 8px !important;
     }
 
     body.fh-modern > .main-navbar {
-        width: calc(100% - 16px);
-        margin: 8px 8px 8px;
+        width: calc(100% - (var(--fh-page-gap) * 2));
+        margin: var(--fh-page-gap) var(--fh-page-gap) var(--fh-page-gap) !important;
     }
 
     body.fh-modern > .app-container {
-        width: calc(100% - 32px);
-        margin: 0 16px 8px;
+        width: calc(100% - (var(--fh-page-gap) * 2));
+        margin: 0 var(--fh-page-gap) var(--fh-page-gap);
         padding: 0;
     }
 
@@ -920,8 +1549,16 @@ body.fh-modern img[alt="loading"] {
     body.fh-modern .panel-title,
     body.fh-modern .page-header,
     body.fh-modern .navbar-brand {
-        align-items: flex-start;
-        flex-wrap: wrap;
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+
+    body.fh-modern .fh-tool-layout-ready {
+        gap: 8px !important;
+    }
+
+    body.fh-modern .fh-tool-header-actions {
+        max-width: 50vw;
     }
 
     body.fh-modern .panel-title > .x-other-tools,

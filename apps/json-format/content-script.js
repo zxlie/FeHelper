@@ -31,7 +31,10 @@ window.JsonAutoFormat = (() => {
         // 最大json key数量
         MAX_JSON_KEYS_NUMBER: 'MAX_JSON_KEYS_NUMBER',
         // 自定义皮肤
-        JSON_FORMAT_THEME: 'JSON_FORMAT_THEME'
+        JSON_FORMAT_THEME: 'JSON_FORMAT_THEME',
+        // 全局夜间模式
+        AUTO_DARK_MODE: false,
+        ALWAYS_DARK_MODE: false
     };
 
     // 皮肤定义
@@ -61,8 +64,12 @@ window.JsonAutoFormat = (() => {
         sortType: 0,
         autoDecode: false,
         originalSource: '',
-        NESTED_ESCAPE_PARSE: false
+        NESTED_ESCAPE_PARSE: false,
+        AUTO_DARK_MODE: false,
+        ALWAYS_DARK_MODE: false
     };
+
+    let darkModePreferenceBound = false;
 
     // 获取JSON格式化的配置信息
     let _getAllOptions = (success) => {
@@ -399,7 +406,7 @@ window.JsonAutoFormat = (() => {
 
         let elBody = $('body');
 
-        let theme = SKIN_THEME[formatOptions.JSON_FORMAT_THEME || 0];
+        let theme = _getResolvedTheme();
         Object.values(SKIN_THEME).forEach(th => elBody.removeClass(th));
         elBody.addClass(theme);
 
@@ -633,6 +640,59 @@ window.JsonAutoFormat = (() => {
         }
     };
 
+    let _isNightTime = () => {
+        let hour = new Date().getHours();
+        return hour >= 19 || hour < 6;
+    };
+
+    let _prefersColorSchemeDark = () => {
+        try {
+            return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        } catch (e) {
+            return false;
+        }
+    };
+
+    let _shouldUseAutoDarkTheme = () => {
+        if (formatOptions.ALWAYS_DARK_MODE) {
+            return true;
+        }
+        if (!formatOptions.AUTO_DARK_MODE) {
+            return false;
+        }
+        return _prefersColorSchemeDark() || _isNightTime();
+    };
+
+    let _getResolvedTheme = () => {
+        let themeKey = String(formatOptions.JSON_FORMAT_THEME || 0);
+        if (themeKey === '0' && _shouldUseAutoDarkTheme()) {
+            themeKey = '3';
+        }
+        return SKIN_THEME[themeKey] || SKIN_THEME[0];
+    };
+
+    let _bindDarkModePreferenceListener = () => {
+        if (darkModePreferenceBound || !window.matchMedia) {
+            return;
+        }
+        darkModePreferenceBound = true;
+
+        try {
+            let mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            let refreshTheme = () => {
+                if (formatOptions.AUTO_DARK_MODE && String(formatOptions.JSON_FORMAT_THEME || 0) === '0') {
+                    _didFormat();
+                }
+            };
+
+            if (mediaQuery.addEventListener) {
+                mediaQuery.addEventListener('change', refreshTheme);
+            } else if (mediaQuery.addListener) {
+                mediaQuery.addListener(refreshTheme);
+            }
+        } catch (e) {}
+    };
+
 
     /**
      * 判断字符串参数是否为一个合法的json，如果是则返回json对象
@@ -777,6 +837,7 @@ window.JsonAutoFormat = (() => {
             // 确保从storage加载最新设置
             _getAllOptions(options => {
                 _extendsOptions(options);
+                _bindDarkModePreferenceListener();
                 _initToolbar();
                 _didFormat();
             });

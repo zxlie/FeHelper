@@ -61,6 +61,11 @@ var DarkModeMgr = (function () {
 	`;
 
     let isFirefox = /Firefox/.test(navigator.userAgent);
+    let filterObserver = null;
+    let mediaQueryList = null;
+    let mediaQueryHandler = null;
+    let autoDarkModeCallbacks = [];
+    let lastAutoDarkModeState = null;
 
     function addOrUpdateExtraElements() {
 
@@ -109,21 +114,208 @@ var DarkModeMgr = (function () {
     }
 
 
+    function isEnabledSetting(value) {
+        return value === true || value === 'true';
+    }
+
+    function readLocalSetting(key) {
+        try {
+            return isEnabledSetting(localStorage.getItem(key));
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function readSetting(key, settings) {
+        if (settings && Object.prototype.hasOwnProperty.call(settings, key)) {
+            return isEnabledSetting(settings[key]);
+        }
+        return readLocalSetting(key);
+    }
+
+    function readChromeStorageSettings(callback) {
+        if (
+            typeof chrome === 'undefined' ||
+            !chrome.storage ||
+            !chrome.storage.local ||
+            !chrome.storage.local.get
+        ) {
+            return callback(null);
+        }
+
+        try {
+            chrome.storage.local.get(['AUTO_DARK_MODE', 'ALWAYS_DARK_MODE'], result => {
+                callback(result || null);
+            });
+        } catch (e) {
+            callback(null);
+        }
+    }
+
+    function isNightTime() {
+        let hour = new Date().getHours();
+        return hour >= 19 || hour < 6;
+    }
+
+    function prefersColorSchemeDark() {
+        try {
+            return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function getAutoDarkModeState(settings) {
+        let auto = readSetting('AUTO_DARK_MODE', settings);
+        let always = readSetting('ALWAYS_DARK_MODE', settings);
+
+        if (always) {
+            return true;
+        }
+
+        if (!auto) {
+            return false;
+        }
+
+        return prefersColorSchemeDark() || isNightTime();
+    }
+
+    function emitAutoDarkModeChange(enabled, force) {
+        enabled = !!enabled;
+        if (!force && lastAutoDarkModeState === enabled) {
+            return;
+        }
+
+        lastAutoDarkModeState = enabled;
+
+        autoDarkModeCallbacks.forEach(callback => {
+            try {
+                callback(enabled);
+            } catch (e) {}
+        });
+
+        try {
+            window.dispatchEvent(new CustomEvent('fh-dark-mode-change', {
+                detail: {enabled}
+            }));
+        } catch (e) {}
+    }
+
+    function syncAutoDarkMode(options) {
+        options = options || {};
+        let enabled = getAutoDarkModeState(options.settings);
+        if (options.applyFilter) {
+            turnLight(enabled);
+        }
+        emitAutoDarkModeChange(enabled, options.force);
+        return enabled;
+    }
+
+    function syncAutoDarkModeFromStorage(options) {
+        options = options || {};
+        let enabled = syncAutoDarkMode(options);
+
+        readChromeStorageSettings(settings => {
+            if (!settings) {
+                return;
+            }
+
+            syncAutoDarkMode(Object.assign({}, options, {
+                settings,
+                force: options.force || enabled !== getAutoDarkModeState(settings)
+            }));
+        });
+
+        return enabled;
+    }
+
+    function ensureAutoDarkModeWatcher(options) {
+        if (mediaQueryHandler) {
+            return;
+        }
+
+        mediaQueryHandler = function () {
+            syncAutoDarkMode(options);
+        };
+
+        try {
+            mediaQueryList = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+            if (mediaQueryList) {
+                if (mediaQueryList.addEventListener) {
+                    mediaQueryList.addEventListener('change', mediaQueryHandler);
+                } else if (mediaQueryList.addListener) {
+                    mediaQueryList.addListener(mediaQueryHandler);
+                }
+            }
+        } catch (e) {}
+
+        window.addEventListener('storage', function (event) {
+            if (event.key === 'AUTO_DARK_MODE' || event.key === 'ALWAYS_DARK_MODE') {
+                syncAutoDarkModeFromStorage(options);
+            }
+        });
+
+        if (
+            typeof chrome !== 'undefined' &&
+            chrome.storage &&
+            chrome.storage.onChanged &&
+            chrome.storage.onChanged.addListener
+        ) {
+            chrome.storage.onChanged.addListener((changes, areaName) => {
+                if (
+                    areaName === 'local' &&
+                    (changes.AUTO_DARK_MODE || changes.ALWAYS_DARK_MODE)
+                ) {
+                    syncAutoDarkModeFromStorage(options);
+                }
+            });
+        }
+    }
+
+    function watchAutoDarkMode(callback, options) {
+        options = options || {};
+        if (typeof callback === 'function') {
+            autoDarkModeCallbacks.push(callback);
+        }
+        ensureAutoDarkModeWatcher(options);
+        syncAutoDarkModeFromStorage({applyFilter: !!options.applyFilter, force: true});
+
+        return function () {
+            autoDarkModeCallbacks = autoDarkModeCallbacks.filter(item => item !== callback);
+        };
+    }
+
     function turnLight(auto) {
         if (isFirefox) return;
 
-        document.documentElement.setAttribute('dark-mode', auto && 'on' || 'off');
-        if (!chrome.runtime.lastError && auto) {
+        document.documentElement.setAttribute('dark-mode', auto ? 'on' : 'off');
+
+        if (!auto) {
+            let bg = document.getElementById('_fh_filter_bkgnd');
+            if (bg) {
+                bg.style.display = 'none';
+            }
+            if (filterObserver) {
+                filterObserver.disconnect();
+                filterObserver = null;
+            }
+            return;
+        }
+
+        let hasChromeRuntime = typeof chrome !== 'undefined' && chrome.runtime;
+        if (hasChromeRuntime && !chrome.runtime.lastError) {
             if (window === window.top) {
                 window.scrollBy(0, 1);
                 window.scrollBy(0, -1);
             }
             window.setTimeout(addOrUpdateExtraElements, 2000);
             addOrUpdateExtraElements();
-            let observer = new MutationObserver(function (mutations) {
-                addOrUpdateExtraElements();
-            });
-            observer.observe(document.body, {attributes: true, childList: true, characterData: true});
+            if (!filterObserver) {
+                filterObserver = new MutationObserver(function (mutations) {
+                    addOrUpdateExtraElements();
+                });
+                filterObserver.observe(document.body, {attributes: true, childList: true, characterData: true});
+            }
         }
     }
 
@@ -131,24 +323,13 @@ var DarkModeMgr = (function () {
     function turnLightAuto() {
         if (isFirefox) return;
 
-        chrome.runtime.sendMessage({
-            type: 'fh-dynamic-any-thing'
-        }, (params) => {
-            let hour = new Date().getHours();
-            let auto = localStorage.getItem('AUTO_DARK_MODE') === 'true';
-            // 支持强制开启，优先级高
-            let always = localStorage.getItem('ALWAYS_DARK_MODE') === 'true';
-            let switchOn = auto && always;
-            if (!switchOn) {
-                // 不强制开启的情况下，看是否时间条件满足
-                switchOn = auto && (hour >= 19 || hour < 6);
-            }
-            switchOn && turnLight(switchOn);
-            return true;
-        });
+        ensureAutoDarkModeWatcher({applyFilter: true});
+        syncAutoDarkModeFromStorage({applyFilter: true});
     }
 
     return {
+        getAutoDarkModeState,
+        watchAutoDarkMode,
         turnLight,
         turnLightAuto
     }

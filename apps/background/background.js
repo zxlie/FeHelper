@@ -11,6 +11,10 @@ import Awesome from './awesome.js';
 import InjectTools from './inject-tools.js';
 import Monkey from './monkey.js';
 import Statistics from './statistics.js';
+import {
+    getPopupWakeupTarget,
+    isInjectableTabUrl
+} from './url-policy.js';
 
 
 let BgPageInstance = (function () {
@@ -18,11 +22,6 @@ let BgPageInstance = (function () {
     let FeJson = {
         notifyTimeoutId: -1
     };
-
-    // 黑名单页面
-    let blacklist = [
-        /^https:\/\/chrome\.google\.com/
-    ];
 
     const FeHelperBg = {};
 
@@ -198,7 +197,7 @@ let BgPageInstance = (function () {
             let toolFunc = tool.replace(/-/g, '');
             chrome.tabs.query({active: true, currentWindow: true}, tabs => {
                 let found = tabs.some(tab => {
-                    if (/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))) {
+                    if (isInjectableTabUrl(tab.url)) {
                         let funcName = toolFunc + 'NoPage';
                         InjectTools.inject(tab.id, {
                             func: (fn, t) => { window[fn] && window[fn](t); },
@@ -378,7 +377,7 @@ let BgPageInstance = (function () {
 
             if (action === 'offload') {
                 _animateTips('-1');
-            } else if(!!action) {
+            } else if(action) {
                 _animateTips('+1');
             }
         } else {
@@ -387,7 +386,7 @@ let BgPageInstance = (function () {
         }
 
         if (showTips) {
-            let actionTxt = '';
+            let actionTxt;
             switch (action) {
                 case 'install':
                     actionTxt = '工具已「安装」成功，并已添加到弹出下拉列表，点击FeHelper图标可正常使用！';
@@ -507,26 +506,18 @@ let BgPageInstance = (function () {
             else if (request.type === 'fh-popup-opened') {
                 chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
                     const activeTab = tabs && tabs[0];
-                    const tabId = activeTab && activeTab.id;
-                    const url = activeTab && activeTab.url;
-
-                    // 不可注入页面（chrome:// / edge:// / about: 等）直接提示
-                    const injectable = /^(http(s)?|file):\/\//.test(url || '') && blacklist.every(reg => !reg.test(url || ''));
-                    if (!tabId || !injectable) {
-                        notifyText({
-                            message: '当前页面不支持注入脚本（可能是浏览器内置页面或未授权站点）。请在普通网页中使用，或在扩展管理里为该站点放行“网站访问权限”。',
-                            autoClose: 3500
-                        });
-                        callback && callback({ok: false, reason: 'not_injectable', url});
+                    const wakeupTarget = getPopupWakeupTarget(activeTab);
+                    if (!wakeupTarget.ok) {
+                        callback && callback(wakeupTarget);
                         return;
                     }
 
                     // 先注入 tabId 标记，再注入工具内容脚本
-                    InjectTools.inject(tabId, { func: (id) => { window.__FH_TAB_ID__ = id; }, args: [tabId] }, () => {
+                    InjectTools.inject(wakeupTarget.tabId, { func: (id) => { window.__FH_TAB_ID__ = id; }, args: [wakeupTarget.tabId] }, () => {
                         if (chrome.runtime.lastError) {
                             console.warn('fh-popup-opened: inject __FH_TAB_ID__ failed:', chrome.runtime.lastError);
                         }
-                        _injectContentScripts(tabId, {silent: false});
+                        _injectContentScripts(wakeupTarget.tabId, {silent: false});
                         callback && callback({ok: true});
                     });
                 });
@@ -713,7 +704,7 @@ let BgPageInstance = (function () {
         // 每开一个窗口，都向内容脚本注入一个js，绑定tabId
         chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
             if (String(changeInfo.status).toLowerCase() === "complete") {
-                if(/^(http(s)?|file):\/\//.test(tab.url) && blacklist.every(reg => !reg.test(tab.url))){
+                if(isInjectableTabUrl(tab.url)){
                     InjectTools.inject(tabId, { func: (id) => { window.__FH_TAB_ID__ = id; }, args: [tabId] });
                     _injectContentScripts(tabId, {silent: true});
                 }
@@ -721,7 +712,7 @@ let BgPageInstance = (function () {
         });
 
         // ============ 网页油猴：webNavigation 三档触发 ============
-        const _isMonkeyTriggerableUrl = (url) => /^(http(s)?|file):\/\//.test(url || '') && blacklist.every(reg => !reg.test(url));
+        const _isMonkeyTriggerableUrl = isInjectableTabUrl;
 
         try {
             // document-start：DOM 还未构建，最早期 hook

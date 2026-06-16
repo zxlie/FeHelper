@@ -34,6 +34,8 @@ const SYSTEM_PROMPT = {
         '如果生成的是代码，一定要用```的markdown代码块包裹，并使用markdown语法渲染。'
 };
 
+const BUILTIN_TEXT_LANGUAGES = ['en', 'ja', 'es'];
+
 let AI = (() => {
 
     function isBuiltInPromptSupported() {
@@ -96,6 +98,34 @@ let AI = (() => {
         return Math.floor(Date.now() / 1000);
     }
 
+    function getPreferredBuiltInOutputLanguage() {
+        let browserLanguage = '';
+        try {
+            browserLanguage = (globalThis.navigator && globalThis.navigator.language) || '';
+        } catch (e) {}
+
+        const baseLanguage = String(browserLanguage).toLowerCase().split('-')[0];
+        return BUILTIN_TEXT_LANGUAGES.includes(baseLanguage) ? baseLanguage : 'en';
+    }
+
+    function getBuiltInTextLanguageOptions() {
+        return {
+            expectedInputs: [
+                { type: 'text', languages: BUILTIN_TEXT_LANGUAGES }
+            ],
+            expectedOutputs: [
+                { type: 'text', languages: [getPreferredBuiltInOutputLanguage()] }
+            ]
+        };
+    }
+
+    function buildBuiltInCreateOptions(extraOptions) {
+        return {
+            ...getBuiltInTextLanguageOptions(),
+            ...(extraOptions || {})
+        };
+    }
+
     function emitStatus(receivingCallback, status, progress, message) {
         receivingCallback && receivingCallback({
             type: 'status',
@@ -134,7 +164,7 @@ let AI = (() => {
             };
         }
         try {
-            const availability = await globalThis.LanguageModel.availability();
+            const availability = await globalThis.LanguageModel.availability(getBuiltInTextLanguageOptions());
             return {
                 supported: true,
                 availability,
@@ -181,7 +211,7 @@ let AI = (() => {
             throw createBuiltInError('当前浏览器不支持 Chrome 内置 AI，请使用 Chrome 138+ 或切换云端服务。');
         }
 
-        const availability = await globalThis.LanguageModel.availability();
+        const availability = await globalThis.LanguageModel.availability(getBuiltInTextLanguageOptions());
         emitStatus(receivingCallback, availability, undefined, '');
 
         if (availability === 'unavailable') {
@@ -197,14 +227,14 @@ let AI = (() => {
         let session;
 
         try {
-            session = await globalThis.LanguageModel.create({
+            session = await globalThis.LanguageModel.create(buildBuiltInCreateOptions({
                 initialPrompts: promptParts.initialPrompts,
                 monitor(monitor) {
                     monitor.addEventListener('downloadprogress', event => {
                         emitStatus(receivingCallback, 'downloading', event.loaded || 0, 'Chrome 正在下载本机 AI 模型。');
                     });
                 }
-            });
+            }));
 
             emitStatus(receivingCallback, 'available', 1, '');
 
@@ -235,7 +265,7 @@ let AI = (() => {
             throw createBuiltInError('当前浏览器不支持 Chrome 内置 AI，请使用 Chrome 138+ 或切换云端服务。');
         }
 
-        const availability = await globalThis.LanguageModel.availability();
+        const availability = await globalThis.LanguageModel.availability(getBuiltInTextLanguageOptions());
         emitStatus(receivingCallback, availability, undefined, '');
 
         if (availability === 'unavailable') {
@@ -244,14 +274,14 @@ let AI = (() => {
 
         let session;
         try {
-            session = await globalThis.LanguageModel.create({
+            session = await globalThis.LanguageModel.create(buildBuiltInCreateOptions({
                 initialPrompts: [SYSTEM_PROMPT],
                 monitor(monitor) {
                     monitor.addEventListener('downloadprogress', event => {
                         emitStatus(receivingCallback, 'downloading', event.loaded || 0, 'Chrome 正在下载本机 AI 模型。');
                     });
                 }
-            });
+            }));
             emitStatus(receivingCallback, 'available', 1, 'Chrome 内置 AI 已可用。');
             return getBuiltInAvailability();
         } finally {
@@ -342,7 +372,7 @@ let AI = (() => {
         receivingCallback && receivingCallback(null, true);
     }
 
-    return { askCoderLLM, getConfig, saveConfig, getBuiltInAvailability, prepareBuiltInModel, isBuiltInPromptSupported, PROVIDERS };
+    return { askCoderLLM, getConfig, saveConfig, getBuiltInAvailability, prepareBuiltInModel, isBuiltInPromptSupported, getBuiltInTextLanguageOptions, PROVIDERS };
 })();
 
 export default AI;

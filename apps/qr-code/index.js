@@ -10,6 +10,13 @@ import {
     setInlineAiGuide
 } from '../aiagent/fh.ai-inline.js';
 
+function syncQrPageDarkMode(enabled) {
+    document.body.classList.toggle('theme-dark', !!enabled);
+    document.body.classList.toggle('theme-default', !enabled);
+    document.documentElement.setAttribute('data-theme', enabled ? 'dark' : 'light');
+    document.documentElement.setAttribute('dark-mode', enabled ? 'on' : 'off');
+}
+
 new Vue({
     el: '#pageContainer',
     data: {
@@ -35,6 +42,12 @@ new Vue({
         barcodeMode: false
     },
     mounted: function () {
+        if (window.DarkModeMgr && DarkModeMgr.watchAutoDarkMode) {
+            DarkModeMgr.watchAutoDarkMode(syncQrPageDarkMode, {applyFilter: false});
+        } else if (window.chrome && chrome.runtime && window.DarkModeMgr) {
+            DarkModeMgr.turnLightAuto();
+        }
+
         let mode = new URL(location.href).searchParams.get('mode');
         this.qrEncodeMode = mode !== 'decode';
 
