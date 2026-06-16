@@ -64,20 +64,90 @@
         <section class="hero">
             <div class="container hero-grid">
                 <div class="hero-copy">
-                    <p class="hero-kicker">开源浏览器扩展 · Manifest V3 · 版本 2026.6.15</p>
-                    <h1>把开发者小工具收进浏览器</h1>
-                    <p class="hero-subtitle">JSON、编解码、接口调试、截图、取色、Mock、二维码和 AI 辅助，都能按需启用。</p>
+                    <h1>Web开发者的 <span>超级工具箱</span></h1>
+                    <p class="hero-subtitle">FeHelper 是一款 <strong>开源浏览器扩展</strong>，2012 至今持续维护。集成 34+ 种实用工具：JSON 格式化/BigInt 精度、编解码/Gzip/JWT、二维码/条形码、UUID/雪花 ID、时间戳转换、AI 智能助手、代码美化、接口调试等，覆盖开发全流程。</p>
+                    <div class="hero-data-badges" aria-label="FeHelper 数据概览">
+                        <a href="https://chrome.google.com/webstore/detail/pkgccpejnmalmdinmhkkfafefagiiiad" target="_blank" rel="noreferrer noopener">
+                            <img src="https://img.shields.io/chrome-web-store/v/pkgccpejnmalmdinmhkkfafefagiiiad?label=chrome%20web%20store&logo=googlechrome&color=3b82f6&style=for-the-badge" alt="Chrome Web Store 版本">
+                        </a>
+                        <img src="https://img.shields.io/badge/tools-34+-10b981?style=for-the-badge&logo=toolkit&logoColor=white" alt="34+ 内置工具">
+                        <img src="https://img.shields.io/chrome-web-store/rating/pkgccpejnmalmdinmhkkfafefagiiiad?label=rating&logo=googlechrome&color=3b82f6&style=for-the-badge" alt="Chrome Web Store 评分">
+                        <img src="https://img.shields.io/chrome-web-store/users/pkgccpejnmalmdinmhkkfafefagiiiad?label=users&logo=googlechrome&color=3b82f6&style=for-the-badge" alt="Chrome Web Store 用户量">
+                        <a href="https://github.com/zxlie/FeHelper" target="_blank" rel="noreferrer noopener" class="metric-badge github-metric" data-github-stat="stars" aria-label="GitHub Stars">
+                            <span class="metric-label"><i class="fab fa-github" aria-hidden="true"></i>Stars</span>
+                            <span class="metric-value" data-fallback="5.6K">5.6K</span>
+                        </a>
+                        <a href="https://github.com/zxlie/FeHelper" target="_blank" rel="noreferrer noopener" class="metric-badge github-metric" data-github-stat="forks" aria-label="GitHub Forks">
+                            <span class="metric-label"><i class="fab fa-github" aria-hidden="true"></i>Forks</span>
+                            <span class="metric-value" data-fallback="1.3K">1.3K</span>
+                        </a>
+                        <img src="https://img.shields.io/badge/since-2012-f59e0b?style=for-the-badge&logo=calendar&logoColor=white" alt="2012 至今持续维护">
+                    </div>
                     <div class="hero-actions" aria-label="主要操作">
-                        <a href="#download" class="btn btn-primary"><i class="fas fa-download" aria-hidden="true"></i>安装扩展</a>
-                        <a href="docs.html" class="btn btn-secondary">查看文档</a>
+                        <a href="#download" class="btn btn-primary"><i class="fas fa-download" aria-hidden="true"></i>立即安装</a>
+                        <a href="#offline-download" class="btn btn-success"><i class="fas fa-cloud-download-alt" aria-hidden="true"></i>无梯下载</a>
+                        <a href="#features" class="btn btn-secondary">了解更多</a>
                     </div>
                 </div>
-                <div class="hero-media" aria-label="FeHelper 工具界面预览">
-                    <div class="product-shot product-shot-main">
-                        <img src="static/screenshot/popup.png" alt="FeHelper 工具面板截图">
-                    </div>
-                    <div class="product-shot product-shot-secondary">
-                        <img src="static/screenshot/json-format-auto.png" alt="FeHelper JSON 自动格式化截图">
+                <div class="hero-browser" aria-label="FeHelper 官网首屏工具和小程序入口预览">
+                    <div class="browser-shell">
+                        <div class="browser-topbar">
+                            <div class="browser-controls" aria-hidden="true">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            <div class="browser-url">fehelper.com</div>
+                            <img src="static/img/fe-16.png" alt="" class="browser-extension-icon">
+                        </div>
+                        <div class="browser-body">
+                            <div class="hero-tool-demo-grid">
+                                <div class="hero-tool-demo-card">
+                                    <i class="fas fa-code" aria-hidden="true"></i>
+                                    <span>开发工具类</span>
+                                </div>
+                                <div class="hero-tool-demo-card">
+                                    <i class="fas fa-image" aria-hidden="true"></i>
+                                    <span>图像处理类</span>
+                                </div>
+                                <div class="hero-tool-demo-card">
+                                    <i class="fas fa-exchange-alt" aria-hidden="true"></i>
+                                    <span>编解码转换类</span>
+                                </div>
+                                <div class="hero-tool-demo-card">
+                                    <i class="fas fa-bolt" aria-hidden="true"></i>
+                                    <span>效率工具类</span>
+                                </div>
+                                <div class="hero-tool-demo-card">
+                                    <i class="fas fa-calculator" aria-hidden="true"></i>
+                                    <span>计算工具类</span>
+                                </div>
+                                <div class="hero-tool-demo-card">
+                                    <i class="fas fa-puzzle-piece" aria-hidden="true"></i>
+                                    <span>其他工具</span>
+                                </div>
+                            </div>
+                            <div class="mini-program-card">
+                                <div class="mini-program-copy">
+                                    <div class="mini-program-header">
+                                        <span class="mini-program-icon"><i class="fab fa-weixin" aria-hidden="true"></i></span>
+                                        <div>
+                                            <h3>微信小程序版 <strong>NEW</strong></h3>
+                                            <p>扫码即用，无需安装</p>
+                                        </div>
+                                    </div>
+                                    <div class="mini-program-tags">
+                                        <span>无需安装</span>
+                                        <span>扫码即用</span>
+                                        <span>核心功能</span>
+                                    </div>
+                                </div>
+                                <div class="mini-program-qr">
+                                    <img src="static/img/fh-wx-xcx.jpg" alt="FeHelper 微信小程序码">
+                                    <p>微信扫码使用</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

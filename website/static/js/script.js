@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initToolTabs();
     initSmoothScrolling();
     initPreviewImageModal();
+    initGitHubStats();
     initRevealObserver();
 });
 
@@ -104,6 +105,58 @@ function initPreviewImageModal() {
             document.addEventListener('keydown', onKeydown);
         });
     });
+}
+
+function initGitHubStats() {
+    const badges = Array.from(document.querySelectorAll('[data-github-stat]'));
+    if (!badges.length || !window.fetch) return;
+
+    function formatCompactNumber(value) {
+        const number = Number(value);
+        if (!Number.isFinite(number)) return '';
+        if (number >= 1000000) return trimCompact(number / 1000000) + 'M';
+        if (number >= 1000) return trimCompact(number / 1000) + 'K';
+        return String(number);
+    }
+
+    function trimCompact(value) {
+        return value.toFixed(value >= 10 ? 0 : 1).replace(/\.0$/, '');
+    }
+
+    function setFallbacks() {
+        badges.forEach(function (badge) {
+            const value = badge.querySelector('.metric-value');
+            if (value && value.dataset.fallback) {
+                value.textContent = value.dataset.fallback;
+            }
+        });
+    }
+
+    fetch('https://api.github.com/repos/zxlie/FeHelper', {
+        headers: {
+            Accept: 'application/vnd.github+json'
+        }
+    })
+        .then(function (response) {
+            if (!response.ok) throw new Error('GitHub API request failed');
+            return response.json();
+        })
+        .then(function (repo) {
+            const stats = {
+                stars: repo.stargazers_count,
+                forks: repo.forks_count
+            };
+
+            badges.forEach(function (badge) {
+                const statName = badge.dataset.githubStat;
+                const value = badge.querySelector('.metric-value');
+                const statValue = stats[statName];
+                if (!value || typeof statValue !== 'number') return;
+                value.textContent = formatCompactNumber(statValue);
+                value.title = statValue.toLocaleString('en-US');
+            });
+        })
+        .catch(setFallbacks);
 }
 
 function initRevealObserver() {
