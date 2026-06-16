@@ -1,13 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-	<title>demo</title>
+	<meta charset="UTF-8">
+	<title>HelloWorld 示例工具</title>
+	<link rel="stylesheet" href="../../static/css/fehelper-tools.css">
 	<link rel="stylesheet" type="text/css" href="index.css">
 </head>
-<body>
-	hello world!
-	<br>
-	修改fh-config.js中的noPage参数为false时，点击工具菜单，就会在新窗口打开这个工具了！去试试吧！
+<body class="theme-default fh-modern">
+	<div class="wrapper">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">
+					<a href="https://fehelper.com" target="_blank" class="x-a-high">
+						<img src="../../static/img/fe-16.png" alt="fehelper"> FeHelper
+					</a>
+					｜ HelloWorld 示例工具
+				</h3>
+			</div>
+		</div>
+		<div class="panel-body hello-world-demo">
+			<strong>Hello world!</strong>
+			<p>修改 fh-config.js 中的 noPage 参数为 false 时，点击工具菜单，就会在新窗口打开这个工具。</p>
+		</div>
+	</div>
+	<script src="../../static/js/tool-layout.js"></script>
 	<script type="text/javascript" src="index.js"></script>
 	<script type="text/javascript" src="content-script.js"></script>
 </body>

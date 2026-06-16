@@ -236,11 +236,12 @@ new Vue({
 
             // 排序
             switch (this.sortType) {
-                case 'newest':
-                    result.sort((a, b) => (b.updateTime || 0) - (a.updateTime || 0));
-                    break;
-                case 'hot':
-                    result.sort((a, b) => (b.updateTime || 0) - (a.updateTime || 0));
+                case 'name':
+                    result.sort((a, b) => {
+                        const nameA = String(a.name || a.key || '');
+                        const nameB = String(b.name || b.key || '');
+                        return nameA.localeCompare(nameB, 'zh-Hans-CN');
+                    });
                     break;
                 default:
                     const allTools = TOOL_CATEGORIES.reduce((acc, category) => {
@@ -278,16 +279,26 @@ new Vue({
 
         activeFilterSummary() {
             const parts = [];
+            if (this.currentView !== 'all') {
+                parts.push(this.activeViewLabel);
+            }
             if (this.currentCategory) {
                 parts.push(this.getCategoryName(this.currentCategory));
             }
             if (this.searchKey) {
                 parts.push(`搜索：${this.searchKey}`);
             }
-            if (this.sortType !== 'default') {
-                parts.push(this.sortType === 'newest' ? '按最新排序' : '按热度排序');
+            if (this.sortType === 'name') {
+                parts.push('按名称排序');
             }
             return parts.length ? parts.join(' / ') : '按 FeHelper 默认顺序展示';
+        },
+
+        hasActiveFilter() {
+            return this.currentView !== 'all' ||
+                !!this.currentCategory ||
+                !!this.searchKey ||
+                this.sortType !== 'default';
         },
 
         aiStatusLabel() {
@@ -314,6 +325,16 @@ new Vue({
             return this.aiModelStatus === 'available'
                 ? 'FeHelper AI 已就绪，核心工具可直接接入'
                 : '开启 FeHelper AI，先准备 Chrome 本机 Gemini 模型';
+        },
+
+        darkModePreference() {
+            if (this.selectedOpts.includes('ALWAYS_DARK_MODE')) {
+                return 'always';
+            }
+            if (this.selectedOpts.includes('AUTO_DARK_MODE')) {
+                return 'system';
+            }
+            return 'off';
         }
     },
 
@@ -352,7 +373,6 @@ new Vue({
                     processedTools[key] = {
                         ...tool,
                         key, // 添加key到工具对象中
-                        updateTime: Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000,
                         installed: isInstalled, // 使用实时安装状态
                         inContextMenu: hasMenu, // 使用实时菜单状态
                         systemInstalled: tool.systemInstalled || false, // 是否系统预装
@@ -894,15 +914,7 @@ new Vue({
         },
 
         handleCategoryChange(category) {
-            // 切换到全部工具视图
-            if (this.currentView !== 'all') {
-                this.currentView = 'all';
-                this.updateActiveTools('all');
-            }
             this.currentCategory = category;
-            this.searchKey = '';
-            // 确保工具显示正确
-            this.activeTools = { ...this.originalTools };
         },
 
         handleSort() {
@@ -988,8 +1000,6 @@ new Vue({
 
         async showMyInstalled() {
             this.currentView = 'installed';
-            this.currentCategory = '';
-            this.searchKey = '';
             await this.updateActiveTools('installed');
             // 更新已安装工具数量
             await this.updateInstalledCount();
@@ -997,8 +1007,6 @@ new Vue({
 
         showMyFavorites() {
             this.currentView = 'favorites';
-            this.currentCategory = '';
-            this.searchKey = '';
             this.updateActiveTools('favorites');
         },
 
@@ -1281,20 +1289,25 @@ new Vue({
         async loadSettings() {
             try {
                 Settings.getOptions(async (opts) => {
+                    const normalizedOpts = this.normalizeDarkModeOptions(opts);
                     let selectedOpts = [];
-                    Object.keys(opts).forEach(key => {
-                        if(String(opts[key]) === 'true') {
+                    Object.keys(normalizedOpts).forEach(key => {
+                        if(String(normalizedOpts[key]) === 'true') {
                             selectedOpts.push(key);
                         }
                     });
                     this.selectedOpts = selectedOpts;
                     
                     // 同步localStorage设置，确保与其他工具兼容
-                    localStorage.setItem('AUTO_DARK_MODE', opts.AUTO_DARK_MODE);
-                    localStorage.setItem('ALWAYS_DARK_MODE', opts.ALWAYS_DARK_MODE);
+                    localStorage.setItem('AUTO_DARK_MODE', normalizedOpts.AUTO_DARK_MODE);
+                    localStorage.setItem('ALWAYS_DARK_MODE', normalizedOpts.ALWAYS_DARK_MODE);
                     
                     // 应用深色模式设置
-                    this.applyDarkModeSettings(opts);
+                    this.applyDarkModeSettings(normalizedOpts);
+
+                    if (normalizedOpts.ALWAYS_DARK_MODE !== opts.ALWAYS_DARK_MODE) {
+                        Settings.setOptions(normalizedOpts);
+                    }
                     
                     // 加载右键菜单设置
                     this.menuDownloadCrx = await Awesome.menuMgr('download-crx', 'get') === '1';
@@ -1324,6 +1337,54 @@ new Vue({
             }
         },
 
+        setSelectedOption(key, enabled) {
+            const hasOption = this.selectedOpts.includes(key);
+            if (enabled && !hasOption) {
+                this.selectedOpts = [...this.selectedOpts, key];
+            } else if (!enabled && hasOption) {
+                this.selectedOpts = this.selectedOpts.filter(item => item !== key);
+            }
+        },
+
+        setDarkModePreference(preference) {
+            if (preference === 'always') {
+                this.setSelectedOption('AUTO_DARK_MODE', true);
+                this.setSelectedOption('ALWAYS_DARK_MODE', true);
+                return;
+            }
+            if (preference === 'system') {
+                this.setSelectedOption('AUTO_DARK_MODE', true);
+                this.setSelectedOption('ALWAYS_DARK_MODE', false);
+                return;
+            }
+            this.setSelectedOption('ALWAYS_DARK_MODE', false);
+            this.setSelectedOption('AUTO_DARK_MODE', false);
+        },
+
+        isEnabledSetting(value) {
+            return value === true || value === 'true';
+        },
+
+        normalizeDarkModeOptions(opts = {}) {
+            const normalizedOpts = {...opts};
+            if (
+                !this.isEnabledSetting(normalizedOpts.AUTO_DARK_MODE) &&
+                this.isEnabledSetting(normalizedOpts.ALWAYS_DARK_MODE)
+            ) {
+                normalizedOpts.ALWAYS_DARK_MODE = 'false';
+            }
+            return normalizedOpts;
+        },
+
+        normalizeDarkModeSelections() {
+            if (
+                !this.selectedOpts.includes('AUTO_DARK_MODE') &&
+                this.selectedOpts.includes('ALWAYS_DARK_MODE')
+            ) {
+                this.selectedOpts = this.selectedOpts.filter(key => key !== 'ALWAYS_DARK_MODE');
+            }
+        },
+
         // 应用深色模式设置
         applyDarkModeSettings(opts) {
             const body = document.body;
@@ -1348,13 +1409,13 @@ new Vue({
         // 判断是否应该启用深色模式
         shouldEnableDarkMode(opts) {
             // 如果始终开启深色模式，直接返回true
-            if (opts.ALWAYS_DARK_MODE === true || opts.ALWAYS_DARK_MODE === 'true') {
+            if (this.isEnabledSetting(opts.ALWAYS_DARK_MODE)) {
                 return true;
             }
             
-            // 如果自动开启深色模式，优先跟随 Chrome/系统暗色模式，夜间时段兜底
-            if (opts.AUTO_DARK_MODE === true || opts.AUTO_DARK_MODE === 'true') {
-                return this.prefersColorSchemeDark() || this.isNightTime();
+            // 如果自动开启深色模式，跟随 Chrome/系统暗色模式
+            if (this.isEnabledSetting(opts.AUTO_DARK_MODE)) {
+                return this.prefersColorSchemeDark();
             }
             
             return false;
@@ -1368,21 +1429,13 @@ new Vue({
                 return false;
             }
         },
-
-        // 检查当前时间是否在夜间时段（19:00-06:00）
-        isNightTime() {
-            const now = new Date();
-            const hour = now.getHours();
-            
-            // 19:00-23:59 或 00:00-05:59
-            return hour >= 19 || hour < 6;
-        },
         
         // 显示设置模态框
         async showSettings() {
             this.showSettingsModal = true;
             // 加载可排序的工具列表
             await this.loadSortableTools();
+            this.focusModal('settingsModal');
         },
 
         // 关闭设置模态框
@@ -1393,6 +1446,7 @@ new Vue({
         // 显示打赏模态框
         openDonateModal() {
             this.showDonateModal = true;
+            this.focusModal('donateModal');
         },
 
         // 关闭打赏模态框
@@ -1409,6 +1463,62 @@ new Vue({
                 callback: options.callback || null,
                 data: options.data || null
             };
+            this.focusModal('confirmModal');
+        },
+
+        focusModal(refName) {
+            this.$nextTick(() => {
+                const modal = this.$refs[refName];
+                if (!modal) return;
+                const focusTarget = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                if (focusTarget && typeof focusTarget.focus === 'function') {
+                    focusTarget.focus();
+                }
+            });
+        },
+
+        getModalFocusableElements(modal) {
+            if (!modal) return [];
+            return Array.from(modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+                .filter(element => {
+                    return !element.disabled &&
+                        element.getAttribute('aria-hidden') !== 'true' &&
+                        element.offsetParent !== null;
+                });
+        },
+
+        closeModalByType(modalType) {
+            if (modalType === 'settings') {
+                this.closeSettings();
+            } else if (modalType === 'donate') {
+                this.closeDonateModal();
+            } else if (modalType === 'confirm') {
+                this.cancelConfirm();
+            }
+        },
+
+        handleModalKeydown(event, modalType) {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                this.closeModalByType(modalType);
+                return;
+            }
+
+            if (event.key !== 'Tab') return;
+
+            const focusableElements = this.getModalFocusableElements(event.currentTarget);
+            if (!focusableElements.length) return;
+
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+
+            if (event.shiftKey && document.activeElement === firstElement) {
+                event.preventDefault();
+                lastElement.focus();
+            } else if (!event.shiftKey && document.activeElement === lastElement) {
+                event.preventDefault();
+                firstElement.focus();
+            }
         },
 
         // 确认操作
@@ -1427,6 +1537,8 @@ new Vue({
         // 保存设置
         async saveSettings() {
             try {
+                this.normalizeDarkModeSelections();
+
                 // 构建设置对象
                 let opts = {};
                 [
@@ -1440,6 +1552,7 @@ new Vue({
                 ].forEach(key => {
                     opts[key] = this.selectedOpts.includes(key).toString();
                 });
+                opts = this.normalizeDarkModeOptions(opts);
                 
                 // 先保存工具排序（如果用户有修改）
                 if (this.sortableTools && this.sortableTools.length > 0) {
@@ -1607,8 +1720,6 @@ new Vue({
 
         async showRecentUsed() {
             this.currentView = 'recent';
-            this.currentCategory = '';
-            this.searchKey = '';
             // 重新获取最近使用的工具数据
             this.recentUsed = await Statistics.getRecentUsedTools(10);
             this.recentCount = this.recentUsed.length;
@@ -1856,6 +1967,13 @@ new Vue({
                 if (this.searchKey) {
                     this.searchKey = '';
                 }
+            }
+        },
+
+        selectedOpts: {
+            deep: true,
+            handler() {
+                this.normalizeDarkModeSelections();
             }
         },
     },

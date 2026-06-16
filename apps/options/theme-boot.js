@@ -43,7 +43,9 @@
     }
 
     function applyTheme(settings) {
-        root.setAttribute('dark-mode', shouldEnableDarkMode(settings) ? 'on' : 'off');
+        var enabled = shouldEnableDarkMode(settings);
+        root.setAttribute('dark-mode', enabled ? 'on' : 'off');
+        root.setAttribute('data-theme', enabled ? 'dark' : 'light');
     }
 
     function finish(settings) {

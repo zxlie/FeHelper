@@ -38,6 +38,17 @@ let Statistics = (function() {
         dailyUsage: {}, // 按日期存储的使用记录
         tools: {}       // 各工具的使用次数
     };
+
+    const normalizeUsageData = (data) => {
+        if (!data || typeof data !== 'object') {
+            data = {};
+        }
+        return {
+            ...data,
+            dailyUsage: data.dailyUsage && typeof data.dailyUsage === 'object' ? data.dailyUsage : {},
+            tools: data.tools && typeof data.tools === 'object' ? data.tools : {}
+        };
+    };
     
     /**
      * 生成唯一的用户ID
@@ -77,10 +88,13 @@ let Statistics = (function() {
         try {
             const data = await Awesome.StorageMgr.get(USER_USAGE_DATA_KEY);
             if (data) {
-                usageData = JSON.parse(data);
+                usageData = normalizeUsageData(JSON.parse(data));
+            } else {
+                usageData = normalizeUsageData(usageData);
             }
         } catch (error) {
             console.error('加载使用数据失败:', error);
+            usageData = normalizeUsageData(usageData);
         }
     };
     
@@ -394,4 +408,4 @@ let Statistics = (function() {
     };
 })();
 
-export default Statistics; 
+export default Statistics;

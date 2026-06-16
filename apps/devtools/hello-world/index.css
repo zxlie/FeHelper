@@ -1,4 +1,33 @@
 body {
-	text-align: center;
 	font-size: 16px;
+}
+
+.hello-world-demo {
+	min-height: 180px;
+	color: #1f2937;
+	line-height: 1.7;
+}
+
+.hello-world-demo strong {
+	display: block;
+	margin-bottom: 8px;
+	font-size: 20px;
+	color: #111827;
+}
+
+.hello-world-demo p {
+	margin: 0;
+	color: #64748b;
+}
+
+body.theme-dark .hello-world-demo {
+	color: #dbeafe;
+}
+
+body.theme-dark .hello-world-demo strong {
+	color: #f8fafc;
+}
+
+body.theme-dark .hello-world-demo p {
+	color: #94a3b8;
 }

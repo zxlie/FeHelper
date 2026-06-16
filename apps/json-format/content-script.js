@@ -71,6 +71,8 @@ window.JsonAutoFormat = (() => {
 
     let darkModePreferenceBound = false;
 
+    let _isEnabledSetting = value => value === true || value === 'true';
+
     // 获取JSON格式化的配置信息
     let _getAllOptions = (success) => {
         chrome.runtime.sendMessage({
@@ -628,6 +630,8 @@ window.JsonAutoFormat = (() => {
     let _extendsOptions = options => {
         options = options || {};
         Object.keys(options).forEach(opt => formatOptions[opt] = options[opt]);
+        formatOptions.AUTO_DARK_MODE = _isEnabledSetting(formatOptions.AUTO_DARK_MODE);
+        formatOptions.ALWAYS_DARK_MODE = _isEnabledSetting(formatOptions.ALWAYS_DARK_MODE);
         if (options.hasOwnProperty('AUTO_TEXT_DECODE')) {
             formatOptions.autoDecode = !!options.AUTO_TEXT_DECODE;
         } else if (formatOptions.hasOwnProperty('AUTO_TEXT_DECODE')) {
@@ -640,11 +644,6 @@ window.JsonAutoFormat = (() => {
         }
     };
 
-    let _isNightTime = () => {
-        let hour = new Date().getHours();
-        return hour >= 19 || hour < 6;
-    };
-
     let _prefersColorSchemeDark = () => {
         try {
             return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -654,13 +653,13 @@ window.JsonAutoFormat = (() => {
     };
 
     let _shouldUseAutoDarkTheme = () => {
-        if (formatOptions.ALWAYS_DARK_MODE) {
+        if (_isEnabledSetting(formatOptions.ALWAYS_DARK_MODE)) {
             return true;
         }
-        if (!formatOptions.AUTO_DARK_MODE) {
+        if (!_isEnabledSetting(formatOptions.AUTO_DARK_MODE)) {
             return false;
         }
-        return _prefersColorSchemeDark() || _isNightTime();
+        return _prefersColorSchemeDark();
     };
 
     let _getResolvedTheme = () => {
@@ -680,7 +679,7 @@ window.JsonAutoFormat = (() => {
         try {
             let mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
             let refreshTheme = () => {
-                if (formatOptions.AUTO_DARK_MODE && String(formatOptions.JSON_FORMAT_THEME || 0) === '0') {
+                if (_isEnabledSetting(formatOptions.AUTO_DARK_MODE) && String(formatOptions.JSON_FORMAT_THEME || 0) === '0') {
                     _didFormat();
                 }
             };

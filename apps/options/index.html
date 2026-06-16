@@ -3,6 +3,8 @@
 <head>
     <title>FeHelper-插件市场</title>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="theme-boot.js"></script>
     <link rel="stylesheet" href="index.css"/>
     <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
     <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
@@ -63,11 +65,11 @@
 
         <section class="fh-side-section">
             <h2>工具分类</h2>
-            <button type="button" :class="{active: currentCategory === '' && currentView === 'all'}" @click="handleCategoryChange('')">
-                <span>全部工具</span>
+            <button type="button" :class="{active: currentCategory === ''}" @click="handleCategoryChange('')">
+                <span>全部分类</span>
                 <strong>{{Object.keys(originalTools).length}}</strong>
             </button>
-            <button type="button" v-for="category in categories" :key="category.key" :class="{active: currentCategory === category.key && currentView === 'all'}" @click="handleCategoryChange(category.key)">
+            <button type="button" v-for="category in categories" :key="category.key" :class="{active: currentCategory === category.key}" @click="handleCategoryChange(category.key)">
                 <span>{{category.name}}</span>
                 <strong>{{getCategoryCount(category.key)}}</strong>
             </button>
@@ -187,13 +189,13 @@
                 </select>
                 <select v-model="sortType" @change="handleSort" class="fh-select" aria-label="选择排序方式">
                     <option value="default">默认排序</option>
-                    <option value="newest">最新</option>
-                    <option value="hot">最热</option>
+                    <option value="name">名称排序</option>
                 </select>
                 <div class="fh-view-toggle" role="group" aria-label="切换展示方式">
                     <button type="button" :class="{ active: viewMode === 'grid' }" @click="saveViewMode('grid')">网格</button>
                     <button type="button" :class="{ active: viewMode === 'list' }" @click="saveViewMode('list')">列表</button>
                 </div>
+                <button type="button" class="fh-clear-filter" v-if="hasActiveFilter" @click="resetTools">清除筛选</button>
             </div>
 
             <div class="fh-table-head">
@@ -266,105 +268,198 @@
         </footer>
     </main>
 
-    <div class="settings-modal" v-if="showSettingsModal" v-cloak>
-        <div class="settings-dialog">
+    <div class="settings-modal" v-if="showSettingsModal" v-cloak ref="settingsModal" @keydown="handleModalKeydown($event, 'settings')">
+        <div class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settingsDialogTitle" tabindex="-1">
             <div class="settings-header">
                 <div>
                     <p class="fh-eyebrow">Preferences</p>
-                    <h3>FeHelper 插件配置</h3>
+                    <h3 id="settingsDialogTitle">FeHelper 插件配置</h3>
                 </div>
                 <button type="button" class="close-btn" @click="closeSettings" aria-label="关闭">×</button>
             </div>
-            <div class="settings-body">
-                <section class="settings-section">
-                    <h4>FeHelper 快捷键 <span class="x-tips">设置常用入口快捷键</span></h4>
-                    <a href="#" @click="setShortcuts" id="setShortcuts" class="a-btn">配置快捷键，当前为 {{ defaultKey }}</a>
-                    <div class="x-tips">
-                        按下快捷键后会打开 FeHelper 工具入口，可用方向键选择工具并用回车打开。
-                    </div>
-                </section>
+            <div class="settings-body settings-layout">
+                <aside class="settings-nav" aria-label="设置分类">
+                    <a href="#settings-entry">入口</a>
+                    <a href="#settings-popup-order">排序</a>
+                    <a href="#settings-behavior">行为</a>
+                    <a href="#settings-privacy">权限</a>
+                    <a href="#settings-appearance">外观</a>
+                </aside>
 
-                <section class="settings-section">
-                    <h4>FeHelper 工具排序 <span class="x-tips">自定义 popup 中的显示顺序</span></h4>
-                    <div class="tool-sort-container">
-                        <div class="sort-tips">拖拽下方工具条目调整顺序，保存后会同步到 popup。</div>
-                        <div class="sortable-list" id="sortableList">
-                            <div v-for="(tool, index) in sortableTools"
-                                 :key="tool.key"
-                                 class="sortable-item"
-                                 :data-tool-key="tool.key"
-                                 draggable="true"
-                                 @dragstart="handleDragStart($event, index)"
-                                 @dragover="handleDragOver($event)"
-                                 @drop="handleDrop($event, index)"
-                                 @dragend="handleDragEnd">
-                                <div class="drag-handle">⋮⋮</div>
-                                <div class="tool-icon">{{getToolBadge(tool.key, tool)}}</div>
-                                <div class="tool-name">{{tool.name}}</div>
-                                <div class="tool-desc">{{tool.tips}}</div>
+                <div class="settings-content">
+                    <section class="settings-section" id="settings-entry">
+                        <div class="settings-section-head">
+                            <div>
+                                <h4>常用入口</h4>
+                                <p>配置打开 FeHelper 的入口方式，适合高频键盘操作。</p>
                             </div>
                         </div>
-                        <div class="sort-actions">
-                            <button class="btn btn-info btn-sm" @click="resetToolOrder">重置默认顺序</button>
-                            <button class="btn btn-success btn-sm" @click="saveToolOrder">保存排序</button>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="settings-section">
-                    <h4>FeHelper 基本配置 <span class="x-tips">统一管理插件行为</span></h4>
-                    <div class="box-config">
-                        <div class="st-item">
-                            <input type="checkbox" value="OPT_ITEM_CONTEXTMENUS" id="opt_item_contextMenus" v-model="selectedOpts"/>
-                            <label for="opt_item_contextMenus">将 FeHelper 工具添加到右键菜单<span class="x-tips">适合高频使用右键入口的场景</span></label>
-
-                            <div class="box-inner row ui-ml-20" :class="{'x-disabled':!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')}">
-                                <div class="row-line">
-                                    <input type="checkbox" id="MENU_DOWNLOAD_CRX" v-model="menuDownloadCrx" :disabled="!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')"/>
-                                    <label for="MENU_DOWNLOAD_CRX">将插件分享/下载添加到右键菜单</label>
+                        <div class="setting-panel">
+                            <div class="setting-info-row">
+                                <div>
+                                    <strong>快捷键</strong>
+                                    <span>当前为 {{ defaultKey }}。按下后会打开 FeHelper 工具入口，可用方向键选择工具并用回车打开。</span>
                                 </div>
-                                <div class="row-line">
-                                    <input type="checkbox" id="MENU_FEHELPER_SETTING" v-model="menuFeHelperSeting" :disabled="!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')"/>
-                                    <label for="MENU_FEHELPER_SETTING">将 FeHelper 设置添加到右键菜单</label>
-                                </div>
+                                <a href="#" @click="setShortcuts" id="setShortcuts" class="a-btn">配置快捷键</a>
                             </div>
                         </div>
+                    </section>
 
-                        <div class="st-item">
-                            <input type="checkbox" value="FORBID_OPEN_IN_NEW_TAB" id="FORBID_OPEN_IN_NEW_TAB" v-model="selectedOpts"/>
-                            <label for="FORBID_OPEN_IN_NEW_TAB">禁止同一工具在多个 Tab 或窗口重复打开</label>
-                        </div>
-
-                        <div class="st-item">
-                            <input type="checkbox" value="CONTENT_SCRIPT_ALLOW_ALL_FRAMES" id="CONTENT_SCRIPT_ALLOW_ALL_FRAMES" v-model="selectedOpts"/>
-                            <label for="CONTENT_SCRIPT_ALLOW_ALL_FRAMES">授权 FeHelper 访问页面所有 iframe</label>
-                        </div>
-
-                        <div class="st-item">
-                            <input type="checkbox" value="JSON_PAGE_FORMAT" id="JSON_PAGE_FORMAT" v-model="selectedOpts"/>
-                            <label for="JSON_PAGE_FORMAT">开启 JSON 页面自动美化功能</label>
-                        </div>
-
-                        <div class="st-item">
-                            <input type="checkbox" value="FORBID_STATISTICS" id="FORBID_STATISTICS" v-model="selectedOpts"/>
-                            <label for="FORBID_STATISTICS">禁止插件做访问统计<span class="x-tips">勾选后不会向服务器上报统计数据</span></label>
-                        </div>
-
-                        <div class="st-item" v-if="!isFirefox">
-                            <input type="checkbox" value="AUTO_DARK_MODE" id="AUTO_DARK_MODE" v-model="selectedOpts"/>
-                            <label for="AUTO_DARK_MODE">自动开启夜间模式<span class="x-tips">跟随 Chrome/系统暗色模式，19:00 到 06:00 也会自动启用</span></label>
-                            <a href="#" class="a-btn" @click="turnLight($event)">体验夜间模式</a>
-                            <span class="x-count-down" v-cloak v-if="countDown>0">本次体验将在 {{countDown}} 秒后自动结束</span>
-
-                            <div class="box-inner row ui-ml-20" :class="{'x-disabled':!selectedOpts.includes('AUTO_DARK_MODE')}">
-                                <div class="row-line">
-                                    <input type="checkbox" value="ALWAYS_DARK_MODE" id="ALWAYS_DARK_MODE" v-model="selectedOpts" :disabled="!selectedOpts.includes('AUTO_DARK_MODE')"/>
-                                    <label for="ALWAYS_DARK_MODE">始终开启夜间模式</label>
-                                </div>
+                    <section class="settings-section" id="settings-popup-order">
+                        <div class="settings-section-head">
+                            <div>
+                                <h4>Popup 工具顺序</h4>
+                                <p>拖拽调整 popup 中的显示顺序，只影响你的本机配置。</p>
                             </div>
                         </div>
-                    </div>
-                </section>
+                        <div class="tool-sort-container">
+                            <div class="sort-tips">把最常用工具放到前面，保存后会同步到 popup。</div>
+                            <div class="sortable-list" id="sortableList">
+                                <div v-for="(tool, index) in sortableTools"
+                                     :key="tool.key"
+                                     class="sortable-item"
+                                     :data-tool-key="tool.key"
+                                     draggable="true"
+                                     @dragstart="handleDragStart($event, index)"
+                                     @dragover="handleDragOver($event)"
+                                     @drop="handleDrop($event, index)"
+                                     @dragend="handleDragEnd">
+                                    <div class="drag-handle">⋮⋮</div>
+                                    <div class="tool-icon">{{getToolBadge(tool.key, tool)}}</div>
+                                    <div class="tool-name">{{tool.name}}</div>
+                                    <div class="tool-desc">{{tool.tips}}</div>
+                                </div>
+                            </div>
+                            <div class="sort-actions">
+                                <button class="btn btn-info btn-sm" @click="resetToolOrder">重置默认顺序</button>
+                                <button class="btn btn-success btn-sm" @click="saveToolOrder">保存排序</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="settings-section" id="settings-behavior">
+                        <div class="settings-section-head">
+                            <div>
+                                <h4>使用行为</h4>
+                                <p>管理工具打开方式、右键菜单和 JSON 页面自动处理。</p>
+                            </div>
+                        </div>
+                        <div class="setting-panel">
+                            <label class="setting-toggle-row" for="opt_item_contextMenus">
+                                <input class="setting-switch-input" type="checkbox" value="OPT_ITEM_CONTEXTMENUS" id="opt_item_contextMenus" v-model="selectedOpts"/>
+                                <span class="setting-switch" aria-hidden="true"></span>
+                                <span class="setting-copy">
+                                    <strong>将 FeHelper 工具添加到右键菜单</strong>
+                                    <small>适合经常在网页里直接调用工具的使用方式。</small>
+                                </span>
+                            </label>
+
+                            <div class="setting-child-group" :class="{'is-disabled':!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')}">
+                                <label class="setting-toggle-row is-child" for="MENU_DOWNLOAD_CRX">
+                                    <input class="setting-switch-input" type="checkbox" id="MENU_DOWNLOAD_CRX" v-model="menuDownloadCrx" :disabled="!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')"/>
+                                    <span class="setting-switch" aria-hidden="true"></span>
+                                    <span class="setting-copy">
+                                        <strong>插件分享/下载入口</strong>
+                                        <small>在右键菜单中显示插件分享和下载相关入口。</small>
+                                    </span>
+                                </label>
+                                <label class="setting-toggle-row is-child" for="MENU_FEHELPER_SETTING">
+                                    <input class="setting-switch-input" type="checkbox" id="MENU_FEHELPER_SETTING" v-model="menuFeHelperSeting" :disabled="!selectedOpts.includes('OPT_ITEM_CONTEXTMENUS')"/>
+                                    <span class="setting-switch" aria-hidden="true"></span>
+                                    <span class="setting-copy">
+                                        <strong>FeHelper 设置入口</strong>
+                                        <small>在右键菜单中显示设置页面入口。</small>
+                                    </span>
+                                </label>
+                            </div>
+
+                            <label class="setting-toggle-row" for="FORBID_OPEN_IN_NEW_TAB">
+                                <input class="setting-switch-input" type="checkbox" value="FORBID_OPEN_IN_NEW_TAB" id="FORBID_OPEN_IN_NEW_TAB" v-model="selectedOpts"/>
+                                <span class="setting-switch" aria-hidden="true"></span>
+                                <span class="setting-copy">
+                                    <strong>避免重复打开同一工具</strong>
+                                    <small>打开已有工具页时优先复用当前标签，减少窗口堆叠。</small>
+                                </span>
+                            </label>
+
+                            <label class="setting-toggle-row" for="JSON_PAGE_FORMAT">
+                                <input class="setting-switch-input" type="checkbox" value="JSON_PAGE_FORMAT" id="JSON_PAGE_FORMAT" v-model="selectedOpts"/>
+                                <span class="setting-switch" aria-hidden="true"></span>
+                                <span class="setting-copy">
+                                    <strong>自动美化 JSON 页面</strong>
+                                    <small>访问纯 JSON 页面时自动格式化，方便直接阅读和折叠。</small>
+                                </span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="settings-section" id="settings-privacy">
+                        <div class="settings-section-head">
+                            <div>
+                                <h4>权限与数据</h4>
+                                <p>这些配置会影响页面访问范围和统计上报，建议按需开启。</p>
+                            </div>
+                        </div>
+                        <div class="setting-panel">
+                            <label class="setting-toggle-row" for="CONTENT_SCRIPT_ALLOW_ALL_FRAMES">
+                                <input class="setting-switch-input" type="checkbox" value="CONTENT_SCRIPT_ALLOW_ALL_FRAMES" id="CONTENT_SCRIPT_ALLOW_ALL_FRAMES" v-model="selectedOpts"/>
+                                <span class="setting-switch" aria-hidden="true"></span>
+                                <span class="setting-copy">
+                                    <strong>允许访问页面内所有 iframe</strong>
+                                    <small>只在需要处理嵌入页面内容时开启。普通使用保持关闭即可。</small>
+                                </span>
+                            </label>
+
+                            <label class="setting-toggle-row" for="FORBID_STATISTICS">
+                                <input class="setting-switch-input" type="checkbox" value="FORBID_STATISTICS" id="FORBID_STATISTICS" v-model="selectedOpts"/>
+                                <span class="setting-switch" aria-hidden="true"></span>
+                                <span class="setting-copy">
+                                    <strong>关闭使用统计</strong>
+                                    <small>开启后不会向服务器上报插件访问统计。</small>
+                                </span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="settings-section" id="settings-appearance" v-if="!isFirefox">
+                        <div class="settings-section-head">
+                            <div>
+                                <h4>外观</h4>
+                                <p>选择夜间模式策略。所有工具页、popup 和 JSON 自动格式化页面会保持一致。</p>
+                            </div>
+                        </div>
+                        <div class="setting-panel">
+                            <fieldset class="setting-radio-group">
+                                <legend>夜间模式</legend>
+                                <label class="setting-radio-card" :class="{active: darkModePreference === 'off'}" for="DARK_MODE_OFF">
+                                    <input type="radio" name="dark_mode_preference" id="DARK_MODE_OFF" value="off" :checked="darkModePreference === 'off'" @change="setDarkModePreference('off')"/>
+                                    <span>
+                                        <strong>关闭</strong>
+                                        <small>所有页面保持浅色，不跟随系统暗色。</small>
+                                    </span>
+                                </label>
+                                <label class="setting-radio-card" :class="{active: darkModePreference === 'system'}" for="DARK_MODE_SYSTEM">
+                                    <input type="radio" name="dark_mode_preference" id="DARK_MODE_SYSTEM" value="system" :checked="darkModePreference === 'system'" @change="setDarkModePreference('system')"/>
+                                    <span>
+                                        <strong>跟随系统</strong>
+                                        <small>Chrome 或系统处于暗色时，FeHelper 自动切换为夜间模式。</small>
+                                    </span>
+                                </label>
+                                <label class="setting-radio-card" :class="{active: darkModePreference === 'always'}" for="DARK_MODE_ALWAYS">
+                                    <input type="radio" name="dark_mode_preference" id="DARK_MODE_ALWAYS" value="always" :checked="darkModePreference === 'always'" @change="setDarkModePreference('always')"/>
+                                    <span>
+                                        <strong>始终开启</strong>
+                                        <small>不受系统设置影响，FeHelper 页面始终使用夜间模式。</small>
+                                    </span>
+                                </label>
+                            </fieldset>
+                            <div class="setting-action-row">
+                                <a href="#" class="a-btn" @click="turnLight($event)">体验夜间模式</a>
+                                <span class="x-count-down" v-cloak v-if="countDown>0">本次体验将在 {{countDown}} 秒后自动结束</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
             </div>
             <div class="settings-footer">
                 <button class="btn btn-success" @click="saveSettings">保存</button>
@@ -373,12 +468,12 @@
         </div>
     </div>
 
-    <div class="settings-modal donate-modal" v-if="showDonateModal" v-cloak>
-        <div class="settings-dialog">
+    <div class="settings-modal donate-modal" v-if="showDonateModal" v-cloak ref="donateModal" @keydown="handleModalKeydown($event, 'donate')">
+        <div class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="donateDialogTitle" tabindex="-1">
             <div class="settings-header">
                 <div>
                     <p class="fh-eyebrow">Support</p>
-                    <h3>支持 FeHelper 持续维护</h3>
+                    <h3 id="donateDialogTitle">支持 FeHelper 持续维护</h3>
                 </div>
                 <button type="button" class="close-btn" @click="closeDonateModal" aria-label="关闭">×</button>
             </div>
@@ -398,12 +493,12 @@
         </div>
     </div>
 
-    <div class="settings-modal confirm-modal" v-if="confirmDialog.show" v-cloak>
-        <div class="settings-dialog">
+    <div class="settings-modal confirm-modal" v-if="confirmDialog.show" v-cloak ref="confirmModal" @keydown="handleModalKeydown($event, 'confirm')">
+        <div class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmDialogTitle" tabindex="-1">
             <div class="settings-header">
                 <div>
                     <p class="fh-eyebrow">Confirm</p>
-                    <h3>{{ confirmDialog.title }}</h3>
+                    <h3 id="confirmDialogTitle">{{ confirmDialog.title }}</h3>
                 </div>
                 <button type="button" class="close-btn" @click="cancelConfirm" aria-label="关闭">×</button>
             </div>

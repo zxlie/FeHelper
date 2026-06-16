@@ -66,11 +66,18 @@ body {
 
 /* 主容器样式 */
 .main-container {
-    width: 98%;
-    margin: 20px auto;
+    width: 100%;
+    margin: 8px 0 0;
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+body.fh-modern #excel2jsonContainer .main-container {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
 }
 
 /* 工具头部样式 */
@@ -346,7 +353,7 @@ body {
 /* 响应式调整 */
 @media (max-width: 900px) {
     .main-container {
-        width: 95%;
+        width: 100%;
     }
     .input-flex-row {
         flex-direction: column;
@@ -615,5 +622,3 @@ body {
         color: #222;
     }
 }
-
-

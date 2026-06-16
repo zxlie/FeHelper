@@ -25,11 +25,6 @@
         return readLocalSetting(key);
     }
 
-    function isNightTime() {
-        let hour = new Date().getHours();
-        return hour >= 19 || hour < 6;
-    }
-
     function prefersColorSchemeDark() {
         try {
             return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -48,7 +43,7 @@
         if (!auto) {
             return false;
         }
-        return prefersColorSchemeDark() || isNightTime();
+        return prefersColorSchemeDark();
     }
 
     function applyToolDarkMode(enabled) {
