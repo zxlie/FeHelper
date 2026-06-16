@@ -50,8 +50,8 @@
                         <small>{{ aiRouterStatusText }}</small>
                     </div>
                     <div class="fh-ai-router-controls">
-                        <button type="button" @click="inspectSearchInput" :disabled="aiRouter.loading || (!searchKey && !aiRouter.input)">识别</button>
                         <button type="button" @click="inspectClipboard" :disabled="aiRouter.loading">剪贴板</button>
+                        <button type="button" class="fh-ai-router-disable" @click="disableAiRouter" title="不再在 popup 中显示智能识别模块">禁用</button>
                     </div>
                 </div>
                 <div class="fh-ai-router-body" v-if="aiRouter.analysis && aiRouter.analysis.inputType !== 'empty'">

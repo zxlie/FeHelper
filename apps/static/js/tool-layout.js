@@ -229,16 +229,38 @@
             .trim();
     }
 
+    function isDonateAction(node) {
+        return isElement(node) && node.matches('.x-donate-link');
+    }
+
+    function moveDonateActionsLast(container) {
+        if (!container || !isElement(container)) {
+            return;
+        }
+        Array.from(container.children)
+            .filter(isDonateAction)
+            .forEach(node => container.appendChild(node));
+    }
+
     function appendActions(actionsWrap, actionNodes) {
+        let regularNodes = [];
+        let donateNodes = [];
+
         actionNodes.forEach(node => {
             if (!node || isBlankNode(node)) {
                 return;
             }
+            (isDonateAction(node) ? donateNodes : regularNodes).push(node);
+        });
+
+        regularNodes.concat(donateNodes).forEach(node => {
             if (isElement(node)) {
                 node.classList.add('fh-header-action-item');
+                moveDonateActionsLast(node);
             }
             actionsWrap.appendChild(node);
         });
+        moveDonateActionsLast(actionsWrap);
     }
 
     function rebuildHeader(container, brandLink, titleNodes, actionNodes) {

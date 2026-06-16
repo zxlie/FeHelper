@@ -360,6 +360,18 @@ button {
     background: var(--fh-accent-soft);
 }
 
+.fh-ai-router-controls .fh-ai-router-disable {
+    color: #9a5b4f;
+    border-color: rgba(185, 92, 74, 0.22);
+    background: #fff8f6;
+}
+
+.fh-ai-router-controls .fh-ai-router-disable:hover {
+    color: #a43d2c;
+    border-color: rgba(185, 92, 74, 0.32);
+    background: #fff1ed;
+}
+
 .fh-ai-router-controls button:active,
 .fh-ai-router-actions button:active {
     transform: scale(0.97);
@@ -557,6 +569,7 @@ kbd {
 
 .fh-tool-row:focus-visible,
 .fh-icon-button:focus-visible,
+.fh-ai-router-controls button:focus-visible,
 .fh-footer button:focus-visible,
 .fh-footer a:focus-visible,
 .fh-primary-button:focus-visible {
@@ -840,6 +853,12 @@ html[dark-mode="on"] .fh-ai-router-signals span {
 html[dark-mode="on"] .fh-ai-router-actions button.is-primary {
     color: #111827;
     background: var(--fh-accent);
+}
+
+html[dark-mode="on"] .fh-ai-router-controls .fh-ai-router-disable {
+    color: #f3b4a6;
+    border-color: rgba(243, 180, 166, 0.22);
+    background: rgba(154, 67, 48, 0.16);
 }
 
 html[dark-mode="on"] .fh-search-input {

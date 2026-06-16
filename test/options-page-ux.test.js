@@ -39,6 +39,17 @@ describe('options page UX policy', () => {
         expect(optionsHtml).toContain('<meta name="viewport" content="width=device-width, initial-scale=1.0">');
     });
 
+    it('frames the options page as a control console, not only a marketplace', () => {
+        const optionsHtml = readSource('apps/options/index.html');
+
+        expect(optionsHtml).toContain('<title>FeHelper-控制台</title>');
+        expect(optionsHtml).toContain('<h1>FeHelper 控制台</h1>');
+        expect(optionsHtml).toContain('统一管理 popup、右键菜单、外观和权限');
+        expect(optionsHtml).toContain('class="fh-workspace-grid"');
+        expect(optionsHtml).toContain('class="fh-context-rail"');
+        expect(optionsHtml.indexOf('class="fh-tools-panel"')).toBeLessThan(optionsHtml.indexOf('class="fh-context-rail"'));
+    });
+
     it('allows search, category, and user view filters to stay combined', () => {
         const optionsSource = readSource('apps/options/index.js');
         const optionsHtml = readSource('apps/options/index.html');
@@ -46,8 +57,9 @@ describe('options page UX policy', () => {
         const showInstalled = sourceBetween(optionsSource, 'async showMyInstalled() {', 'showMyFavorites()');
         const showFavorites = sourceBetween(optionsSource, 'showMyFavorites() {', '// 重置工具列表到原始状态');
         const showRecent = sourceBetween(optionsSource, 'async showRecentUsed() {', 'handleRecommendClick(card)');
+        const categoryWatcher = sourceBetween(optionsSource, 'currentCategory: {', 'selectedOpts:');
 
-        [handleCategory, showInstalled, showFavorites, showRecent].forEach(block => {
+        [handleCategory, showInstalled, showFavorites, showRecent, categoryWatcher].forEach(block => {
             expect(block).not.toContain("this.searchKey = ''");
             expect(block).not.toContain("this.currentCategory = ''");
         });
@@ -55,6 +67,50 @@ describe('options page UX policy', () => {
         expect(optionsSource).toContain('hasActiveFilter()');
         expect(optionsHtml).toContain('class="fh-clear-filter"');
         expect(optionsHtml).toContain('v-if="hasActiveFilter"');
+    });
+
+    it('keeps AI console actions distinct and status copy concise', () => {
+        const optionsSource = readSource('apps/options/index.js');
+        const optionsHtml = readSource('apps/options/index.html');
+        const primaryActionVisibility = sourceBetween(optionsSource, 'showAiPrimaryAction() {', 'aiRefreshActionLabel()');
+        const statusCardTitle = sourceBetween(optionsSource, 'aiStatusCardTitle() {', 'aiPanelTitle()');
+
+        expect(optionsHtml).toContain('v-if="showAiPrimaryAction"');
+        expect(primaryActionVisibility).toContain("return this.aiModelStatus !== 'available';");
+        expect(optionsSource).not.toContain('打开 JSON 修复');
+        expect(optionsSource).not.toContain('openPrimaryAiFeature');
+        expect(optionsHtml).toContain('@click="checkBuiltInAiStatus({ notify: true })"');
+        expect(optionsHtml).toContain('{{aiRefreshActionLabel}}');
+        expect(optionsHtml).toContain('{{aiStatusCardTitle}}');
+        expect(optionsHtml).not.toContain('{{aiStatusLabel}}');
+        expect(statusCardTitle).toContain("return 'Gemini Nano 已可用';");
+        expect(statusCardTitle).not.toContain('建议优先使用 FeHelper AI');
+    });
+
+    it('lets users hide and restore the popup AI router', () => {
+        const popupHtml = readSource('apps/popup/index.html');
+        const popupSource = readSource('apps/popup/index.js');
+        const optionsSource = readSource('apps/options/index.js');
+        const optionsHtml = readSource('apps/options/index.html');
+        const settingsSource = readSource('apps/options/settings.js');
+        const popupControls = sourceBetween(popupHtml, 'class="fh-ai-router-controls"', '</div>');
+        const routerVisibility = sourceBetween(popupSource, 'shouldShowAiRouter() {', 'aiRouterStatusText()');
+        const saveSettingsBlock = sourceBetween(optionsSource, '// 构建设置对象', 'opts = this.normalizeDarkModeOptions(opts);');
+
+        expect(popupControls).not.toContain('inspectSearchInput');
+        expect(popupControls).toContain('@click="inspectClipboard"');
+        expect(popupControls).toContain('@click="disableAiRouter"');
+        expect(popupControls).toContain('禁用');
+        expect(popupSource).toContain("const POPUP_AI_ROUTER_ENABLED = 'POPUP_AI_ROUTER_ENABLED';");
+        expect(popupSource).toContain("[POPUP_AI_ROUTER_ENABLED]: 'false'");
+        expect(routerVisibility).toContain('this.popupAiRouterReady');
+        expect(routerVisibility).toContain('this.popupAiRouterEnabled');
+        expect(routerVisibility).toContain("this.aiRouter.modelStatus === 'available'");
+        expect(routerVisibility).toContain('this.isAiAssistantEnabled');
+        expect(optionsHtml).toContain('id="POPUP_AI_ROUTER_ENABLED"');
+        expect(optionsHtml).toContain('在 popup 显示智能识别');
+        expect(settingsSource).toContain("'POPUP_AI_ROUTER_ENABLED': true");
+        expect(saveSettingsBlock).toContain("'POPUP_AI_ROUTER_ENABLED'");
     });
 
     it('gives modal dialogs semantic roles and keyboard handling', () => {

@@ -83,6 +83,7 @@ let BgPageInstance = (function () {
             case 'json-format':
                 files.push(
                     'json-format/json-bigint.js',
+                    'json-format/json-auto-utils.js',
                     'json-format/format-lib.js',
                     'json-format/json-abc.js',
                     'json-format/json-decode.js'

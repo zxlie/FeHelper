@@ -1360,6 +1360,14 @@ window.Formatter = (function () {
     // 与 worker 保持一致的 BigInt 安全解析：
     // 1) 给可能的大整数加标记；2) 使用reviver还原为原生BigInt
     let _parseWithBigInt = function(text) {
+        if (
+            typeof window !== 'undefined' &&
+            window.FHJsonAutoUtils &&
+            typeof window.FHJsonAutoUtils.parseWithBigInt === 'function'
+        ) {
+            return window.FHJsonAutoUtils.parseWithBigInt(text);
+        }
+
         // 先解析JSON，然后在对象层面处理大整数
         // 这样可以避免在字符串内容中错误地匹配数字
         try {

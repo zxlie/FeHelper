@@ -13,6 +13,7 @@ import {
 } from '../aiagent/fh.ai-router.js';
 
 const POPUP_RECENT_TOOLS = 'popup_recent_tools';
+const POPUP_AI_ROUTER_ENABLED = 'POPUP_AI_ROUTER_ENABLED';
 const USER_USAGE_DATA_KEY = 'FH_USER_USAGE_DATA';
 const MAC_OPTION_DIGITS = {
     '¡': 1,
@@ -125,6 +126,8 @@ new Vue({
         activeToolKey: '',
         searchKey: '',
         isLoading: true,
+        popupAiRouterReady: false,
+        popupAiRouterEnabled: true,
         aiRouter: {
             input: '',
             sourceLabel: '',
@@ -206,7 +209,15 @@ new Vue({
         },
 
         shouldShowAiRouter() {
-            return this.aiRouter.modelStatus === 'available';
+            return this.popupAiRouterReady &&
+                this.popupAiRouterEnabled &&
+                this.aiRouter.modelStatus === 'available' &&
+                this.isAiAssistantEnabled;
+        },
+
+        isAiAssistantEnabled() {
+            const aiTool = this.fhTools.aiagent;
+            return !!(aiTool && aiTool.installed);
         },
 
         aiRouterStatusText() {
@@ -217,7 +228,7 @@ new Vue({
                     ? `Gemini 精判：${this.aiRouter.analysis.inputType}`
                     : `本地识别：${this.aiRouter.analysis.inputType}`;
             }
-            return '识别剪贴板或搜索输入，推荐合适工具';
+            return '读取剪贴板内容，推荐合适工具';
         },
 
         aiRouterActions() {
@@ -409,13 +420,16 @@ new Vue({
         },
 
         async loadPopupMeta() {
-            const meta = await this.storageGet(['favorites', POPUP_RECENT_TOOLS, USER_USAGE_DATA_KEY]);
+            const meta = await this.storageGet(['favorites', POPUP_RECENT_TOOLS, USER_USAGE_DATA_KEY, POPUP_AI_ROUTER_ENABLED]);
             const favorites = Array.isArray(meta.favorites) ? meta.favorites : [];
             const popupRecent = Array.isArray(meta[POPUP_RECENT_TOOLS]) ? meta[POPUP_RECENT_TOOLS] : [];
             const usageRecent = this.readRecentUsedTools(meta[USER_USAGE_DATA_KEY]);
 
             this.favorites = this.uniqueKeys(favorites);
             this.recentUsed = this.uniqueKeys(popupRecent.concat(usageRecent)).slice(0, 10);
+            this.popupAiRouterEnabled = meta[POPUP_AI_ROUTER_ENABLED] !== false &&
+                meta[POPUP_AI_ROUTER_ENABLED] !== 'false';
+            this.popupAiRouterReady = true;
         },
 
         storageGet(keys) {
@@ -570,6 +584,14 @@ new Vue({
             }
         },
 
+        async disableAiRouter() {
+            this.popupAiRouterEnabled = false;
+            this.aiRouter.loading = false;
+            await this.storageSet({
+                [POPUP_AI_ROUTER_ENABLED]: 'false'
+            });
+        },
+
         async readClipboardTextForRouter() {
             let clipboardApiError = null;
 
@@ -639,9 +661,9 @@ new Vue({
         formatClipboardError(error) {
             const message = error && error.message ? error.message : '';
             if (/readText|clipboard|permission|denied|not focused|Document is not focused/i.test(message)) {
-                return '剪贴板读取被浏览器拒绝，请重新加载扩展后再试，或先粘贴到搜索框再点“识别”。';
+                return '剪贴板读取被浏览器拒绝，请重新打开 popup 后再试，或在搜索框里直接搜索关键词。';
             }
-            return message || '读取剪贴板失败，请先粘贴到搜索框再点“识别”。';
+            return message || '读取剪贴板失败，请重新打开 popup 后再试。';
         },
 
         async refineAiRouterWithAi() {

@@ -315,15 +315,43 @@ new Vue({
 
         aiPrimaryActionLabel() {
             if (this.aiModelBusy) return this.aiModelStatus === 'downloading' ? '模型下载中' : '正在检测';
-            if (this.aiModelStatus === 'available') return '立即使用本机 AI';
             if (this.aiModelStatus === 'downloadable' || this.aiModelStatus === 'downloading') return '下载并启用模型';
             if (this.aiModelStatus === 'unsupported' || this.aiModelStatus === 'unavailable') return '打开云端 AI 设置';
             return '检测 AI 能力';
         },
 
+        showAiPrimaryAction() {
+            return this.aiModelStatus !== 'available';
+        },
+
+        aiRefreshActionLabel() {
+            return this.aiModelBusy && this.aiModelStatus === 'checking' ? '检测中' : '重新检测';
+        },
+
+        aiStatusCardTitle() {
+            switch (this.aiModelStatus) {
+                case 'available':
+                    return 'Gemini Nano 已可用';
+                case 'downloadable':
+                    return 'Gemini Nano 可下载';
+                case 'downloading':
+                    return '正在下载 Gemini Nano';
+                case 'unsupported':
+                    return '浏览器暂不支持本机 AI';
+                case 'unavailable':
+                    return '当前设备暂不可用';
+                case 'checking':
+                    return '正在检测模型状态';
+                case 'error':
+                    return '检测失败';
+                default:
+                    return '等待检测';
+            }
+        },
+
         aiPanelTitle() {
             return this.aiModelStatus === 'available'
-                ? 'FeHelper AI 已就绪，核心工具可直接接入'
+                ? 'FeHelper AI 已就绪，核心工具已接入'
                 : '开启 FeHelper AI，先准备 Chrome 本机 Gemini 模型';
         },
 
@@ -397,7 +425,9 @@ new Vue({
             }
         },
 
-        async checkBuiltInAiStatus() {
+        async checkBuiltInAiStatus(options = {}) {
+            const notify = !!(options && options.notify);
+            this.aiModelBusy = true;
             this.aiModelStatus = 'checking';
             this.aiModelMessage = AI_STATUS_TEXT.checking;
             try {
@@ -407,11 +437,26 @@ new Vue({
                     progress: result.availability === 'available' ? 1 : 0,
                     message: result.message
                 });
+                if (notify) {
+                    this.showInPageNotification({
+                        title: 'FeHelper AI',
+                        message: `检测完成：${this.aiStatusCardTitle}`
+                    });
+                }
             } catch (error) {
+                const message = error && error.message ? error.message : AI_STATUS_TEXT.error;
                 this.applyBuiltInAiStatus({
                     status: 'error',
-                    message: error && error.message ? error.message : AI_STATUS_TEXT.error
+                    message
                 });
+                if (notify) {
+                    this.showInPageNotification({
+                        title: 'FeHelper AI',
+                        message: `检测失败：${message}`
+                    });
+                }
+            } finally {
+                this.aiModelBusy = false;
             }
         },
 
@@ -490,10 +535,6 @@ new Vue({
         },
 
         async handleAiPrimaryAction() {
-            if (this.aiModelStatus === 'available') {
-                this.openAiAgent();
-                return;
-            }
             if (this.aiModelStatus === 'checking' || this.aiModelStatus === 'error') {
                 await this.checkBuiltInAiStatus();
                 if (this.aiModelStatus === 'available') {
@@ -1546,6 +1587,7 @@ new Vue({
                     'FORBID_OPEN_IN_NEW_TAB',
                     'CONTENT_SCRIPT_ALLOW_ALL_FRAMES',
                     'JSON_PAGE_FORMAT',
+                    'POPUP_AI_ROUTER_ENABLED',
                     'AUTO_DARK_MODE',
                     'ALWAYS_DARK_MODE',
                     'FORBID_STATISTICS' // 新增，确保保存
@@ -1962,10 +2004,6 @@ new Vue({
                 // 保证在视图模式之外的分类切换也能正确显示
                 if (this.currentView === 'all') {
                     this.activeTools = { ...this.originalTools };
-                }
-                // 重置搜索条件
-                if (this.searchKey) {
-                    this.searchKey = '';
                 }
             }
         },

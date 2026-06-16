@@ -852,8 +852,8 @@ html.fh-jf .fh-viewbar-group {
 
 html.fh-jf .fh-viewbar-brand {
     flex: 0 0 auto;
-    gap: 8px;
-    min-width: 138px;
+    gap: 5px;
+    min-width: 152px;
 }
 
 html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-logo {
@@ -873,24 +873,33 @@ html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-logo img {
     border-radius: 4px;
 }
 
+html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-title-divider {
+    flex: 0 0 auto;
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1;
+    white-space: nowrap !important;
+}
+
 html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-title {
     display: inline-flex;
     align-items: center;
-    height: 22px;
-    padding: 0 8px;
-    border: 1px solid #dbeafe;
-    border-radius: 999px;
-    background: #eff6ff;
-    color: #1d4ed8;
-    font-size: 11px;
-    font-weight: 700;
+    height: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #1f2937;
+    font-size: 13px;
+    font-weight: 760;
+    line-height: 1.2;
     white-space: nowrap !important;
 }
 
 html.fh-jf .fh-viewbar-main {
     flex: 1 1 auto;
     min-width: 0;
-    gap: 6px;
+    gap: 5px;
     overflow-x: auto;
     overflow-y: visible;
     scrollbar-width: none;
@@ -902,9 +911,9 @@ html.fh-jf .fh-viewbar-main::-webkit-scrollbar {
 
 html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-group {
     flex: 0 0 auto;
-    min-height: 30px;
-    gap: 4px;
-    padding: 3px;
+    min-height: 28px;
+    gap: 2px;
+    padding: 2px;
     border: 1px solid #d8dee9;
     border-radius: 999px;
     background: #f8fafc;
@@ -913,10 +922,11 @@ html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-group {
 
 html.fh-jf .x-toolbar.fh-json-viewbar .fh-sort-group {
     display: inline-flex;
+    gap: 2px;
 }
 
 html.fh-jf .x-toolbar.fh-json-viewbar .x-stitle {
-    padding: 0 7px;
+    padding: 0 6px;
     color: #64748b;
     font-size: 11px;
     font-weight: 700;
@@ -925,6 +935,7 @@ html.fh-jf .x-toolbar.fh-json-viewbar .x-stitle {
 html.fh-jf .fh-radio-pill,
 html.fh-jf .fh-toggle-pill {
     position: relative;
+    flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
     margin: 0;
@@ -936,11 +947,12 @@ html.fh-jf .fh-toggle-pill {
 
 html.fh-jf .fh-radio-pill input,
 html.fh-jf .fh-toggle-pill input {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    margin: 0;
+    position: absolute !important;
+    inset: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
     opacity: 0;
     cursor: pointer;
 }
@@ -950,8 +962,8 @@ html.fh-jf .fh-toggle-pill span {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 24px;
-    padding: 0 9px;
+    height: 22px;
+    padding: 0 8px;
     border-radius: 999px;
     transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
     white-space: nowrap !important;
@@ -976,10 +988,10 @@ html.fh-jf .fh-toggle-pill input:checked + span {
 
 html.fh-jf .x-toolbar.fh-json-viewbar .xjf-btn {
     width: auto;
-    height: 24px;
+    height: 22px;
     min-width: 0;
     margin: 0;
-    padding: 0 10px;
+    padding: 0 8px;
     border: 0;
     border-radius: 999px;
     background: transparent;
@@ -987,7 +999,7 @@ html.fh-jf .x-toolbar.fh-json-viewbar .xjf-btn {
     cursor: pointer;
     font-size: 12px;
     font-weight: 700;
-    line-height: 24px;
+    line-height: 22px;
     transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
@@ -1020,7 +1032,7 @@ html.fh-jf .fh-viewbar-actions {
     top: auto;
     flex: 0 0 auto;
     float: none;
-    gap: 6px;
+    gap: 5px;
     margin: 0;
     padding: 0;
     color: #64748b;
@@ -1038,9 +1050,9 @@ html.fh-jf .fh-viewbar-actions > .x-other-tools {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 28px;
+    min-height: 26px;
     margin: 0;
-    padding: 0 10px;
+    padding: 0 9px;
     border: 1px solid #d8dee9;
     border-radius: 999px;
     background: #fff;
@@ -1048,7 +1060,7 @@ html.fh-jf .fh-viewbar-actions > .x-other-tools {
     color: #475569;
     cursor: pointer;
     float: none;
-    gap: 5px;
+    gap: 4px;
     text-decoration: none;
     transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
     white-space: nowrap !important;
@@ -1092,7 +1104,7 @@ html.fh-jf .fh-viewbar-actions > #toggleBtn {
 html.fh-jf .fh-viewbar-actions > .x-donate-link a {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
     white-space: nowrap !important;
 }
 
@@ -1106,8 +1118,8 @@ html.fh-jf .fh-viewbar-actions .nav-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 17px;
+    height: 17px;
     border-radius: 999px;
     background: #d1fae5;
     color: #047857;
@@ -1121,7 +1133,7 @@ html.fh-jf .fh-viewbar-actions > .x-other-tools {
     border-color: #dbeafe;
     background: #eff6ff;
     color: #1d4ed8;
-    padding: 0 11px;
+    padding: 0 9px;
 }
 
 html.fh-jf .fh-viewbar-actions > .x-other-tools:hover {
@@ -1468,6 +1480,14 @@ html.fh-jf body.theme-dark .fh-viewbar-actions > #toggleBtn {
     border-color: #30363d;
     background: #1f2630;
     color: #c9d1d9;
+}
+html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar .fh-viewbar-title {
+    border: 0;
+    background: transparent;
+    color: #d6dee7;
+}
+html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar .fh-viewbar-title-divider {
+    color: #6b7280;
 }
 html.fh-jf body.theme-dark .fh-radio-pill:hover span,
 html.fh-jf body.theme-dark .fh-toggle-pill:hover span,

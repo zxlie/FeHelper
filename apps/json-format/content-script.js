@@ -73,6 +73,66 @@ window.JsonAutoFormat = (() => {
 
     let _isEnabledSetting = value => value === true || value === 'true';
 
+    let _getJsonAutoUtils = () => window.FHJsonAutoUtils || {};
+
+    let _getJsonParseOptions = () => ({
+        nestedEscapeParse: !!formatOptions.NESTED_ESCAPE_PARSE
+    });
+
+    let _parseJsonLike = source => {
+        const utils = _getJsonAutoUtils();
+        if (typeof utils.parseJSONLike === 'function') {
+            return utils.parseJSONLike(source, _getJsonParseOptions());
+        }
+
+        try {
+            const value = JSON.parse(String(source || '').trim());
+            if (value && typeof value === 'object') {
+                return {
+                    value,
+                    normalizedSource: JSON.stringify(value),
+                    funcName: null,
+                    fnTry: null,
+                    fnCatch: null
+                };
+            }
+        } catch (e) {}
+        return null;
+    };
+
+    let _stringifyJsonForFormatter = jsonObj => {
+        const utils = _getJsonAutoUtils();
+        if (typeof utils.safeStringify === 'function') {
+            return utils.safeStringify(jsonObj);
+        }
+        return JSON.stringify(jsonObj);
+    };
+
+    let _coerceDecodedJsonSource = (source, decodedSource) => {
+        const utils = _getJsonAutoUtils();
+        if (typeof utils.coerceDecodedJSONSource === 'function') {
+            return utils.coerceDecodedJSONSource(source, decodedSource, _getJsonParseOptions());
+        }
+
+        const parsed = _parseJsonLike(decodedSource);
+        return parsed ? parsed.normalizedSource : source;
+    };
+
+    let _prepareSourceForFormatter = async source => {
+        if (!formatOptions.autoDecode) {
+            return source;
+        }
+
+        try {
+            let txt = await JsonEnDecode.urlDecodeByFetch(source);
+            let decodedSource = JsonEnDecode.uniDecode(txt);
+            return _coerceDecodedJsonSource(source, decodedSource);
+        } catch (e) {
+            console.warn('URL解码失败，使用原始内容:', e);
+            return source;
+        }
+    };
+
     // 获取JSON格式化的配置信息
     let _getAllOptions = (success) => {
         chrome.runtime.sendMessage({
@@ -103,6 +163,7 @@ window.JsonAutoFormat = (() => {
             '    <div class="fh-viewbar-brand">' +
             '        <a href="https://fehelper.com" target="_blank" class="x-a-title fh-viewbar-logo">' +
             '            <img src="' + chrome.runtime.getURL('static/img/fe-16.png') + '" alt="FeHelper"/><span>FeHelper</span></a>' +
+            '        <span class="fh-viewbar-title-divider" aria-hidden="true">｜</span>' +
             '        <span class="x-b-title fh-viewbar-title">JSON 格式化</span>' +
             '    </div>' +
             '    <div class="fh-viewbar-main">' +
@@ -122,8 +183,8 @@ window.JsonAutoFormat = (() => {
             '           <path fill-rule="evenodd" d="M14 8.77v-1.6l-1.94-.64-.45-1.09.88-1.84-1.13-1.13-1.81.91-1.09-.45-.69-1.92h-1.6l-.63 1.94-1.11.45-1.84-.88-1.13 1.13.91 1.81-.45 1.09L0 7.23v1.59l1.94.64.45 1.09-.88 1.84 1.13 1.13 1.81-.91 1.09.45.69 1.92h1.59l.63-1.94 1.11-.45 1.84.88 1.13-1.13-.92-1.81.47-1.09L14 8.75v.02zM7 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"></path>' +
             '       </svg><span>高级定制</span></span>' +
             '       <a id="toggleBtn" title="展开或收起工具栏">收起</a>' +
-            '       <span class="x-donate-link' + (isInUSA() ? ' x-donate-link-us' : '') + '"><a href="#" id="donateLink"><i class="nav-icon">SP</i><span>请作者喝咖啡</span></a></span>' +
             '       <a class="x-other-tools' + (isInUSA() ? ' x-other-tools-us' : '') + '" style="cursor:pointer"><span>工具市场</span></a>' +
+            '       <span class="x-donate-link' + (isInUSA() ? ' x-donate-link-us' : '') + '"><a href="#" id="donateLink"><i class="nav-icon">SP</i><span>请作者喝咖啡</span></a></span>' +
             '    </span>' +
             '</div>',
             '<div id="formattingMsg"><span class="x-loading"></span>格式化中...</div>',
@@ -402,8 +463,9 @@ window.JsonAutoFormat = (() => {
         let source = formatOptions.originalSource;
 
         if (formatOptions.sortType !== 0) {
-            let jsonObj = JsonABC.sortObj(JSON.parse(formatOptions.originalSource), parseInt(formatOptions.sortType), true);
-            source = JSON.stringify(jsonObj);
+            let parsed = _parseJsonLike(formatOptions.originalSource);
+            let jsonObj = JsonABC.sortObj(parsed.value, parseInt(formatOptions.sortType), true);
+            source = _stringifyJsonForFormatter(jsonObj);
         }
 
         let elBody = $('body');
@@ -433,41 +495,14 @@ window.JsonAutoFormat = (() => {
         
         if (isRestrictedDomain) {
             console.log('检测到受限域名，直接使用同步模式');
-            if (formatOptions.autoDecode) {
-                (async () => {
-                    try {
-                        let txt = await JsonEnDecode.urlDecodeByFetch(source);
-                        source = JsonEnDecode.uniDecode(txt);
-                    } catch (e) {
-                        console.warn('URL解码失败，使用原始内容:', e);
-                    }
-                    Formatter.formatSync(source, theme, formatOptions.NESTED_ESCAPE_PARSE);
-                    $('#jfToolbar').show();
-                })();
-            } else {
-                Formatter.formatSync(source, theme, formatOptions.NESTED_ESCAPE_PARSE);
-                $('#jfToolbar').show();
-            }
-        } else if (formatOptions.autoDecode) {
             (async () => {
-                try {
-                    let txt = await JsonEnDecode.urlDecodeByFetch(source);
-                    source = JsonEnDecode.uniDecode(txt);
-                } catch (e) {
-                    console.warn('URL解码失败，使用原始内容:', e);
-                }
-
-                // 格式化
-                try {
-                    await Formatter.format(source, theme, formatOptions.NESTED_ESCAPE_PARSE);
-                } catch (e) {
-                    console.warn('异步格式化失败，使用同步模式:', e);
-                    Formatter.formatSync(source, theme, formatOptions.NESTED_ESCAPE_PARSE);
-                }
+                source = await _prepareSourceForFormatter(source);
+                Formatter.formatSync(source, theme, formatOptions.NESTED_ESCAPE_PARSE);
                 $('#jfToolbar').show();
             })();
         } else {
             (async () => {
+                source = await _prepareSourceForFormatter(source);
                 // 格式化
                 try {
                     await Formatter.format(source, theme, formatOptions.NESTED_ESCAPE_PARSE);
@@ -514,60 +549,52 @@ window.JsonAutoFormat = (() => {
      * 从一个dom节点去获取json内容，这里面有很多的判断
      */
     let _getJsonContentFromDOM = function (dom) {
-        let source = dom.textContent.trim();
-
-        if (!source && document.body) {
-            source = (document.body.textContent || '').trim()
-        }
-
-        if (!source) {
+        if (!document.body) {
             return false;
         }
 
-        // 1、如果body的内容还包含HTML标签，肯定不是合法的json了
-        // 2、如果是合法的json，也只可能有一个text节点
-        // 3、但是要兼容一下其他插件对页面的破坏情况
-        // 4、对于content-type是application/json的页面可以做宽松处理
-        let nodes = document.body.childNodes;
-        let jsonText = '';
-        let isJsonContentType = document.contentType === 'application/json';
-        for (let i = 0, len = nodes.length; i < len; i++) {
-            let elm = nodes[i];
+        let candidates = [];
+        let seen = new Set();
+        let addCandidate = text => {
+            text = (text || '').trim();
+            if (text && !seen.has(text)) {
+                seen.add(text);
+                candidates.push(text);
+            }
+        };
+        let isVisibleElement = elm => elm && elm.nodeType === Node.ELEMENT_NODE && (elm.offsetHeight + elm.offsetWidth !== 0);
+
+        addCandidate(dom && dom.textContent);
+
+        let directText = '';
+        Array.from(document.body.childNodes).forEach(elm => {
             if (elm.nodeType === Node.TEXT_NODE) {
-                jsonText += (elm.textContent || '').trim();
-            } else if (isJsonContentType) {
-                if ((elm.offsetHeight + elm.offsetWidth !== 0) && elm.textContent.length > jsonText.length) {
-                    jsonText = elm.textContent;
+                directText += elm.textContent || '';
+            }
+        });
+        addCandidate(directText);
+
+        Array.from(document.querySelectorAll('body>pre')).forEach(elm => addCandidate(elm.textContent));
+
+        if (document.contentType === 'application/json') {
+            addCandidate(document.body.innerText);
+            Array.from(document.body.children).forEach(elm => {
+                const tagName = elm.tagName.toLowerCase();
+                if (!['script', 'style', 'link'].includes(tagName) && isVisibleElement(elm)) {
+                    addCandidate(elm.innerText || elm.textContent);
                 }
-            } else {
-                if (nodes[i].nodeType === Node.ELEMENT_NODE) {
-                    let tagName = elm.tagName.toLowerCase();
-                    let text = (elm.textContent || '').trim();
+            });
+        }
 
-                    // 如果包含了script和link标签，需要看标签的src和href属性值，如果不是chrome-extensions注入的，也要跳出
-                    if (['script', 'link'].includes(tagName)) {
-                        let url = elm.getAttribute('src') || elm.getAttribute('href');
-                        if (!!url && !/^chrome\-extension:\/\//.test(url)) {
-                            return false;
-                        }
-                    }
+        addCandidate(document.body.textContent);
 
-                    // 如果不是pre标签，并且还不是隐藏节点，且内容不为空，也要跳出
-                    else if (tagName !== 'pre' && (elm.offsetWidth + elm.offsetHeight !== 0 && !!text)) {
-                        return false;
-                    }
-
-                    // 如果是pre标签，但当前节点内容与最初body.textContent提取值不一致，都跳出
-                    else if (tagName === 'pre' && text !== source) {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
+        for (let i = 0; i < candidates.length; i++) {
+            if (_parseJsonLike(candidates[i])) {
+                return candidates[i];
             }
         }
 
-        return (jsonText || '').trim() || source;
+        return false;
     };
 
     /**
@@ -699,103 +726,14 @@ window.JsonAutoFormat = (() => {
      * @returns 
      */
     let _getJsonObject = function (source) {
-        let jsonObj = null;
-
-        // 下面校验给定字符串是否为一个合法的json
-        try {
-            // 再看看是不是jsonp的格式
-            let reg = /^([\w\.]+)\(\s*([\s\S]*)\s*\)$/m;
-            // 优化后的 try/catch 包裹处理
-            fnTry = null;
-            fnCatch = null;
-            // 处理开头
-            if (source.startsWith('try {')) {
-                fnTry = 'try {';
-                source = source.slice(5).trimStart();
-            }
-            // 处理结尾
-            let catchIdx = source.lastIndexOf('} catch');
-            if (catchIdx !== -1) {
-                // 找到最后一个 } catch，截取到末尾
-                fnCatch = source.slice(catchIdx);
-                source = source.slice(0, catchIdx).trimEnd();
-            }
-            // 只做一次正则匹配
-            let matches = reg.exec(source);
-            if (matches != null && (fnTry && fnCatch || !fnTry && !fnCatch)) {
-                funcName = matches[1];
-                source = matches[2];
-            } else {
-                reg = /^([\{\[])/;
-                if (!reg.test(source)) {
-                    return;
-                }
-            }
-            // 这里可能会throw exception
-            jsonObj = JSON.parse(source);
-        } catch (ex) {
-            // new Function的方式，能自动给key补全双引号，但是不支持bigint，所以是下下策，放在try-catch里搞
-            try {
-                jsonObj = new Function("return " + source)();
-            } catch (exx) {
-                try {
-                    // 再给你一次机会，是不是下面这种情况：  "{\"ret\":\"0\", \"msg\":\"ok\"}"
-                    jsonObj = new Function("return '" + source + "'")();
-                    if (typeof jsonObj === 'string') {
-                        try {
-                            // 确保bigint不会失真
-                            jsonObj = JSON.parse(jsonObj);
-                        } catch (ie) {
-                            // 最后给你一次机会，是个字符串，老夫给你再转一次
-                            jsonObj = new Function("return " + jsonObj)();
-                        }
-                    }
-                } catch (exxx) {
-                    return;
-                }
-            }
-        }
-        if (formatOptions.NESTED_ESCAPE_PARSE && typeof jsonObj === 'string') {
-            jsonObj = _unpackTopLevelEscapedJSON(jsonObj);
-        }
-        try {
-            // 要尽量保证格式化的东西一定是一个json，所以需要把内容进行JSON.stringify处理
-            source = JSON.stringify(jsonObj);
-        } catch (ex) {
-            // 通过JSON反解不出来的，一定有问题
+        let parsed = _parseJsonLike(source);
+        if (!parsed) {
             return;
         }
-        return jsonObj;
-    };
-
-    let _unpackTopLevelEscapedJSON = function (value) {
-        if (typeof value !== 'string' || !value.trim()) {
-            return value;
-        }
-
-        try {
-            const parsed = JSON.parse(value);
-            if (_isJSONContainer(parsed)) {
-                return parsed;
-            }
-        } catch (e) {}
-
-        return value;
-    };
-
-    let _isJSONContainer = function (value) {
-        if (typeof value !== 'object' || value === null) return false;
-        if (!Array.isArray(value) && Object.prototype.toString.call(value) !== '[object Object]') return false;
-        if (
-            value &&
-            typeof value.s === 'number' &&
-            typeof value.e === 'number' &&
-            Array.isArray(value.c) &&
-            Object.keys(value).length === 3
-        ) {
-            return false;
-        }
-        return true;
+        funcName = parsed.funcName;
+        fnTry = parsed.fnTry;
+        fnCatch = parsed.fnCatch;
+        return parsed.value;
     };
 
     /**
@@ -831,7 +769,7 @@ window.JsonAutoFormat = (() => {
             $('html').addClass('fh-jf');
             _mountFormatterShell();
 
-            formatOptions.originalSource = JSON.stringify(jsonObj);
+            formatOptions.originalSource = _stringifyJsonForFormatter(jsonObj);
 
             // 确保从storage加载最新设置
             _getAllOptions(options => {

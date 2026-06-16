@@ -56,6 +56,7 @@
             "static/img/fe-48.png",
             "static/img/loading.gif",
             "json-format/format-lib.js",
+            "json-format/json-auto-utils.js",
             "json-format/json-abc.js",
             "json-format/json-bigint.js",
             "json-format/json-decode.js",

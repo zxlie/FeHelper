@@ -884,6 +884,17 @@ body.fh-modern .fh-tool-actions > .x-switch {
     flex: 0 0 auto;
 }
 
+body.fh-modern .fh-tool-header-actions .x-donate-link,
+body.fh-modern .panel-title > .x-donate-link,
+body.fh-modern .panel-title > span.x-donate-link,
+body.fh-modern .page-header > .x-donate-link,
+body.fh-modern .mod-head-actions > .x-donate-link,
+body.fh-modern .fh-tool-actions > .x-donate-link,
+body.fh-modern .qr-header-actions > .x-donate-link,
+body.fh-modern .navbar-actions > .x-donate-link {
+    order: 99;
+}
+
 body.fh-modern .panel-title > .x-other-tools,
 body.fh-modern .panel-title > .x-donate-link,
 body.fh-modern .panel-title > span.x-donate-link,

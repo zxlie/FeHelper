@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html lang="zh-CN">
 <head>
-    <title>FeHelper-插件市场</title>
+    <title>FeHelper-控制台</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript" src="theme-boot.js"></script>
@@ -95,9 +95,9 @@
     <main class="fh-main">
         <header class="fh-hero">
             <div>
-                <p class="fh-eyebrow">Extension workspace</p>
-                <h1>插件市场</h1>
-                <p>管理已安装工具、右键菜单、收藏入口和 popup 排序。</p>
+                <p class="fh-eyebrow">Extension console</p>
+                <h1>FeHelper 控制台</h1>
+                <p>搜索、安装和整理工具，统一管理 popup、右键菜单、外观和权限。</p>
             </div>
             <div class="fh-hero-stats" aria-label="工具统计">
                 <div>
@@ -119,65 +119,8 @@
             </div>
         </header>
 
-        <section :class="['fh-ai-console', aiStatusClass]">
-            <div class="fh-ai-console-main">
-                <div class="fh-ai-console-copy">
-                    <p class="fh-eyebrow">FeHelper AI</p>
-                    <h2>{{aiPanelTitle}}</h2>
-                    <p>{{aiModelMessage}}</p>
-                </div>
-                <div class="fh-ai-console-actions">
-                    <button type="button" class="btn btn-success" @click="handleAiPrimaryAction" :disabled="aiModelBusy">
-                        {{aiPrimaryActionLabel}}
-                    </button>
-                    <button type="button" class="btn btn-default" @click="openAiAgent()">打开 AI 助手</button>
-                    <button type="button" class="btn btn-info" @click="checkBuiltInAiStatus" :disabled="aiModelBusy">重新检测</button>
-                </div>
-            </div>
-            <div class="fh-ai-status-card">
-                <span :class="['fh-ai-status-dot', aiStatusClass]"></span>
-                <div>
-                    <strong>{{aiStatusLabel}}</strong>
-                    <small>Chrome Built-in AI / Gemini Nano</small>
-                </div>
-                <div class="fh-ai-progress" v-if="aiModelStatus === 'downloading' || aiModelProgressPercent > 0 && aiModelProgressPercent < 100">
-                    <span :style="{ width: aiModelProgressPercent + '%' }"></span>
-                    <em>{{aiModelProgressPercent}}%</em>
-                </div>
-            </div>
-            <div class="fh-ai-feature-grid">
-                <button v-for="pack in aiFeaturePacks" :key="pack.toolKey" type="button" class="fh-ai-feature-card" @click="openAiFeature(pack)">
-                    <span class="fh-ai-feature-badge">{{pack.badge}}</span>
-                    <span>
-                        <strong>{{pack.title}}</strong>
-                        <small>{{pack.desc}}</small>
-                    </span>
-                    <em>{{aiModelStatus === 'available' ? '打开工具' : '先启用模型'}}</em>
-                </button>
-            </div>
-        </section>
-
-        <section class="fh-recommendations" v-if="recommendationCards && recommendationCards.length">
-            <div class="fh-section-head">
-                <div>
-                    <p class="fh-eyebrow">Quick picks</p>
-                    <h2>精选入口</h2>
-                </div>
-                <span>点击即可安装或打开</span>
-            </div>
-            <div class="fh-recommendation-grid">
-                <button v-for="card in recommendationCards" :key="card.title" type="button" class="fh-recommendation-card" :class="{ 'is-ad': card.isAd }" @click="handleRecommendClick(card)">
-                    <span class="fh-rec-badge" aria-hidden="true">{{getRecommendationBadge(card)}}</span>
-                    <span class="fh-rec-copy">
-                        <strong>{{card.title}}</strong>
-                        <small>{{card.desc}}</small>
-                    </span>
-                    <span :class="['fh-tag', card.tagClass]">{{card.tag}}</span>
-                </button>
-            </div>
-        </section>
-
-        <section class="fh-tools-panel">
+        <div class="fh-workspace-grid">
+            <section class="fh-tools-panel">
             <div class="fh-toolbar">
                 <div class="fh-search-box">
                     <span class="fh-search-icon" aria-hidden="true"></span>
@@ -260,7 +203,70 @@
                     </div>
                 </article>
             </div>
-        </section>
+            </section>
+
+            <aside class="fh-context-rail">
+                <section :class="['fh-ai-console', aiStatusClass]">
+                    <div class="fh-ai-console-main">
+                        <div class="fh-ai-console-copy">
+                            <p class="fh-eyebrow">FeHelper AI</p>
+                            <h2>{{aiPanelTitle}}</h2>
+                            <p>{{aiModelMessage}}</p>
+                        </div>
+                        <div class="fh-ai-console-actions">
+                            <button v-if="showAiPrimaryAction" type="button" class="btn btn-success" @click="handleAiPrimaryAction" :disabled="aiModelBusy">
+                                {{aiPrimaryActionLabel}}
+                            </button>
+                            <button type="button" class="btn btn-default" @click="openAiAgent()">打开 AI 助手</button>
+                            <button type="button" class="btn btn-info" @click="checkBuiltInAiStatus({ notify: true })" :disabled="aiModelBusy">
+                                {{aiRefreshActionLabel}}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="fh-ai-status-card">
+                        <span :class="['fh-ai-status-dot', aiStatusClass]"></span>
+                        <div>
+                            <strong>{{aiStatusCardTitle}}</strong>
+                            <small>Chrome Built-in AI / Gemini Nano</small>
+                        </div>
+                        <div class="fh-ai-progress" v-if="aiModelStatus === 'downloading' || aiModelProgressPercent > 0 && aiModelProgressPercent < 100">
+                            <span :style="{ width: aiModelProgressPercent + '%' }"></span>
+                            <em>{{aiModelProgressPercent}}%</em>
+                        </div>
+                    </div>
+                    <div class="fh-ai-feature-grid">
+                        <button v-for="pack in aiFeaturePacks" :key="pack.toolKey" type="button" class="fh-ai-feature-card" @click="openAiFeature(pack)">
+                            <span class="fh-ai-feature-badge">{{pack.badge}}</span>
+                            <span>
+                                <strong>{{pack.title}}</strong>
+                                <small>{{pack.desc}}</small>
+                            </span>
+                            <em>{{aiModelStatus === 'available' ? '打开工具' : '先启用模型'}}</em>
+                        </button>
+                    </div>
+                </section>
+
+                <section class="fh-recommendations" v-if="recommendationCards && recommendationCards.length">
+                    <div class="fh-section-head">
+                        <div>
+                            <p class="fh-eyebrow">Quick picks</p>
+                            <h2>精选入口</h2>
+                        </div>
+                        <span>点击即可安装或打开</span>
+                    </div>
+                    <div class="fh-recommendation-grid">
+                        <button v-for="card in recommendationCards" :key="card.title" type="button" class="fh-recommendation-card" :class="{ 'is-ad': card.isAd }" @click="handleRecommendClick(card)">
+                            <span class="fh-rec-badge" aria-hidden="true">{{getRecommendationBadge(card)}}</span>
+                            <span class="fh-rec-copy">
+                                <strong>{{card.title}}</strong>
+                                <small>{{card.desc}}</small>
+                            </span>
+                            <span :class="['fh-tag', card.tagClass]">{{card.tag}}</span>
+                        </button>
+                    </div>
+                </section>
+            </aside>
+        </div>
 
         <footer class="fh-page-footer">
             <span>FeHelper v{{manifest.version}}</span>
@@ -388,6 +394,15 @@
                                 <span class="setting-copy">
                                     <strong>自动美化 JSON 页面</strong>
                                     <small>访问纯 JSON 页面时自动格式化，方便直接阅读和折叠。</small>
+                                </span>
+                            </label>
+
+                            <label class="setting-toggle-row" for="POPUP_AI_ROUTER_ENABLED">
+                                <input class="setting-switch-input" type="checkbox" value="POPUP_AI_ROUTER_ENABLED" id="POPUP_AI_ROUTER_ENABLED" v-model="selectedOpts"/>
+                                <span class="setting-switch" aria-hidden="true"></span>
+                                <span class="setting-copy">
+                                    <strong>在 popup 显示智能识别</strong>
+                                    <small>仅在 AI 助手已安装且 Gemini Nano 已可用时显示；关闭后可在这里重新开启。</small>
                                 </span>
                             </label>
                         </div>
