@@ -95,7 +95,7 @@ function cleanOutput(outputDir = 'output-chrome') {
 
 // 复制静态资源
 function copyAssets(outputDir = 'output-chrome/apps') {
-    return gulp.src(['apps/**/*.{gif,png,jpg,jpeg,cur,ico,ttf,woff2,svg,md,txt,json}']).pipe(gulp.dest(outputDir));
+    return gulp.src(['apps/**/*.{gif,png,jpg,jpeg,cur,ico,woff2,svg,md,txt,json}']).pipe(gulp.dest(outputDir));
 }
 
 // 处理JSON文件
@@ -150,23 +150,8 @@ function processJs(outputDir = 'output-chrome/apps') {
 
 // 合并 & 压缩 css
 function processCss(outputDir = 'output-chrome/apps') {
-    let cssMerge = () => {
-        return through.obj(function (file, enc, cb) {
-            let contents = file.contents.toString('utf-8');
-            let merge = (fp, fc) => {
-                return fc.replace(/\@import\s+(url\()?\s*(['"])(.*)\2\s*(\))?\s*;?/gm, function (frag, $1, $2, mod) {
-                    let mp = path.resolve(fp, '../' + mod + (/\.css$/.test(mod) ? '' : '.css'));
-                    let mc = fs.readFileSync(mp).toString('utf-8');
-                    return merge(mp, mc);
-                });
-            };
-            contents = merge(file.path, contents);
-            file.contents = Buffer.from(contents);
-            this.push(file);
-            return cb();
-        })
-    };
-    return gulp.src('apps/**/*.css').pipe(cssMerge()).pipe(uglifycss()).pipe(gulp.dest(outputDir));
+    // Keep shared CSS as @import instead of inlining Bootstrap/Codemirror into every tool page.
+    return gulp.src('apps/**/*.css').pipe(uglifycss()).pipe(gulp.dest(outputDir));
 }
 
 // 添加图片压缩任务
@@ -240,7 +225,7 @@ function detectUnusedFiles(outputDir = 'output-chrome/apps', cb) {
                     getAllFiles(fullPath);
                 }
             } else {
-                if (/\.(js|css|png|jpg|jpeg|gif|svg)$/i.test(file) && !shouldExcludeFile(fullPath)) {
+                if (/\.(js|css|png|jpg|jpeg|gif|svg|woff2?|ttf|eot)$/i.test(file) && !shouldExcludeFile(fullPath)) {
                     const relativePath = path.relative(outputDir, fullPath);
                     allFiles.add(relativePath);
                 }
@@ -250,10 +235,10 @@ function detectUnusedFiles(outputDir = 'output-chrome/apps', cb) {
     function findReferences(content, filePath) {
         const fileDir = path.dirname(filePath);
         const patterns = [
-            /['"`][^`'\"]*?([./\w-]+\.(?:js|css|png|jpg|jpeg|gif|svg))['"`]/g,
-            /url\(['"]?([./\w-]+(?:\.(?:png|jpg|jpeg|gif|svg))?)['"]?\)/gi,
+            /['"`][^`'\"]*?([./\w-]+\.(?:js|css|png|jpg|jpeg|gif|svg|woff2?|ttf|eot))['"`]/g,
+            /url\(['"]?([./\w-]+(?:\.(?:png|jpg|jpeg|gif|svg|woff2?|ttf|eot))?)['"]?\)/gi,
             /@import\s+['"]([^'\"]+\.css)['"];?/gi,
-            /(?:src|href)=['"](chrome-extension:\/\/[^/]+\/)?([^'"?#]+(?:\.(?:js|css|png|jpg|jpeg|gif|svg)))['"]/gi
+            /(?:src|href)=['"](chrome-extension:\/\/[^/]+\/)?([^'"?#]+(?:\.(?:js|css|png|jpg|jpeg|gif|svg|woff2?|ttf|eot)))['"]/gi
         ];
         patterns.forEach((pattern, index) => {
             let match;
@@ -326,6 +311,7 @@ function detectUnusedFiles(outputDir = 'output-chrome/apps', cb) {
             <script src="../js/script.js"></script>
             <img src="/images/test.png">
             <div style="background: url('./bg.jpg')">
+            <div style="font: url('./font.woff2')">
             @import '../common.css';
             <img src="chrome-extension://abcdefgh/static/icon.png">
         `;
@@ -337,6 +323,7 @@ function detectUnusedFiles(outputDir = 'output-chrome/apps', cb) {
         assert(refs.includes('js/script.js'), 'Should handle relative path with ../');
         assert(refs.includes('images/test.png'), 'Should handle absolute path');
         assert(refs.includes('test/bg.jpg'), 'Should handle url() in CSS');
+        assert(refs.includes('test/font.woff2'), 'Should handle font url() in CSS');
         assert(refs.includes('common.css'), 'Should handle @import in CSS');
         assert(refs.includes('static/icon.png'), 'Should handle chrome-extension urls');
         referencedFiles.clear();
