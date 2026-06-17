@@ -856,12 +856,62 @@ let BgPageInstance = (function () {
 
     // 请求JSON格式化选项配置
     function requestJsonformatOptions(params, callback) {
-        Awesome.StorageMgr.get(params).then(result => {
-            Object.keys(result).forEach(key => {
+        const defaultOptions = {
+            JSON_PAGE_FORMAT: true,
+            JSON_TOOL_BAR_ALWAYS_SHOW: true,
+            STATUS_BAR_ALWAYS_SHOW: false,
+            AUTO_TEXT_DECODE: false,
+            FIX_ERROR_ENCODING: true,
+            ENABLE_JSON_KEY_SORT: true,
+            KEEP_KEY_VALUE_DBL_QUOTE: true,
+            NESTED_ESCAPE_PARSE: false,
+            JSON_FORMAT_COMPACT_MODE: true,
+            MAX_JSON_KEYS_NUMBER: 10000,
+            JSON_FORMAT_THEME: 0,
+            AUTO_DARK_MODE: false,
+            ALWAYS_DARK_MODE: false
+        };
+
+        let storageQuery;
+        if (Array.isArray(params)) {
+            storageQuery = ['FH_JSONFORMAT_DEFAULTS_MIGRATED'].concat(params);
+        } else if (typeof params === 'string') {
+            storageQuery = ['FH_JSONFORMAT_DEFAULTS_MIGRATED', params];
+        } else {
+            storageQuery = Object.assign({FH_JSONFORMAT_DEFAULTS_MIGRATED: false}, params || {});
+        }
+
+        Awesome.StorageMgr.get(storageQuery).then(result => {
+            result = result || {};
+            const migrated = String(result.FH_JSONFORMAT_DEFAULTS_MIGRATED) === 'true';
+
+            if (!migrated) {
+                result.JSON_TOOL_BAR_ALWAYS_SHOW = true;
+                result.ENABLE_JSON_KEY_SORT = true;
+                result.NESTED_ESCAPE_PARSE = false;
+                Awesome.StorageMgr.set({
+                    JSON_TOOL_BAR_ALWAYS_SHOW: 'true',
+                    ENABLE_JSON_KEY_SORT: 'true',
+                    NESTED_ESCAPE_PARSE: 'false',
+                    FH_JSONFORMAT_DEFAULTS_MIGRATED: 'true'
+                }).catch(() => {});
+            }
+
+            Object.keys(params || result).forEach(key => {
+                if (key === 'FH_JSONFORMAT_DEFAULTS_MIGRATED') {
+                    return;
+                }
                 if (['MAX_JSON_KEYS_NUMBER', 'JSON_FORMAT_THEME'].includes(key)) {
-                    result[key] = parseInt(result[key]);
+                    const fallbackValue = defaultOptions.hasOwnProperty(key) ? defaultOptions[key] : 0;
+                    const parsedValue = parseInt(result[key], 10);
+                    result[key] = Number.isFinite(parsedValue) ? parsedValue : fallbackValue;
                 } else {
-                    result[key] = (""+result[key] !== 'false');
+                    const fallbackValue = defaultOptions.hasOwnProperty(key) ? defaultOptions[key] : false;
+                    if (result[key] === undefined || result[key] === null || result[key] === '') {
+                        result[key] = fallbackValue;
+                    } else {
+                        result[key] = ('' + result[key] === 'true');
+                    }
                 }
             });
             callback && callback(result);

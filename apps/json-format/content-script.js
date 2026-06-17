@@ -28,6 +28,8 @@ window.JsonAutoFormat = (() => {
         KEEP_KEY_VALUE_DBL_QUOTE: 'KEEP_KEY_VALUE_DBL_QUOTE',
         // 嵌套转义解析
         NESTED_ESCAPE_PARSE: 'NESTED_ESCAPE_PARSE',
+        // 紧凑视图
+        JSON_FORMAT_COMPACT_MODE: 'JSON_FORMAT_COMPACT_MODE',
         // 最大json key数量
         MAX_JSON_KEYS_NUMBER: 'MAX_JSON_KEYS_NUMBER',
         // 自定义皮肤
@@ -65,6 +67,7 @@ window.JsonAutoFormat = (() => {
         autoDecode: false,
         originalSource: '',
         NESTED_ESCAPE_PARSE: false,
+        JSON_FORMAT_COMPACT_MODE: true,
         AUTO_DARK_MODE: false,
         ALWAYS_DARK_MODE: false
     };
@@ -116,6 +119,14 @@ window.JsonAutoFormat = (() => {
 
         const parsed = _parseJsonLike(decodedSource);
         return parsed ? parsed.normalizedSource : source;
+    };
+
+    let _applyCompactMode = () => {
+        let body = document.body;
+        if (!body) {
+            return;
+        }
+        body.classList.toggle('fh-json-compact', !!formatOptions.JSON_FORMAT_COMPACT_MODE);
     };
 
     let _prepareSourceForFormatter = async source => {
@@ -174,6 +185,7 @@ window.JsonAutoFormat = (() => {
             '            <label class="fh-radio-pill" for="sort_asc"><input type="radio" name="jsonsort" id="sort_asc" value="1"><span>升序</span></label>' +
             '            <label class="fh-radio-pill" for="sort_desc"><input type="radio" name="jsonsort" id="sort_desc" value="-1"><span>降序</span></label>' +
             '            <label class="fh-toggle-pill" for="nestedEscapeParseToggle"><input type="checkbox" id="nestedEscapeParseToggle"><span>嵌套解析</span></label>' +
+            '            <label class="fh-toggle-pill" for="compactModeToggle"><input type="checkbox" id="compactModeToggle"><span>紧凑</span></label>' +
             '        </span>' +
             '        <span class="x-fix-encoding fh-viewbar-group"><span class="x-split">|</span><button class="xjf-btn" id="jsonGetCorrectCnt">乱码修正</button></span>' +
             '        <span id="optionBar" class="fh-viewbar-group fh-option-bar"></span>' +
@@ -229,6 +241,7 @@ window.JsonAutoFormat = (() => {
                     <li><label><input type="checkbox" name="errorEncoding" value="1">乱码修正（需手动操作，一键修正）</label></li>
                     <li><label><input type="checkbox" name="enableSort" value="1">启用JSON键名排序功能</label></li>
                     <li><label><input type="checkbox" name="keepQuote" value="1">格式化后保留键值对的双引号</label></li>
+                    <li><label><input type="checkbox" name="compactMode" value="1">默认使用紧凑视图，隐藏次要头部信息</label></li>
                     <li><label><input type="text" name="maxlength" value="10000">最大支持的JSON Key数量</label></li>
                </ul>
 
@@ -266,6 +279,7 @@ window.JsonAutoFormat = (() => {
                 formData.FIX_ERROR_ENCODING = sPanel.find('input[name="errorEncoding"]').prop('checked');
                 formData.ENABLE_JSON_KEY_SORT = sPanel.find('input[name="enableSort"]').prop('checked');
                 formData.KEEP_KEY_VALUE_DBL_QUOTE = sPanel.find('input[name="keepQuote"]').prop('checked');
+                formData.JSON_FORMAT_COMPACT_MODE = sPanel.find('input[name="compactMode"]').prop('checked');
                 formData.MAX_JSON_KEYS_NUMBER = sPanel.find('input[name="maxlength"]').val();
                 formData.JSON_FORMAT_THEME = sPanel.find('input[name="skinId"]:checked').val();
 
@@ -279,6 +293,7 @@ window.JsonAutoFormat = (() => {
                     thing: 'save-jsonformat-options',
                     params: formData
                 }, result => {
+                    _applyCompactMode();
                     sPanel.hide();
                     // 重新应用格式化以展示最新设置
                     _didFormat();
@@ -340,6 +355,7 @@ window.JsonAutoFormat = (() => {
             result.FIX_ERROR_ENCODING && sPanel.find('input[name="errorEncoding"]').prop('checked', true);
             result.ENABLE_JSON_KEY_SORT && sPanel.find('input[name="enableSort"]').prop('checked', true);
             result.KEEP_KEY_VALUE_DBL_QUOTE && sPanel.find('input[name="keepQuote"]').prop('checked', true);
+            result.JSON_FORMAT_COMPACT_MODE && sPanel.find('input[name="compactMode"]').prop('checked', true);
             sPanel.find('input[name="maxlength"]').attr('value', result.MAX_JSON_KEYS_NUMBER || 10000);
             sPanel.find(`input[name="skinId"][value="${result.JSON_FORMAT_THEME || 0}"]`).attr('checked', true);
         });
@@ -403,6 +419,21 @@ window.JsonAutoFormat = (() => {
                 }
             });
             _didFormat();
+        });
+
+        let compactToggle = $('#compactModeToggle');
+        compactToggle.prop('checked', !!formatOptions.JSON_FORMAT_COMPACT_MODE);
+        compactToggle.off('change').on('change', function () {
+            let enabled = $(this).prop('checked');
+            formatOptions.JSON_FORMAT_COMPACT_MODE = enabled;
+            _applyCompactMode();
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'save-jsonformat-options',
+                params: {
+                    JSON_FORMAT_COMPACT_MODE: enabled
+                }
+            });
         });
 
 
@@ -473,6 +504,7 @@ window.JsonAutoFormat = (() => {
         let theme = _getResolvedTheme();
         Object.values(SKIN_THEME).forEach(th => elBody.removeClass(th));
         elBody.addClass(theme);
+        _applyCompactMode();
 
         // 控制引号
         if (formatOptions.KEEP_KEY_VALUE_DBL_QUOTE) {
@@ -668,6 +700,11 @@ window.JsonAutoFormat = (() => {
             formatOptions.NESTED_ESCAPE_PARSE = !!options.NESTED_ESCAPE_PARSE;
         } else if (formatOptions.hasOwnProperty('NESTED_ESCAPE_PARSE')) {
             formatOptions.NESTED_ESCAPE_PARSE = !!formatOptions.NESTED_ESCAPE_PARSE;
+        }
+        if (options.hasOwnProperty('JSON_FORMAT_COMPACT_MODE')) {
+            formatOptions.JSON_FORMAT_COMPACT_MODE = !!options.JSON_FORMAT_COMPACT_MODE;
+        } else if (formatOptions.hasOwnProperty('JSON_FORMAT_COMPACT_MODE')) {
+            formatOptions.JSON_FORMAT_COMPACT_MODE = !!formatOptions.JSON_FORMAT_COMPACT_MODE;
         }
     };
 

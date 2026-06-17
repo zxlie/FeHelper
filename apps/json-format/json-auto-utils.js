@@ -211,55 +211,149 @@
         return { source, funcName, fnTry, fnCatch };
     }
 
-    function parseJSONLike(source, options) {
-        options = options || {};
-        const meta = unwrapJSONLikeSource(source);
-        let jsonObj = null;
-        const startsAsContainer = /^[\{\[]/.test(meta.source);
-        const startsAsEscapedContainer = options.nestedEscapeParse && /^["']/.test(meta.source);
+    function stripJSONGuards(source) {
+        source = String(source || '').trim().replace(/^\uFEFF/, '');
+        source = source
+            .replace(/^\)\]\}',?\s*/, '')
+            .replace(/^while\s*\(\s*1\s*\)\s*;\s*/, '')
+            .replace(/^for\s*\(\s*;\s*;\s*\)\s*;\s*/, '');
+        return source.trim();
+    }
 
-        if (!startsAsContainer && !startsAsEscapedContainer) {
-            return null;
-        }
+    function extractBalancedJSONContainer(source) {
+        source = String(source || '');
+        const start = source.search(/[\{\[]/);
+        if (start < 0) return '';
 
-        try {
-            jsonObj = parseWithBigInt(meta.source);
-        } catch (_) {
-            try {
-                jsonObj = new Function('return ' + meta.source)();
-            } catch (exx) {
-                try {
-                    jsonObj = new Function("return '" + meta.source + "'")();
-                    if (typeof jsonObj === 'string') {
-                        try {
-                            jsonObj = parseWithBigInt(jsonObj);
-                        } catch (_) {
-                            jsonObj = new Function('return ' + jsonObj)();
-                        }
-                    }
-                } catch (_) {
-                    return null;
+        const stack = [];
+        let quote = '';
+        let escaped = false;
+
+        for (let i = start; i < source.length; i++) {
+            const char = source[i];
+
+            if (quote) {
+                if (escaped) {
+                    escaped = false;
+                    continue;
+                }
+                if (char === '\\') {
+                    escaped = true;
+                    continue;
+                }
+                if (char === quote) {
+                    quote = '';
+                }
+                continue;
+            }
+
+            if (char === '"' || char === "'") {
+                quote = char;
+                continue;
+            }
+
+            if (char === '{' || char === '[') {
+                stack.push(char);
+                continue;
+            }
+
+            if (char === '}' || char === ']') {
+                const expected = char === '}' ? '{' : '[';
+                if (stack[stack.length - 1] !== expected) {
+                    return '';
+                }
+                stack.pop();
+                if (!stack.length) {
+                    return source.slice(start, i + 1).trim();
                 }
             }
         }
 
-        if (options.nestedEscapeParse && typeof jsonObj === 'string') {
-            jsonObj = unpackTopLevelEscapedJSON(jsonObj);
-        }
-        if (options.nestedEscapeParse && isJSONContainer(jsonObj)) {
-            jsonObj = deepParseJSONStrings(jsonObj);
-        }
-        if (!isJSONContainer(jsonObj)) {
-            return null;
+        return '';
+    }
+
+    function buildJSONLikeCandidates(source, options) {
+        options = options || {};
+        const candidates = [];
+        const seen = new Set();
+        const addCandidate = (value) => {
+            value = String(value || '').trim();
+            if (!value || seen.has(value)) return;
+            seen.add(value);
+            candidates.push(value);
+        };
+
+        const normalized = String(source || '').trim();
+        const stripped = stripJSONGuards(normalized);
+
+        addCandidate(normalized);
+        addCandidate(stripped);
+
+        if (!/^[\{\[]/.test(stripped) && !(options.nestedEscapeParse && /^["']/.test(stripped))) {
+            addCandidate(extractBalancedJSONContainer(stripped));
+            addCandidate(extractBalancedJSONContainer(normalized));
         }
 
-        try {
-            meta.normalizedSource = safeStringify(jsonObj);
-        } catch (_) {
-            return null;
+        return candidates;
+    }
+
+    function parseJSONLike(source, options) {
+        options = options || {};
+        const meta = unwrapJSONLikeSource(source);
+        const candidates = buildJSONLikeCandidates(meta.source, options);
+
+        for (let i = 0; i < candidates.length; i++) {
+            const candidate = candidates[i];
+            let jsonObj = null;
+            const startsAsContainer = /^[\{\[]/.test(candidate);
+            const startsAsEscapedContainer = options.nestedEscapeParse && /^["']/.test(candidate);
+
+            if (!startsAsContainer && !startsAsEscapedContainer) {
+                continue;
+            }
+
+            try {
+                jsonObj = parseWithBigInt(candidate);
+            } catch (_) {
+                try {
+                    jsonObj = new Function('return ' + candidate)();
+                } catch (exx) {
+                    try {
+                        jsonObj = new Function("return '" + candidate + "'")();
+                        if (typeof jsonObj === 'string') {
+                            try {
+                                jsonObj = parseWithBigInt(jsonObj);
+                            } catch (_) {
+                                jsonObj = new Function('return ' + jsonObj)();
+                            }
+                        }
+                    } catch (_) {
+                        continue;
+                    }
+                }
+            }
+
+            if (options.nestedEscapeParse && typeof jsonObj === 'string') {
+                jsonObj = unpackTopLevelEscapedJSON(jsonObj);
+            }
+            if (options.nestedEscapeParse && isJSONContainer(jsonObj)) {
+                jsonObj = deepParseJSONStrings(jsonObj);
+            }
+            if (!isJSONContainer(jsonObj)) {
+                continue;
+            }
+
+            try {
+                meta.source = candidate;
+                meta.normalizedSource = safeStringify(jsonObj);
+                meta.value = jsonObj;
+                return meta;
+            } catch (_) {
+                return null;
+            }
         }
-        meta.value = jsonObj;
-        return meta;
+
+        return null;
     }
 
     function coerceDecodedJSONSource(source, decodedSource, options) {

@@ -909,6 +909,44 @@ html.fh-jf .fh-viewbar-main::-webkit-scrollbar {
     display: none;
 }
 
+html.fh-jf body.fh-json-compact .fh-viewbar-brand {
+    min-width: auto;
+    gap: 0;
+}
+
+html.fh-jf body.fh-json-compact .fh-viewbar-logo span,
+html.fh-jf body.fh-json-compact .fh-viewbar-title-divider,
+html.fh-jf body.fh-json-compact .fh-viewbar-title,
+html.fh-jf body.fh-json-compact .fh-viewbar-actions > .x-donate-link,
+html.fh-jf body.fh-json-compact .fh-viewbar-actions > .x-other-tools {
+    display: none;
+}
+
+html.fh-jf body.fh-json-compact .x-toolbar.fh-json-viewbar {
+    gap: 3px;
+    padding: 2px 4px;
+}
+
+html.fh-jf body.fh-json-compact .x-toolbar.fh-json-viewbar .fh-viewbar-group {
+    min-height: 24px;
+    padding: 1px;
+}
+
+html.fh-jf body.fh-json-compact .fh-radio-pill span,
+html.fh-jf body.fh-json-compact .fh-toggle-pill span,
+html.fh-jf body.fh-json-compact .x-toolbar.fh-json-viewbar .xjf-btn {
+    height: 20px;
+    line-height: 20px;
+    padding: 0 7px;
+    font-size: 11px;
+}
+
+html.fh-jf body.fh-json-compact .fh-viewbar-actions > .x-settings,
+html.fh-jf body.fh-json-compact .fh-viewbar-actions > #toggleBtn {
+    min-height: 22px;
+    padding: 0 7px;
+}
+
 html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-group {
     flex: 0 0 auto;
     min-height: 28px;

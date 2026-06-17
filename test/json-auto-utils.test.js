@@ -44,4 +44,22 @@ describe('json-auto-utils', () => {
         expect(parsed.value.id).toBe(BigInt('1234567890123456789'));
         expect(parsed.normalizedSource).toBe('{"id":1234567890123456789}');
     });
+
+    it('兼容带 XSSI/防劫持前缀的 JSON 页面内容', () => {
+        const source = `)]}'\n{"status":"ok","items":[1,2,3]}`;
+        const parsed = utils.parseJSONLike(source);
+
+        expect(parsed).not.toBeNull();
+        expect(parsed.value.status).toBe('ok');
+        expect(parsed.normalizedSource).toBe('{"status":"ok","items":[1,2,3]}');
+    });
+
+    it('兼容正文前后带说明文本的 JSON 片段', () => {
+        const source = 'source viewer\n{"status":"ok","payload":{"count":2}}\nrendered by browser';
+        const parsed = utils.parseJSONLike(source);
+
+        expect(parsed).not.toBeNull();
+        expect(parsed.value.payload.count).toBe(2);
+        expect(parsed.normalizedSource).toBe('{"status":"ok","payload":{"count":2}}');
+    });
 });

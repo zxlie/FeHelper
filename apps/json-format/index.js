@@ -91,10 +91,7 @@ new Vue({
 
         this.jsonLintSwitch = (this.safeGetLocalStorage(JSON_LINT) !== 'false');
         this.overrideJson = (this.safeGetLocalStorage(EDIT_ON_CLICK) === 'true');
-        // 兼容旧的localStorage键名，优先使用新的键名
-        const oldAutoUnpack = this.safeGetLocalStorage('jsonformat:auto-unpack-json-string') === 'true';
-        const oldEscape = this.safeGetLocalStorage('jsonformat:escape-json-string') === 'true';
-        this.nestedEscapeParse = (this.safeGetLocalStorage('jsonformat:nested-escape-parse') === 'true') || oldAutoUnpack || oldEscape;
+        this.nestedEscapeParse = (this.safeGetLocalStorage('jsonformat:nested-escape-parse') === 'true');
         this.changeLayout(this.safeGetLocalStorage(LOCAL_KEY_OF_LAYOUT));
 
         editor = CodeMirror.fromTextArea(this.$refs.jsonBox, {
