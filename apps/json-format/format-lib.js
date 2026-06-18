@@ -102,6 +102,8 @@ window.Formatter = (function () {
     let cspRestricted = false;
     // 转义功能开启标记
     let escapeJsonStringEnabled = false;
+    // 状态栏与节点操作入口是否启用，手动格式化页默认保留旧行为
+    let statusBarEnabled = true;
 
     let _clearOptionBar = function () {
         try {
@@ -735,6 +737,9 @@ window.Formatter = (function () {
 
     // 给某个节点增加操作项
     let _addOptForItem = function (el, show) {
+        if (!statusBarEnabled) {
+            show = false;
+        }
 
         // 下载json片段
         let fnDownload = function (event) {
@@ -811,7 +816,7 @@ window.Formatter = (function () {
             jfStatusBar = $('<div id="statusBar"/>').appendTo('body');
         }
 
-        if (!show) {
+        if (!statusBarEnabled || !show) {
             jfStatusBar.hide();
             return;
         } else {
@@ -819,6 +824,29 @@ window.Formatter = (function () {
         }
 
         _showJsonPath(curEl);
+    };
+
+    let _syncStatusBarEnabled = function (enabled) {
+        statusBarEnabled = enabled !== false;
+
+        if (!statusBarEnabled) {
+            jfStatusBar && jfStatusBar.hide();
+            $('.boxOpt').hide();
+            return;
+        }
+
+        let selected = $('#jfContent .item.x-selected').first();
+        if (!selected.length) {
+            selected = $('#jfContent .item').first();
+        }
+        if (!selected.length) {
+            return;
+        }
+
+        $('.x-selected').removeClass('x-selected');
+        selected.addClass('x-selected');
+        _toogleStatusBar(selected, true);
+        _addOptForItem(selected, true);
     };
 
 
@@ -1924,6 +1952,9 @@ window.Formatter = (function () {
         formatSync: formatSync,
         setEscapeEnabled: function(enabled) {
             escapeJsonStringEnabled = enabled;
+        },
+        setStatusBarEnabled: function(enabled) {
+            _syncStatusBarEnabled(enabled);
         }
     }
 })();

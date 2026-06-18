@@ -91,11 +91,24 @@
 
 .markdown-body {
     overflow: auto;
-    padding: 10px;
-    padding-left: 20px;
+    padding: 16px 20px 20px 24px;
     left: 50%;
     right: 0;
-    box-shadow: inset 1px -5px 10px #ddd
+    border-left: 1px solid var(--fh-line, #dbe3ef);
+    background: transparent;
+    box-shadow: none;
+}
+
+.mod-markdown > .markdown-body > h1:first-child {
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    outline: none;
+}
+
+.mod-markdown > .markdown-body > h1:first-child,
+.mod-markdown > .markdown-body > h2:first-child {
+    margin-top: 0;
 }
 
 .blog-aside {

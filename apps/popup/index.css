@@ -2,9 +2,16 @@ html,
 body {
     margin: 0;
     padding: 0;
-    width: 340px;
+    width: 316px;
+    min-width: 316px;
     min-height: 420px;
     background: #f5f7fb;
+}
+
+html.fh-popup-lite-mode,
+html.fh-popup-lite-mode body {
+    width: 208px;
+    min-width: 208px;
 }
 
 html[data-fh-theme-pending="true"],
@@ -67,7 +74,7 @@ button {
 }
 
 .fh-popup {
-    width: 340px;
+    width: 100%;
     min-height: 420px;
     min-height: max(420px, 100vh);
     max-height: 560px;
@@ -85,10 +92,10 @@ button {
 
 .fh-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
-    padding: 14px 14px 10px;
+    padding: 12px 14px 10px;
     background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
     border-bottom: 1px solid var(--fh-line-soft);
 }
@@ -104,6 +111,7 @@ button {
 
 .fh-brand {
     min-width: 0;
+    flex: 1 1 auto;
     gap: 10px;
 }
 
@@ -136,80 +144,273 @@ button {
 .fh-brand-copy {
     min-width: 0;
     display: grid;
-    gap: 2px;
+    gap: 1px;
 }
 
 .fh-brand-copy strong {
-    font-size: 15px;
-    line-height: 18px;
+    font-size: 14px;
+    line-height: 17px;
     font-weight: 760;
     letter-spacing: 0;
+    max-width: 132px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .fh-brand-copy span {
     color: var(--fh-subtle);
-    font-size: 11px;
-    line-height: 13px;
+    font-size: 10px;
+    line-height: 12px;
 }
 
 .fh-header-meta {
+    flex: 0 0 auto;
+    padding-top: 1px;
     gap: 8px;
-    color: var(--fh-muted);
-    font-size: 11px;
     white-space: nowrap;
 }
 
-.fh-header-meta > span {
-    height: 24px;
+.fh-mode-switch {
     display: inline-flex;
     align-items: center;
-    padding: 0 8px;
+    gap: 2px;
+    padding: 2px;
     border: 1px solid var(--fh-line);
     border-radius: 999px;
-    background: var(--fh-panel);
+    background: rgba(255, 255, 255, 0.88);
 }
 
-.fh-icon-button {
-    width: 28px;
-    height: 28px;
+.fh-mode-pill {
+    min-width: 46px;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    color: var(--fh-muted);
+    background: transparent;
+    cursor: pointer;
+    transition: background var(--fh-motion), color var(--fh-motion), transform var(--fh-motion);
+}
+
+.fh-mode-pill.is-active {
+    color: #ffffff;
+    background: var(--fh-accent);
+}
+
+.fh-popup.is-lite-mode {
+    width: 100%;
+    min-height: 248px;
+    min-height: max(248px, 100vh);
+    max-height: 460px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.995), rgba(249, 251, 255, 0.995));
+    border-color: rgba(214, 222, 236, 0.96);
+    box-shadow: 0 10px 24px rgba(32, 48, 79, 0.12);
+}
+
+.fh-popup.is-lite-mode .fh-header {
+    gap: 6px;
+    padding: 7px 7px 5px;
+    background: #ffffff;
+}
+
+.fh-popup.is-lite-mode .fh-brand {
+    gap: 5px;
+}
+
+.fh-popup.is-lite-mode .fh-brand-mark {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+}
+
+.fh-popup.is-lite-mode .fh-brand-copy {
+    display: grid;
+    gap: 1px;
+}
+
+.fh-popup.is-lite-mode .fh-brand-copy strong {
+    max-width: 68px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+    line-height: 13px;
+    font-weight: 720;
+}
+
+.fh-popup.is-lite-mode .fh-brand-copy span {
+    display: block;
+    font-size: 9px;
+    line-height: 11px;
+    color: var(--fh-subtle);
+}
+
+.fh-popup.is-lite-mode .fh-header-meta {
+    margin-left: auto;
+    gap: 0;
+}
+
+.fh-popup.is-lite-mode .fh-mode-switch {
+    padding: 1px;
+    gap: 1px;
+    background: #f7f9fd;
+    box-shadow: inset 0 0 0 1px rgba(223, 229, 239, 0.92);
+}
+
+.fh-popup.is-lite-mode .fh-mode-pill {
+    min-width: 32px;
+    height: 18px;
+    padding: 0 7px;
+    font-size: 9px;
+    font-weight: 620;
+}
+
+.fh-popup.is-lite-mode .fh-command-list {
+    padding: 3px 5px 6px;
+    contain: layout paint;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.fh-popup.is-lite-mode .fh-command-list::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+.fh-popup.is-lite-mode .fh-section {
+    padding: 0;
+    border-top: 0;
+}
+
+.fh-popup.is-lite-mode .fh-section.is-lite-flat .fh-section-title {
+    display: none;
+}
+
+.fh-popup.is-lite-mode .fh-tool-row {
+    min-height: 40px;
+    gap: 6px;
+    padding: 5px 2px;
+    margin: 0;
+    border-radius: 0;
+    border-color: transparent;
+    border-bottom: 1px solid rgba(226, 231, 240, 0.96);
+    background: transparent;
+    box-shadow: none;
+    transition: none;
+}
+
+.fh-popup.is-lite-mode .fh-tool-row + .fh-tool-row {
+    margin-top: 0;
+}
+
+.fh-popup.is-lite-mode .fh-tool-row:hover,
+.fh-popup.is-lite-mode .fh-tool-row.is-active {
+    border-color: transparent;
+    border-bottom-color: rgba(47, 111, 237, 0.28);
+    background: rgba(47, 111, 237, 0.035);
+    box-shadow: none;
+}
+
+.fh-popup.is-lite-mode .fh-tool-badge {
+    width: 23px;
+    height: 23px;
+    flex: 0 0 23px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 760;
+}
+
+.fh-popup.is-lite-mode .fh-tool-copy {
+    gap: 0;
+}
+
+.fh-popup.is-lite-mode .fh-tool-copy strong {
+    font-size: 13px;
+    line-height: 16px;
+    font-weight: 650;
+}
+
+.fh-popup.is-lite-mode .fh-tool-copy small,
+.fh-popup.is-lite-mode .fh-favorite-label {
+    display: none;
+}
+
+.fh-popup.is-lite-mode .fh-tool-meta {
+    min-width: 20px;
+    justify-content: flex-end;
+}
+
+.fh-popup.is-lite-mode .fh-tool-meta kbd {
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--fh-radius);
-    color: var(--fh-muted);
-    background: var(--fh-panel);
-    border: 1px solid var(--fh-line);
-    cursor: pointer;
-    transition: background var(--fh-motion), color var(--fh-motion), border-color var(--fh-motion), transform var(--fh-motion);
+    font-size: 8px;
+    border-radius: 4px;
+    border-color: rgba(214, 222, 236, 0.94);
+    background: #fafbfe;
+    box-shadow: none;
+    color: var(--fh-subtle);
 }
 
-.fh-icon-button span,
-.fh-icon-button span::before,
-.fh-icon-button span::after {
-    display: block;
-    width: 3px;
-    height: 3px;
-    border-radius: 999px;
-    background: currentColor;
-    content: "";
+.fh-popup.is-lite-mode .fh-empty,
+.fh-popup.is-lite-mode .fh-empty.-compact {
+    min-height: 140px;
+    padding: 20px 16px;
 }
 
-.fh-icon-button span {
-    position: relative;
+.fh-popup.is-lite-mode .fh-empty strong {
+    font-size: 13px;
 }
 
-.fh-icon-button span::before,
-.fh-icon-button span::after {
-    position: absolute;
-    left: 0;
+.fh-popup.is-lite-mode .fh-empty p {
+    font-size: 11px;
+    line-height: 16px;
 }
 
-.fh-icon-button span::before {
-    top: -6px;
+.fh-popup.is-lite-mode .fh-section-title span:last-child {
+    color: var(--fh-subtle);
 }
 
-.fh-icon-button span::after {
-    top: 6px;
+.fh-popup.is-lite-mode .fh-footer {
+    min-height: 32px;
+    padding: 5px 6px;
+    font-size: 10px;
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.fh-popup.is-lite-mode .fh-footer nav {
+    gap: 2px;
+}
+
+.fh-popup.is-lite-mode .fh-footer nav {
+    gap: 2px;
+}
+
+.fh-popup.is-lite-mode .fh-footer button,
+.fh-popup.is-lite-mode .fh-footer a {
+    height: 22px;
+    padding: 0 5px;
+    border-radius: 5px;
+    font-size: 10px;
+}
+
+html[dark-mode="on"] .fh-popup.is-lite-mode {
+    background: linear-gradient(180deg, rgba(20, 27, 41, 0.98), rgba(17, 24, 39, 0.98));
+}
+
+html[dark-mode="on"] .fh-popup.is-lite-mode .fh-header,
+html[dark-mode="on"] .fh-popup.is-lite-mode .fh-footer {
+    background: rgba(23, 32, 51, 0.9);
+}
+
+html[dark-mode="on"] .fh-popup.is-lite-mode .fh-mode-switch,
+html[dark-mode="on"] .fh-popup.is-lite-mode .fh-tool-row,
+html[dark-mode="on"] .fh-popup.is-lite-mode .fh-search {
+    background: #172033;
 }
 
 .fh-search {
@@ -568,7 +769,6 @@ kbd {
 }
 
 .fh-tool-row:focus-visible,
-.fh-icon-button:focus-visible,
 .fh-ai-router-controls button:focus-visible,
 .fh-footer button:focus-visible,
 .fh-footer a:focus-visible,
@@ -775,15 +975,13 @@ kbd {
 }
 
 .fh-footer button:hover,
-.fh-footer a:hover,
-.fh-icon-button:hover {
+.fh-footer a:hover {
     color: var(--fh-accent-dark);
     background: var(--fh-accent-soft);
 }
 
 .fh-footer button:active,
-.fh-footer a:active,
-.fh-icon-button:active {
+.fh-footer a:active {
     transform: scale(0.96);
 }
 

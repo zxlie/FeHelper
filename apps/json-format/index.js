@@ -20,11 +20,18 @@ let LOCAL_KEY_OF_LAYOUT = 'local-layout-key';
 let JSON_LINT = 'jsonformat:json-lint-switch';
 let EDIT_ON_CLICK = 'jsonformat:edit-on-click';
 let AUTO_DECODE = 'jsonformat:auto-decode';
+let FH_UI_MODE = 'FH_UI_MODE';
 
 function syncJsonPageDarkMode(enabled) {
     document.body.classList.toggle('theme-dark', !!enabled);
     document.body.classList.toggle('theme-default', !enabled);
     document.documentElement.setAttribute('data-theme', enabled ? 'dark' : 'light');
+}
+
+function syncJsonPageUiMode(mode) {
+    const isLiteMode = mode !== 'omni';
+    document.body.classList.toggle('fh-ui-mode-lite', isLiteMode);
+    document.body.classList.toggle('fh-ui-mode-omni', !isLiteMode);
 }
 
 new Vue({
@@ -46,6 +53,8 @@ new Vue({
         overrideJson: false,
         isInUSAFlag: false,
         nestedEscapeParse: false,
+        currentLayout: 'left-right',
+        uiMode: 'lite',
         // JSONPath查询相关
         jsonPathQuery: '',
         showJsonPathModal: false,
@@ -92,7 +101,9 @@ new Vue({
         this.jsonLintSwitch = (this.safeGetLocalStorage(JSON_LINT) !== 'false');
         this.overrideJson = (this.safeGetLocalStorage(EDIT_ON_CLICK) === 'true');
         this.nestedEscapeParse = (this.safeGetLocalStorage('jsonformat:nested-escape-parse') === 'true');
-        this.changeLayout(this.safeGetLocalStorage(LOCAL_KEY_OF_LAYOUT));
+        this.currentLayout = this.normalizeLayout(this.safeGetLocalStorage(LOCAL_KEY_OF_LAYOUT));
+        this.changeLayout(this.currentLayout);
+        this.loadUiMode();
 
         editor = CodeMirror.fromTextArea(this.$refs.jsonBox, {
             mode: "text/javascript",
@@ -208,6 +219,37 @@ new Vue({
             } catch (_) {
                 this.resetResultActions();
             }
+        },
+
+        loadUiMode() {
+            if (!window.chrome || !chrome.storage || !chrome.storage.local) {
+                syncJsonPageUiMode(this.uiMode);
+                return;
+            }
+            chrome.storage.local.get(FH_UI_MODE, result => {
+                this.uiMode = String(result[FH_UI_MODE] || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
+                syncJsonPageUiMode(this.uiMode);
+                this.$nextTick(() => {
+                    this.changeLayout(this.currentLayout);
+                });
+            });
+        },
+
+        setUiMode(mode) {
+            this.uiMode = mode === 'omni' ? 'omni' : 'lite';
+            syncJsonPageUiMode(this.uiMode);
+            this.$nextTick(() => {
+                this.changeLayout(this.currentLayout);
+            });
+            if (window.chrome && chrome.storage && chrome.storage.local) {
+                chrome.storage.local.set({
+                    FH_UI_MODE: this.uiMode
+                });
+            }
+        },
+
+        normalizeLayout(type) {
+            return type === 'up-down' ? 'up-down' : 'left-right';
         },
 
         // 安全的JSON.stringify：
@@ -472,7 +514,8 @@ new Vue({
                         jsonObj = deepParseJSONStrings(jsonObj);
                     }
                     
-                    let sortType = document.querySelectorAll('[name=jsonsort]:checked')[0].value;
+                    const selectedSortInput = document.querySelector('[name="jsonsort"]:checked');
+                    const sortType = selectedSortInput ? selectedSortInput.value : '0';
                     if (sortType !== '0') {
                         jsonObj = JsonABC.sortObj(jsonObj, parseInt(sortType), true);
                     }
@@ -574,20 +617,17 @@ new Vue({
 
         changeLayout: function (type) {
             let elPc = document.querySelector('#pageContainer');
-            type = type === 'up-down' ? 'up-down' : 'left-right';
-            if (!elPc || !this.$refs.btnLeftRight || !this.$refs.btnUpDown) {
+            type = this.normalizeLayout(type);
+            this.currentLayout = type;
+            if (!elPc) {
                 return;
             }
             if (type === 'up-down') {
                 elPc.classList.remove('layout-left-right');
                 elPc.classList.add('layout-up-down');
-                this.$refs.btnLeftRight.classList.remove('selected');
-                this.$refs.btnUpDown.classList.add('selected');
             } else {
                 elPc.classList.remove('layout-up-down');
                 elPc.classList.add('layout-left-right');
-                this.$refs.btnLeftRight.classList.add('selected');
-                this.$refs.btnUpDown.classList.remove('selected');
             }
             this.safeSetLocalStorage(LOCAL_KEY_OF_LAYOUT, type);
             this.updateWrapperHeight();

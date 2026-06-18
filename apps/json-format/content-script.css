@@ -688,6 +688,16 @@ html.fh-jf svg:not(:root) {
     padding-bottom: 4px;
     margin:20px 0 10px;
 }
+.mod-setting-panel .setting-section-title {
+    margin: 12px 0 6px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+}
+.mod-setting-panel h4 + form > .setting-section-title:first-child {
+    margin-top: 8px;
+}
 .mod-setting-panel input[name="maxlength"] {
     width:50px;
     background: #fff;
@@ -710,7 +720,42 @@ html.fh-jf svg:not(:root) {
 .mod-setting-panel .btns {
     margin-top:20px;
 }
-.mod-setting-panel input[name="reset"] {
+.mod-setting-panel .setting-support-link {
+    margin: 14px 0 2px;
+    padding: 12px 0 0;
+    border-top: 1px solid #e2e8f0;
+}
+.mod-setting-panel .setting-donate-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0f8a5f;
+    font-weight: 700;
+    line-height: 1.3;
+    text-decoration: underline;
+    text-decoration-color: rgba(15, 138, 95, 0.42);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+.mod-setting-panel .setting-donate-link:hover {
+    color: #047857;
+    text-decoration-color: currentColor;
+}
+.mod-setting-panel .setting-donate-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: #d1fae5;
+    color: #047857;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1;
+    text-decoration: none;
+}
+.mod-setting-panel input[name="close"] {
     margin-left:20px;
 }
 .mod-setting-panel form {
@@ -945,6 +990,17 @@ html.fh-jf body.fh-json-compact .fh-viewbar-actions > .x-settings,
 html.fh-jf body.fh-json-compact .fh-viewbar-actions > #toggleBtn {
     min-height: 22px;
     padding: 0 7px;
+}
+
+html.fh-jf body.fh-ui-mode-lite .x-fix-encoding,
+html.fh-jf body.fh-ui-mode-lite .fh-viewbar-actions > .x-other-tools,
+html.fh-jf body.fh-ui-mode-lite .fh-viewbar-actions > .x-donate-link {
+    display: none !important;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-actions > .x-other-tools,
+html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-actions > .x-donate-link {
+    display: none !important;
 }
 
 html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-group {
@@ -1553,6 +1609,117 @@ html.fh-jf body.theme-dark .fh-viewbar-actions > .x-other-tools {
 html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar.t-collapse {
     border-color: #30363d;
     background: rgba(22, 27, 34, 0.98);
+}
+
+html.fh-jf body.theme-dark {
+    --fh-bg: #151922;
+    --fh-surface: #1d2430;
+    --fh-surface-soft: #222b38;
+    --fh-line: #354052;
+    --fh-line-soft: #2d3747;
+    --fh-text: #e7ebf2;
+    --fh-muted: #a7b0c0;
+    --fh-faint: #7d8797;
+    --fh-accent: #5d8df5;
+    --fh-accent-strong: #8ab0ff;
+    --fh-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+    background: var(--fh-bg);
+    color: var(--fh-text);
+}
+
+html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar {
+    border-bottom-color: var(--fh-line-soft);
+    background: rgba(29, 36, 48, 0.96);
+    color: var(--fh-text);
+}
+
+html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar .mod-setting-panel {
+    border-color: var(--fh-line);
+    background: var(--fh-surface);
+    box-shadow: var(--fh-shadow);
+    color: var(--fh-text);
+}
+
+html.fh-jf body.theme-dark .mod-setting-panel h4 {
+    border-bottom-color: var(--fh-line);
+    color: var(--fh-text);
+}
+
+html.fh-jf body.theme-dark .mod-setting-panel .setting-section-title {
+    color: var(--fh-muted);
+}
+
+html.fh-jf body.theme-dark .mod-setting-panel label,
+html.fh-jf body.theme-dark .mod-setting-panel li {
+    color: var(--fh-text);
+}
+
+html.fh-jf body.theme-dark .mod-setting-panel li:hover {
+    color: var(--fh-accent-strong);
+}
+
+html.fh-jf body.theme-dark .mod-setting-panel input[type="checkbox"],
+html.fh-jf body.theme-dark .mod-setting-panel input[type="radio"] {
+    accent-color: var(--fh-accent);
+}
+
+html.fh-jf body.theme-dark .mod-setting-panel input[name="maxlength"] {
+    border-color: var(--fh-line);
+    background: #171d27;
+    color: var(--fh-text);
+}
+
+html.fh-jf body.theme-dark .mod-setting-panel .xjf-btn {
+    border: 1px solid var(--fh-line);
+    background: var(--fh-surface-soft);
+    box-shadow: none;
+    color: var(--fh-text);
+    text-shadow: none;
+}
+
+html.fh-jf body.theme-dark .mod-setting-panel .xjf-btn:hover {
+    border-color: var(--fh-accent);
+    background: #273244;
+    color: #f0f6fc;
+}
+
+html.fh-jf body.theme-dark .mod-setting-panel .setting-support-link {
+    border-top-color: var(--fh-line);
+}
+
+html.fh-jf body.theme-dark .mod-setting-panel .setting-donate-link {
+    color: var(--fh-accent-strong);
+    text-decoration-color: rgba(138, 176, 255, 0.46);
+}
+
+html.fh-jf body.theme-dark .mod-setting-panel .setting-donate-link:hover {
+    color: #b7ccff;
+    text-decoration-color: currentColor;
+}
+
+html.fh-jf body.theme-dark .mod-setting-panel .setting-donate-badge {
+    background: rgba(93, 141, 245, 0.18);
+    color: var(--fh-accent-strong);
+}
+
+html.fh-jf body.theme-dark #statusBar {
+    border-top-color: var(--fh-line);
+    background: var(--fh-surface);
+    color: var(--fh-text);
+}
+
+html.fh-jf body.theme-dark .boxOpt {
+    border-color: var(--fh-line);
+    background: var(--fh-surface-soft);
+    color: var(--fh-text);
+}
+
+html.fh-jf body.theme-dark .boxOpt a {
+    color: var(--fh-text);
+}
+
+html.fh-jf body.theme-dark .boxOpt a:hover {
+    color: var(--fh-accent-strong);
 }
 
 /*================ 皮肤：theme-vscode ===================*/

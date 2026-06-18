@@ -67,6 +67,7 @@ new Vue({
     data: {
         manifest: { version: '0.0.0' },
         searchKey: '',
+        uiMode: 'lite',
         currentCategory: '',
         sortType: 'default',
         viewMode: 'list', // 默认网格视图
@@ -204,6 +205,8 @@ new Vue({
                 tool_name: 'options'
             }
         });
+
+        this.applyUiModeToDocument();
     },
 
     computed: {
@@ -1364,8 +1367,50 @@ new Vue({
                         }
                     });
                 });
+
+                const uiModeValue = await new Promise(resolve => {
+                    chrome.storage.local.get('FH_UI_MODE', result => {
+                        resolve(result.FH_UI_MODE);
+                    });
+                });
+                this.uiMode = String(uiModeValue || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
+                this.applyUiModeToDocument();
+                this.applyUiModePreferences();
             } catch (error) {
                 console.error('加载设置项失败:', error);
+            }
+        },
+
+        async setUiMode(mode) {
+            this.uiMode = mode === 'omni' ? 'omni' : 'lite';
+            this.applyUiModeToDocument();
+            this.applyUiModePreferences();
+            try {
+                await chrome.storage.local.set({
+                    FH_UI_MODE: this.uiMode
+                });
+            } catch (error) {
+                console.warn('保存 FeHelper 模式失败:', error);
+            }
+        },
+
+        applyUiModeToDocument() {
+            const isLiteMode = this.uiMode !== 'omni';
+            document.documentElement.classList.toggle('fh-options-lite-mode', isLiteMode);
+            document.documentElement.classList.toggle('fh-options-omni-mode', !isLiteMode);
+        },
+
+        applyUiModePreferences() {
+            if (this.uiMode === 'lite') {
+                this.viewMode = 'list';
+                if (this.currentView === 'all') {
+                    this.showMyInstalled();
+                }
+                return;
+            }
+            if (this.currentView === 'installed' && !this.searchKey && !this.currentCategory) {
+                this.currentView = 'all';
+                this.activeTools = { ...this.originalTools };
             }
         },
         
@@ -1612,6 +1657,10 @@ new Vue({
                 // 保存设置 - 直接传递对象，settings.js已增加对对象类型的支持
                 Settings.setOptions(opts, async () => {
                     try {
+                        await chrome.storage.local.set({
+                            FH_UI_MODE: this.uiMode
+                        });
+
                         // 处理右键菜单
                         const crxAction = this.menuDownloadCrx ? 'install' : 'offload';
                         const settingAction = this.menuFeHelperSeting ? 'install' : 'offload';

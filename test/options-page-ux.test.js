@@ -43,11 +43,11 @@ describe('options page UX policy', () => {
         const optionsHtml = readSource('apps/options/index.html');
 
         expect(optionsHtml).toContain('<title>FeHelper-控制台</title>');
-        expect(optionsHtml).toContain('<h1>FeHelper 控制台</h1>');
+        expect(optionsHtml).toContain("{{ uiMode === 'lite' ? 'FeHelper Lite 控制台' : 'FeHelper 控制台' }}");
         expect(optionsHtml).toContain('统一管理 popup、右键菜单、外观和权限');
-        expect(optionsHtml).toContain('class="fh-workspace-grid"');
-        expect(optionsHtml).toContain('class="fh-context-rail"');
-        expect(optionsHtml.indexOf('class="fh-tools-panel"')).toBeLessThan(optionsHtml.indexOf('class="fh-context-rail"'));
+        expect(optionsHtml).toContain("['fh-workspace-grid', uiMode === 'lite' ? 'is-lite' : 'is-omni']");
+        expect(optionsHtml).toContain('class="fh-context-rail" v-if="uiMode === \'omni\'"');
+        expect(optionsHtml.indexOf('class="fh-tools-panel"')).toBeLessThan(optionsHtml.indexOf('class="fh-context-rail" v-if="uiMode === \'omni\'"'));
     });
 
     it('allows search, category, and user view filters to stay combined', () => {

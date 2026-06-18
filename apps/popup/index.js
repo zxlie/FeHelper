@@ -15,6 +15,7 @@ import {
 const POPUP_RECENT_TOOLS = 'popup_recent_tools';
 const POPUP_AI_ROUTER_ENABLED = 'POPUP_AI_ROUTER_ENABLED';
 const USER_USAGE_DATA_KEY = 'FH_USER_USAGE_DATA';
+const FH_UI_MODE = 'FH_UI_MODE';
 const MAC_OPTION_DIGITS = {
     '¡': 1,
     '™': 2,
@@ -126,6 +127,7 @@ new Vue({
         activeToolKey: '',
         searchKey: '',
         isLoading: true,
+        uiMode: 'lite',
         popupAiRouterReady: false,
         popupAiRouterEnabled: true,
         aiRouter: {
@@ -174,6 +176,15 @@ new Vue({
                 }]);
             }
 
+            if (this.uiMode === 'lite') {
+                return this.filterVisibleGroups([{
+                    key: 'lite',
+                    title: '',
+                    countLabel: '',
+                    tools: this.installedTools
+                }]);
+            }
+
             const recentTools = this.toolsByKeys(this.recentUsed).slice(0, 4);
             const recentKeys = this.keyMap(recentTools);
 
@@ -209,6 +220,9 @@ new Vue({
         },
 
         shouldShowAiRouter() {
+            if (this.uiMode !== 'omni') {
+                return false;
+            }
             return this.popupAiRouterReady &&
                 this.popupAiRouterEnabled &&
                 this.aiRouter.modelStatus === 'available' &&
@@ -289,6 +303,7 @@ new Vue({
     mounted: function () {
         this.panelKeydownHandler = event => this.handlePanelKeydown(event);
         document.addEventListener('keydown', this.panelKeydownHandler, true);
+        this.applyUiModeToDocument();
 
         this.$nextTick(() => {
             setTimeout(() => {
@@ -382,8 +397,15 @@ new Vue({
             if (this.normalizedSearchKey) {
                 classes.push('is-searching');
             }
+            classes.push(this.uiMode === 'omni' ? 'is-omni-mode' : 'is-lite-mode');
 
             return classes;
+        },
+
+        applyUiModeToDocument() {
+            const isLiteMode = this.uiMode === 'lite';
+            document.documentElement.classList.toggle('fh-popup-lite-mode', isLiteMode);
+            document.body.classList.toggle('fh-popup-lite-mode', isLiteMode);
         },
 
         async loadTools() {
@@ -420,16 +442,29 @@ new Vue({
         },
 
         async loadPopupMeta() {
-            const meta = await this.storageGet(['favorites', POPUP_RECENT_TOOLS, USER_USAGE_DATA_KEY, POPUP_AI_ROUTER_ENABLED]);
+            const meta = await this.storageGet(['favorites', POPUP_RECENT_TOOLS, USER_USAGE_DATA_KEY, POPUP_AI_ROUTER_ENABLED, FH_UI_MODE]);
             const favorites = Array.isArray(meta.favorites) ? meta.favorites : [];
             const popupRecent = Array.isArray(meta[POPUP_RECENT_TOOLS]) ? meta[POPUP_RECENT_TOOLS] : [];
             const usageRecent = this.readRecentUsedTools(meta[USER_USAGE_DATA_KEY]);
 
             this.favorites = this.uniqueKeys(favorites);
             this.recentUsed = this.uniqueKeys(popupRecent.concat(usageRecent)).slice(0, 10);
+            this.uiMode = String(meta[FH_UI_MODE] || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
+            this.applyUiModeToDocument();
             this.popupAiRouterEnabled = meta[POPUP_AI_ROUTER_ENABLED] !== false &&
                 meta[POPUP_AI_ROUTER_ENABLED] !== 'false';
             this.popupAiRouterReady = true;
+        },
+
+        async setUiMode(mode) {
+            const nextMode = mode === 'omni' ? 'omni' : 'lite';
+            if (this.uiMode === nextMode) return;
+            this.uiMode = nextMode;
+            this.applyUiModeToDocument();
+            await this.storageSet({
+                [FH_UI_MODE]: nextMode
+            });
+            this.syncActiveTool();
         },
 
         storageGet(keys) {
@@ -778,6 +813,13 @@ new Vue({
 
         setActiveTool(toolKey) {
             this.activeToolKey = toolKey;
+        },
+
+        handleToolHover(toolKey) {
+            if (this.uiMode === 'lite') {
+                return;
+            }
+            this.setActiveTool(toolKey);
         },
 
         getShortcut(toolKey) {

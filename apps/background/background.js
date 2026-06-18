@@ -866,11 +866,14 @@ let BgPageInstance = (function () {
             KEEP_KEY_VALUE_DBL_QUOTE: true,
             NESTED_ESCAPE_PARSE: false,
             JSON_FORMAT_COMPACT_MODE: true,
+            FH_UI_MODE: 'lite',
             MAX_JSON_KEYS_NUMBER: 10000,
             JSON_FORMAT_THEME: 0,
             AUTO_DARK_MODE: false,
             ALWAYS_DARK_MODE: false
         };
+        const numberOptions = ['MAX_JSON_KEYS_NUMBER', 'JSON_FORMAT_THEME'];
+        const stringOptions = ['FH_UI_MODE'];
 
         let storageQuery;
         if (Array.isArray(params)) {
@@ -878,7 +881,10 @@ let BgPageInstance = (function () {
         } else if (typeof params === 'string') {
             storageQuery = ['FH_JSONFORMAT_DEFAULTS_MIGRATED', params];
         } else {
-            storageQuery = Object.assign({FH_JSONFORMAT_DEFAULTS_MIGRATED: false}, params || {});
+            storageQuery = {FH_JSONFORMAT_DEFAULTS_MIGRATED: false};
+            Object.keys(params || {}).forEach(key => {
+                storageQuery[key] = defaultOptions.hasOwnProperty(key) ? defaultOptions[key] : params[key];
+            });
         }
 
         Awesome.StorageMgr.get(storageQuery).then(result => {
@@ -901,10 +907,14 @@ let BgPageInstance = (function () {
                 if (key === 'FH_JSONFORMAT_DEFAULTS_MIGRATED') {
                     return;
                 }
-                if (['MAX_JSON_KEYS_NUMBER', 'JSON_FORMAT_THEME'].includes(key)) {
+                if (numberOptions.includes(key)) {
                     const fallbackValue = defaultOptions.hasOwnProperty(key) ? defaultOptions[key] : 0;
                     const parsedValue = parseInt(result[key], 10);
                     result[key] = Number.isFinite(parsedValue) ? parsedValue : fallbackValue;
+                } else if (stringOptions.includes(key)) {
+                    const fallbackValue = defaultOptions.hasOwnProperty(key) ? defaultOptions[key] : '';
+                    const normalizedValue = String(result[key] || '').toLowerCase();
+                    result[key] = normalizedValue === 'omni' ? 'omni' : fallbackValue;
                 } else {
                     const fallbackValue = defaultOptions.hasOwnProperty(key) ? defaultOptions[key] : false;
                     if (result[key] === undefined || result[key] === null || result[key] === '') {

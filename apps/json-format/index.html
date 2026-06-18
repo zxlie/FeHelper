@@ -9,36 +9,88 @@
         <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
     </head>
     <body class="theme-default">
-        <div class="wrapper wp-json fh-json-tool" id="pageContainer">
+        <div :class="['wrapper wp-json fh-json-tool', uiMode === 'lite' ? 'fh-json-tool-lite' : 'fh-json-tool-omni']" id="pageContainer">
+            <section :class="['fh-top-shell', uiMode === 'lite' ? 'is-lite' : 'is-omni']">
             <header class="fh-tool-header">
-                <div class="fh-brand-block">
-                    <a href="https://fehelper.com" target="_blank" class="fh-brand">
-                        <img src="../static/img/fe-16.png" alt="FeHelper">
-                        <span>FeHelper</span>
-                    </a>
-                    <span class="fh-title-divider" aria-hidden="true">｜</span>
-                    <h1>JSON格式化</h1>
+                <div class="fh-header-stack">
+                    <div class="fh-brand-block">
+                        <a href="https://fehelper.com" target="_blank" class="fh-brand">
+                            <img src="../static/img/fe-16.png" alt="FeHelper">
+                            <span>FeHelper</span>
+                        </a>
+                        <span class="fh-title-divider" aria-hidden="true">｜</span>
+                        <h1>JSON格式化</h1>
+                    </div>
+                    <p class="fh-mode-note" v-if="uiMode === 'omni'">支持格式化、排序、解码、JSONPath 提取与表格视图。</p>
                 </div>
 
-                <nav class="fh-header-actions" aria-label="JSON 示例和工具入口">
-                    <button type="button" class="fh-link-action" ref="demoLink1" @click="setDemo">JSON 片段</button>
-                    <a class="fh-link-action" href="http://t.weather.sojson.com/api/weather/city/101030100" target="_blank">在线 JSON</a>
-                    <a class="fh-link-action" href="/options/index.html?query=数据Mock工具" target="_blank" @click="jumpToMockDataTool($event)">Mock 数据</a>
-                    <button type="button" class="fh-link-action x-other-tools" v-if="!isInUSAFlag" @click="openOptionsPage($event)">工具市场</button>
-                    <button type="button" class="fh-link-action fh-donate-action x-donate-link" v-if="!isInUSAFlag" @click="openDonateModal($event)">请作者喝咖啡</button>
-                </nav>
+                <div :class="['fh-header-right', uiMode === 'omni' ? 'fh-header-right-omni' : '']">
+                    <section class="fh-inline-command-bar" aria-label="JSON 主要操作" v-if="uiMode === 'lite'">
+                        <div id="layoutBarLite" class="fh-command-group fh-segmented" aria-label="布局">
+                            <button type="button" :class="{selected: currentLayout === 'left-right'}" @click="changeLayout('left-right')">左右</button>
+                            <button type="button" :class="{selected: currentLayout === 'up-down'}" @click="changeLayout('up-down')">上下</button>
+                        </div>
+                    </section>
+
+                    <div class="fh-toolbar-tail" v-if="uiMode === 'lite'">
+                        <div class="fh-mode-switch" role="group" aria-label="FeHelper 模式切换">
+                            <button type="button" :class="{active: uiMode === 'lite'}" @click="setUiMode('lite')">Lite</button>
+                            <button type="button" :class="{active: uiMode === 'omni'}" @click="setUiMode('omni')">Omni</button>
+                        </div>
+                        <button
+                            v-if="!isInUSAFlag"
+                            type="button"
+                            class="fh-lite-support"
+                            @click="openDonateModal($event)"
+                        >请作者喝咖啡</button>
+                    </div>
+
+                    <div class="fh-toolbar-tail fh-toolbar-tail-omni" v-else>
+                    <nav class="fh-header-actions fh-header-actions-omni" aria-label="JSON 示例和工具入口">
+                        <button type="button" class="fh-link-action" ref="demoLink1" @click="setDemo">JSON 片段</button>
+                        <a class="fh-link-action" href="http://t.weather.sojson.com/api/weather/city/101030100" target="_blank">在线 JSON</a>
+                        <a class="fh-link-action" href="/options/index.html?query=数据Mock工具" target="_blank" @click="jumpToMockDataTool($event)">Mock 数据</a>
+                        <button type="button" class="fh-link-action" v-if="!isInUSAFlag" @click="openOptionsPage($event)">工具市场</button>
+                    </nav>
+                    <div class="fh-header-tail fh-header-tail-omni">
+                        <div class="fh-mode-switch" role="group" aria-label="FeHelper 模式切换">
+                            <button type="button" :class="{active: uiMode === 'lite'}" @click="setUiMode('lite')">Lite</button>
+                            <button type="button" :class="{active: uiMode === 'omni'}" @click="setUiMode('omni')">Omni</button>
+                        </div>
+                        <button type="button" class="fh-lite-support fh-donate-action" v-if="!isInUSAFlag" @click="openDonateModal($event)">请作者喝咖啡</button>
+                    </div>
+                    </div>
+                </div>
             </header>
 
-            <section class="x-toolbar x-inpage fh-command-bar" aria-label="JSON 操作">
-                <div class="fh-command-group fh-command-primary">
-                    <button type="button" id="btnFormat" class="xjf-btn fh-btn-primary" @click="format">格式化</button>
-                    <button type="button" id="btnCompress" class="xjf-btn fh-btn-secondary" @click="compress">压缩</button>
-                </div>
+            <section class="x-toolbar x-inpage fh-command-bar" aria-label="JSON 操作" v-if="uiMode === 'omni'">
+                <template>
+                    <div class="fh-command-group fh-command-primary">
+                        <button type="button" id="btnFormat" class="xjf-btn fh-btn-primary" @click="format">格式化</button>
+                        <button type="button" id="btnCompress" class="xjf-btn fh-btn-secondary" @click="compress">压缩</button>
+                    </div>
 
-                <div id="layoutBar" class="fh-command-group fh-segmented" aria-label="布局">
-                    <button type="button" id="btnLeftRight" ref="btnLeftRight" class="selected" @click="changeLayout('left-right')">左右</button>
-                    <button type="button" id="btnUpDown" ref="btnUpDown" @click="changeLayout('up-down')">上下</button>
-                </div>
+                    <div id="layoutBar" class="fh-command-group fh-segmented" aria-label="布局">
+                        <button type="button" id="btnLeftRight" ref="btnLeftRight" :class="{selected: currentLayout === 'left-right'}" @click="changeLayout('left-right')">左右</button>
+                        <button type="button" id="btnUpDown" ref="btnUpDown" :class="{selected: currentLayout === 'up-down'}" @click="changeLayout('up-down')">上下</button>
+                    </div>
+
+                    <div class="fh-command-group x-sort fh-radio-group" role="radiogroup" aria-label="排序">
+                        <span class="x-stitle">排序</span>
+                        <label class="fh-radio-pill" for="sort_null">
+                            <input type="radio" name="jsonsort" id="sort_null" value="0" checked @click="format">
+                            <span>默认</span>
+                        </label>
+                        <label class="fh-radio-pill" for="sort_asc">
+                            <input type="radio" name="jsonsort" id="sort_asc" value="1" @click="format">
+                            <span>升序</span>
+                        </label>
+                        <label class="fh-radio-pill" for="sort_desc">
+                            <input type="radio" name="jsonsort" id="sort_desc" value="-1" @click="format">
+                            <span>降序</span>
+                        </label>
+                    </div>
+                </template>
 
                 <div class="fh-command-group fh-switch-group">
                     <label class="fh-switch" for="jsonLint">
@@ -63,28 +115,13 @@
                     </label>
                 </div>
 
-                <div class="fh-command-group x-sort fh-radio-group" role="radiogroup" aria-label="排序">
-                    <span class="x-stitle">排序</span>
-                    <label class="fh-radio-pill" for="sort_null">
-                        <input type="radio" name="jsonsort" id="sort_null" value="0" checked @click="format">
-                        <span>默认</span>
-                    </label>
-                    <label class="fh-radio-pill" for="sort_asc">
-                        <input type="radio" name="jsonsort" id="sort_asc" value="1" @click="format">
-                        <span>升序</span>
-                    </label>
-                    <label class="fh-radio-pill" for="sort_desc">
-                        <input type="radio" name="jsonsort" id="sort_desc" value="-1" @click="format">
-                        <span>降序</span>
-                    </label>
-                </div>
-
                 <div class="fh-command-group x-endecode">
                     <button type="button" class="xjf-btn xjf-btn-left" @click="uniEncode">Uni 编码</button>
                     <button type="button" class="xjf-btn xjf-btn-mid" @click="uniDecode">Uni 解码</button>
                     <button type="button" class="xjf-btn xjf-btn-right" @click="urlDecode">URL 解码</button>
                 </div>
 
+            </section>
             </section>
 
             <main class="panel-body mod-json fh-workspace">

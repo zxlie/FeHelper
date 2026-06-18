@@ -391,15 +391,6 @@ function getChartOptions(settings) {
         }
     };
     
-    // 检查是否为简单数据模式（只有一个数据集）
-    const isSimpleData = settings.isSimpleData || 
-                         (window.chartData && window.chartData.datasets && window.chartData.datasets.length === 1);
-    
-    // 如果是简单数据模式，隐藏图例
-    if (isSimpleData) {
-        options.plugins.legend.display = false;
-    }
-    
     // 只有部分图表类型需要轴线配置
     if (!['pie', 'doughnut', 'polarArea'].includes(settings.type.replace(" (首系列)", ""))) { // 兼容(首系列)后缀
         options.scales = {
@@ -1127,4 +1118,4 @@ function initChartTypeGallery() {
             }
         });
     });
-} 
+}

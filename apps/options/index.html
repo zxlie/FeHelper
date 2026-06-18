@@ -11,15 +11,21 @@
 </head>
 <body>
 
-<div class="fh-console" id="marketContainer" v-cloak>
+<div :class="['fh-console', uiMode === 'lite' ? 'fh-console-lite' : 'fh-console-omni']" id="marketContainer" v-cloak>
     <aside class="fh-sidebar">
-        <a href="https://fehelper.com" target="_blank" class="fh-brand">
-            <img class="fh-brand-mark" src="../static/img/fe-48.png" alt="" aria-hidden="true">
-            <span class="fh-brand-copy">
-                <strong>FeHelper</strong>
-                <span>开发者工具控制台</span>
-            </span>
-        </a>
+        <div class="fh-sidebar-head">
+            <a href="https://fehelper.com" target="_blank" class="fh-brand">
+                <img class="fh-brand-mark" src="../static/img/fe-48.png" alt="" aria-hidden="true">
+                <span class="fh-brand-copy">
+                    <strong>FeHelper</strong>
+                    <span>{{ uiMode === 'lite' ? 'Lite 控制台' : '开发者工具控制台' }}</span>
+                </span>
+            </a>
+            <div class="fh-mode-switch" role="group" aria-label="FeHelper 模式切换">
+                <button type="button" :class="{ active: uiMode === 'lite' }" @click="setUiMode('lite')">Lite</button>
+                <button type="button" :class="{ active: uiMode === 'omni' }" @click="setUiMode('omni')">Omni</button>
+            </div>
+        </div>
 
         <div class="fh-version-card">
             <div class="fh-version-top">
@@ -63,7 +69,7 @@
             </button>
         </nav>
 
-        <section class="fh-side-section">
+        <section class="fh-side-section" v-if="uiMode === 'omni'">
             <h2>工具分类</h2>
             <button type="button" :class="{active: currentCategory === ''}" @click="handleCategoryChange('')">
                 <span>全部分类</span>
@@ -93,33 +99,40 @@
     </aside>
 
     <main class="fh-main">
-        <header class="fh-hero">
+        <header :class="['fh-hero', uiMode === 'lite' ? 'is-lite' : 'is-omni']">
             <div>
-                <p class="fh-eyebrow">Extension console</p>
-                <h1>FeHelper 控制台</h1>
-                <p>搜索、安装和整理工具，统一管理 popup、右键菜单、外观和权限。</p>
+                <p class="fh-eyebrow">{{ uiMode === 'lite' ? 'Focused workspace' : 'Extension console' }}</p>
+                <h1>{{ uiMode === 'lite' ? 'FeHelper Lite 控制台' : 'FeHelper 控制台' }}</h1>
+                <p>{{ uiMode === 'lite' ? '只保留高频配置和工具管理，减少 AI、推荐和运营信息干扰。' : '搜索、安装和整理工具，统一管理 popup、右键菜单、外观和权限。' }}</p>
             </div>
-            <div class="fh-hero-stats" aria-label="工具统计">
-                <div>
-                    <span>全部</span>
-                    <strong>{{Object.keys(originalTools).length}}</strong>
+            <div class="fh-hero-aside">
+                <div class="fh-hero-stats" aria-label="工具统计" v-if="uiMode === 'omni'">
+                    <div>
+                        <span>全部</span>
+                        <strong>{{Object.keys(originalTools).length}}</strong>
+                    </div>
+                    <div>
+                        <span>已安装</span>
+                        <strong>{{installedCount}}</strong>
+                    </div>
+                    <div>
+                        <span>收藏</span>
+                        <strong>{{getFavoritesCount()}}</strong>
+                    </div>
+                    <div>
+                        <span>最近</span>
+                        <strong>{{recentCount}}</strong>
+                    </div>
                 </div>
-                <div>
-                    <span>已安装</span>
-                    <strong>{{installedCount}}</strong>
-                </div>
-                <div>
-                    <span>收藏</span>
-                    <strong>{{getFavoritesCount()}}</strong>
-                </div>
-                <div>
-                    <span>最近</span>
-                    <strong>{{recentCount}}</strong>
+                <div class="fh-lite-summary" v-else>
+                    <span>已安装 {{installedCount}}</span>
+                    <span>收藏 {{getFavoritesCount()}}</span>
+                    <span>最近 {{recentCount}}</span>
                 </div>
             </div>
         </header>
 
-        <div class="fh-workspace-grid">
+        <div :class="['fh-workspace-grid', uiMode === 'lite' ? 'is-lite' : 'is-omni']">
             <section class="fh-tools-panel">
             <div class="fh-toolbar">
                 <div class="fh-search-box">
@@ -205,7 +218,7 @@
             </div>
             </section>
 
-            <aside class="fh-context-rail">
+            <aside class="fh-context-rail" v-if="uiMode === 'omni'">
                 <section :class="['fh-ai-console', aiStatusClass]">
                     <div class="fh-ai-console-main">
                         <div class="fh-ai-console-copy">
@@ -351,6 +364,24 @@
                             </div>
                         </div>
                         <div class="setting-panel">
+                            <fieldset class="setting-radio-group">
+                                <legend>FeHelper 模式</legend>
+                                <label class="setting-radio-card" :class="{active: uiMode === 'lite'}" for="FH_UI_MODE_LITE">
+                                    <input type="radio" name="fh_ui_mode" id="FH_UI_MODE_LITE" value="lite" :checked="uiMode === 'lite'" @change="setUiMode('lite')"/>
+                                    <span>
+                                        <strong>Lite</strong>
+                                        <small>面向高频使用，Popup 更克制，JSON 页面默认只突出核心动作。</small>
+                                    </span>
+                                </label>
+                                <label class="setting-radio-card" :class="{active: uiMode === 'omni'}" for="FH_UI_MODE_OMNI">
+                                    <input type="radio" name="fh_ui_mode" id="FH_UI_MODE_OMNI" value="omni" :checked="uiMode === 'omni'" @change="setUiMode('omni')"/>
+                                    <span>
+                                        <strong>Omni</strong>
+                                        <small>保留当前满血能力，Popup、AI 入口和 JSON 扩展操作全部展开。</small>
+                                    </span>
+                                </label>
+                            </fieldset>
+
                             <label class="setting-toggle-row" for="opt_item_contextMenus">
                                 <input class="setting-switch-input" type="checkbox" value="OPT_ITEM_CONTEXTMENUS" id="opt_item_contextMenus" v-model="selectedOpts"/>
                                 <span class="setting-switch" aria-hidden="true"></span>

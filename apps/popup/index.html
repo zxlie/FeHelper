@@ -19,14 +19,14 @@
                     </div>
                 </div>
                 <div class="fh-header-meta">
-                    <span>{{ installedToolsCount }} 个工具</span>
-                    <button type="button" class="fh-icon-button" @click="openOptionsPage" title="FeHelper配置" aria-label="FeHelper配置">
-                        <span aria-hidden="true"></span>
-                    </button>
+                    <div class="fh-mode-switch" role="group" aria-label="FeHelper 模式切换">
+                        <button type="button" class="fh-mode-pill" :class="{ 'is-active': uiMode === 'lite' }" @click="setUiMode('lite')">Lite</button>
+                        <button type="button" class="fh-mode-pill" :class="{ 'is-active': uiMode === 'omni' }" @click="setUiMode('omni')">Omni</button>
+                    </div>
                 </div>
             </header>
 
-            <div class="fh-search">
+            <div v-if="uiMode !== 'lite'" class="fh-search">
                 <span class="fh-search-icon" aria-hidden="true"></span>
                 <input
                     ref="searchInput"
@@ -100,7 +100,7 @@
                     <p>换一个关键词，或者去工具库查看完整列表。</p>
                 </div>
                 <template v-else>
-                    <section v-for="group in visibleGroups" :key="group.key" class="fh-section">
+                    <section v-for="group in visibleGroups" :key="group.key" class="fh-section" :class="{ 'is-lite-flat': uiMode === 'lite' }">
                         <div class="fh-section-title">
                             <span>{{ group.title }}</span>
                             <span>{{ group.countLabel }}</span>
@@ -114,7 +114,7 @@
                             role="option"
                             :aria-selected="tool.key === activeToolKey ? 'true' : 'false'"
                             @click="runHelper(tool.key)"
-                            @mouseenter="setActiveTool(tool.key)"
+                            @mouseenter="handleToolHover(tool.key)"
                         >
                             <span class="fh-tool-badge" aria-hidden="true">{{ tool.badge }}</span>
                             <span class="fh-tool-copy">
@@ -131,9 +131,9 @@
             </main>
 
             <footer class="fh-footer">
-                <span>↑↓ 选择 · Enter 打开</span>
+                <span>{{ uiMode === 'lite' ? 'Enter 打开' : '↑↓ 选择 · Enter 打开' }}</span>
                 <nav aria-label="FeHelper快捷操作">
-                    <button type="button" @click="openOptionsPage">工具库</button>
+                    <button type="button" @click="openOptionsPage">{{ uiMode === 'lite' ? '更多' : '工具库' }}</button>
                     <button type="button" @click="openOptionsPage">设置</button>
                     <a href="https://github.com/zxlie/FeHelper/issues" @click="openUrl($event)" target="_blank">反馈</a>
                 </nav>

@@ -30,6 +30,8 @@ window.JsonAutoFormat = (() => {
         NESTED_ESCAPE_PARSE: 'NESTED_ESCAPE_PARSE',
         // 紧凑视图
         JSON_FORMAT_COMPACT_MODE: 'JSON_FORMAT_COMPACT_MODE',
+        // 全局产品模式
+        FH_UI_MODE: 'FH_UI_MODE',
         // 最大json key数量
         MAX_JSON_KEYS_NUMBER: 'MAX_JSON_KEYS_NUMBER',
         // 自定义皮肤
@@ -68,6 +70,7 @@ window.JsonAutoFormat = (() => {
         originalSource: '',
         NESTED_ESCAPE_PARSE: false,
         JSON_FORMAT_COMPACT_MODE: true,
+        FH_UI_MODE: 'lite',
         AUTO_DARK_MODE: false,
         ALWAYS_DARK_MODE: false
     };
@@ -126,7 +129,54 @@ window.JsonAutoFormat = (() => {
         if (!body) {
             return;
         }
-        body.classList.toggle('fh-json-compact', !!formatOptions.JSON_FORMAT_COMPACT_MODE);
+        const forceCompact = formatOptions.FH_UI_MODE !== 'omni';
+        body.classList.toggle('fh-json-compact', forceCompact || !!formatOptions.JSON_FORMAT_COMPACT_MODE);
+    };
+
+    let _applyUiMode = () => {
+        let body = document.body;
+        if (!body) {
+            return;
+        }
+        const isLiteMode = formatOptions.FH_UI_MODE !== 'omni';
+        body.classList.toggle('fh-ui-mode-lite', isLiteMode);
+        body.classList.toggle('fh-ui-mode-omni', !isLiteMode);
+    };
+
+    let _applyToolbarDisplayState = () => {
+        let toolbar = document.querySelector('#jfToolbar');
+        if (!toolbar) {
+            return;
+        }
+
+        showToolBar = !!formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW;
+        toolbar.classList.toggle('t-collapse', !showToolBar);
+        $('.fe-feedback #toggleBtn').html(showToolBar ? '收起' : '展开');
+        $('#jfToolbar input[name="alwaysShowToolbar"]').prop('checked', showToolBar);
+    };
+
+    let _syncFormatterEscapeState = () => {
+        if (typeof window.Formatter !== 'undefined' && window.Formatter.setEscapeEnabled) {
+            window.Formatter.setEscapeEnabled(!!formatOptions.NESTED_ESCAPE_PARSE);
+        }
+    };
+
+    let _syncFormatterStatusBarState = () => {
+        const enabled = !!formatOptions.STATUS_BAR_ALWAYS_SHOW;
+        $('body').toggleClass('hide-status-bar', !enabled);
+        if (typeof window.Formatter !== 'undefined' && window.Formatter.setStatusBarEnabled) {
+            window.Formatter.setStatusBarEnabled(enabled);
+        }
+    };
+
+    let _openDonateModal = e => {
+        e && e.preventDefault();
+        e && e.stopPropagation();
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing: 'open-donate-modal',
+            params: { toolName: 'json-format' }
+        });
     };
 
     let _prepareSourceForFormatter = async source => {
@@ -184,8 +234,6 @@ window.JsonAutoFormat = (() => {
             '            <label class="fh-radio-pill" for="sort_null"><input type="radio" name="jsonsort" id="sort_null" value="0" checked><span>默认</span></label>' +
             '            <label class="fh-radio-pill" for="sort_asc"><input type="radio" name="jsonsort" id="sort_asc" value="1"><span>升序</span></label>' +
             '            <label class="fh-radio-pill" for="sort_desc"><input type="radio" name="jsonsort" id="sort_desc" value="-1"><span>降序</span></label>' +
-            '            <label class="fh-toggle-pill" for="nestedEscapeParseToggle"><input type="checkbox" id="nestedEscapeParseToggle"><span>嵌套解析</span></label>' +
-            '            <label class="fh-toggle-pill" for="compactModeToggle"><input type="checkbox" id="compactModeToggle"><span>紧凑</span></label>' +
             '        </span>' +
             '        <span class="x-fix-encoding fh-viewbar-group"><span class="x-split">|</span><button class="xjf-btn" id="jsonGetCorrectCnt">乱码修正</button></span>' +
             '        <span id="optionBar" class="fh-viewbar-group fh-option-bar"></span>' +
@@ -233,16 +281,25 @@ window.JsonAutoFormat = (() => {
         let html = `<div id="jfSettingPanel" class="mod-setting-panel">
             <h4>基本配置项</h4>
             <form action="#">
+                <div class="setting-section-title">运行</div>
                 <ul>
-                    <li><label><input type="checkbox" name="alwaysOn" value="1">总是开启JSON自动格式化功能</label></li>
+                    <li><label><input type="checkbox" name="alwaysOn" value="1">总是开启 JSON 自动格式化</label></li>
                     <li><label><input type="checkbox" name="alwaysShowToolbar" value="1">总是显示顶部工具栏</label></li>
-                    <li><label><input type="checkbox" name="alwaysShowStatusbar" value="1">启用状态栏（包含复制/下载/删除）</label></li>
-                    <li><label><input type="checkbox" name="autoDecode" value="1">自动进行URL、Unicode解码</label></li>
-                    <li><label><input type="checkbox" name="errorEncoding" value="1">乱码修正（需手动操作，一键修正）</label></li>
-                    <li><label><input type="checkbox" name="enableSort" value="1">启用JSON键名排序功能</label></li>
-                    <li><label><input type="checkbox" name="keepQuote" value="1">格式化后保留键值对的双引号</label></li>
-                    <li><label><input type="checkbox" name="compactMode" value="1">默认使用紧凑视图，隐藏次要头部信息</label></li>
-                    <li><label><input type="text" name="maxlength" value="10000">最大支持的JSON Key数量</label></li>
+               </ul>
+
+                <div class="setting-section-title">解析与排序</div>
+                <ul>
+                    <li><label><input type="checkbox" name="enableSort" value="1">启用 JSON 键名排序</label></li>
+                    <li><label><input type="checkbox" name="nestedParse" value="1">默认启用嵌套解析</label></li>
+                    <li><label><input type="checkbox" name="autoDecode" value="1">自动进行 URL / Unicode 解码</label></li>
+                    <li><label><input type="checkbox" name="errorEncoding" value="1">显示乱码修正入口</label></li>
+                    <li><label><input type="text" name="maxlength" value="10000">最大支持的 JSON Key 数量</label></li>
+               </ul>
+
+                <div class="setting-section-title">显示</div>
+                <ul>
+                    <li><label><input type="checkbox" name="alwaysShowStatusbar" value="1">启用状态栏（复制/下载/删除）</label></li>
+                    <li><label><input type="checkbox" name="keepQuote" value="1">保留键值对双引号</label></li>
                </ul>
 
                <h4>自定义皮肤</h4>
@@ -256,9 +313,13 @@ window.JsonAutoFormat = (() => {
                     <li><label><input type="radio" name="skinId" value="6">素人模式（清心寡欲）</label></li>
                </ul>
 
+               <div class="setting-support-link">
+                    <a href="#" class="setting-donate-link"><span class="setting-donate-badge">SP</span><span>请作者喝咖啡</span></a>
+               </div>
+
                <div class="btns">
-                    <input type="submit" class="xjf-btn" name="submit" value="确定">
-                    <input type="reset" class="xjf-btn" name="reset" value="取消">
+                    <input type="submit" class="xjf-btn" name="submit" value="完成">
+                    <input type="button" class="xjf-btn" name="close" value="关闭">
                </div>
             </form>
         </div>`;
@@ -266,80 +327,107 @@ window.JsonAutoFormat = (() => {
         let sPanel = $('#jfSettingPanel');
         if (!sPanel.length) {
             sPanel = $(html).appendTo('#jfToolbar');
-            // 表单提交时，保存数据
-            sPanel.find('input[type="submit"]').on('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
+            let collectPanelOptions = () => ({
+                JSON_PAGE_FORMAT: sPanel.find('input[name="alwaysOn"]').prop('checked'),
+                JSON_TOOL_BAR_ALWAYS_SHOW: sPanel.find('input[name="alwaysShowToolbar"]').prop('checked'),
+                STATUS_BAR_ALWAYS_SHOW: sPanel.find('input[name="alwaysShowStatusbar"]').prop('checked'),
+                AUTO_TEXT_DECODE: sPanel.find('input[name="autoDecode"]').prop('checked'),
+                FIX_ERROR_ENCODING: sPanel.find('input[name="errorEncoding"]').prop('checked'),
+                ENABLE_JSON_KEY_SORT: sPanel.find('input[name="enableSort"]').prop('checked'),
+                NESTED_ESCAPE_PARSE: sPanel.find('input[name="nestedParse"]').prop('checked'),
+                KEEP_KEY_VALUE_DBL_QUOTE: sPanel.find('input[name="keepQuote"]').prop('checked'),
+                MAX_JSON_KEYS_NUMBER: parseInt(sPanel.find('input[name="maxlength"]').val(), 10) || 10000,
+                JSON_FORMAT_THEME: parseInt(sPanel.find('input[name="skinId"]:checked').val(), 10) || 0
+            });
 
-                let formData = {};
-                formData.JSON_PAGE_FORMAT = sPanel.find('input[name="alwaysOn"]').prop('checked');
-                formData.JSON_TOOL_BAR_ALWAYS_SHOW = sPanel.find('input[name="alwaysShowToolbar"]').prop('checked');
-                formData.STATUS_BAR_ALWAYS_SHOW = sPanel.find('input[name="alwaysShowStatusbar"]').prop('checked');
-                formData.AUTO_TEXT_DECODE = sPanel.find('input[name="autoDecode"]').prop('checked');
-                formData.FIX_ERROR_ENCODING = sPanel.find('input[name="errorEncoding"]').prop('checked');
-                formData.ENABLE_JSON_KEY_SORT = sPanel.find('input[name="enableSort"]').prop('checked');
-                formData.KEEP_KEY_VALUE_DBL_QUOTE = sPanel.find('input[name="keepQuote"]').prop('checked');
-                formData.JSON_FORMAT_COMPACT_MODE = sPanel.find('input[name="compactMode"]').prop('checked');
-                formData.MAX_JSON_KEYS_NUMBER = sPanel.find('input[name="maxlength"]').val();
-                formData.JSON_FORMAT_THEME = sPanel.find('input[name="skinId"]:checked').val();
-
-                // 同步更新当前页面的formatOptions对象
-                Object.keys(formData).forEach(key => {
-                    formatOptions[key] = formData[key];
-                });
-
+            let savePanelOptions = params => {
                 chrome.runtime.sendMessage({
                     type: 'fh-dynamic-any-thing',
                     thing: 'save-jsonformat-options',
-                    params: formData
-                }, result => {
-                    _applyCompactMode();
-                    sPanel.hide();
-                    // 重新应用格式化以展示最新设置
-                    _didFormat();
+                    params: params
                 });
-            });
+            };
 
-            sPanel.find('input[name="alwaysShowToolbar"]').on('click', function (e) {
-                $('.fe-feedback #toggleBtn').trigger('click');
-            });
+            let applyPanelOptions = (params, opts = {}) => {
+                Object.keys(params).forEach(key => formatOptions[key] = params[key]);
+                formatOptions.autoDecode = !!formatOptions.AUTO_TEXT_DECODE;
+                formatOptions.NESTED_ESCAPE_PARSE = !!formatOptions.NESTED_ESCAPE_PARSE;
+                formatOptions.JSON_FORMAT_COMPACT_MODE = !!formatOptions.JSON_FORMAT_COMPACT_MODE;
+                formatOptions.JSON_FORMAT_THEME = parseInt(formatOptions.JSON_FORMAT_THEME, 10) || 0;
+                formatOptions.MAX_JSON_KEYS_NUMBER = parseInt(formatOptions.MAX_JSON_KEYS_NUMBER, 10) || 10000;
 
-            sPanel.find('input[name="errorEncoding"]').on('click', function (e) {
-                let el = $('#jfToolbar').find('.x-fix-encoding');
-                $(this).prop('checked') ? el.show() : el.hide();
-            });
+                _syncFormatterEscapeState();
+                _applyToolbarDisplayState();
+                _applyUiMode();
+                _applyCompactMode();
+                _syncFormatterStatusBarState();
 
-            sPanel.find('input[name="enableSort"]').on('click', function (e) {
-                let el = $('#jfToolbar').find('.x-sort');
-                $(this).prop('checked') ? el.show() : el.hide();
-            });
+                $('body').toggleClass('remove-quote', !formatOptions.KEEP_KEY_VALUE_DBL_QUOTE);
+                $('#jfToolbar .x-fix-encoding').toggle(!!formatOptions.FIX_ERROR_ENCODING);
 
-            sPanel.find('input[type="reset"]').on('click', (e) => sPanel.hide());
-
-            sPanel.find('input[name="skinId"]').on('click', function (e) {
-                formatOptions.JSON_FORMAT_THEME = this.value;
-                _didFormat();
-            });
-
-            sPanel.find('input[name="alwaysShowStatusbar"]').on('click', function (e) {
-                formatOptions.STATUS_BAR_ALWAYS_SHOW = $(this).prop('checked');
-                let elBody = $('body');
-                if (formatOptions.STATUS_BAR_ALWAYS_SHOW) {
-                    elBody.removeClass('hide-status-bar');
+                if (formatOptions.ENABLE_JSON_KEY_SORT) {
+                    $('#jfToolbar .x-sort').show();
                 } else {
-                    elBody.addClass('hide-status-bar');
+                    formatOptions.sortType = 0;
+                    $('[name=jsonsort][value=0]').prop('checked', true);
+                    $('#jfToolbar .x-sort').hide();
+                    try {
+                        localStorage.setItem(JSON_SORT_TYPE_KEY, 0);
+                    } catch (e) {}
                 }
+
+                if (opts.reformat) {
+                    _didFormat();
+                }
+            };
+
+            const liveCheckboxOptions = {
+                alwaysOn: {key: 'JSON_PAGE_FORMAT', reformat: false},
+                alwaysShowToolbar: {key: 'JSON_TOOL_BAR_ALWAYS_SHOW', reformat: false},
+                alwaysShowStatusbar: {key: 'STATUS_BAR_ALWAYS_SHOW', reformat: false},
+                autoDecode: {key: 'AUTO_TEXT_DECODE', reformat: true},
+                errorEncoding: {key: 'FIX_ERROR_ENCODING', reformat: false},
+                enableSort: {key: 'ENABLE_JSON_KEY_SORT', reformat: true},
+                nestedParse: {key: 'NESTED_ESCAPE_PARSE', reformat: true},
+                keepQuote: {key: 'KEEP_KEY_VALUE_DBL_QUOTE', reformat: false}
+            };
+
+            sPanel.find('input[type="checkbox"]').on('change', function () {
+                let config = liveCheckboxOptions[this.name];
+                if (!config) {
+                    return;
+                }
+                let params = {};
+                params[config.key] = $(this).prop('checked');
+                applyPanelOptions(params, {reformat: config.reformat});
+                savePanelOptions(params);
             });
 
-            sPanel.find('input[name="keepQuote"]').on('click', function (e) {
-                formatOptions.KEEP_KEY_VALUE_DBL_QUOTE = $(this).prop('checked');
-                let elBody = $('body');
-                if (formatOptions.KEEP_KEY_VALUE_DBL_QUOTE) {
-                    elBody.removeClass('remove-quote');
-                } else {
-                    elBody.addClass('remove-quote');
-                }
+            sPanel.find('input[name="maxlength"]').on('change', function () {
+                let value = parseInt($(this).val(), 10) || 10000;
+                $(this).val(value);
+                let params = {MAX_JSON_KEYS_NUMBER: value};
+                applyPanelOptions(params);
+                savePanelOptions(params);
             });
+
+            sPanel.find('input[name="skinId"]').on('change', function () {
+                let params = {JSON_FORMAT_THEME: parseInt(this.value, 10) || 0};
+                applyPanelOptions(params, {reformat: true});
+                savePanelOptions(params);
+            });
+
+            sPanel.find('input[type="submit"]').on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                let formData = collectPanelOptions();
+                applyPanelOptions(formData, {reformat: true});
+                savePanelOptions(formData);
+                sPanel.hide();
+            });
+
+            sPanel.find('input[name="close"]').on('click', () => sPanel.hide());
+            sPanel.find('.setting-donate-link').on('click', _openDonateModal);
 
         } else if (sPanel[0].offsetHeight) {
             return sPanel.hide();
@@ -348,16 +436,17 @@ window.JsonAutoFormat = (() => {
         }
 
         _getAllOptions(result => {
-            result.JSON_PAGE_FORMAT && sPanel.find('input[name="alwaysOn"]').prop('checked', true);
-            result.JSON_TOOL_BAR_ALWAYS_SHOW && sPanel.find('input[name="alwaysShowToolbar"]').prop('checked', true);
-            result.STATUS_BAR_ALWAYS_SHOW && sPanel.find('input[name="alwaysShowStatusbar"]').prop('checked', true);
-            result.AUTO_TEXT_DECODE && sPanel.find('input[name="autoDecode"]').prop('checked', true);
-            result.FIX_ERROR_ENCODING && sPanel.find('input[name="errorEncoding"]').prop('checked', true);
-            result.ENABLE_JSON_KEY_SORT && sPanel.find('input[name="enableSort"]').prop('checked', true);
-            result.KEEP_KEY_VALUE_DBL_QUOTE && sPanel.find('input[name="keepQuote"]').prop('checked', true);
-            result.JSON_FORMAT_COMPACT_MODE && sPanel.find('input[name="compactMode"]').prop('checked', true);
-            sPanel.find('input[name="maxlength"]').attr('value', result.MAX_JSON_KEYS_NUMBER || 10000);
-            sPanel.find(`input[name="skinId"][value="${result.JSON_FORMAT_THEME || 0}"]`).attr('checked', true);
+            sPanel.find('input[name="alwaysOn"]').prop('checked', !!result.JSON_PAGE_FORMAT);
+            sPanel.find('input[name="alwaysShowToolbar"]').prop('checked', !!result.JSON_TOOL_BAR_ALWAYS_SHOW);
+            sPanel.find('input[name="alwaysShowStatusbar"]').prop('checked', !!result.STATUS_BAR_ALWAYS_SHOW);
+            sPanel.find('input[name="autoDecode"]').prop('checked', !!result.AUTO_TEXT_DECODE);
+            sPanel.find('input[name="errorEncoding"]').prop('checked', !!result.FIX_ERROR_ENCODING);
+            sPanel.find('input[name="enableSort"]').prop('checked', !!result.ENABLE_JSON_KEY_SORT);
+            sPanel.find('input[name="nestedParse"]').prop('checked', !!result.NESTED_ESCAPE_PARSE);
+            sPanel.find('input[name="keepQuote"]').prop('checked', !!result.KEEP_KEY_VALUE_DBL_QUOTE);
+            sPanel.find('input[name="maxlength"]').val(result.MAX_JSON_KEYS_NUMBER || 10000);
+            sPanel.find('input[name="skinId"]').prop('checked', false);
+            sPanel.find(`input[name="skinId"][value="${result.JSON_FORMAT_THEME || 0}"]`).prop('checked', true);
         });
     };
 
@@ -400,42 +489,7 @@ window.JsonAutoFormat = (() => {
             $('#jfToolbar .x-sort').hide();
         }
 
-        let nestedToggle = $('#nestedEscapeParseToggle');
-        nestedToggle.prop('checked', !!formatOptions.NESTED_ESCAPE_PARSE);
-        if (typeof window.Formatter !== 'undefined' && window.Formatter.setEscapeEnabled) {
-            window.Formatter.setEscapeEnabled(!!formatOptions.NESTED_ESCAPE_PARSE);
-        }
-        nestedToggle.off('change').on('change', function () {
-            let enabled = $(this).prop('checked');
-            formatOptions.NESTED_ESCAPE_PARSE = enabled;
-            if (typeof window.Formatter !== 'undefined' && window.Formatter.setEscapeEnabled) {
-                window.Formatter.setEscapeEnabled(enabled);
-            }
-            chrome.runtime.sendMessage({
-                type: 'fh-dynamic-any-thing',
-                thing: 'save-jsonformat-options',
-                params: {
-                    NESTED_ESCAPE_PARSE: enabled
-                }
-            });
-            _didFormat();
-        });
-
-        let compactToggle = $('#compactModeToggle');
-        compactToggle.prop('checked', !!formatOptions.JSON_FORMAT_COMPACT_MODE);
-        compactToggle.off('change').on('change', function () {
-            let enabled = $(this).prop('checked');
-            formatOptions.JSON_FORMAT_COMPACT_MODE = enabled;
-            _applyCompactMode();
-            chrome.runtime.sendMessage({
-                type: 'fh-dynamic-any-thing',
-                thing: 'save-jsonformat-options',
-                params: {
-                    JSON_FORMAT_COMPACT_MODE: enabled
-                }
-            });
-        });
-
+        _syncFormatterEscapeState();
 
         // =============================乱码修正
         if (!formatOptions.FIX_ERROR_ENCODING) {
@@ -443,31 +497,15 @@ window.JsonAutoFormat = (() => {
         }
 
         // =============================工具栏的显示与隐藏控制
-        let toolBarClassList = document.querySelector('#jfToolbar').classList;
         let tgBtn = $('.fe-feedback #toggleBtn');
-        if (formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW) {
-            toolBarClassList.remove('t-collapse');
-            tgBtn.html('收起');
-        } else {
-            toolBarClassList.add('t-collapse');
-            tgBtn.html('展开');
-        }
+        _applyToolbarDisplayState();
         tgBtn.click(function (e) {
             e.preventDefault();
             e.stopPropagation();
 
-            let toolBarClassList = document.querySelector('#jfToolbar').classList;
             showToolBar = !showToolBar;
-            if (showToolBar) {
-                toolBarClassList.remove('t-collapse');
-                tgBtn.html('收起');
-                formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW = true;
-            } else {
-                toolBarClassList.add('t-collapse');
-                tgBtn.html('展开');
-                formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW = false;
-            }
-            $('#jfToolbar input[name="alwaysShowToolbar"]').prop('checked', showToolBar);
+            formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW = showToolBar;
+            _applyToolbarDisplayState();
         });
         
         $('.fe-feedback .x-other-tools').on('click', function (e) {
@@ -480,13 +518,7 @@ window.JsonAutoFormat = (() => {
         $('.fe-feedback .x-settings').click(e => _createSettingPanel());
         $('#jsonGetCorrectCnt').click(e => _getCorrectContent());
 
-        $('.x-toolbar .x-donate-link').on('click', function (e) {
-            chrome.runtime.sendMessage({
-                type: 'fh-dynamic-any-thing',
-                thing: 'open-donate-modal',
-                params: { toolName: 'json-format' }
-            });
-        });
+        $('.x-toolbar .x-donate-link').on('click', _openDonateModal);
         
     };
 
@@ -504,6 +536,7 @@ window.JsonAutoFormat = (() => {
         let theme = _getResolvedTheme();
         Object.values(SKIN_THEME).forEach(th => elBody.removeClass(th));
         elBody.addClass(theme);
+        _applyUiMode();
         _applyCompactMode();
 
         // 控制引号
@@ -514,11 +547,7 @@ window.JsonAutoFormat = (() => {
         }
 
         // 控制底部状态栏
-        if (formatOptions.STATUS_BAR_ALWAYS_SHOW) {
-            elBody.removeClass('hide-status-bar');
-        } else {
-            elBody.addClass('hide-status-bar');
-        }
+        _syncFormatterStatusBarState();
 
         // 检查是否在受限域名，直接使用同步模式
         const currentUrl = window.location.href;
@@ -530,6 +559,7 @@ window.JsonAutoFormat = (() => {
             (async () => {
                 source = await _prepareSourceForFormatter(source);
                 Formatter.formatSync(source, theme, formatOptions.NESTED_ESCAPE_PARSE);
+                _syncFormatterStatusBarState();
                 $('#jfToolbar').show();
             })();
         } else {
@@ -542,6 +572,7 @@ window.JsonAutoFormat = (() => {
                     console.warn('异步格式化失败，使用同步模式:', e);
                     Formatter.formatSync(source, theme, formatOptions.NESTED_ESCAPE_PARSE);
                 }
+                _syncFormatterStatusBarState();
                 $('#jfToolbar').show();
             })();
         }
@@ -705,6 +736,11 @@ window.JsonAutoFormat = (() => {
             formatOptions.JSON_FORMAT_COMPACT_MODE = !!options.JSON_FORMAT_COMPACT_MODE;
         } else if (formatOptions.hasOwnProperty('JSON_FORMAT_COMPACT_MODE')) {
             formatOptions.JSON_FORMAT_COMPACT_MODE = !!formatOptions.JSON_FORMAT_COMPACT_MODE;
+        }
+        if (options.hasOwnProperty('FH_UI_MODE')) {
+            formatOptions.FH_UI_MODE = String(options.FH_UI_MODE || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
+        } else if (!formatOptions.FH_UI_MODE) {
+            formatOptions.FH_UI_MODE = 'lite';
         }
     };
 

@@ -123,6 +123,11 @@ html.dark-mode .fh-console {
     overflow-y: auto;
 }
 
+.fh-sidebar-head {
+    display: grid;
+    gap: 12px;
+}
+
 html[dark-mode="on"] .fh-sidebar,
 html.dark-mode .fh-sidebar {
     background: rgba(23, 32, 51, 0.76);
@@ -142,6 +147,10 @@ html.dark-mode .fh-sidebar {
     gap: 16px;
 }
 
+.fh-workspace-grid.is-lite {
+    grid-template-columns: minmax(0, 1fr);
+}
+
 .fh-context-rail {
     min-width: 0;
     display: grid;
@@ -155,6 +164,35 @@ html.dark-mode .fh-sidebar {
     gap: 12px;
     color: var(--fh-text);
     text-decoration: none;
+}
+
+.fh-mode-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--fh-line);
+    border-radius: 999px;
+    background: var(--fh-surface-soft);
+}
+
+.fh-mode-switch button {
+    min-width: 74px;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    color: var(--fh-muted);
+    background: transparent;
+    font-size: 14px;
+    font-weight: 760;
+    cursor: pointer;
+    transition: background var(--fh-motion), color var(--fh-motion), box-shadow var(--fh-motion);
+}
+
+.fh-mode-switch button.active {
+    color: #ffffff;
+    background: var(--fh-accent);
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.12);
 }
 
 .fh-action-icon,
@@ -507,6 +545,37 @@ html.dark-mode .fh-side-actions .fh-side-action.is-donate {
     padding: 20px 22px;
 }
 
+.fh-hero-aside {
+    display: grid;
+    gap: 14px;
+    align-content: end;
+}
+
+.fh-hero.is-lite {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+}
+
+.fh-lite-summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.fh-lite-summary span {
+    min-height: 32px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--fh-line-soft);
+    border-radius: 999px;
+    background: var(--fh-surface-soft);
+    color: var(--fh-muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
 .fh-eyebrow {
     margin: 0 0 8px;
     font-size: 11px;
@@ -570,6 +639,47 @@ html.dark-mode .fh-side-actions .fh-side-action.is-donate {
 .fh-recommendations,
 .fh-tools-panel {
     padding: 18px;
+}
+
+.fh-console-lite {
+    grid-template-columns: 228px minmax(0, 1fr);
+}
+
+.fh-console-lite .fh-sidebar {
+    gap: 10px;
+    padding: 16px 12px;
+}
+
+.fh-console-lite .fh-main {
+    gap: 12px;
+    padding: 16px;
+}
+
+.fh-console-lite .fh-hero {
+    padding: 16px 18px;
+}
+
+.fh-console-lite .fh-hero h1 {
+    font-size: 24px;
+    line-height: 30px;
+}
+
+.fh-console-lite .fh-hero p:last-child {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 20px;
+}
+
+.fh-console-lite .fh-tools-panel {
+    padding: 14px;
+}
+
+.fh-console-lite .fh-toolbar {
+    gap: 10px;
+}
+
+.fh-console-lite .tool-card {
+    min-height: 74px;
 }
 
 .fh-ai-console {
