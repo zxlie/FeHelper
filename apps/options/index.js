@@ -1632,7 +1632,6 @@ new Vue({
                     'FORBID_OPEN_IN_NEW_TAB',
                     'CONTENT_SCRIPT_ALLOW_ALL_FRAMES',
                     'JSON_PAGE_FORMAT',
-                    'POPUP_AI_ROUTER_ENABLED',
                     'AUTO_DARK_MODE',
                     'ALWAYS_DARK_MODE',
                     'FORBID_STATISTICS' // 新增，确保保存

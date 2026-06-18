@@ -48,7 +48,7 @@ describe('Chrome built-in AI language options', () => {
         withNavigatorLanguage('zh-CN', () => {
             expect(AI.getBuiltInTextLanguageOptions()).toEqual({
                 expectedInputs: [
-                    { type: 'text', languages: ['en', 'ja', 'es'] }
+                    { type: 'text', languages: ['en', 'ja', 'es', 'de', 'fr'] }
                 ],
                 expectedOutputs: [
                     { type: 'text', languages: ['en'] }
@@ -80,7 +80,7 @@ describe('Chrome built-in AI language options', () => {
 
         expect(create).toHaveBeenCalledWith(expect.objectContaining({
             expectedInputs: [
-                { type: 'text', languages: ['en', 'ja', 'es'] }
+                { type: 'text', languages: ['en', 'ja', 'es', 'de', 'fr'] }
             ],
             expectedOutputs: [
                 { type: 'text', languages: ['en'] }

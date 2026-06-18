@@ -9,6 +9,37 @@ import Awesome from './awesome.js';
 import toolMap from './tools.js';
 import Settings from '../options/settings.js';
 
+const ROOT_MENU_CONTEXTS = ['page', 'selection', 'editable', 'link', 'image'];
+const ROOT_DOCUMENT_PATTERNS = ['http://*/*', 'https://*/*', 'file://*/*'];
+const MENU_GROUP_THRESHOLD = 8;
+const TOOL_MENU_GROUPS = [
+    {
+        id: 'text-code',
+        title: '文本与代码',
+        tools: ['json-format', 'json-diff', 'code-beautify', 'code-compress', 'regexp', 'html2markdown']
+    },
+    {
+        id: 'encode-convert',
+        title: '编解码转换',
+        tools: ['en-decode', 'timestamp', 'datetime-calc', 'trans-radix', 'trans-color', 'byte-unit', 'uuid-gen']
+    },
+    {
+        id: 'page-debug',
+        title: '页面与调试',
+        tools: ['screenshot', 'color-picker', 'grid-ruler', 'page-timing', 'postman', 'websocket', 'page-monkey', 'devtools']
+    },
+    {
+        id: 'image-qr',
+        title: '二维码与图像',
+        tools: ['qr-code', 'image-base64', 'svg-converter', 'chart-maker', 'poster-maker']
+    },
+    {
+        id: 'efficiency-generate',
+        title: '效率与生成',
+        tools: ['aiagent', 'sticky-notes', 'mock-data', 'password', 'crontab', 'loan-rate', 'naotu', 'excel2json']
+    }
+];
+
 export default (function () {
 
     let FeJson = {
@@ -57,6 +88,7 @@ export default (function () {
 
                 case 'code-beautify':
                 case 'en-decode':
+                case 'datetime-calc':
                     toolMap[tool].menuConfig[0].onClick = function (info, tab) {
                         chrome.scripting.executeScript({
                             target: {tabId:tab.id,allFrames:false},
@@ -117,9 +149,13 @@ export default (function () {
 
                 default:
                     toolMap[tool].menuConfig[0].onClick = function (info, tab) {
-                        globalThis.FeHelperBg.DynamicToolRunner({
+                        let runnerConfig = {
                             tool, withContent: tool === 'image-base64' ? info.srcUrl : ''
-                        })
+                        };
+                        if (toolMap[tool].noPage) {
+                            runnerConfig.noPage = true;
+                        }
+                        globalThis.FeHelperBg.DynamicToolRunner(runnerConfig);
                     };
                     break;
             }
@@ -138,19 +174,20 @@ export default (function () {
      * 创建一个menu 菜单
      * @param toolName
      * @param menuList
+     * @param parentId
      * @returns {boolean}
      * @private
      */
-    let _createItem = (toolName, menuList) => {
+    let _createItem = (toolName, menuList, parentId) => {
         menuList && menuList.forEach && menuList.forEach(menu => {
 
             let menuItemId = 'fhm_c' + escape(menu.text).replace(/\W/g,'') + Date.now() + Math.floor(Math.random() * 1000);
 
             chrome.contextMenus.create({
                 id: menuItemId,
-                title: menu.icon + '  ' + menu.text,
+                title: menu.text,
                 contexts: menu.contexts || ['all'],
-                parentId: FeJson.contextMenuId
+                parentId: parentId || FeJson.contextMenuId
             }, () => {
                 if (chrome.runtime.lastError) return;
                 FeJson.menuClickHandlers[menuItemId] = menu.onClick || (() => {
@@ -160,16 +197,45 @@ export default (function () {
         });
     };
 
+    let _ensureToolMenuConfig = (tool, toolInfo) => {
+        if(!toolInfo.menuConfig) {
+            toolInfo.menuConfig = [{
+                icon: toolInfo.icon,
+                text: toolInfo.name,
+                onClick: (info, tab) => {
+                    globalThis.FeHelperBg.DynamicToolRunner({
+                        page: 'dynamic',
+                        noPage: !!toolInfo.noPage,
+                        query: `tool=${tool}`
+                    });
+                    if (toolInfo.noPage && typeof self !== 'undefined' && typeof self.close === 'function') {
+                        setTimeout(() => self.close(), 200);
+                    }
+                }
+            }];
+        }
+        return toolInfo.menuConfig;
+    };
+
+    let _createGroup = (groupId, title) => {
+        chrome.contextMenus.create({
+            id: groupId,
+            title: title,
+            contexts: ROOT_MENU_CONTEXTS,
+            parentId: FeJson.contextMenuId
+        }, () => { chrome.runtime.lastError; });
+    };
 
     /**
      * 绘制一条分割线
+     * @param parentId
      * @private
      */
-    let _createSeparator = function () {
+    let _createSeparator = function (parentId) {
         chrome.contextMenus.create({
             id: 'fhm_s' + Math.ceil(Math.random()*10e9),
             type: 'separator',
-            parentId: FeJson.contextMenuId
+            parentId: parentId || FeJson.contextMenuId
         }, () => { chrome.runtime.lastError; });
     };
 
@@ -188,8 +254,8 @@ export default (function () {
             chrome.contextMenus.create({
                 id: FeJson.contextMenuId,
                 title: "FeHelper",
-                contexts: ['page', 'selection', 'editable', 'link', 'image'],
-                documentUrlPatterns: ['http://*/*', 'https://*/*', 'file://*/*']
+                contexts: ROOT_MENU_CONTEXTS,
+                documentUrlPatterns: ROOT_DOCUMENT_PATTERNS
             }, () => {
                 if (chrome.runtime.lastError) return;
                 _buildChildMenus();
@@ -198,41 +264,85 @@ export default (function () {
     };
 
     let _buildChildMenus = function () {
-        Awesome.getInstalledTools().then(tools => {
-            let allMenus = Object.keys(tools).filter(tool => tools[tool].installed && tools[tool].menu);
-            let onlineTools = allMenus.filter(tool => tool !== 'devtools' && !tools[tool].hasOwnProperty('_devTool'));
-            let devTools = allMenus.filter(tool => tool === 'devtools' || tools[tool].hasOwnProperty('_devTool'));
+        let sysMenu = ['download-crx', 'fehelper-setting'];
+        let arrPromises = [Awesome.getInstalledTools()].concat(sysMenu.map(menu => Awesome.menuMgr(menu, 'get')));
 
-            onlineTools.forEach(tool => _createItem(tool, tools[tool].menuConfig));
-            devTools.length && _createSeparator();
-            devTools.forEach(tool => {
-                if(!tools[tool].menuConfig) {
-                    tools[tool].menuConfig = [{
-                        icon: tools[tool].icon,
-                        text: tools[tool].name,
-                        onClick: (info, tab) => {
-                            globalThis.FeHelperBg.DynamicToolRunner({
-                                page: 'dynamic',
-                                noPage: !!tools[tool].noPage,
-                                query: `tool=${tool}`
-                            });
-                            if (tools[tool].noPage && typeof self !== 'undefined' && typeof self.close === 'function') {
-                                setTimeout(() => self.close(), 200);
-                            }
-                        }
-                    }];
-                }
-                _createItem(tool, tools[tool].menuConfig);
+        Promise.all(arrPromises).then(values => {
+            let tools = values[0] || {};
+            let createdToolItems = _buildToolMenus(tools);
+            _buildSystemMenus(values.slice(1), createdToolItems > 0);
+        });
+    };
+
+    let _buildToolMenus = function (tools) {
+        let allMenus = Object.keys(tools).filter(tool => tools[tool].installed && tools[tool].menu);
+        allMenus.forEach(tool => _ensureToolMenuConfig(tool, tools[tool]));
+
+        if (_getMenuItemCount(tools, allMenus) > MENU_GROUP_THRESHOLD) {
+            return _buildGroupedToolMenus(tools, allMenus);
+        }
+
+        let onlineTools = allMenus.filter(tool => tool !== 'devtools' && !tools[tool].hasOwnProperty('_devTool'));
+        let devTools = allMenus.filter(tool => tool === 'devtools' || tools[tool].hasOwnProperty('_devTool'));
+        let itemCount = 0;
+
+        onlineTools.forEach(tool => {
+            itemCount += tools[tool].menuConfig.length;
+            _createItem(tool, tools[tool].menuConfig);
+        });
+
+        devTools.length && onlineTools.length && _createSeparator();
+        devTools.forEach(tool => {
+            itemCount += tools[tool].menuConfig.length;
+            _createItem(tool, tools[tool].menuConfig);
+        });
+
+        return itemCount;
+    };
+
+    let _getMenuItemCount = function (tools, toolNames) {
+        return toolNames.reduce((count, tool) => count + (tools[tool].menuConfig ? tools[tool].menuConfig.length : 0), 0);
+    };
+
+    let _buildGroupedToolMenus = function (tools, allMenus) {
+        let groupedTools = new Set();
+        let itemCount = 0;
+
+        TOOL_MENU_GROUPS.forEach(group => {
+            let groupTools = group.tools.filter(tool => allMenus.includes(tool));
+            if (!groupTools.length) return;
+
+            let groupId = `fhm_g_${group.id}`;
+            _createGroup(groupId, group.title);
+            groupTools.forEach(tool => {
+                groupedTools.add(tool);
+                itemCount += tools[tool].menuConfig.length;
+                _createItem(tool, tools[tool].menuConfig, groupId);
             });
         });
 
-        let sysMenu = ['download-crx', 'fehelper-setting'];
-        let arrPromises = sysMenu.map(menu => Awesome.menuMgr(menu, 'get'));
-        Promise.all(arrPromises).then(values => {
-            _createSeparator();
-            String(values[0]) === '1' && _createItem(sysMenu[0], [defaultMenuOptions[sysMenu[0]]]);
-            String(values[1]) !== '0' && _createItem(sysMenu[1], [defaultMenuOptions[sysMenu[1]]]);
-        });
+        let otherTools = allMenus.filter(tool => !groupedTools.has(tool));
+        if (otherTools.length) {
+            let groupId = 'fhm_g_other';
+            _createGroup(groupId, '其他工具');
+            otherTools.forEach(tool => {
+                itemCount += tools[tool].menuConfig.length;
+                _createItem(tool, tools[tool].menuConfig, groupId);
+            });
+        }
+
+        return itemCount;
+    };
+
+    let _buildSystemMenus = function (values, hasToolItems) {
+        let sysMenuItems = [];
+        String(values[0]) === '1' && sysMenuItems.push(defaultMenuOptions['download-crx']);
+        String(values[1]) !== '0' && sysMenuItems.push(defaultMenuOptions['fehelper-setting']);
+
+        if (sysMenuItems.length) {
+            hasToolItems && _createSeparator();
+            sysMenuItems.forEach(menu => _createItem(menu.text, [menu]));
+        }
     };
 
     /**

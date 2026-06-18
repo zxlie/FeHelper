@@ -894,46 +894,9 @@ window.Formatter = (function () {
             optionBar = $('<span id="optionBar" class="fh-option-bar" />').appendTo(jfContent.parent());
         }
 
-        $('<span class="x-split">|</span>').appendTo(optionBar);
-        let buttonFormatted = $('<button class="xjf-btn xjf-btn-left">元数据</button>').appendTo(optionBar);
         let buttonCollapseAll = $('<button class="xjf-btn xjf-btn-mid">折叠</button>').appendTo(optionBar);
-        let buttonCopyPlain = $('<button class="xjf-btn xjf-btn-right" style="display:none;">复制</button>').appendTo(optionBar);
-        let plainOn = false;
-
-        buttonFormatted.bind('click', function (e) {
-            if (plainOn) {
-                plainOn = false;
-                jfPre.hide();
-                jfContent.show();
-                buttonFormatted.text('元数据');
-                buttonCopyPlain.hide();
-            } else {
-                plainOn = true;
-                jfPre.show();
-                jfContent.hide();
-                buttonFormatted.text('树形');
-                buttonCopyPlain.show();
-            }
-
-            jfStatusBar && jfStatusBar.hide();
-        });
-
-        buttonCopyPlain.bind('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!cachedJsonString) {
-                toast('暂无可复制的格式化结果，请先执行格式化。');
-                return;
-            }
-            _copyToClipboard(cachedJsonString, '格式化后的 JSON 已复制到剪贴板！');
-        });
 
         buttonCollapseAll.bind('click', function (e) {
-            // 如果内容还没有格式化过，需要再格式化一下
-            if (plainOn) {
-                buttonFormatted.trigger('click');
-            }
-
             if (buttonCollapseAll.text() === '折叠') {
                 buttonCollapseAll.text('展开');
                 // 递归折叠所有层级的对象和数组，确保所有内容都被折叠
@@ -1354,7 +1317,7 @@ window.Formatter = (function () {
                 return value;
             }, 4);
             
-            // 设置原始JSON内容到jfPre（用于元数据按钮）
+            // 保留原始 JSON 内容，供旧 DOM 节点复用。
             jfPre.html(htmlspecialchars(cachedJsonString));
             
             // 使用完整的JSON美化功能

@@ -4,16 +4,8 @@
 
 import Awesome from '../background/awesome.js'
 import MSG_TYPE from '../static/js/common.js';
-import AI from '../aiagent/fh.ai.js';
-import {
-    analyzeDeveloperInput,
-    buildAiRouterMessages,
-    mergeRouterAnalysis,
-    parseAiRouterResponse
-} from '../aiagent/fh.ai-router.js';
 
 const POPUP_RECENT_TOOLS = 'popup_recent_tools';
-const POPUP_AI_ROUTER_ENABLED = 'POPUP_AI_ROUTER_ENABLED';
 const USER_USAGE_DATA_KEY = 'FH_USER_USAGE_DATA';
 const FH_UI_MODE = 'FH_UI_MODE';
 const MAC_OPTION_DIGITS = {
@@ -127,19 +119,7 @@ new Vue({
         activeToolKey: '',
         searchKey: '',
         isLoading: true,
-        uiMode: 'lite',
-        popupAiRouterReady: false,
-        popupAiRouterEnabled: true,
-        aiRouter: {
-            input: '',
-            sourceLabel: '',
-            statusText: '',
-            modelStatus: 'checking',
-            loading: false,
-            error: '',
-            analysis: null,
-            aiDraft: ''
-        }
+        uiMode: 'lite'
     },
 
     computed: {
@@ -217,52 +197,6 @@ new Vue({
             return this.visibleGroups.reduce((tools, group) => {
                 return tools.concat(group.tools || []);
             }, []);
-        },
-
-        shouldShowAiRouter() {
-            if (this.uiMode !== 'omni') {
-                return false;
-            }
-            return this.popupAiRouterReady &&
-                this.popupAiRouterEnabled &&
-                this.aiRouter.modelStatus === 'available' &&
-                this.isAiAssistantEnabled;
-        },
-
-        isAiAssistantEnabled() {
-            const aiTool = this.fhTools.aiagent;
-            return !!(aiTool && aiTool.installed);
-        },
-
-        aiRouterStatusText() {
-            if (this.aiRouter.loading) return this.aiRouter.statusText || '正在让 Gemini Nano 精判';
-            if (this.aiRouter.error) return this.aiRouter.error;
-            if (this.aiRouter.analysis) {
-                return this.aiRouter.analysis.refinedByAi
-                    ? `Gemini 精判：${this.aiRouter.analysis.inputType}`
-                    : `本地识别：${this.aiRouter.analysis.inputType}`;
-            }
-            return '读取剪贴板内容，推荐合适工具';
-        },
-
-        aiRouterActions() {
-            const analysis = this.aiRouter.analysis || {};
-            const actions = analysis.actions
-                ? analysis.actions
-                : [];
-            const primaryAction = analysis.primaryAction;
-            if (!primaryAction) return actions.slice(0, 3);
-            const primaryKey = `${primaryAction.toolKey}:${primaryAction.taskKey || ''}`;
-            return [primaryAction]
-                .concat(actions.filter(action => `${action.toolKey}:${action.taskKey || ''}` !== primaryKey))
-                .slice(0, 3);
-        },
-
-        aiRouterSignals() {
-            const signals = this.aiRouter.analysis && this.aiRouter.analysis.signals
-                ? this.aiRouter.analysis.signals
-                : [];
-            return signals.slice(0, 3);
         }
     },
 
@@ -296,7 +230,6 @@ new Vue({
         }
 
         this.loadTools();
-        this.refreshAiModelSnapshot();
         this.loadPatchHotfix();
     },
 
@@ -335,33 +268,6 @@ new Vue({
     },
 
     methods: {
-        async refreshAiModelSnapshot() {
-            try {
-                const result = await AI.getBuiltInAvailability();
-                this.aiRouter.modelStatus = result.availability || 'unsupported';
-                await chrome.storage.local.set({
-                    fh_ai_builtin_status_snapshot: {
-                        status: result.availability,
-                        progress: result.availability === 'available' ? 1 : 0,
-                        message: result.message || '',
-                        checkedAt: Date.now(),
-                        source: 'popup'
-                    }
-                });
-            } catch (error) {
-                this.aiRouter.modelStatus = 'error';
-                await chrome.storage.local.set({
-                    fh_ai_builtin_status_snapshot: {
-                        status: 'error',
-                        progress: 0,
-                        message: error && error.message ? error.message : 'AI 模型状态检测失败',
-                        checkedAt: Date.now(),
-                        source: 'popup'
-                    }
-                });
-            }
-        },
-
         loadPatchHotfix() {
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
@@ -442,7 +348,7 @@ new Vue({
         },
 
         async loadPopupMeta() {
-            const meta = await this.storageGet(['favorites', POPUP_RECENT_TOOLS, USER_USAGE_DATA_KEY, POPUP_AI_ROUTER_ENABLED, FH_UI_MODE]);
+            const meta = await this.storageGet(['favorites', POPUP_RECENT_TOOLS, USER_USAGE_DATA_KEY, FH_UI_MODE]);
             const favorites = Array.isArray(meta.favorites) ? meta.favorites : [];
             const popupRecent = Array.isArray(meta[POPUP_RECENT_TOOLS]) ? meta[POPUP_RECENT_TOOLS] : [];
             const usageRecent = this.readRecentUsedTools(meta[USER_USAGE_DATA_KEY]);
@@ -451,9 +357,6 @@ new Vue({
             this.recentUsed = this.uniqueKeys(popupRecent.concat(usageRecent)).slice(0, 10);
             this.uiMode = String(meta[FH_UI_MODE] || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
             this.applyUiModeToDocument();
-            this.popupAiRouterEnabled = meta[POPUP_AI_ROUTER_ENABLED] !== false &&
-                meta[POPUP_AI_ROUTER_ENABLED] !== 'false';
-            this.popupAiRouterReady = true;
         },
 
         async setUiMode(mode) {
@@ -598,204 +501,6 @@ new Vue({
             return String(text || '').trim().toLowerCase();
         },
 
-        runLocalAiRouter(input, sourceLabel) {
-            const value = String(input || '').trim();
-            this.aiRouter.input = value;
-            this.aiRouter.sourceLabel = sourceLabel || '';
-            this.aiRouter.error = '';
-            this.aiRouter.aiDraft = '';
-            this.aiRouter.loading = false;
-            this.aiRouter.analysis = analyzeDeveloperInput(value);
-            this.aiRouter.statusText = value
-                ? `${sourceLabel || '当前输入'}已完成本地识别`
-                : '没有可识别内容';
-        },
-
-        inspectSearchInput() {
-            const value = this.searchKey || this.aiRouter.input;
-            this.runLocalAiRouter(value, '搜索输入');
-            if (this.searchKey && this.aiRouter.analysis && this.aiRouter.analysis.inputType !== 'unknown') {
-                this.searchKey = '';
-            }
-        },
-
-        async disableAiRouter() {
-            this.popupAiRouterEnabled = false;
-            this.aiRouter.loading = false;
-            await this.storageSet({
-                [POPUP_AI_ROUTER_ENABLED]: 'false'
-            });
-        },
-
-        async readClipboardTextForRouter() {
-            let clipboardApiError = null;
-
-            try {
-                if (typeof window !== 'undefined' && window.focus) {
-                    window.focus();
-                }
-                if (navigator.clipboard && navigator.clipboard.readText) {
-                    return await navigator.clipboard.readText();
-                }
-            } catch (error) {
-                clipboardApiError = error;
-            }
-
-            const textarea = document.createElement('textarea');
-            textarea.setAttribute('aria-hidden', 'true');
-            textarea.setAttribute('tabindex', '-1');
-            textarea.style.position = 'fixed';
-            textarea.style.left = '-9999px';
-            textarea.style.top = '0';
-            textarea.style.width = '1px';
-            textarea.style.height = '1px';
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.focus();
-
-            try {
-                const ok = document.execCommand && document.execCommand('paste');
-                const value = textarea.value || '';
-                if (ok || value) {
-                    return value;
-                }
-            } catch (error) {
-                if (!clipboardApiError) {
-                    clipboardApiError = error;
-                }
-            } finally {
-                document.body.removeChild(textarea);
-                if (this.$refs.searchInput && this.$refs.searchInput.focus) {
-                    this.$refs.searchInput.focus();
-                }
-            }
-
-            const message = clipboardApiError && clipboardApiError.message
-                ? clipboardApiError.message
-                : '';
-            throw new Error(message || '读取剪贴板失败，请确认扩展已获得剪贴板读取权限。');
-        },
-
-        async inspectClipboard() {
-            this.aiRouter.loading = true;
-            this.aiRouter.error = '';
-            this.aiRouter.statusText = '正在读取剪贴板';
-            try {
-                const text = await this.readClipboardTextForRouter();
-                this.runLocalAiRouter(text, '剪贴板');
-                if (text) {
-                    this.searchKey = '';
-                }
-            } catch (error) {
-                this.aiRouter.loading = false;
-                this.aiRouter.error = this.formatClipboardError(error);
-                this.aiRouter.statusText = '';
-            }
-        },
-
-        formatClipboardError(error) {
-            const message = error && error.message ? error.message : '';
-            if (/readText|clipboard|permission|denied|not focused|Document is not focused/i.test(message)) {
-                return '剪贴板读取被浏览器拒绝，请重新打开 popup 后再试，或在搜索框里直接搜索关键词。';
-            }
-            return message || '读取剪贴板失败，请重新打开 popup 后再试。';
-        },
-
-        async refineAiRouterWithAi() {
-            const input = this.aiRouter.input || this.searchKey;
-            if (!input || this.aiRouter.loading) return;
-
-            if (!this.aiRouter.analysis) {
-                this.runLocalAiRouter(input, this.aiRouter.sourceLabel || '当前输入');
-            }
-
-            this.aiRouter.loading = true;
-            this.aiRouter.error = '';
-            this.aiRouter.aiDraft = '';
-            this.aiRouter.statusText = '正在调用 Gemini Nano 精判工具动作';
-
-            try {
-                const messages = buildAiRouterMessages(input, this.aiRouter.analysis);
-                await AI.askCoderLLM(messages, (respJson, done) => {
-                    if (done) {
-                        const aiAnalysis = parseAiRouterResponse(this.aiRouter.aiDraft);
-                        if (aiAnalysis) {
-                            this.aiRouter.analysis = mergeRouterAnalysis(this.aiRouter.analysis, aiAnalysis);
-                            this.aiRouter.statusText = 'Gemini Nano 已完成工具精判';
-                        } else {
-                            this.aiRouter.statusText = 'Gemini 返回内容无法解析，保留本地推荐';
-                        }
-                        this.aiRouter.loading = false;
-                        return;
-                    }
-                    if (respJson && respJson.type === 'status') {
-                        this.aiRouter.statusText = this.formatAiRouterStatus(respJson);
-                        return;
-                    }
-                    if (respJson && typeof respJson.content === 'string') {
-                        this.aiRouter.aiDraft = respJson.content;
-                        this.aiRouter.statusText = 'Gemini Nano 正在生成判断';
-                    }
-                }, null, 'builtin');
-            } catch (error) {
-                this.aiRouter.loading = false;
-                this.aiRouter.error = this.formatAiRouterError(error);
-                this.aiRouter.statusText = '';
-            }
-        },
-
-        formatAiRouterStatus(payload) {
-            if (!payload || payload.provider !== 'builtin') return 'Gemini Nano 正在处理';
-            if (payload.status === 'downloading') {
-                const progress = typeof payload.progress === 'number'
-                    ? Math.round(Math.max(0, Math.min(1, payload.progress)) * 100)
-                    : 0;
-                return progress > 0 && progress < 100
-                    ? `正在下载 Gemini Nano 模型（${progress}%）`
-                    : '正在下载 Gemini Nano 模型';
-            }
-            const statusText = {
-                unsupported: '当前浏览器不支持 Chrome 内置 AI',
-                unavailable: '当前设备暂不满足本机 AI 运行条件',
-                downloadable: 'Gemini Nano 模型可下载',
-                available: 'Gemini Nano 已就绪',
-                error: 'AI 状态检测失败'
-            };
-            return payload.message || statusText[payload.status] || 'Gemini Nano 正在处理';
-        },
-
-        formatAiRouterError(error) {
-            const message = error && error.message ? error.message : String(error || '');
-            if (message.startsWith('BUILTIN_AI_UNAVAILABLE:')) {
-                return message.replace('BUILTIN_AI_UNAVAILABLE:', '');
-            }
-            return message || 'AI 精判失败，已保留本地推荐';
-        },
-
-        buildAiRouterActionQuery(action) {
-            const params = ['from=router'];
-            if (action && action.taskKey) {
-                params.push(`aiTask=${encodeURIComponent(action.taskKey)}`);
-            }
-            return params.join('&');
-        },
-
-        async runAiRouterAction(action) {
-            if (!action || !action.toolKey) return;
-            const tool = this.fhTools[action.toolKey];
-            if (!tool || !tool.installed) {
-                chrome.tabs.create({
-                    url: `/options/index.html?query=${encodeURIComponent(action.toolKey)}`
-                });
-                return;
-            }
-
-            await this.runHelper(action.toolKey, {
-                query: this.buildAiRouterActionQuery(action),
-                withContent: this.aiRouter.input || this.searchKey
-            });
-        },
-
         syncActiveTool() {
             this.$nextTick(() => {
                 const tools = this.flatVisibleTools;
@@ -869,10 +574,11 @@ new Vue({
             const target = event.target || {};
             const tagName = target.tagName ? target.tagName.toLowerCase() : '';
             const isSearchInput = tagName === 'input';
+            const isTextArea = tagName === 'textarea';
             const isToolButton = target.classList && target.classList.contains('fh-tool-row');
             const isOtherCommand = !isToolButton && (tagName === 'button' || tagName === 'a');
 
-            const shortcutTool = this.getShortcutToolFromEvent(event);
+            const shortcutTool = isTextArea ? null : this.getShortcutToolFromEvent(event);
             if (shortcutTool) {
                 event.__fhPopupHandled = true;
                 event.preventDefault();
@@ -884,6 +590,7 @@ new Vue({
             }
 
             if (isOtherCommand) return;
+            if (isTextArea) return;
 
             if (event.key === '/' && !isSearchInput) {
                 event.__fhPopupHandled = true;

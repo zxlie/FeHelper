@@ -188,9 +188,9 @@ new Vue({
             if (!task) return;
             setInlineAiGuide(this.aiPanel, {
                 taskKey: task,
-                title: 'AI读代码',
-                subtitle: '先格式化，再让 AI 补充意图和风险点。',
-                result: '粘贴 JS、CSS、HTML、XML 或 SQL 后点击“格式化”。格式化完成后会出现“AI读代码”，AI 会基于结果做简短解读和可读性建议。'
+                title: 'AI 解释代码',
+                subtitle: '解释格式化结果、风险点和可读性建议。',
+                result: '先粘贴 JS、CSS、HTML、XML 或 SQL 并点击“格式化”。格式化完成后点击“AI 解释代码”，AI 只基于当前代码和格式化结果给出说明。'
             });
         },
 
@@ -206,31 +206,57 @@ new Vue({
             this.aiPanel.statusText = '当前任务只提供解读和建议，不直接改写代码';
         },
 
+        getFormattedCodeForAi: function () {
+            return this.$refs.jfContentBox ? this.$refs.jfContentBox.textContent.trim() : '';
+        },
+
+        buildCodeAiMeta: function (formatted) {
+            return {
+                语言: this.selectedType,
+                源码字符数: this.sourceContent.length,
+                格式化后字符数: formatted.length,
+                格式化后行数: formatted ? formatted.split(/\n/).length : 0,
+                任务: '解释意图、风险点和局部修正建议'
+            };
+        },
+
         askAiForCode: function () {
-            const formatted = this.$refs.jfContentBox ? this.$refs.jfContentBox.textContent.trim() : '';
+            const formatted = this.getFormattedCodeForAi();
             if (!this.sourceContent.trim()) {
                 setInlineAiGuide(this.aiPanel, {
                     taskKey: 'explain-code',
-                    title: 'AI读代码',
+                    title: 'AI 解释代码',
                     subtitle: '请先粘贴代码。',
-                    result: '这个入口只在格式化后使用。先粘贴代码并点击“格式化”，再让 AI 解读代码意图和潜在问题。'
+                    result: '这个入口只在格式化后使用。先粘贴代码并点击“格式化”，再让 AI 解释代码作用、关键流程和潜在问题。'
+                });
+                return;
+            }
+            if (!formatted) {
+                setInlineAiGuide(this.aiPanel, {
+                    taskKey: 'explain-code',
+                    title: 'AI 解释代码',
+                    subtitle: '请先完成格式化。',
+                    result: 'AI 会基于格式化后的结果进行解释。请先点击“格式化”，确认右侧出现格式化结果后再使用。'
                 });
                 return;
             }
             runInlineToolAi(this.aiPanel, {
                 toolKey: 'code-beautify',
                 taskKey: 'explain-code',
-                title: 'AI读代码',
+                title: 'AI 解释代码',
                 subtitle: `${this.selectedType} 代码的意图和风险点。`,
-                instruction: '请基于格式化后的代码输出：1. 这段代码在做什么；2. 最多 5 个潜在问题或可读性建议；3. 如果存在明显错误，给出局部修正片段。不要重写整段代码，除非当前代码极短。',
+                instruction: [
+                    '请基于格式化后的代码做工具内解释，不要把用户引导到 AI 聊天页。',
+                    '输出结构：1. 代码作用；2. 关键流程；3. 最多 5 个风险或可读性建议；4. 如有明显错误，只给局部修正片段。',
+                    '不要重写整段代码，不要凭空补充业务背景。',
+                    'SQL 要关注条件、JOIN、排序和潜在性能；HTML/CSS 要关注结构、选择器和样式覆盖；JavaScript 要关注副作用、异常和兼容性。'
+                ].join('\n'),
                 inputLabel: '当前源代码',
                 input: this.sourceContent,
                 resultLabel: '当前格式化结果',
                 result: formatted,
-                outputHint: '输出保持紧凑，用短段落或编号列表即可。',
-                meta: {
-                    语言: this.selectedType
-                }
+                outputHint: '用 Markdown 输出，结论先行；局部修正用代码块；不要输出完整重写版本。',
+                meta: this.buildCodeAiMeta(formatted)
             });
         },
 

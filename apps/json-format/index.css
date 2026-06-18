@@ -53,6 +53,54 @@ html.fh-jf a:focus {
     text-decoration: none;
 }
 
+html.fh-jf a:focus,
+html.fh-jf button:focus,
+html.fh-jf [role="button"]:focus,
+html.fh-jf input[type="button"]:focus,
+html.fh-jf input[type="submit"]:focus,
+html.fh-jf input[type="reset"]:focus {
+    outline: none !important;
+    outline-offset: 0 !important;
+}
+
+@supports selector(:focus-visible) {
+    html.fh-jf a:focus:not(:focus-visible),
+    html.fh-jf button:focus:not(:focus-visible),
+    html.fh-jf [role="button"]:focus:not(:focus-visible),
+    html.fh-jf input[type="button"]:focus:not(:focus-visible),
+    html.fh-jf input[type="submit"]:focus:not(:focus-visible),
+    html.fh-jf input[type="reset"]:focus:not(:focus-visible) {
+        box-shadow: none !important;
+    }
+
+    html.fh-jf a:focus-visible,
+    html.fh-jf button:focus-visible,
+    html.fh-jf [role="button"]:focus-visible,
+    html.fh-jf input[type="button"]:focus-visible,
+    html.fh-jf input[type="submit"]:focus-visible,
+    html.fh-jf input[type="reset"]:focus-visible {
+        outline: none !important;
+    }
+
+    html.fh-jf a:focus-visible {
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 3px;
+    }
+
+    html.fh-jf button:focus-visible,
+    html.fh-jf [role="button"]:focus-visible,
+    html.fh-jf input[type="button"]:focus-visible,
+    html.fh-jf input[type="submit"]:focus-visible,
+    html.fh-jf input[type="reset"]:focus-visible,
+    html.fh-jf .fh-link-action:focus-visible,
+    html.fh-jf .fh-lite-support:focus-visible,
+    html.fh-jf .fh-brand:focus-visible {
+        box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.32) !important;
+        text-decoration: none;
+    }
+}
+
 [v-cloak] {
     display: none !important;
 }
@@ -195,7 +243,6 @@ html.fh-jf a:focus {
     white-space: nowrap;
 }
 
-.fh-pane-header p,
 .jsonpath-modal-header p {
     margin: 4px 0 0;
     color: var(--fh-muted);
@@ -610,6 +657,27 @@ html.fh-jf .fh-command-bar > .x-split {
     color: var(--fh-accent) !important;
 }
 
+html.fh-jf .fh-pane-actions > .fh-pane-tool-action,
+html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn {
+    height: 30px;
+    padding: 0 16px;
+    border-color: var(--fh-line-soft) !important;
+    border-radius: 999px;
+    background: #ffffff !important;
+    color: #536176 !important;
+    font-size: 13px;
+    font-weight: 760;
+}
+
+html.fh-jf .fh-pane-actions > .fh-pane-tool-action:hover,
+html.fh-jf .fh-pane-actions > .fh-pane-tool-action:focus,
+html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:hover,
+html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
+    border-color: var(--fh-line) !important;
+    background: var(--fh-surface-soft) !important;
+    color: var(--fh-text) !important;
+}
+
 .fh-workspace {
     flex: 1 1 auto;
     min-height: 0;
@@ -641,7 +709,8 @@ html.fh-jf .fh-command-bar > .x-split {
 }
 
 .fh-json-tool.fh-json-tool-lite {
-    gap: 8px;
+    padding: 4px 5px 5px;
+    gap: 5px;
 }
 
 .fh-top-shell.is-lite {
@@ -649,17 +718,17 @@ html.fh-jf .fh-command-bar > .x-split {
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-tool-header {
-    min-height: 54px;
-    padding: 8px 14px;
+    min-height: 38px;
+    padding: 4px 9px;
     align-items: center;
-    gap: 14px;
+    gap: 8px;
     border-bottom: 0;
     border-radius: var(--fh-radius);
     box-shadow: 0 10px 22px rgba(31, 42, 68, 0.05);
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-header-right {
-    gap: 12px;
+    gap: 7px;
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-header-actions {
@@ -674,7 +743,7 @@ html.fh-jf .fh-command-bar > .x-split {
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar {
-    gap: 8px;
+    gap: 5px;
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-header-actions .fh-link-action {
@@ -711,14 +780,18 @@ html.fh-jf .fh-command-bar > .x-split {
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-mode-switch {
-    padding: 1px;
+    padding: 0;
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-mode-switch button {
     min-width: 52px;
-    height: 26px;
-    padding: 0 12px;
+    height: 24px;
+    padding: 0 11px;
     font-size: 12px;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-lite-support {
+    height: 26px;
 }
 
 .fh-json-tool.fh-json-tool-lite .x-toolbar.fh-command-bar {
@@ -734,13 +807,13 @@ html.fh-jf .fh-command-bar > .x-split {
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar .fh-command-group {
-    min-height: 30px;
+    min-height: 28px;
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar .xjf-btn,
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #layoutBarLite button,
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar .fh-radio-pill span {
-    height: 26px;
+    height: 24px;
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #layoutBarLite button {
@@ -753,10 +826,6 @@ html.fh-jf .fh-command-bar > .x-split {
 
 .fh-json-tool.fh-json-tool-lite .fh-pane-header h2 {
     font-size: 17px;
-}
-
-.fh-json-tool.fh-json-tool-lite .fh-pane-header p {
-    max-width: 48ch;
 }
 
 .fh-pane {
@@ -784,13 +853,6 @@ html.fh-jf .fh-command-bar > .x-split {
     display: flex;
     align-items: baseline;
     gap: 8px;
-    white-space: nowrap;
-}
-
-.fh-pane-header p {
-    margin-top: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
@@ -832,8 +894,81 @@ html.fh-jf .fh-pane-ai-action.fh-ai-tool-btn:focus {
     box-shadow: 0 10px 22px rgba(37, 99, 235, 0.24);
 }
 
+html.fh-jf .fh-pane-ai-action.fh-ai-tool-btn:disabled {
+    border-color: var(--fh-line-soft) !important;
+    background: #eef2f7 !important;
+    color: var(--fh-muted) !important;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+html.fh-jf .fh-pane-ai-action.fh-ai-tool-btn:disabled:active {
+    transform: none;
+}
+
 .fh-pane-ai-action:active {
     transform: translateY(1px);
+}
+
+.fh-json-ai-actions {
+    min-width: 0;
+    height: 30px;
+    padding: 3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 999px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(239, 246, 255, 0.72)),
+        rgba(238, 245, 255, 0.72);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 8px 18px rgba(37, 99, 235, 0.08);
+    -webkit-backdrop-filter: blur(10px) saturate(145%);
+    backdrop-filter: blur(10px) saturate(145%);
+    white-space: nowrap;
+}
+
+.fh-json-ai-actions > span {
+    height: 22px;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    color: var(--fh-accent-strong);
+    font-size: 12px;
+    font-weight: 820;
+    line-height: 1;
+}
+
+.fh-json-ai-actions .fh-pane-ai-action {
+    height: 22px;
+    min-width: 0;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 12px;
+}
+
+html.fh-jf .fh-json-ai-actions .fh-pane-ai-action.fh-ai-tool-btn {
+    border-color: rgba(37, 99, 235, 0.14) !important;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(239, 246, 255, 0.78)) !important;
+    color: #2456c7 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 1px 2px rgba(37, 99, 235, 0.08);
+}
+
+html.fh-jf .fh-json-ai-actions .fh-pane-ai-action.fh-ai-tool-btn:hover,
+html.fh-jf .fh-json-ai-actions .fh-pane-ai-action.fh-ai-tool-btn:focus {
+    border-color: rgba(37, 99, 235, 0.3) !important;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(219, 234, 254, 0.88)) !important;
+    color: #1d4ed8 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        0 2px 6px rgba(37, 99, 235, 0.12);
 }
 
 .fh-pane-actions .fh-option-bar {
@@ -843,18 +978,6 @@ html.fh-jf .fh-pane-ai-action.fh-ai-tool-btn:focus {
 
 .fh-pane-actions .fh-option-bar:empty {
     display: none;
-}
-
-.fh-pane-actions > .xjf-btn,
-.fh-pane-actions .fh-option-bar .xjf-btn {
-    border-color: var(--fh-line-soft);
-    background: #ffffff;
-}
-
-.fh-pane-actions > .xjf-btn:hover,
-.fh-pane-actions .fh-option-bar .xjf-btn:hover {
-    border-color: var(--fh-line);
-    background: var(--fh-surface-soft);
 }
 
 .fh-pane-header h2 {
@@ -1514,6 +1637,63 @@ body.theme-dark .fh-input-pane .CodeMirror {
 
 body.theme-dark .fh-input-pane .CodeMirror-activeline-background {
     background: #1f2937;
+}
+
+body.theme-dark .fh-json-ai-actions {
+    border-color: rgba(147, 197, 253, 0.26);
+    background:
+        linear-gradient(180deg, rgba(30, 41, 59, 0.78), rgba(15, 23, 42, 0.68)),
+        rgba(37, 99, 235, 0.16);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+body.theme-dark .fh-json-ai-actions > span {
+    color: #bfdbfe;
+}
+
+body.theme-dark .fh-pane-actions > .fh-pane-tool-action,
+body.theme-dark .fh-pane-actions .fh-option-bar .xjf-btn {
+    border-color: rgba(148, 163, 184, 0.22) !important;
+    background: rgba(15, 23, 42, 0.62) !important;
+    color: #cbd5e1 !important;
+}
+
+body.theme-dark .fh-pane-actions > .fh-pane-tool-action:hover,
+body.theme-dark .fh-pane-actions > .fh-pane-tool-action:focus,
+body.theme-dark .fh-pane-actions .fh-option-bar .xjf-btn:hover,
+body.theme-dark .fh-pane-actions .fh-option-bar .xjf-btn:focus {
+    border-color: rgba(148, 163, 184, 0.36) !important;
+    background: rgba(30, 41, 59, 0.8) !important;
+    color: #f8fafc !important;
+}
+
+body.theme-dark .fh-json-ai-actions .fh-pane-ai-action.fh-ai-tool-btn {
+    border-color: rgba(147, 197, 253, 0.18) !important;
+    background:
+        linear-gradient(180deg, rgba(30, 41, 59, 0.88), rgba(15, 23, 42, 0.76)) !important;
+    color: #dbeafe !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 1px 2px rgba(0, 0, 0, 0.16);
+}
+
+body.theme-dark .fh-json-ai-actions .fh-pane-ai-action.fh-ai-tool-btn:hover,
+body.theme-dark .fh-json-ai-actions .fh-pane-ai-action.fh-ai-tool-btn:focus {
+    border-color: rgba(147, 197, 253, 0.34) !important;
+    background:
+        linear-gradient(180deg, rgba(51, 65, 85, 0.9), rgba(30, 41, 59, 0.82)) !important;
+    color: #eff6ff !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+body.theme-dark .fh-pane-ai-action.fh-ai-tool-btn:disabled {
+    border-color: rgba(148, 163, 184, 0.22) !important;
+    background: rgba(30, 41, 59, 0.72) !important;
+    color: #94a3b8 !important;
 }
 
 body.theme-dark .fh-input-pane .CodeMirror-selected {

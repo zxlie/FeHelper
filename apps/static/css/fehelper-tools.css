@@ -1258,6 +1258,63 @@ body.fh-modern button:active {
     transform: translateY(1px);
 }
 
+body.fh-modern a:focus,
+body.fh-modern button:focus,
+body.fh-modern .btn:focus,
+body.fh-modern [role="button"]:focus,
+body.fh-modern input[type="button"]:focus,
+body.fh-modern input[type="submit"]:focus,
+body.fh-modern input[type="reset"]:focus {
+    outline: none !important;
+    outline-offset: 0 !important;
+}
+
+@supports selector(:focus-visible) {
+    body.fh-modern a:focus:not(:focus-visible),
+    body.fh-modern button:focus:not(:focus-visible),
+    body.fh-modern .btn:focus:not(:focus-visible),
+    body.fh-modern [role="button"]:focus:not(:focus-visible),
+    body.fh-modern input[type="button"]:focus:not(:focus-visible),
+    body.fh-modern input[type="submit"]:focus:not(:focus-visible),
+    body.fh-modern input[type="reset"]:focus:not(:focus-visible) {
+        box-shadow: none !important;
+    }
+
+    body.fh-modern a:focus-visible,
+    body.fh-modern button:focus-visible,
+    body.fh-modern .btn:focus-visible,
+    body.fh-modern [role="button"]:focus-visible,
+    body.fh-modern input[type="button"]:focus-visible,
+    body.fh-modern input[type="submit"]:focus-visible,
+    body.fh-modern input[type="reset"]:focus-visible {
+        outline: none !important;
+    }
+
+    body.fh-modern a:focus-visible {
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 3px;
+    }
+
+    body.fh-modern button:focus-visible,
+    body.fh-modern .btn:focus-visible,
+    body.fh-modern [role="button"]:focus-visible,
+    body.fh-modern input[type="button"]:focus-visible,
+    body.fh-modern input[type="submit"]:focus-visible,
+    body.fh-modern input[type="reset"]:focus-visible,
+    body.fh-modern .example-links a:focus-visible,
+    body.fh-modern .x-toolbox a:focus-visible,
+    body.fh-modern .x-other-tools:focus-visible,
+    body.fh-modern .x-donate-link:focus-visible,
+    body.fh-modern .x-donate-link > a:focus-visible,
+    body.fh-modern .x-switch:focus-visible,
+    body.fh-modern .fh-nav-btn:focus-visible,
+    body.fh-modern .x-xdemo:focus-visible {
+        box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.32) !important;
+        text-decoration: none;
+    }
+}
+
 body.fh-modern .btn-primary,
 body.fh-modern .btn-success,
 body.fh-modern .btn-info {

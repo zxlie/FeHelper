@@ -41,12 +41,19 @@ describe('options page UX policy', () => {
 
     it('frames the options page as a control console, not only a marketplace', () => {
         const optionsHtml = readSource('apps/options/index.html');
+        const optionsCss = readSource('apps/options/index.css');
 
         expect(optionsHtml).toContain('<title>FeHelper-控制台</title>');
-        expect(optionsHtml).toContain("{{ uiMode === 'lite' ? 'FeHelper Lite 控制台' : 'FeHelper 控制台' }}");
-        expect(optionsHtml).toContain('统一管理 popup、右键菜单、外观和权限');
+        expect(optionsHtml).toContain("{{ uiMode === 'lite' ? 'Lite 控制台' : '开发者工具控制台' }}");
         expect(optionsHtml).toContain("['fh-workspace-grid', uiMode === 'lite' ? 'is-lite' : 'is-omni']");
         expect(optionsHtml).toContain('class="fh-context-rail" v-if="uiMode === \'omni\'"');
+        expect(optionsCss).toContain('grid-template-columns: 248px minmax(0, 1fr);');
+        expect(optionsCss).toContain('white-space: nowrap;');
+        expect(optionsCss).not.toContain('grid-template-columns: 228px minmax(0, 1fr);');
+        expect(optionsHtml).not.toContain('class="fh-hero');
+        expect(optionsHtml).not.toContain('fh-hero-stats');
+        expect(optionsHtml).not.toContain('Extension console');
+        expect(optionsHtml).not.toContain('Focused workspace');
         expect(optionsHtml.indexOf('class="fh-tools-panel"')).toBeLessThan(optionsHtml.indexOf('class="fh-context-rail" v-if="uiMode === \'omni\'"'));
     });
 
@@ -87,30 +94,26 @@ describe('options page UX policy', () => {
         expect(statusCardTitle).not.toContain('建议优先使用 FeHelper AI');
     });
 
-    it('lets users hide and restore the popup AI router', () => {
+    it('keeps the removed popup AI router out of popup and settings', () => {
         const popupHtml = readSource('apps/popup/index.html');
         const popupSource = readSource('apps/popup/index.js');
+        const manifest = JSON.parse(readSource('apps/manifest.json'));
         const optionsSource = readSource('apps/options/index.js');
         const optionsHtml = readSource('apps/options/index.html');
         const settingsSource = readSource('apps/options/settings.js');
-        const popupControls = sourceBetween(popupHtml, 'class="fh-ai-router-controls"', '</div>');
-        const routerVisibility = sourceBetween(popupSource, 'shouldShowAiRouter() {', 'aiRouterStatusText()');
         const saveSettingsBlock = sourceBetween(optionsSource, '// 构建设置对象', 'opts = this.normalizeDarkModeOptions(opts);');
 
-        expect(popupControls).not.toContain('inspectSearchInput');
-        expect(popupControls).toContain('@click="inspectClipboard"');
-        expect(popupControls).toContain('@click="disableAiRouter"');
-        expect(popupControls).toContain('禁用');
-        expect(popupSource).toContain("const POPUP_AI_ROUTER_ENABLED = 'POPUP_AI_ROUTER_ENABLED';");
-        expect(popupSource).toContain("[POPUP_AI_ROUTER_ENABLED]: 'false'");
-        expect(routerVisibility).toContain('this.popupAiRouterReady');
-        expect(routerVisibility).toContain('this.popupAiRouterEnabled');
-        expect(routerVisibility).toContain("this.aiRouter.modelStatus === 'available'");
-        expect(routerVisibility).toContain('this.isAiAssistantEnabled');
-        expect(optionsHtml).toContain('id="POPUP_AI_ROUTER_ENABLED"');
-        expect(optionsHtml).toContain('在 popup 显示智能识别');
-        expect(settingsSource).toContain("'POPUP_AI_ROUTER_ENABLED': true");
-        expect(saveSettingsBlock).toContain("'POPUP_AI_ROUTER_ENABLED'");
+        expect(popupHtml).not.toContain('fh-ai-router');
+        expect(popupHtml).not.toContain('智能识别');
+        expect(popupHtml).not.toContain('剪贴板');
+        expect(popupSource).not.toContain('aiRouter');
+        expect(popupSource).not.toContain('POPUP_AI_ROUTER_ENABLED');
+        expect(popupSource).not.toContain('navigator.clipboard');
+        expect(manifest.permissions).not.toContain('clipboardRead');
+        expect(optionsHtml).not.toContain('id="POPUP_AI_ROUTER_ENABLED"');
+        expect(optionsHtml).not.toContain('在 popup 显示智能识别');
+        expect(settingsSource).not.toContain("'POPUP_AI_ROUTER_ENABLED'");
+        expect(saveSettingsBlock).not.toContain("'POPUP_AI_ROUTER_ENABLED'");
     });
 
     it('gives modal dialogs semantic roles and keyboard handling', () => {

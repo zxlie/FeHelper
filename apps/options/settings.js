@@ -15,7 +15,6 @@ export default (() => {
         'AUTO_DARK_MODE': false,
         'ALWAYS_DARK_MODE': false,
         'CONTENT_SCRIPT_ALLOW_ALL_FRAMES': false,
-        'POPUP_AI_ROUTER_ENABLED': true,
         'FORBID_STATISTICS': false
     };
 

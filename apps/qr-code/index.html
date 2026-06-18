@@ -40,6 +40,7 @@
                         <textarea class="form-control mod-textarea" id="codeSource" ref="codeSource" v-model="textContent" placeholder="输入链接、文本，或描述 Wi-Fi / 名片 / 日程二维码"></textarea>
                         <div class="qr-recipe-row" v-show="codeType==='qrcode'">
                             <button type="button" v-for="recipe in qrRecipes" :key="recipe.key" @click="useQrRecipe(recipe)">{{recipe.label}}</button>
+                            <button type="button" class="fh-ai-tool-btn qr-ai-build-btn" @click="askAiForQrPayload">AI 生成内容</button>
                         </div>
                     </section>
 
@@ -103,7 +104,7 @@
                         <div id="preview"><svg id="barcodeSvg" style="display:none"></svg></div>
                     </section>
                 </div>
-                <section class="fh-inline-ai-panel qr-ai-panel qr-ai-panel-below" v-if="aiPanel.visible && aiPanel.taskKey === 'audit-qr'">
+                <section class="fh-inline-ai-panel qr-ai-panel qr-ai-panel-below" v-if="aiPanel.visible && (aiPanel.taskKey === 'audit-qr' || aiPanel.taskKey === 'build-payload')">
                     <div class="fh-inline-ai-head">
                         <div class="fh-inline-ai-title">
                             <strong>{{aiPanel.title}}</strong>
@@ -111,6 +112,7 @@
                         </div>
                         <div class="fh-inline-ai-actions">
                             <button type="button" @click="copyAiResult" :disabled="!aiPanel.result">复制</button>
+                            <button type="button" class="fh-inline-ai-apply" v-if="aiPanel.canApply" @click="applyAiPanelResult" :disabled="!aiPanel.result || aiPanel.loading">{{aiPanel.applyLabel}}</button>
                             <button type="button" class="fh-inline-ai-close" @click="closeAiPanel" aria-label="关闭">&times;</button>
                         </div>
                     </div>

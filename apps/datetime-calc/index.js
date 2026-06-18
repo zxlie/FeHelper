@@ -331,6 +331,9 @@ var TimestampApp = {
         
         // 初始化界面
         this.initUI();
+
+        // 读取右键菜单传入的选中文本或页面上下文
+        this.loadContextMenuContent();
         
         // 启动时间更新
         this.startTimeUpdates();
@@ -554,6 +557,39 @@ var TimestampApp = {
         
         // 初始化时间显示
         this.updateTimeDisplay();
+    },
+
+    loadContextMenuContent: function() {
+        if (location.protocol !== 'chrome-extension:' || !window.chrome || !chrome.tabs || !chrome.runtime) {
+            return;
+        }
+
+        chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
+            var activeTab = tabs && tabs.filter(tab => tab.active)[0];
+            if (!activeTab) return;
+
+            chrome.runtime.sendMessage({
+                type: 'fh-dynamic-any-thing',
+                thing: 'request-page-content',
+                tabId: activeTab.id
+            }).then(resp => {
+                if (!resp || !resp.content) return;
+                this.applySmartParserInput(resp.content);
+            }).catch(() => {});
+        });
+    },
+
+    applySmartParserInput: function(content) {
+        var value = String(content || '').trim();
+        if (!value) return;
+
+        this.setActiveTab('smart-parser');
+        var smartInput = DOMUtils.$('.smart-input');
+        if (smartInput) {
+            smartInput.value = value;
+        }
+        AppState.smartParser.input = value;
+        this.parseSmartTime();
     },
     
     // 设置活跃标签页

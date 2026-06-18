@@ -224,7 +224,9 @@ function createInlineAiState() {
         result: '',
         error: '',
         canApply: false,
-        applyLabel: '应用结果'
+        applyLabel: '应用结果',
+        sourceSnapshot: '',
+        localOnly: true
     };
 }
 
@@ -326,6 +328,8 @@ async function runInlineToolAi(state, request = {}) {
         result: request.initialResult || '',
         canApply: !!request.canApply,
         applyLabel: request.applyLabel || '应用结果',
+        sourceSnapshot: request.sourceSnapshot || '',
+        localOnly: request.localOnly !== false,
         statusText: request.initialResult ? '已完成本地诊断，正在生成 AI 解释' : '正在准备本机 AI'
     });
 

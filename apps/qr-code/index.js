@@ -4,11 +4,14 @@
 import {
     copyInlineAiResult,
     createInlineAiState,
+    extractFirstCodeBlock,
+    getInlineAiTaskFromUrl,
     renderInlineMarkdown,
     resetInlineAiState,
     runInlineToolAi,
     setInlineAiGuide
 } from '../aiagent/fh.ai-inline.js';
+import { buildQrContentFromDescription } from './fh.qr-content-utils.js';
 
 function syncQrPageDarkMode(enabled) {
     document.body.classList.toggle('theme-dark', !!enabled);
@@ -113,13 +116,14 @@ new Vue({
         })
 
         this.loadPatchHotfix();
+        this.handleInlineAiLaunch();
     },
     computed: {
         aiPanelResultHtml() {
             return renderInlineMarkdown(this.aiPanel.result);
         },
         aiPanelInputSource() {
-            if (this.aiPanel.taskKey === 'audit-qr') {
+            if (this.aiPanel.taskKey === 'audit-qr' || this.aiPanel.taskKey === 'build-payload') {
                 return this.textContent;
             }
             if (this.aiPanel.taskKey === 'inspect-decode') {
@@ -434,6 +438,120 @@ new Vue({
             copyInlineAiResult(this.aiPanel);
         },
 
+        applyAiPanelResult: function() {
+            if (this.aiPanel.taskKey !== 'build-payload') {
+                this.aiPanel.statusText = '当前 AI 结果只用于参考';
+                return;
+            }
+            const payload = extractFirstCodeBlock(this.aiPanel.result, 'text') ||
+                extractFirstCodeBlock(this.aiPanel.result) ||
+                '';
+            if (!payload.trim()) {
+                this.aiPanel.statusText = '没有找到可应用的二维码内容';
+                return;
+            }
+            this.codeType = 'qrcode';
+            this.textContent = payload.trim();
+            this.convert();
+            this.aiPanel.statusText = '已写入待生成内容并重新生成';
+        },
+
+        handleInlineAiLaunch: function() {
+            const task = getInlineAiTaskFromUrl();
+            if (!task) return;
+            if (task === 'build-payload') {
+                this.qrEncodeMode = true;
+                setInlineAiGuide(this.aiPanel, {
+                    taskKey: 'build-payload',
+                    title: '二维码内容助手',
+                    subtitle: '把自然语言转换成标准二维码内容。',
+                    result: '输入 Wi-Fi、名片、日程、短信、邮件或位置需求后，点击“AI 生成内容”。AI 会输出可扫码的标准内容，可一键应用到二维码生成。'
+                });
+                return;
+            }
+            if (task === 'inspect-decode') {
+                this.qrEncodeMode = false;
+                setInlineAiGuide(this.aiPanel, {
+                    taskKey: 'inspect-decode',
+                    title: 'AI 识别内容',
+                    subtitle: '解码后识别类型、字段和风险。',
+                    result: '上传或粘贴二维码图片，得到解码文本后点击“AI 识别”。图片不会发送给 AI，只分析解码后的文本。'
+                });
+                return;
+            }
+            if (task === 'audit-qr') {
+                setInlineAiGuide(this.aiPanel, {
+                    taskKey: 'audit-qr',
+                    title: 'AI 扫码体检',
+                    subtitle: '检查内容、尺寸、颜色和图标遮挡。',
+                    result: '生成二维码后点击“AI 体检”，AI 会基于当前内容和参数给出可扫性建议。'
+                });
+            }
+        },
+
+        askAiForQrPayload: function() {
+            if (!this.textContent.trim()) {
+                setInlineAiGuide(this.aiPanel, {
+                    taskKey: 'build-payload',
+                    title: '二维码内容助手',
+                    subtitle: '先描述你要生成的二维码。',
+                    result: '可以输入：生成 Wi-Fi 二维码：SSID=office，密码=12345678，加密=WPA。也可以描述名片、日程、短信、邮件或位置二维码。'
+                });
+                return;
+            }
+            const localResult = buildQrContentFromDescription(this.textContent);
+            if (localResult && localResult.content) {
+                setInlineAiGuide(this.aiPanel, {
+                    taskKey: 'build-payload',
+                    title: '二维码内容助手',
+                    subtitle: '已根据描述生成标准二维码内容。',
+                    statusText: '本地生成完成',
+                    result: [
+                        localResult.summary || '已生成二维码内容。',
+                        '```text',
+                        localResult.content,
+                        '```'
+                    ].join('\n'),
+                    canApply: true,
+                    applyLabel: '应用内容'
+                });
+                return;
+            }
+            if (localResult && localResult.missing && localResult.missing.length) {
+                setInlineAiGuide(this.aiPanel, {
+                    taskKey: 'build-payload',
+                    title: '二维码内容助手',
+                    subtitle: '还缺少必要信息。',
+                    statusText: '需要补充信息',
+                    result: `请补充：${localResult.missing.join('、')}。补充后再点击“AI 生成内容”。`
+                });
+                return;
+            }
+            runInlineToolAi(this.aiPanel, {
+                toolKey: 'qr-code',
+                taskKey: 'build-payload',
+                title: '二维码内容助手',
+                subtitle: '生成可直接写入二维码的标准内容。',
+                instruction: [
+                    '请把用户的自然语言需求转换成标准二维码内容。',
+                    '支持并优先使用这些标准格式：Wi-Fi 使用 WIFI:S:<ssid>;T:<WPA|WEP|nopass>;P:<password>;;，名片使用 vCard 3.0，日程使用 VCALENDAR/VEVENT，短信使用 sms:<number>?body=<percent-encoded-message>，电话使用 tel，邮件使用 mailto，坐标位置使用 geo:<lat>,<lng>，地址位置使用地图搜索 URL。',
+                    '如果用户已经写出 SSID=xxx、密码=xxx、加密=xxx，必须直接使用这些字段值，不要输出 <SSID>、<password> 这类占位符，也不要误报字段缺失。',
+                    '不要编造用户未提供的字段；缺失字段请在内容前用一句话说明需要用户补充。最终可用内容必须放进 ```text 代码块。'
+                ].join('\n'),
+                inputLabel: '用户描述',
+                input: this.textContent,
+                resultLabel: '当前二维码参数',
+                result: '',
+                outputHint: '先给一句生成说明，再给一个 ```text 代码块。代码块里只放最终二维码内容。',
+                canApply: true,
+                applyLabel: '应用内容',
+                meta: {
+                    当前模式: this.qrEncodeMode ? '生成' : '解码',
+                    类型: this.codeType
+                }
+            });
+        },
+
         askAiForDecodedResult: function() {
             if (!this.resultContent) {
                 setInlineAiGuide(this.aiPanel, {
@@ -476,9 +594,9 @@ new Vue({
                 toolKey: 'qr-code',
                 taskKey: 'audit-qr',
                 title: 'AI 扫码体检',
-                subtitle: '检查当前载荷和参数是否容易被扫码。',
+                subtitle: '检查当前内容和参数是否容易被扫码。',
                 instruction: '请检查当前二维码或条形码的可扫性。重点判断内容长度、格式是否标准、颜色对比是否足够、图标是否可能遮挡、尺寸是否合理，以及条形码格式是否匹配输入。不要改写内容，给出可执行的调整建议。',
-                inputLabel: '当前载荷',
+                inputLabel: '当前内容',
                 input: this.textContent,
                 resultLabel: '当前参数',
                 result: '',

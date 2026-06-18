@@ -99,39 +99,6 @@
     </aside>
 
     <main class="fh-main">
-        <header :class="['fh-hero', uiMode === 'lite' ? 'is-lite' : 'is-omni']">
-            <div>
-                <p class="fh-eyebrow">{{ uiMode === 'lite' ? 'Focused workspace' : 'Extension console' }}</p>
-                <h1>{{ uiMode === 'lite' ? 'FeHelper Lite 控制台' : 'FeHelper 控制台' }}</h1>
-                <p>{{ uiMode === 'lite' ? '只保留高频配置和工具管理，减少 AI、推荐和运营信息干扰。' : '搜索、安装和整理工具，统一管理 popup、右键菜单、外观和权限。' }}</p>
-            </div>
-            <div class="fh-hero-aside">
-                <div class="fh-hero-stats" aria-label="工具统计" v-if="uiMode === 'omni'">
-                    <div>
-                        <span>全部</span>
-                        <strong>{{Object.keys(originalTools).length}}</strong>
-                    </div>
-                    <div>
-                        <span>已安装</span>
-                        <strong>{{installedCount}}</strong>
-                    </div>
-                    <div>
-                        <span>收藏</span>
-                        <strong>{{getFavoritesCount()}}</strong>
-                    </div>
-                    <div>
-                        <span>最近</span>
-                        <strong>{{recentCount}}</strong>
-                    </div>
-                </div>
-                <div class="fh-lite-summary" v-else>
-                    <span>已安装 {{installedCount}}</span>
-                    <span>收藏 {{getFavoritesCount()}}</span>
-                    <span>最近 {{recentCount}}</span>
-                </div>
-            </div>
-        </header>
-
         <div :class="['fh-workspace-grid', uiMode === 'lite' ? 'is-lite' : 'is-omni']">
             <section class="fh-tools-panel">
             <div class="fh-toolbar">
@@ -428,14 +395,6 @@
                                 </span>
                             </label>
 
-                            <label class="setting-toggle-row" for="POPUP_AI_ROUTER_ENABLED">
-                                <input class="setting-switch-input" type="checkbox" value="POPUP_AI_ROUTER_ENABLED" id="POPUP_AI_ROUTER_ENABLED" v-model="selectedOpts"/>
-                                <span class="setting-switch" aria-hidden="true"></span>
-                                <span class="setting-copy">
-                                    <strong>在 popup 显示智能识别</strong>
-                                    <small>仅在 AI 助手已安装且 Gemini Nano 已可用时显示；关闭后可在这里重新开启。</small>
-                                </span>
-                            </label>
                         </div>
                     </section>
 

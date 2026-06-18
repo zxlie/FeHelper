@@ -385,6 +385,13 @@ form {
     font-size: 12px;
 }
 
+.qr-ai-build-btn {
+    height: 28px;
+    padding: 0 10px;
+    font-size: 12px;
+    line-height: 1;
+}
+
 /* Style for successful copy */
 .btn-action-success {
     background-color: #28a745 !important; /* Green background */

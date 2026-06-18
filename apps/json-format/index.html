@@ -129,7 +129,6 @@
                     <div class="fh-pane-header">
                         <div>
                             <h2>输入</h2>
-                            <p>粘贴 JSON、JSONP 或转义 JSON。</p>
                         </div>
                     </div>
                     <div class="row panel-txt">
@@ -141,13 +140,19 @@
                     <div class="fh-pane-header">
                         <div>
                             <h2>解析结果</h2>
-                            <p>{{resultPaneHint}}</p>
                         </div>
                         <div class="fh-pane-actions">
-                            <button type="button" class="fh-pane-ai-action fh-ai-tool-btn" v-if="errorMsg" @click="askAiForJsonRepair">AI 修复</button>
+                            <button type="button" class="fh-pane-ai-action fh-ai-tool-btn" v-if="errorMsg && canUseJsonLocalAi" @click="askAiForJsonRepair" :disabled="jsonAiControlDisabled" :title="jsonAiStatusText">AI 修复</button>
                             <template v-else>
-                                <button type="button" class="xjf-btn fh-jsonpath-trigger" v-if="jsonActionReady" @click="openJsonPathModal">提取</button>
-                                <button type="button" class="xjf-btn fh-jsonpath-trigger" v-if="tableViewReady" @click="openTableViewModal">表格</button>
+                                <div class="fh-json-ai-actions" v-if="jsonActionReady && canUseJsonLocalAi" aria-label="JSON AI 生成">
+                                    <span>AI</span>
+                                    <button type="button" class="fh-pane-ai-action fh-ai-tool-btn" title="检查字段类型、nullable 和数组一致性" @click="askAiForJsonDerivedOutput('structure')" :disabled="jsonAiControlDisabled">体检</button>
+                                    <button type="button" class="fh-pane-ai-action fh-ai-tool-btn" title="生成 TypeScript 类型" @click="askAiForJsonDerivedOutput('typescript')" :disabled="jsonAiControlDisabled">TS 类型</button>
+                                    <button type="button" class="fh-pane-ai-action fh-ai-tool-btn" title="生成 JSON Schema" @click="askAiForJsonDerivedOutput('schema')" :disabled="jsonAiControlDisabled">Schema</button>
+                                    <button type="button" class="fh-pane-ai-action fh-ai-tool-btn" title="生成 Zod Schema" @click="askAiForJsonDerivedOutput('zod')" :disabled="jsonAiControlDisabled">Zod</button>
+                                </div>
+                                <button type="button" class="xjf-btn fh-jsonpath-trigger fh-pane-tool-action" v-if="jsonActionReady" @click="openJsonPathModal">提取</button>
+                                <button type="button" class="xjf-btn fh-jsonpath-trigger fh-pane-tool-action" v-if="tableViewReady" @click="openTableViewModal">表格</button>
                                 <span id="optionBar" class="fh-option-bar" v-show="jsonActionReady"></span>
                             </template>
                         </div>

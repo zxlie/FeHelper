@@ -200,9 +200,27 @@ let BgPageInstance = (function () {
                 let found = tabs.some(tab => {
                     if (isInjectableTabUrl(tab.url)) {
                         let funcName = toolFunc + 'NoPage';
-                        InjectTools.inject(tab.id, {
-                            func: (fn, t) => { window[fn] && window[fn](t); },
-                            args: [funcName, tab]
+                        let initFuncName = toolFunc + 'ContentScript';
+                        let invokeConfig = {
+                            func: (initFn, fn, t) => {
+                                try {
+                                    if (typeof window[fn] !== 'function' && typeof window[initFn] === 'function') {
+                                        window[initFn]();
+                                    }
+                                    if (typeof window[fn] === 'function') {
+                                        window[fn](t);
+                                    }
+                                } catch (e) {}
+                            },
+                            args: [initFuncName, funcName, tab]
+                        };
+                        Awesome.getInstalledTools().then(tools => {
+                            if (tools[tool] && tools[tool].contentScriptJs) {
+                                invokeConfig.files = _getContentScriptFiles(tool);
+                            }
+                            InjectTools.inject(tab.id, invokeConfig);
+                        }).catch(() => {
+                            InjectTools.inject(tab.id, invokeConfig);
                         });
                         return true;
                     }

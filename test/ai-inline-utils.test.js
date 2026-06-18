@@ -2,12 +2,20 @@ import { describe, expect, it } from 'vitest';
 import {
     buildToolAiMessages,
     clipTextForPrompt,
+    createInlineAiState,
     extractFirstCodeBlock,
     extractJsonCandidate,
     renderInlineMarkdown
 } from '../apps/aiagent/fh.ai-inline.js';
 
 describe('AI inline helper', () => {
+    it('tracks local-only source snapshots for apply-safe inline tasks', () => {
+        expect(createInlineAiState()).toEqual(expect.objectContaining({
+            sourceSnapshot: '',
+            localOnly: true
+        }));
+    });
+
     it('builds tool-aware system and user messages', () => {
         const messages = buildToolAiMessages('json-format', {
             title: '解释并修复 JSON 错误',
@@ -24,6 +32,8 @@ describe('AI inline helper', () => {
         expect(messages).toHaveLength(2);
         expect(messages[0].role).toBe('system');
         expect(messages[0].content).toContain('FeHelper 的 JSON 自动化助手');
+        expect(messages[0].content).toContain('TypeScript 类型');
+        expect(messages[0].content).toContain('Zod Schema');
         expect(messages[0].content).toContain('工具内联 AI 规则');
         expect(messages[1].content).toContain('请修复当前 JSON。');
         expect(messages[1].content).toContain('## 输入');
@@ -31,18 +41,18 @@ describe('AI inline helper', () => {
         expect(messages[1].content).toContain('- JSONLint: 开启');
     });
 
-    it('builds QR payload-aware messages', () => {
+    it('builds QR content-aware messages', () => {
         const messages = buildToolAiMessages('qr-code', {
-            title: 'AI 生成载荷',
-            instruction: '请转换成标准二维码载荷。',
+            title: 'AI 生成内容',
+            instruction: '请转换成标准二维码内容。',
             input: '生成 Wi-Fi 二维码：SSID=office，密码=12345678，加密=WPA。',
             outputHint: '必须包含一个 text 代码块。'
         });
 
-        expect(messages[0].content).toContain('标准二维码载荷');
+        expect(messages[0].content).toContain('可扫码的标准内容');
         expect(messages[0].content).toContain('Wi-Fi');
         expect(messages[0].content).toContain('vCard');
-        expect(messages[1].content).toContain('请转换成标准二维码载荷。');
+        expect(messages[1].content).toContain('请转换成标准二维码内容。');
     });
 
     it('clips long context while preserving head and tail', () => {

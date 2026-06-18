@@ -55,7 +55,10 @@ describe('json-format settings regression guards', () => {
         expect(html).toContain("@click=\"setUiMode('omni')\"");
         expect(css).toContain('.fh-top-shell.is-lite');
         expect(css).toContain('.fh-json-tool.fh-json-tool-lite .fh-tool-header');
+        expect(css).toContain('.fh-json-tool.fh-json-tool-lite {\n    padding: 4px 5px 5px;\n    gap: 5px;');
+        expect(css).toContain('.fh-json-tool.fh-json-tool-lite .fh-tool-header {\n    min-height: 38px;\n    padding: 4px 9px;');
         expect(css).toContain('.fh-json-tool.fh-json-tool-lite .fh-mode-note');
+        expect(css).toContain('.fh-json-tool.fh-json-tool-lite .fh-lite-support {\n    height: 26px;');
         expect(css).toContain('.fh-header-right-omni');
         expect(css).toContain('.fh-toolbar-tail-omni');
         expect(css).toContain('.fh-header-tail-omni');

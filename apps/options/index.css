@@ -255,7 +255,6 @@ html.dark-mode .fh-sidebar {
 
 .fh-version-card,
 .fh-side-section,
-.fh-hero,
 .fh-ai-console,
 .fh-recommendations,
 .fh-tools-panel,
@@ -268,14 +267,12 @@ html.dark-mode .fh-sidebar {
 
 html[dark-mode="on"] .fh-version-card,
 html[dark-mode="on"] .fh-side-section,
-html[dark-mode="on"] .fh-hero,
 html[dark-mode="on"] .fh-ai-console,
 html[dark-mode="on"] .fh-recommendations,
 html[dark-mode="on"] .fh-tools-panel,
 html[dark-mode="on"] .settings-dialog,
 html.dark-mode .fh-version-card,
 html.dark-mode .fh-side-section,
-html.dark-mode .fh-hero,
 html.dark-mode .fh-ai-console,
 html.dark-mode .fh-recommendations,
 html.dark-mode .fh-tools-panel,
@@ -450,6 +447,9 @@ html.dark-mode .fh-side-actions .fh-side-action.is-donate {
     font-size: 14px;
     font-weight: 820;
     line-height: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .fh-action-copy small {
@@ -537,45 +537,6 @@ html.dark-mode .fh-side-actions .fh-side-action.is-donate {
     transform: scale(0.985);
 }
 
-.fh-hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
-    gap: 20px;
-    align-items: end;
-    padding: 20px 22px;
-}
-
-.fh-hero-aside {
-    display: grid;
-    gap: 14px;
-    align-content: end;
-}
-
-.fh-hero.is-lite {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-}
-
-.fh-lite-summary {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 8px;
-}
-
-.fh-lite-summary span {
-    min-height: 32px;
-    padding: 0 12px;
-    display: inline-flex;
-    align-items: center;
-    border: 1px solid var(--fh-line-soft);
-    border-radius: 999px;
-    background: var(--fh-surface-soft);
-    color: var(--fh-muted);
-    font-size: 12px;
-    font-weight: 700;
-}
-
 .fh-eyebrow {
     margin: 0 0 8px;
     font-size: 11px;
@@ -584,7 +545,6 @@ html.dark-mode .fh-side-actions .fh-side-action.is-donate {
     letter-spacing: 0.04em;
 }
 
-.fh-hero h1,
 .fh-section-head h2,
 .fh-table-head h2,
 .settings-header h3 {
@@ -593,56 +553,9 @@ html.dark-mode .fh-side-actions .fh-side-action.is-donate {
     letter-spacing: 0;
 }
 
-.fh-hero h1 {
-    font-size: 30px;
-    line-height: 36px;
-    font-weight: 780;
-}
-
-.fh-hero p:last-child {
-    max-width: 58ch;
-    margin: 8px 0 0;
-    color: var(--fh-muted);
-    font-size: 14px;
-    line-height: 22px;
-}
-
-.fh-hero-stats {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1px;
-    overflow: hidden;
-    border: 1px solid var(--fh-line-soft);
-    border-radius: var(--fh-radius);
-    background: var(--fh-line-soft);
-}
-
-.fh-hero-stats div {
-    display: grid;
-    gap: 6px;
-    padding: 12px;
-    background: var(--fh-surface-soft);
-}
-
-.fh-hero-stats span {
-    color: var(--fh-subtle);
-    font-size: 11px;
-    font-weight: 700;
-}
-
-.fh-hero-stats strong {
-    color: var(--fh-text);
-    font-size: 22px;
-    line-height: 26px;
-}
-
 .fh-recommendations,
 .fh-tools-panel {
     padding: 18px;
-}
-
-.fh-console-lite {
-    grid-template-columns: 228px minmax(0, 1fr);
 }
 
 .fh-console-lite .fh-sidebar {
@@ -653,21 +566,6 @@ html.dark-mode .fh-side-actions .fh-side-action.is-donate {
 .fh-console-lite .fh-main {
     gap: 12px;
     padding: 16px;
-}
-
-.fh-console-lite .fh-hero {
-    padding: 16px 18px;
-}
-
-.fh-console-lite .fh-hero h1 {
-    font-size: 24px;
-    line-height: 30px;
-}
-
-.fh-console-lite .fh-hero p:last-child {
-    margin-top: 6px;
-    font-size: 13px;
-    line-height: 20px;
 }
 
 .fh-console-lite .fh-tools-panel {
@@ -1924,7 +1822,6 @@ html.dark-mode .fh-ai-feature-card {
 
 @media (max-width: 860px) {
     .fh-sidebar,
-    .fh-hero,
     .fh-toolbar,
     .fh-ai-console-main,
     .fh-ai-status-card,
@@ -1990,10 +1887,6 @@ html.dark-mode .fh-ai-feature-card {
 
     .fh-ai-feature-card small {
         display: -webkit-box;
-    }
-
-    .fh-hero-stats {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .tool-card,

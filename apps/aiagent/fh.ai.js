@@ -34,7 +34,7 @@ const SYSTEM_PROMPT = {
         '如果生成的是代码，一定要用```的markdown代码块包裹，并使用markdown语法渲染。'
 };
 
-const BUILTIN_TEXT_LANGUAGES = ['en', 'ja', 'es'];
+const BUILTIN_TEXT_LANGUAGES = ['en', 'ja', 'es', 'de', 'fr'];
 
 let AI = (() => {
 
