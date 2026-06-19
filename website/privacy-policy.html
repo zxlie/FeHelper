@@ -57,7 +57,8 @@
 
                     <h2>3. 权限说明</h2>
                     <ul>
-                        <li>工具仅申请实现核心功能所需的最小权限。例如，部分功能可能需要"读取当前标签页内容"或"本地存储"权限，但不会主动访问或修改与功能无关的数据。</li>
+                        <li>当前版本主要使用 <code>tabs</code>、<code>activeTab</code>、<code>storage</code>、<code>notifications</code>、<code>webNavigation</code> 与页面访问权限，用于读取当前页面内容、保存本地设置、监听页面切换和运行页面工具。</li>
+                        <li>当前源码未声明 <code>history</code> 或 <code>clipboardRead</code>。FeHelper 不会主动读取浏览器历史记录，也不会静默读取你的剪贴板内容。</li>
                         <li>所有权限申请均严格遵循Chrome、Firefox、Edge等主流浏览器的扩展安全规范。</li>
                         <li>用户可在浏览器扩展管理页面随时查看和管理已授权权限。</li>
                     </ul>
@@ -212,4 +213,4 @@
     </footer>
     <script src="static/js/script.js"></script>
 </body>
-</html> 
+</html>

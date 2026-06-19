@@ -226,7 +226,7 @@
                     </div>
                 </section>
 
-                <section class="fh-recommendations" v-if="recommendationCards && recommendationCards.length">
+                <section class="fh-recommendations" v-if="visibleRecommendationCards.length">
                     <div class="fh-section-head">
                         <div>
                             <p class="fh-eyebrow">Quick picks</p>
@@ -235,7 +235,7 @@
                         <span>点击即可安装或打开</span>
                     </div>
                     <div class="fh-recommendation-grid">
-                        <button v-for="card in recommendationCards" :key="card.title" type="button" class="fh-recommendation-card" :class="{ 'is-ad': card.isAd }" @click="handleRecommendClick(card)">
+                        <button v-for="card in visibleRecommendationCards" :key="card.title" type="button" class="fh-recommendation-card" @click="handleRecommendClick(card)">
                             <span class="fh-rec-badge" aria-hidden="true">{{getRecommendationBadge(card)}}</span>
                             <span class="fh-rec-copy">
                                 <strong>{{card.title}}</strong>
@@ -250,7 +250,10 @@
 
         <footer class="fh-page-footer">
             <span>FeHelper v{{manifest.version}}</span>
-            <a href="https://github.com/zxlie/FeHelper/issues" target="_blank">问题反馈</a>
+            <div class="fh-page-footer-links">
+                <a v-if="promoRecommendationCard" :href="promoRecommendationCard.url" target="_blank" rel="noopener noreferrer">合作入口</a>
+                <a href="https://github.com/zxlie/FeHelper/issues" target="_blank">问题反馈</a>
+            </div>
         </footer>
     </main>
 
@@ -406,6 +409,31 @@
                             </div>
                         </div>
                         <div class="setting-panel">
+                            <div class="setting-info-row setting-permission-summary">
+                                <div class="setting-copy">
+                                    <strong>当前版本实际权限</strong>
+                                    <small>Manifest 主要使用 <code>tabs</code>、<code>activeTab</code>、<code>storage</code>、<code>notifications</code>、<code>webNavigation</code> 和页面访问权限，用于读取当前页面内容、保存本地设置、监听页面切换并运行页面工具。</small>
+                                </div>
+                                <div class="setting-permission-tags" aria-label="当前版本权限列表">
+                                    <span>tabs</span>
+                                    <span>activeTab</span>
+                                    <span>storage</span>
+                                    <span>notifications</span>
+                                    <span>webNavigation</span>
+                                </div>
+                            </div>
+
+                            <div class="setting-info-row setting-permission-summary">
+                                <div class="setting-copy">
+                                    <strong>不会申请的敏感权限</strong>
+                                    <small>当前源码未声明 <code>history</code> 或 <code>clipboardRead</code>。FeHelper 不会主动读取浏览器历史记录，也不会静默读取你的剪贴板内容。</small>
+                                </div>
+                                <div class="setting-permission-tags is-safe" aria-label="未申请的敏感权限">
+                                    <span>no history</span>
+                                    <span>no clipboardRead</span>
+                                </div>
+                            </div>
+
                             <label class="setting-toggle-row" for="CONTENT_SCRIPT_ALLOW_ALL_FRAMES">
                                 <input class="setting-switch-input" type="checkbox" value="CONTENT_SCRIPT_ALLOW_ALL_FRAMES" id="CONTENT_SCRIPT_ALLOW_ALL_FRAMES" v-model="selectedOpts"/>
                                 <span class="setting-switch" aria-hidden="true"></span>

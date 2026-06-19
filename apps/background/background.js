@@ -82,6 +82,7 @@ let BgPageInstance = (function () {
         switch (tool) {
             case 'json-format':
                 files.push(
+                    'static/vendor/jquery/jquery-3.3.1.min.js',
                     'json-format/json-bigint.js',
                     'json-format/json-auto-utils.js',
                     'json-format/format-lib.js',

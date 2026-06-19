@@ -22,6 +22,7 @@ let JSON_LINT = 'jsonformat:json-lint-switch';
 let EDIT_ON_CLICK = 'jsonformat:edit-on-click';
 let AUTO_DECODE = 'jsonformat:auto-decode';
 let FH_UI_MODE = 'FH_UI_MODE';
+const RAW_FALLBACK_PREVIEW_LIMIT = 12000;
 
 const JSON_DERIVED_AI_TASKS = {
     structure: {
@@ -260,6 +261,9 @@ new Vue({
         tableViewSourcePath: '',
         tableViewColumns: [],
         tableViewRows: [],
+        rawFallbackVisible: false,
+        rawFallbackTruncated: false,
+        rawFallbackTotalLength: 0,
         aiPanel: createInlineAiState(),
         aiAvailability: createJsonAiAvailabilityState(),
         aiAvailabilityChecking: false,
@@ -422,6 +426,55 @@ new Vue({
             }
         },
 
+        escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        },
+
+        buildErrorPlaceholder(message) {
+            const currentValue = editor && typeof editor.getValue === 'function' ? editor.getValue() : '';
+            const escapedMessage = this.escapeHtml(message);
+            const nestedHint = this.nestedEscapeParse
+                ? '<li>当前已开启“嵌套解析”，如果接口返回的是普通字符串，可先关闭后重试。</li>'
+                : '';
+            const rawHint = currentValue.trim()
+                ? '<li>可点右上角“查看原文预览”，先确认接口实际返回内容。</li>'
+                : '';
+            return [
+                '<div class="fh-error-state">',
+                '  <div class="fh-error-badge">解析失败</div>',
+                '  <strong>当前内容没有稳定解析成可展示的 JSON 结构。</strong>',
+                `  <p class="fh-error-message">${escapedMessage}</p>`,
+                '  <ul class="fh-error-hints">',
+                '    <li>如果接口混入了前缀、注释或半截响应，先看原文最稳。</li>',
+                nestedHint,
+                rawHint,
+                '  </ul>',
+                '</div>'
+            ].join('');
+        },
+
+        buildRawFallbackHtml(source, options = {}) {
+            const isTruncated = !!options.truncated;
+            const totalLength = typeof options.totalLength === 'number' ? options.totalLength : String(source || '').length;
+            const previewNote = isTruncated
+                ? `当前仅预览前 ${RAW_FALLBACK_PREVIEW_LIMIT.toLocaleString('zh-CN')} 个字符，避免超大响应在失败态再次拖慢页面。`
+                : `当前展示完整原文，共 ${totalLength.toLocaleString('zh-CN')} 个字符。`;
+            return [
+                '<div class="fh-raw-fallback">',
+                '  <div class="fh-raw-fallback-head">',
+                '    <strong>原始返回内容</strong>',
+                `    <span>这里不做解析，只保留接口原文，方便你判断问题是在数据本身还是解析策略。${previewNote}</span>`,
+                '  </div>',
+                `  <pre class="fh-raw-fallback-pre">${this.escapeHtml(source)}</pre>`,
+                '</div>'
+            ].join('');
+        },
+
         setResultActionAvailability(enabled) {
             if (typeof window !== 'undefined') {
                 window.__fhJsonResultActionsEnabled = !!enabled;
@@ -444,6 +497,7 @@ new Vue({
             this.tableViewReady = false;
             this.setResultActionAvailability(false);
             this.resetTableViewState();
+            this.resetRawFallbackState();
         },
 
         resetTableViewState() {
@@ -454,6 +508,12 @@ new Vue({
             this.tableViewColumns = [];
             this.tableViewRows = [];
             this.tableViewMode = 'grid';
+        },
+
+        resetRawFallbackState() {
+            this.rawFallbackVisible = false;
+            this.rawFallbackTruncated = false;
+            this.rawFallbackTotalLength = 0;
         },
 
         syncResultActions(source) {
@@ -500,6 +560,40 @@ new Vue({
 
         normalizeLayout(type) {
             return type === 'up-down' ? 'up-down' : 'left-right';
+        },
+
+        setNestedEscapeParse(enabled) {
+            this.nestedEscapeParse = !!enabled;
+            this.safeSetLocalStorage('jsonformat:nested-escape-parse', this.nestedEscapeParse);
+            this.format();
+        },
+
+        showRawFallbackResult(full = false) {
+            const raw = editor && typeof editor.getValue === 'function' ? editor.getValue() : '';
+            if (!raw.trim()) {
+                return;
+            }
+            const totalLength = raw.length;
+            const shouldTruncate = !full && totalLength > RAW_FALLBACK_PREVIEW_LIMIT;
+            const previewSource = shouldTruncate ? raw.slice(0, RAW_FALLBACK_PREVIEW_LIMIT) : raw;
+            this.rawFallbackVisible = true;
+            this.rawFallbackTruncated = shouldTruncate;
+            this.rawFallbackTotalLength = totalLength;
+            this.setResultPlaceholder(this.buildRawFallbackHtml(previewSource, {
+                truncated: shouldTruncate,
+                totalLength
+            }));
+        },
+
+        showFullRawFallbackResult() {
+            this.showRawFallbackResult(true);
+        },
+
+        retryWithoutNestedEscapeParse() {
+            if (!this.nestedEscapeParse) {
+                return;
+            }
+            this.setNestedEscapeParse(false);
         },
 
         // 安全的JSON.stringify：
@@ -892,7 +986,7 @@ new Vue({
                 if (this.jsonLintSwitch) {
                     return this.lintOn();
                 } else {
-                    this.setResultPlaceholder('<span class="x-error">' + this.errorMsg + '</span>');
+                    this.setResultPlaceholder(this.buildErrorPlaceholder(this.errorMsg));
                     return false;
                 }
             }
@@ -998,6 +1092,8 @@ new Vue({
                         '<div id="tipsBox">错误位置：' + (lintResult.line + 1) + '行，' + (lintResult.col + 1) + '列；缺少字符或字符不正确</div>' +
                         backslashHint +
                         '<div id="errorCode">' + lintResult.dom + '</div></div>');
+                } else if (this.errorMsg) {
+                    this.setResultPlaceholder(this.buildErrorPlaceholder(this.errorMsg));
                 }
             });
             return false;
@@ -1039,8 +1135,7 @@ new Vue({
 
         nestedEscapeParseFn: function () {
             this.$nextTick(() => {
-                this.safeSetLocalStorage('jsonformat:nested-escape-parse', this.nestedEscapeParse);
-                this.format();
+                this.setNestedEscapeParse(this.nestedEscapeParse);
             });
         },
 

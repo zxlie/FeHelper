@@ -358,6 +358,14 @@ new Vue({
                 : '开启 FeHelper AI，先准备 Chrome 本机 Gemini 模型';
         },
 
+        visibleRecommendationCards() {
+            return (this.recommendationCards || []).filter(card => card && !card.isAd);
+        },
+
+        promoRecommendationCard() {
+            return (this.recommendationCards || []).find(card => card && card.isAd) || null;
+        },
+
         darkModePreference() {
             if (this.selectedOpts.includes('ALWAYS_DARK_MODE')) {
                 return 'always';

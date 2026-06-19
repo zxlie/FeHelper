@@ -70,6 +70,21 @@ describe('json-format settings regression guards', () => {
         expect(source).toContain("const selectedSortInput = document.querySelector('[name=\"jsonsort\"]:checked');");
         expect(source).toContain("const sortType = selectedSortInput ? selectedSortInput.value : '0';");
         expect(html).toContain('<section class="fh-inline-command-bar" aria-label="JSON 主要操作" v-if="uiMode === \'lite\'">');
+        expect(html).not.toContain('fh-lite-toggle-group');
+        expect(html).not.toContain('@click="toggleNestedEscapeParse"');
+        expect(html).toContain('查看原文');
+        expect(html).toContain('关闭嵌套解析后重试');
+        expect(source).toContain('const RAW_FALLBACK_PREVIEW_LIMIT = 12000;');
+        expect(source).toContain('buildRawFallbackHtml(source, options = {})');
+        expect(source).toContain('showRawFallbackResult(full = false)');
+        expect(source).toContain('showFullRawFallbackResult()');
+        expect(source).toContain('rawFallbackTruncated');
+        expect(source).toContain('retryWithoutNestedEscapeParse()');
+        expect(source).not.toContain('toggleNestedEscapeParse()');
+        expect(source).toContain('buildErrorPlaceholder(message)');
+        expect(css).toContain('.fh-json-error-actions');
+        expect(css).toContain('.fh-raw-fallback-pre');
+        expect(css).toContain('.fh-error-state');
         expect(html).not.toContain('<section class="fh-inline-command-bar" aria-label="JSON 主要操作" v-if="uiMode === \'lite\'">\n                        <div class="fh-command-group fh-command-primary">');
         expect((html.match(/id="btnFormat"/g) || []).length).toBe(1);
         expect(html).not.toContain("showLiteAdvanced");
@@ -81,9 +96,11 @@ describe('json-format settings regression guards', () => {
         const source = readSource('apps/json-format/content-script.js');
         const cssSource = readSource('apps/json-format/content-script.css');
         const formatLibSource = readSource('apps/json-format/format-lib.js');
+        const backgroundSource = readSource('apps/background/background.js');
 
         expect(source).toContain("JSON_FORMAT_COMPACT_MODE: 'JSON_FORMAT_COMPACT_MODE'");
         expect(source).toContain("FH_UI_MODE: 'FH_UI_MODE'");
+        expect(source).toContain("document.documentElement.classList.add('fh-jf');");
         expect(source).toContain('class="setting-section-title">运行</div>');
         expect(source).toContain('class="setting-section-title">解析与排序</div>');
         expect(source).toContain('class="setting-section-title">显示</div>');
@@ -112,8 +129,13 @@ describe('json-format settings regression guards', () => {
         expect(source).toContain("thing: 'open-donate-modal'");
         expect(formatLibSource).toContain('let statusBarEnabled = true;');
         expect(formatLibSource).toContain('setStatusBarEnabled: function(enabled)');
+        expect(formatLibSource).toContain('function shouldWrapLongString(value)');
+        expect(formatLibSource).toContain("const lineClass = wrapLongString ? 'item item-line item-line-wrap' : 'item item-line';");
         expect(formatLibSource).toContain("selected = $('#jfContent .item').first();");
+        expect(backgroundSource).toContain("'static/vendor/jquery/jquery-3.3.1.min.js'");
         expect(cssSource).toContain('body.fh-json-compact');
+        expect(cssSource).toContain('.item-line.item-line-wrap');
+        expect(cssSource).toContain('.string.string-long');
         expect(cssSource).toContain('html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-actions > .x-other-tools');
         expect(cssSource).toContain('html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-actions > .x-donate-link');
         expect(cssSource).toContain('.mod-setting-panel .setting-donate-link');

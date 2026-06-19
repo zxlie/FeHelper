@@ -129,6 +129,11 @@ html.fh-jf .item-line {
     white-space: nowrap;
 }
 
+html.fh-jf .item-line.item-line-wrap {
+    display: block;
+    white-space: normal;
+}
+
 html.fh-jf .item-line .key {
     margin-right: 2px;
     flex-shrink: 0;
@@ -176,6 +181,17 @@ html.fh-jf .item-line .string {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 200px;
+}
+
+html.fh-jf .item-line.item-line-wrap .string,
+html.fh-jf .item-line .string.string-long {
+    display: inline;
+    white-space: pre-wrap;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-width: none;
 }
 
 html.fh-jf .item .string a {

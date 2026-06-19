@@ -1451,6 +1451,11 @@ window.Formatter = (function () {
         return createNode(json).getHTML();
     }
 
+    function shouldWrapLongString(value) {
+        const text = String(value == null ? '' : value);
+        return text.length > 2048 || /[\r\n]/.test(text);
+    }
+
     // 创建节点 - 直接复用webworker中的完整逻辑
     function createNode(value) {
         let node = {
@@ -1461,10 +1466,13 @@ window.Formatter = (function () {
             getHTML: function() {
                 switch(this.type) {
                     case 'string':
+                        const wrapLongString = shouldWrapLongString(this.value);
+                        const lineClass = wrapLongString ? 'item item-line item-line-wrap' : 'item item-line';
+                        const stringClass = wrapLongString ? 'string string-long' : 'string';
                         // 判断原始字符串是否为URL
                         if (isUrl(this.value)) {
                             // 用JSON.stringify保证转义符显示，内容包裹在<a>里
-                            return '<div class="item item-line"><span class="string"><a href="'
+                            return '<div class="' + lineClass + '"><span class="' + stringClass + '"><a href="'
                                 + htmlspecialchars(this.value) + '" target="_blank" rel="noopener noreferrer" data-is-link="1" data-link-url="' + htmlspecialchars(this.value) + '">' 
                                 + htmlspecialchars(JSON.stringify(this.value)) + '</a></span></div>';
                         } else {
@@ -1488,7 +1496,7 @@ window.Formatter = (function () {
                                             nestedHTML = nestedHTML.replace(/^<div class="item[^"]*">/, '').replace(/<\/div>$/, '');
                                             // 返回格式化的JSON结构，但保持在外层的字符串容器中
                                             // 使用block显示，确保完全展开
-                                            return '<div class="item item-line"><span class="string">' + 
+                                            return '<div class="' + lineClass + '"><span class="' + stringClass + '">' +
                                                 '<span class="quote">"</span>' +
                                                 '<div class="string-json-nested" style="display:block;margin-left:0;padding-left:0;">' +
                                                 nestedHTML +
@@ -1501,7 +1509,7 @@ window.Formatter = (function () {
                                     }
                                 }
                             }
-                            return '<div class="item item-line"><span class="string">' + formatStringValue(JSON.stringify(this.value)) + '</span></div>';
+                            return '<div class="' + lineClass + '"><span class="' + stringClass + '">' + formatStringValue(JSON.stringify(this.value)) + '</span></div>';
                         }
                     case 'number':
                         // 确保大数字不使用科学计数法

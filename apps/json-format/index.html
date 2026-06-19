@@ -143,6 +143,12 @@
                         </div>
                         <div class="fh-pane-actions">
                             <button type="button" class="fh-pane-ai-action fh-ai-tool-btn" v-if="errorMsg && canUseJsonLocalAi" @click="askAiForJsonRepair" :disabled="jsonAiControlDisabled" :title="jsonAiStatusText">AI 修复</button>
+                            <div class="fh-json-error-actions" v-if="errorMsg">
+                                <button type="button" class="fh-pane-tool-action fh-error-tool-action" @click="showRawFallbackResult()">查看原文预览</button>
+                                <button type="button" class="fh-pane-tool-action fh-error-tool-action" v-if="rawFallbackVisible && rawFallbackTruncated" @click="showFullRawFallbackResult">展开完整原文</button>
+                                <button type="button" class="fh-pane-tool-action fh-error-tool-action" v-if="nestedEscapeParse" @click="retryWithoutNestedEscapeParse">关闭嵌套解析后重试</button>
+                                <button type="button" class="fh-pane-tool-action fh-error-tool-action" v-if="uiMode === 'lite'" @click="setUiMode('omni')">切到 Omni</button>
+                            </div>
                             <template v-else>
                                 <div class="fh-json-ai-actions" v-if="jsonActionReady && canUseJsonLocalAi" aria-label="JSON AI 生成">
                                     <span>AI</span>

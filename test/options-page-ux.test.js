@@ -42,13 +42,20 @@ describe('options page UX policy', () => {
     it('frames the options page as a control console, not only a marketplace', () => {
         const optionsHtml = readSource('apps/options/index.html');
         const optionsCss = readSource('apps/options/index.css');
+        const optionsSource = readSource('apps/options/index.js');
 
         expect(optionsHtml).toContain('<title>FeHelper-控制台</title>');
         expect(optionsHtml).toContain("{{ uiMode === 'lite' ? 'Lite 控制台' : '开发者工具控制台' }}");
         expect(optionsHtml).toContain("['fh-workspace-grid', uiMode === 'lite' ? 'is-lite' : 'is-omni']");
         expect(optionsHtml).toContain('class="fh-context-rail" v-if="uiMode === \'omni\'"');
+        expect(optionsHtml).toContain('v-for="card in visibleRecommendationCards"');
+        expect(optionsHtml).toContain('v-if="promoRecommendationCard"');
+        expect(optionsHtml).toContain('合作入口');
+        expect(optionsSource).toContain('visibleRecommendationCards()');
+        expect(optionsSource).toContain('promoRecommendationCard()');
         expect(optionsCss).toContain('grid-template-columns: 248px minmax(0, 1fr);');
         expect(optionsCss).toContain('white-space: nowrap;');
+        expect(optionsCss).toContain('@media (max-width: 720px)');
         expect(optionsCss).not.toContain('grid-template-columns: 228px minmax(0, 1fr);');
         expect(optionsHtml).not.toContain('class="fh-hero');
         expect(optionsHtml).not.toContain('fh-hero-stats');
@@ -129,5 +136,21 @@ describe('options page UX policy', () => {
         expect(optionsSource).toContain('handleModalKeydown(event, modalType)');
         expect(optionsSource).toContain("event.key === 'Escape'");
         expect(optionsSource).toContain("event.key !== 'Tab'");
+    });
+
+    it('states the actual sensitive-permission posture clearly', () => {
+        const optionsHtml = readSource('apps/options/index.html');
+        const optionsCss = readSource('apps/options/index.css');
+        const privacyPolicy = readSource('website/privacy-policy.html');
+
+        expect(optionsHtml).toContain('当前版本实际权限');
+        expect(optionsHtml).toContain('不会申请的敏感权限');
+        expect(optionsHtml).toContain('no history');
+        expect(optionsHtml).toContain('no clipboardRead');
+        expect(optionsCss).toContain('.setting-permission-tags');
+        expect(optionsCss).toContain('.setting-copy code');
+        expect(privacyPolicy).toContain('当前源码未声明 <code>history</code> 或 <code>clipboardRead</code>');
+        expect(privacyPolicy).toContain('<code>tabs</code>');
+        expect(privacyPolicy).toContain('<code>webNavigation</code>');
     });
 });

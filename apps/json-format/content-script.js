@@ -839,7 +839,7 @@ window.JsonAutoFormat = (() => {
                 }
             }
 
-            $('html').addClass('fh-jf');
+            document.documentElement.classList.add('fh-jf');
             _mountFormatterShell();
 
             formatOptions.originalSource = _stringifyJsonForFormatter(jsonObj);
