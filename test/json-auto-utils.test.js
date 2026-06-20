@@ -30,6 +30,15 @@ describe('json-auto-utils', () => {
         expect(utils.parseJSONLike(utils.coerceDecodedJSONSource(source, decoded))).not.toBeNull();
     });
 
+    it('Issue #592: 宽松 key 修正不会破坏字符串值里的逗号和冒号', () => {
+        const source = '{\n  "schema": ",m:"\n}';
+        const parsed = utils.parseJSONLike(source);
+
+        expect(utils.parseWithBigInt(source)).toEqual({ schema: ',m:' });
+        expect(parsed.value.schema).toBe(',m:');
+        expect(parsed.normalizedSource).toBe('{"schema":",m:"}');
+    });
+
     it('自动解码得到完整 JSON 时使用解码后的合法 JSON', () => {
         const source = '%7B%22name%22%3A%22FeHelper%22%7D';
         const decoded = decodeURIComponent(source);
@@ -61,5 +70,12 @@ describe('json-auto-utils', () => {
         expect(parsed).not.toBeNull();
         expect(parsed.value.payload.count).toBe(2);
         expect(parsed.normalizedSource).toBe('{"status":"ok","payload":{"count":2}}');
+    });
+
+    it('Issue #593: HTML 自动格式化路径可关闭正文中的 JSON 片段提取', () => {
+        const source = '普通网页正文 before {"status":"ok"} after';
+
+        expect(utils.parseJSONLike(source)).not.toBeNull();
+        expect(utils.parseJSONLike(source, { allowExtractJSONFragment: false })).toBeNull();
     });
 });

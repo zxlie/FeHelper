@@ -886,13 +886,14 @@ let BgPageInstance = (function () {
             NESTED_ESCAPE_PARSE: false,
             JSON_FORMAT_COMPACT_MODE: true,
             FH_UI_MODE: 'lite',
+            JSON_FORMAT_UI_MODE: 'lite',
             MAX_JSON_KEYS_NUMBER: 10000,
             JSON_FORMAT_THEME: 0,
             AUTO_DARK_MODE: false,
             ALWAYS_DARK_MODE: false
         };
         const numberOptions = ['MAX_JSON_KEYS_NUMBER', 'JSON_FORMAT_THEME'];
-        const stringOptions = ['FH_UI_MODE'];
+        const stringOptions = ['FH_UI_MODE', 'JSON_FORMAT_UI_MODE'];
 
         let storageQuery;
         if (Array.isArray(params)) {

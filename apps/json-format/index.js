@@ -22,6 +22,7 @@ let JSON_LINT = 'jsonformat:json-lint-switch';
 let EDIT_ON_CLICK = 'jsonformat:edit-on-click';
 let AUTO_DECODE = 'jsonformat:auto-decode';
 let FH_UI_MODE = 'FH_UI_MODE';
+let JSON_FORMAT_UI_MODE = 'JSON_FORMAT_UI_MODE';
 const RAW_FALLBACK_PREVIEW_LIMIT = 12000;
 
 const JSON_DERIVED_AI_TASKS = {
@@ -536,8 +537,8 @@ new Vue({
                 syncJsonPageUiMode(this.uiMode);
                 return;
             }
-            chrome.storage.local.get(FH_UI_MODE, result => {
-                this.uiMode = String(result[FH_UI_MODE] || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
+            chrome.storage.local.get([JSON_FORMAT_UI_MODE, FH_UI_MODE], result => {
+                this.uiMode = String(result[JSON_FORMAT_UI_MODE] || result[FH_UI_MODE] || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
                 syncJsonPageUiMode(this.uiMode);
                 this.$nextTick(() => {
                     this.changeLayout(this.currentLayout);
@@ -553,7 +554,7 @@ new Vue({
             });
             if (window.chrome && chrome.storage && chrome.storage.local) {
                 chrome.storage.local.set({
-                    FH_UI_MODE: this.uiMode
+                    [JSON_FORMAT_UI_MODE]: this.uiMode
                 });
             }
         },
@@ -1618,25 +1619,78 @@ function unpackTopLevelEscapedJSON(value) {
 }
 
 
-// 统一的 BigInt 安全解析（与format-lib/worker思路一致）：
-// 1) 自动给未加引号的 key 补双引号；2) 为可能的超长数字加标记；3) 用 reviver 还原为 BigInt
+function isInsideQuotedSegment(text, offset) {
+    let quote = '';
+    let escaped = false;
+
+    for (let i = 0; i < offset; i++) {
+        const char = text[i];
+        if (escaped) {
+            escaped = false;
+            continue;
+        }
+        if (char === '\\') {
+            escaped = true;
+            continue;
+        }
+        if (quote) {
+            if (char === quote) {
+                quote = '';
+            }
+            continue;
+        }
+        if (char === '"' || char === "'") {
+            quote = char;
+        }
+    }
+
+    return !!quote;
+}
+
+function replaceOutsideQuotedSegments(text, regex, replacer) {
+    return text.replace(regex, function () {
+        const args = Array.prototype.slice.call(arguments);
+        const offset = args[args.length - 2];
+        if (isInsideQuotedSegment(text, offset)) {
+            return args[0];
+        }
+        return replacer.apply(null, args);
+    });
+}
+
+function normalizeLooseJSONSource(text) {
+    let fixed = String(text).trim();
+
+    fixed = replaceOutsideQuotedSegments(fixed, /([\{,]\s*)'([^'\\]*?)'(\s*:)/g, function (match, prefix, key, suffix) {
+        return prefix + '"' + key + '"' + suffix;
+    });
+    fixed = replaceOutsideQuotedSegments(fixed, /([\{,]\s*)(\w+)(\s*:)/g, function (match, prefix, key, suffix) {
+        return prefix + '"' + key + '"' + suffix;
+    });
+    fixed = replaceOutsideQuotedSegments(fixed, /(:\s*)'([^'\\]*?)'/g, function (match, prefix, value) {
+        return prefix + '"' + value + '"';
+    });
+
+    return fixed;
+}
+
+// 统一的 BigInt 安全解析（与 json-auto-utils/format-lib/worker 思路一致）：
+// 1) 只在引号外修正宽松 key；2) 为可能的超长数字加标记；3) 用 reviver 还原为 BigInt
 function parseWithBigInt(text) {
-    // 先把使用单引号包裹的 key 统一替换成双引号
-    let fixed = String(text).replace(/([\{,]\s*)'([^'\\]*?)'(\s*:)/g, '$1"$2"$3');
-    // 补齐未加引号的 key
-    const keyFixRegex = /([\{,]\s*)(\w+)(\s*:)/g;
-    fixed = fixed.replace(keyFixRegex, '$1"$2"$3');
+    if (
+        typeof window !== 'undefined' &&
+        window.FHJsonAutoUtils &&
+        typeof window.FHJsonAutoUtils.parseWithBigInt === 'function'
+    ) {
+        return window.FHJsonAutoUtils.parseWithBigInt(text);
+    }
+
+    let fixed = normalizeLooseJSONSource(text);
+
     // 标记 16 位及以上的整数（允许值后有空白，再跟 , ] } 或结尾）
     // 使用 offset 检查匹配位置是否在 JSON 字符串内部，避免破坏嵌套转义的 JSON 字符串
     fixed = fixed.replace(/([:,\[]\s*)(-?\d{16,})(\s*)(?=(?:,|\]|\}|$))/g, function(m, p1, num, sp, offset) {
-        let inStr = false;
-        let esc = false;
-        for (let i = 0; i < offset; i++) {
-            if (esc) { esc = false; continue; }
-            if (fixed[i] === '\\') { esc = true; continue; }
-            if (fixed[i] === '"') { inStr = !inStr; }
-        }
-        if (inStr) return m;
+        if (isInsideQuotedSegment(fixed, offset)) return m;
         return p1 + '"__BigInt__' + num + '"' + sp;
     });
     return JSON.parse(fixed, function(key, value) {

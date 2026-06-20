@@ -5,6 +5,9 @@ import Statistics from '../background/statistics.js';
 import AI from '../aiagent/fh.ai.js';
 import { AI_FEATURE_PACKS } from '../aiagent/fh.ai-features.js';
 
+const FH_UI_MODE = 'FH_UI_MODE';
+const FH_OPTIONS_UI_MODE = 'FH_OPTIONS_UI_MODE';
+
 // 工具分类定义
 const TOOL_CATEGORIES = [
     { key: 'dev', name: '开发工具类', tools: ['json-format', 'json-diff', 'code-beautify', 'code-compress', 'postman', 'websocket', 'regexp','page-timing'] },
@@ -1377,8 +1380,8 @@ new Vue({
                 });
 
                 const uiModeValue = await new Promise(resolve => {
-                    chrome.storage.local.get('FH_UI_MODE', result => {
-                        resolve(result.FH_UI_MODE);
+                    chrome.storage.local.get([FH_OPTIONS_UI_MODE, FH_UI_MODE], result => {
+                        resolve(result[FH_OPTIONS_UI_MODE] || result[FH_UI_MODE]);
                     });
                 });
                 this.uiMode = String(uiModeValue || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
@@ -1395,7 +1398,7 @@ new Vue({
             this.applyUiModePreferences();
             try {
                 await chrome.storage.local.set({
-                    FH_UI_MODE: this.uiMode
+                    [FH_OPTIONS_UI_MODE]: this.uiMode
                 });
             } catch (error) {
                 console.warn('保存 FeHelper 模式失败:', error);
@@ -1665,7 +1668,7 @@ new Vue({
                 Settings.setOptions(opts, async () => {
                     try {
                         await chrome.storage.local.set({
-                            FH_UI_MODE: this.uiMode
+                            [FH_OPTIONS_UI_MODE]: this.uiMode
                         });
 
                         // 处理右键菜单

@@ -32,6 +32,8 @@ window.JsonAutoFormat = (() => {
         JSON_FORMAT_COMPACT_MODE: 'JSON_FORMAT_COMPACT_MODE',
         // 全局产品模式
         FH_UI_MODE: 'FH_UI_MODE',
+        // JSON 格式化独立模式
+        JSON_FORMAT_UI_MODE: 'JSON_FORMAT_UI_MODE',
         // 最大json key数量
         MAX_JSON_KEYS_NUMBER: 'MAX_JSON_KEYS_NUMBER',
         // 自定义皮肤
@@ -71,6 +73,7 @@ window.JsonAutoFormat = (() => {
         NESTED_ESCAPE_PARSE: false,
         JSON_FORMAT_COMPACT_MODE: true,
         FH_UI_MODE: 'lite',
+        JSON_FORMAT_UI_MODE: 'lite',
         AUTO_DARK_MODE: false,
         ALWAYS_DARK_MODE: false
     };
@@ -81,14 +84,14 @@ window.JsonAutoFormat = (() => {
 
     let _getJsonAutoUtils = () => window.FHJsonAutoUtils || {};
 
-    let _getJsonParseOptions = () => ({
+    let _getJsonParseOptions = overrides => Object.assign({
         nestedEscapeParse: !!formatOptions.NESTED_ESCAPE_PARSE
-    });
+    }, overrides || {});
 
-    let _parseJsonLike = source => {
+    let _parseJsonLike = (source, parseOptions) => {
         const utils = _getJsonAutoUtils();
         if (typeof utils.parseJSONLike === 'function') {
-            return utils.parseJSONLike(source, _getJsonParseOptions());
+            return utils.parseJSONLike(source, _getJsonParseOptions(parseOptions));
         }
 
         try {
@@ -129,8 +132,12 @@ window.JsonAutoFormat = (() => {
         if (!body) {
             return;
         }
-        const forceCompact = formatOptions.FH_UI_MODE !== 'omni';
+        const forceCompact = _getResolvedUiMode() !== 'omni';
         body.classList.toggle('fh-json-compact', forceCompact || !!formatOptions.JSON_FORMAT_COMPACT_MODE);
+    };
+
+    let _getResolvedUiMode = () => {
+        return String(formatOptions.JSON_FORMAT_UI_MODE || formatOptions.FH_UI_MODE || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
     };
 
     let _applyUiMode = () => {
@@ -138,7 +145,7 @@ window.JsonAutoFormat = (() => {
         if (!body) {
             return;
         }
-        const isLiteMode = formatOptions.FH_UI_MODE !== 'omni';
+        const isLiteMode = _getResolvedUiMode() !== 'omni';
         body.classList.toggle('fh-ui-mode-lite', isLiteMode);
         body.classList.toggle('fh-ui-mode-omni', !isLiteMode);
     };
@@ -611,7 +618,7 @@ window.JsonAutoFormat = (() => {
     /**
      * 从一个dom节点去获取json内容，这里面有很多的判断
      */
-    let _getJsonContentFromDOM = function (dom) {
+    let _getJsonContentFromDOM = function (dom, parseOptions) {
         if (!document.body) {
             return false;
         }
@@ -652,7 +659,7 @@ window.JsonAutoFormat = (() => {
         addCandidate(document.body.textContent);
 
         for (let i = 0; i < candidates.length; i++) {
-            if (_parseJsonLike(candidates[i])) {
+            if (_parseJsonLike(candidates[i], parseOptions)) {
                 return candidates[i];
             }
         }
@@ -682,10 +689,13 @@ window.JsonAutoFormat = (() => {
             doc.querySelectorAll('style, script').forEach(el => el.remove());
             // 获取清理后的文本
             const cleanText = doc.body.textContent;
-            let jsonObj = _getJsonObject(cleanText);
+            const htmlParseOptions = { allowExtractJSONFragment: false };
+            let jsonObj = _getJsonObject(cleanText, htmlParseOptions);
             if(!jsonObj) {
                 return false;
             }
+            let pre = document.querySelectorAll('body>pre')[0] || {textContent: ""};
+            return _getJsonContentFromDOM(pre, htmlParseOptions);
         }
 
         let pre = document.querySelectorAll('body>pre')[0] || {textContent: ""};
@@ -741,6 +751,11 @@ window.JsonAutoFormat = (() => {
             formatOptions.FH_UI_MODE = String(options.FH_UI_MODE || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
         } else if (!formatOptions.FH_UI_MODE) {
             formatOptions.FH_UI_MODE = 'lite';
+        }
+        if (options.hasOwnProperty('JSON_FORMAT_UI_MODE')) {
+            formatOptions.JSON_FORMAT_UI_MODE = String(options.JSON_FORMAT_UI_MODE || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
+        } else if (!formatOptions.JSON_FORMAT_UI_MODE) {
+            formatOptions.JSON_FORMAT_UI_MODE = formatOptions.FH_UI_MODE || 'lite';
         }
     };
 
@@ -798,8 +813,8 @@ window.JsonAutoFormat = (() => {
      * @param {*} source 
      * @returns 
      */
-    let _getJsonObject = function (source) {
-        let parsed = _parseJsonLike(source);
+    let _getJsonObject = function (source, parseOptions) {
+        let parsed = _parseJsonLike(source, parseOptions);
         if (!parsed) {
             return;
         }

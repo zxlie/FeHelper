@@ -8,6 +8,7 @@ import MSG_TYPE from '../static/js/common.js';
 const POPUP_RECENT_TOOLS = 'popup_recent_tools';
 const USER_USAGE_DATA_KEY = 'FH_USER_USAGE_DATA';
 const FH_UI_MODE = 'FH_UI_MODE';
+const FH_POPUP_UI_MODE = 'FH_POPUP_UI_MODE';
 const MAC_OPTION_DIGITS = {
     '¡': 1,
     '™': 2,
@@ -348,14 +349,14 @@ new Vue({
         },
 
         async loadPopupMeta() {
-            const meta = await this.storageGet(['favorites', POPUP_RECENT_TOOLS, USER_USAGE_DATA_KEY, FH_UI_MODE]);
+            const meta = await this.storageGet(['favorites', POPUP_RECENT_TOOLS, USER_USAGE_DATA_KEY, FH_POPUP_UI_MODE, FH_UI_MODE]);
             const favorites = Array.isArray(meta.favorites) ? meta.favorites : [];
             const popupRecent = Array.isArray(meta[POPUP_RECENT_TOOLS]) ? meta[POPUP_RECENT_TOOLS] : [];
             const usageRecent = this.readRecentUsedTools(meta[USER_USAGE_DATA_KEY]);
 
             this.favorites = this.uniqueKeys(favorites);
             this.recentUsed = this.uniqueKeys(popupRecent.concat(usageRecent)).slice(0, 10);
-            this.uiMode = String(meta[FH_UI_MODE] || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
+            this.uiMode = String(meta[FH_POPUP_UI_MODE] || meta[FH_UI_MODE] || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
             this.applyUiModeToDocument();
         },
 
@@ -365,7 +366,7 @@ new Vue({
             this.uiMode = nextMode;
             this.applyUiModeToDocument();
             await this.storageSet({
-                [FH_UI_MODE]: nextMode
+                [FH_POPUP_UI_MODE]: nextMode
             });
             this.syncActiveTool();
         },

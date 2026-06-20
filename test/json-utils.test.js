@@ -147,6 +147,12 @@ describe('parseWithBigInt', () => {
         expect(result.msg).toBe('订单号：9958158950201197888');
     });
 
+    it('Issue #592: 字符串值里的逗号和冒号不被误当作宽松 key', () => {
+        const json = '{"schema": ",m:"}';
+        const result = parseWithBigInt(json);
+        expect(result).toEqual({ schema: ',m:' });
+    });
+
     it('数组中的大整数', () => {
         const json = '[1234567890123456789, 42]';
         const result = parseWithBigInt(json);

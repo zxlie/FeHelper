@@ -17,12 +17,13 @@ describe('json-format settings regression guards', () => {
         expect(source).toContain('AUTO_TEXT_DECODE: false');
         expect(source).toContain('JSON_FORMAT_COMPACT_MODE: true');
         expect(source).toContain("FH_UI_MODE: 'lite'");
+        expect(source).toContain("JSON_FORMAT_UI_MODE: 'lite'");
         expect(source).toContain("const migrated = String(result.FH_JSONFORMAT_DEFAULTS_MIGRATED) === 'true';");
         expect(source).toContain('if (Array.isArray(params)) {');
         expect(source).toContain("} else if (typeof params === 'string') {");
         expect(source).toContain("storageQuery = {FH_JSONFORMAT_DEFAULTS_MIGRATED: false};");
         expect(source).toContain("storageQuery[key] = defaultOptions.hasOwnProperty(key) ? defaultOptions[key] : params[key];");
-        expect(source).toContain("const stringOptions = ['FH_UI_MODE'];");
+        expect(source).toContain("const stringOptions = ['FH_UI_MODE', 'JSON_FORMAT_UI_MODE'];");
         expect(source).toContain("result.JSON_TOOL_BAR_ALWAYS_SHOW = true;");
         expect(source).toContain("result.ENABLE_JSON_KEY_SORT = true;");
         expect(source).toContain("result.NESTED_ESCAPE_PARSE = false;");
@@ -40,8 +41,10 @@ describe('json-format settings regression guards', () => {
 
         expect(source).toContain("this.nestedEscapeParse = (this.safeGetLocalStorage('jsonformat:nested-escape-parse') === 'true');");
         expect(source).toContain("let FH_UI_MODE = 'FH_UI_MODE';");
+        expect(source).toContain("let JSON_FORMAT_UI_MODE = 'JSON_FORMAT_UI_MODE';");
         expect(source).toContain("document.body.classList.toggle('fh-ui-mode-lite', isLiteMode);");
-        expect(source).toContain("chrome.storage.local.get(FH_UI_MODE, result => {");
+        expect(source).toContain("chrome.storage.local.get([JSON_FORMAT_UI_MODE, FH_UI_MODE], result => {");
+        expect(source).toContain("this.uiMode = String(result[JSON_FORMAT_UI_MODE] || result[FH_UI_MODE] || '').toLowerCase() === 'omni' ? 'omni' : 'lite';");
         expect(html).toContain("['fh-top-shell', uiMode === 'lite' ? 'is-lite' : 'is-omni']");
         expect(html).toContain("v-if=\"uiMode === 'lite'\"");
         expect(html).toContain('请作者喝咖啡');
@@ -100,6 +103,7 @@ describe('json-format settings regression guards', () => {
 
         expect(source).toContain("JSON_FORMAT_COMPACT_MODE: 'JSON_FORMAT_COMPACT_MODE'");
         expect(source).toContain("FH_UI_MODE: 'FH_UI_MODE'");
+        expect(source).toContain("JSON_FORMAT_UI_MODE: 'JSON_FORMAT_UI_MODE'");
         expect(source).toContain("document.documentElement.classList.add('fh-jf');");
         expect(source).toContain('class="setting-section-title">运行</div>');
         expect(source).toContain('class="setting-section-title">解析与排序</div>');
@@ -113,6 +117,8 @@ describe('json-format settings regression guards', () => {
         expect(source).not.toContain("id=\"compactModeToggle\"");
         expect(source).toContain("body.classList.toggle('fh-ui-mode-lite', isLiteMode);");
         expect(source).toContain("formatOptions.FH_UI_MODE = String(options.FH_UI_MODE || '').toLowerCase() === 'omni' ? 'omni' : 'lite';");
+        expect(source).toContain("formatOptions.JSON_FORMAT_UI_MODE = String(options.JSON_FORMAT_UI_MODE || '').toLowerCase() === 'omni' ? 'omni' : 'lite';");
+        expect(source).toContain("const forceCompact = _getResolvedUiMode() !== 'omni';");
         expect(source).toContain('const liveCheckboxOptions = {');
         expect(source).toContain("nestedParse: {key: 'NESTED_ESCAPE_PARSE', reformat: true}");
         expect(source).not.toContain("compactMode: {key: 'JSON_FORMAT_COMPACT_MODE', reformat: false}");
@@ -149,9 +155,10 @@ describe('json-format settings regression guards', () => {
         expect(cssSource).not.toContain('#compactModeToggle');
     });
 
-    it('popup and options expose the global lite or omni mode switch', () => {
+    it('popup, json, and options keep lite or omni mode preferences scoped', () => {
         const popupHtml = readSource('apps/popup/index.html');
         const popupSource = readSource('apps/popup/index.js');
+        const jsonSource = readSource('apps/json-format/index.js');
         const optionsHtml = readSource('apps/options/index.html');
         const optionsSource = readSource('apps/options/index.js');
 
@@ -160,15 +167,21 @@ describe('json-format settings regression guards', () => {
         expect(popupHtml).toContain("@click=\"setUiMode('omni')\"");
         expect(popupHtml).toContain("v-if=\"uiMode !== 'lite'\" class=\"fh-search\"");
         expect(popupSource).toContain("const FH_UI_MODE = 'FH_UI_MODE';");
-        expect(popupSource).toContain("this.uiMode = String(meta[FH_UI_MODE] || '').toLowerCase() === 'omni' ? 'omni' : 'lite';");
+        expect(popupSource).toContain("const FH_POPUP_UI_MODE = 'FH_POPUP_UI_MODE';");
+        expect(popupSource).toContain("this.uiMode = String(meta[FH_POPUP_UI_MODE] || meta[FH_UI_MODE] || '').toLowerCase() === 'omni' ? 'omni' : 'lite';");
+        expect(popupSource).toContain("[FH_POPUP_UI_MODE]: nextMode");
         expect(popupSource).toContain("key: 'lite'");
         expect(popupSource).toContain('tools: this.installedTools');
         expect(popupSource).toContain("document.documentElement.classList.toggle('fh-popup-lite-mode', isLiteMode);");
+        expect(jsonSource).toContain("let JSON_FORMAT_UI_MODE = 'JSON_FORMAT_UI_MODE';");
+        expect(jsonSource).toContain("chrome.storage.local.get([JSON_FORMAT_UI_MODE, FH_UI_MODE]");
+        expect(jsonSource).toContain("[JSON_FORMAT_UI_MODE]: this.uiMode");
         expect(optionsHtml).toContain('FeHelper 模式');
         expect(optionsHtml).toContain("id=\"FH_UI_MODE_LITE\"");
         expect(optionsHtml).toContain("id=\"FH_UI_MODE_OMNI\"");
-        expect(optionsSource).toContain("chrome.storage.local.get('FH_UI_MODE'");
-        expect(optionsSource).toContain("FH_UI_MODE: this.uiMode");
+        expect(optionsSource).toContain("const FH_OPTIONS_UI_MODE = 'FH_OPTIONS_UI_MODE';");
+        expect(optionsSource).toContain("chrome.storage.local.get([FH_OPTIONS_UI_MODE, FH_UI_MODE]");
+        expect(optionsSource).toContain("[FH_OPTIONS_UI_MODE]: this.uiMode");
         expect(optionsHtml).toContain("uiMode === 'lite' ? 'fh-console-lite' : 'fh-console-omni'");
         expect(optionsHtml).toContain("{{ uiMode === 'lite' ? 'Lite 控制台' : '开发者工具控制台' }}");
         expect(optionsHtml).toContain("v-if=\"uiMode === 'omni'\"");

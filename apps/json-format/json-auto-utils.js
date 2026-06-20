@@ -67,30 +67,80 @@
         return rebuildBigNumberFromParts(value);
     }
 
-    function parseWithBigInt(text) {
-        text = String(text).trim();
+    function isInsideQuotedSegment(text, offset) {
+        let quote = '';
+        let escaped = false;
 
-        let fixed = text.replace(/([\{,]\s*)'([^'\\]*?)'(\s*:)/g, '$1"$2"$3');
-        fixed = fixed.replace(/([\{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3');
-        fixed = fixed.replace(/(:\s*)'([^'\\]*?)'/g, '$1"$2"');
+        for (let i = 0; i < offset; i++) {
+            const char = text[i];
+            if (escaped) {
+                escaped = false;
+                continue;
+            }
+            if (char === '\\') {
+                escaped = true;
+                continue;
+            }
+            if (quote) {
+                if (char === quote) {
+                    quote = '';
+                }
+                continue;
+            }
+            if (char === '"' || char === "'") {
+                quote = char;
+            }
+        }
+
+        return !!quote;
+    }
+
+    function replaceOutsideQuotedSegments(text, regex, replacer) {
+        return text.replace(regex, function () {
+            const args = Array.prototype.slice.call(arguments);
+            const offset = args[args.length - 2];
+            if (isInsideQuotedSegment(text, offset)) {
+                return args[0];
+            }
+            return replacer.apply(null, args);
+        });
+    }
+
+    function normalizeLooseJSONSource(text) {
+        let fixed = String(text).trim();
+
+        fixed = replaceOutsideQuotedSegments(
+            fixed,
+            /([\{,]\s*)'([^'\\]*?)'(\s*:)/g,
+            function (match, prefix, key, suffix) {
+                return prefix + '"' + key + '"' + suffix;
+            },
+        );
+        fixed = replaceOutsideQuotedSegments(
+            fixed,
+            /([\{,]\s*)(\w+)(\s*:)/g,
+            function (match, prefix, key, suffix) {
+                return prefix + '"' + key + '"' + suffix;
+            },
+        );
+        fixed = replaceOutsideQuotedSegments(
+            fixed,
+            /(:\s*)'([^'\\]*?)'/g,
+            function (match, prefix, value) {
+                return prefix + '"' + value + '"';
+            },
+        );
+
+        return fixed;
+    }
+
+    function parseWithBigInt(text) {
+        const fixed = normalizeLooseJSONSource(text);
 
         const marked = fixed.replace(
             /([:,\[]\s*)(-?\d{16,})(\s*)(?=(?:,|\]|\}|$))/g,
             function (match, prefix, number, spaces, offset) {
-                let inStr = false;
-                let esc = false;
-                for (let i = 0; i < offset; i++) {
-                    if (esc) {
-                        esc = false;
-                        continue;
-                    }
-                    if (fixed[i] === '\\') {
-                        esc = true;
-                        continue;
-                    }
-                    if (fixed[i] === '"') inStr = !inStr;
-                }
-                if (inStr) return match;
+                if (isInsideQuotedSegment(fixed, offset)) return match;
                 return prefix + '"__BigInt__' + number + '"' + spaces;
             },
         );
@@ -289,7 +339,7 @@
         addCandidate(normalized);
         addCandidate(stripped);
 
-        if (!/^[\{\[]/.test(stripped) && !(options.nestedEscapeParse && /^["']/.test(stripped))) {
+        if (options.allowExtractJSONFragment !== false && !/^[\{\[]/.test(stripped) && !(options.nestedEscapeParse && /^["']/.test(stripped))) {
             addCandidate(extractBalancedJSONContainer(stripped));
             addCandidate(extractBalancedJSONContainer(normalized));
         }
@@ -367,6 +417,7 @@
     return {
         isBigNumberLike,
         parseWithBigInt,
+        normalizeLooseJSONSource,
         deepParseJSONStrings,
         unpackTopLevelEscapedJSON,
         safeStringify,
