@@ -344,6 +344,10 @@ new Vue({
         // 页面加载时自动获取并注入json-format页面的补丁
         this.loadPatchHotfix();
         this.handleInlineAiLaunch();
+        document.addEventListener('keydown', this.handleGlobalKeydown, true);
+    },
+    beforeDestroy: function () {
+        document.removeEventListener('keydown', this.handleGlobalKeydown, true);
     },
     computed: {
         aiPanelResultHtml() {
@@ -365,6 +369,35 @@ new Vue({
         }
     },
     methods: {
+        handleGlobalKeydown(event) {
+            if (!event || event.key !== 'Escape') {
+                return;
+            }
+
+            let handled = false;
+            if (this.aiPanel && this.aiPanel.visible) {
+                this.closeAiPanel();
+                handled = true;
+            } else if (this.showJsonPathExamplesModal) {
+                this.closeJsonPathExamplesModal();
+                handled = true;
+            } else if (this.showTableViewModal) {
+                this.closeTableViewModal();
+                handled = true;
+            } else if (this.showJsonPathModal) {
+                this.closeJsonPathModal();
+                handled = true;
+            }
+
+            if (!handled) {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation && event.stopImmediatePropagation();
+        },
+
         async refreshJsonAiAvailability() {
             if (this.aiAvailabilityChecking) {
                 return this.aiAvailability;

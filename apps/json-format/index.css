@@ -911,64 +911,117 @@ html.fh-jf .fh-pane-ai-action.fh-ai-tool-btn:disabled:active {
 }
 
 .fh-json-ai-actions {
-    min-width: 0;
-    height: 30px;
-    padding: 3px;
+    position: relative;
+    flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
-    gap: 3px;
-    border: 1px solid rgba(37, 99, 235, 0.2);
+    white-space: nowrap;
+}
+
+.fh-json-ai-actions::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 39;
+    width: max(100%, 132px);
+    height: 10px;
+    pointer-events: auto;
+}
+
+.fh-json-ai-trigger {
+    height: 30px;
+    min-width: 48px;
+    padding: 0 11px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     border-radius: 999px;
+    border: 1px solid rgba(37, 99, 235, 0.28);
     background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(239, 246, 255, 0.72)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(239, 246, 255, 0.78)),
         rgba(238, 245, 255, 0.72);
+    color: var(--fh-accent-strong);
+    cursor: default;
+    font-size: 13px;
+    font-weight: 820;
+    line-height: 1;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.9),
         0 8px 18px rgba(37, 99, 235, 0.08);
     -webkit-backdrop-filter: blur(10px) saturate(145%);
     backdrop-filter: blur(10px) saturate(145%);
-    white-space: nowrap;
 }
 
-.fh-json-ai-actions > span {
-    height: 22px;
-    padding: 0 8px;
-    display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    color: var(--fh-accent-strong);
-    font-size: 12px;
-    font-weight: 820;
-    line-height: 1;
+.fh-json-ai-trigger::after {
+    content: "";
+    width: 0;
+    height: 0;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.72;
+    transform: translateY(1px);
+}
+
+.fh-json-ai-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 40;
+    min-width: 132px;
+    padding: 5px;
+    display: grid;
+    gap: 3px;
+    border: 1px solid rgba(214, 222, 236, 0.96);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 16px 34px rgba(31, 42, 68, 0.16);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.fh-json-ai-actions:hover .fh-json-ai-menu,
+.fh-json-ai-actions:focus-within .fh-json-ai-menu {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.fh-json-ai-actions:hover .fh-json-ai-trigger,
+.fh-json-ai-actions:focus-within .fh-json-ai-trigger {
+    border-color: rgba(37, 99, 235, 0.38);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(219, 234, 254, 0.88)),
+        rgba(238, 245, 255, 0.86);
+    color: #1d4ed8;
 }
 
 .fh-json-ai-actions .fh-pane-ai-action {
-    height: 22px;
-    min-width: 0;
+    width: 100%;
+    height: 28px;
+    min-width: 112px;
     padding: 0 10px;
-    border-radius: 999px;
+    justify-content: flex-start;
+    border-radius: 8px;
     font-size: 12px;
 }
 
 html.fh-jf .fh-json-ai-actions .fh-pane-ai-action.fh-ai-tool-btn {
     border-color: rgba(37, 99, 235, 0.14) !important;
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(239, 246, 255, 0.78)) !important;
+    background: #ffffff !important;
     color: #2456c7 !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.9),
-        0 1px 2px rgba(37, 99, 235, 0.08);
+    box-shadow: none;
 }
 
 html.fh-jf .fh-json-ai-actions .fh-pane-ai-action.fh-ai-tool-btn:hover,
 html.fh-jf .fh-json-ai-actions .fh-pane-ai-action.fh-ai-tool-btn:focus {
     border-color: rgba(37, 99, 235, 0.3) !important;
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(219, 234, 254, 0.88)) !important;
+    background: rgba(219, 234, 254, 0.76) !important;
     color: #1d4ed8 !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.95),
-        0 2px 6px rgba(37, 99, 235, 0.12);
+    box-shadow: none;
 }
 
 .fh-pane-actions .fh-option-bar {
@@ -1746,17 +1799,33 @@ body.theme-dark .fh-input-pane .CodeMirror-activeline-background {
 }
 
 body.theme-dark .fh-json-ai-actions {
+    color: #bfdbfe;
+}
+
+body.theme-dark .fh-json-ai-trigger {
     border-color: rgba(147, 197, 253, 0.26);
     background:
         linear-gradient(180deg, rgba(30, 41, 59, 0.78), rgba(15, 23, 42, 0.68)),
         rgba(37, 99, 235, 0.16);
+    color: #bfdbfe;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.08),
         0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
-body.theme-dark .fh-json-ai-actions > span {
-    color: #bfdbfe;
+body.theme-dark .fh-json-ai-actions:hover .fh-json-ai-trigger,
+body.theme-dark .fh-json-ai-actions:focus-within .fh-json-ai-trigger {
+    border-color: rgba(147, 197, 253, 0.38);
+    background:
+        linear-gradient(180deg, rgba(51, 65, 85, 0.88), rgba(30, 41, 59, 0.78)),
+        rgba(37, 99, 235, 0.2);
+    color: #eff6ff;
+}
+
+body.theme-dark .fh-json-ai-menu {
+    border-color: rgba(148, 163, 184, 0.24);
+    background: rgba(15, 23, 42, 0.98);
+    box-shadow: 0 18px 38px rgba(0, 0, 0, 0.34);
 }
 
 body.theme-dark .fh-pane-actions > .fh-pane-tool-action,
@@ -1790,23 +1859,17 @@ body.theme-dark .fh-json-error-actions .fh-error-tool-action:focus {
 
 body.theme-dark .fh-json-ai-actions .fh-pane-ai-action.fh-ai-tool-btn {
     border-color: rgba(147, 197, 253, 0.18) !important;
-    background:
-        linear-gradient(180deg, rgba(30, 41, 59, 0.88), rgba(15, 23, 42, 0.76)) !important;
+    background: rgba(15, 23, 42, 0.56) !important;
     color: #dbeafe !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.08),
-        0 1px 2px rgba(0, 0, 0, 0.16);
+    box-shadow: none;
 }
 
 body.theme-dark .fh-json-ai-actions .fh-pane-ai-action.fh-ai-tool-btn:hover,
 body.theme-dark .fh-json-ai-actions .fh-pane-ai-action.fh-ai-tool-btn:focus {
     border-color: rgba(147, 197, 253, 0.34) !important;
-    background:
-        linear-gradient(180deg, rgba(51, 65, 85, 0.9), rgba(30, 41, 59, 0.82)) !important;
+    background: rgba(30, 64, 175, 0.42) !important;
     color: #eff6ff !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.1),
-        0 2px 6px rgba(0, 0, 0, 0.18);
+    box-shadow: none;
 }
 
 body.theme-dark .fh-pane-ai-action.fh-ai-tool-btn:disabled {

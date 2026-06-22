@@ -12,6 +12,8 @@ html.fh-popup-lite-mode,
 html.fh-popup-lite-mode body {
     width: 208px;
     min-width: 208px;
+    min-height: 0;
+    height: auto;
 }
 
 html[data-fh-theme-pending="true"],
@@ -199,8 +201,7 @@ button {
 
 .fh-popup.is-lite-mode {
     width: 100%;
-    min-height: 248px;
-    min-height: max(248px, 100vh);
+    min-height: 0;
     max-height: 460px;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.995), rgba(249, 251, 255, 0.995));
     border-color: rgba(214, 222, 236, 0.96);
@@ -266,6 +267,7 @@ button {
 }
 
 .fh-popup.is-lite-mode .fh-command-list {
+    flex: 0 1 auto;
     padding: 3px 5px 6px;
     contain: layout paint;
     overscroll-behavior: contain;
@@ -782,8 +784,8 @@ kbd {
     transform: scale(0.96);
 }
 
-.fh-popup.few-tools,
-.fh-popup.very-few-tools {
+.fh-popup.is-omni-mode.few-tools,
+.fh-popup.is-omni-mode.very-few-tools {
     min-height: 420px;
     min-height: max(420px, 100vh);
 }

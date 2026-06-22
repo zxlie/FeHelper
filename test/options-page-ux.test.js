@@ -123,6 +123,32 @@ describe('options page UX policy', () => {
         expect(saveSettingsBlock).not.toContain("'POPUP_AI_ROUTER_ENABLED'");
     });
 
+    it('lets the lite popup shrink to its installed tool count', () => {
+        const popupCss = readSource('apps/popup/index.css');
+        const litePageSizing = sourceBetween(
+            popupCss,
+            'html.fh-popup-lite-mode,',
+            'html[data-fh-theme-pending="true"]'
+        );
+        const liteShellSizing = sourceBetween(
+            popupCss,
+            '.fh-popup.is-lite-mode {',
+            '.fh-popup.is-lite-mode .fh-header'
+        );
+        const liteListSizing = sourceBetween(
+            popupCss,
+            '.fh-popup.is-lite-mode .fh-command-list {',
+            '.fh-popup.is-lite-mode .fh-command-list::-webkit-scrollbar'
+        );
+
+        expect(litePageSizing).toContain('min-height: 0;');
+        expect(litePageSizing).toContain('height: auto;');
+        expect(liteShellSizing).toContain('min-height: 0;');
+        expect(liteShellSizing).not.toContain('100vh');
+        expect(liteListSizing).toContain('flex: 0 1 auto;');
+        expect(popupCss).not.toContain('.fh-popup.few-tools,\n.fh-popup.very-few-tools');
+    });
+
     it('gives modal dialogs semantic roles and keyboard handling', () => {
         const optionsHtml = readSource('apps/options/index.html');
         const optionsSource = readSource('apps/options/index.js');

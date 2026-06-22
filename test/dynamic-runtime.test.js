@@ -148,4 +148,73 @@ describe('dynamic runtime developer support', () => {
         expect(fakeDocument.body.dataset.executed).toBe('yes');
         expect(fakeDocument.body.innerHTML).toBe('');
     });
+
+    it('renders custom tools through a sandbox iframe to avoid extension-page CSP eval', () => {
+        const runtime = loadRuntime({
+            setTimeout(fn) {
+                fn();
+            }
+        });
+        const posted = [];
+        const appended = [];
+        const fakeIframe = {
+            className: '',
+            title: '',
+            src: '',
+            style: { cssText: '' },
+            contentWindow: {
+                postMessage(message) {
+                    posted.push(message);
+                }
+            },
+            addEventListener(eventName, callback) {
+                expect(eventName).toBe('load');
+                callback();
+            }
+        };
+        const fakeDocument = {
+            body: {
+                style: {},
+                innerHTML: 'loading',
+                appendChild(node) {
+                    appended.push(node);
+                }
+            },
+            createElement(tag) {
+                expect(tag).toBe('iframe');
+                return fakeIframe;
+            }
+        };
+
+        const ok = runtime.renderInSandbox({
+            html: '<!doctype html><html><body>Hello</body></html>',
+            css: ['body{color:red}'],
+            js: ['window.answer = 42;']
+        }, fakeDocument);
+
+        expect(ok).toBe(true);
+        expect(fakeDocument.body.innerHTML).toBe('');
+        expect(appended[0]).toBe(fakeIframe);
+        expect(fakeIframe.src).toBe('sandbox.html');
+        expect(posted[0].type).toBe('fh-dynamic-render');
+        expect(posted[0].payload.js).toEqual(['window.answer = 42;']);
+    });
+
+    it('dynamic page routes stored custom tool code into the sandbox renderer', () => {
+        const source = fs.readFileSync(path.resolve('apps/dynamic/index.js'), 'utf8');
+
+        expect(source).toContain('Runtime.renderInSandbox');
+        expect(source).toContain("html,");
+        expect(source).toContain('js: allJs');
+        expect(source).toContain("new DOMParser().parseFromString(html, 'text/html')");
+    });
+
+    it('manifest declares the dynamic sandbox page with unsafe-eval isolated from extension pages', () => {
+        const manifest = JSON.parse(fs.readFileSync(path.resolve('apps/manifest.json'), 'utf8'));
+
+        expect(manifest.content_security_policy.extension_pages).toBe("script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'self'");
+        expect(manifest.content_security_policy.sandbox).toContain("'unsafe-eval'");
+        expect(manifest.sandbox.pages).toContain('dynamic/sandbox.html');
+        expect(manifest.sandbox.content_security_policy).toBeUndefined();
+    });
 });

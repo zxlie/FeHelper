@@ -112,11 +112,39 @@
         }
     }
 
+    function renderInSandbox(payload, doc) {
+        doc = doc || global.document;
+        if (!doc || !doc.body || !doc.createElement) return false;
+
+        doc.body.style.display = 'block';
+        doc.body.innerHTML = '';
+
+        let iframe = doc.createElement('iframe');
+        iframe.className = 'fh-dynamic-sandbox';
+        iframe.title = 'FeHelper dynamic tool';
+        iframe.src = 'sandbox.html';
+        iframe.style.cssText = 'display:block;width:100%;height:100vh;border:0;background:#fff;';
+        doc.body.appendChild(iframe);
+
+        let postPayload = function () {
+            if (!iframe.contentWindow) return;
+            iframe.contentWindow.postMessage({
+                type: 'fh-dynamic-render',
+                payload: payload || {}
+            }, '*');
+        };
+
+        iframe.addEventListener('load', postPayload);
+        global.setTimeout && global.setTimeout(postPayload, 250);
+        return true;
+    }
+
     global.FHDynamicRuntime = {
         normalizeSourceKey,
         collectAssetKeys,
         recoverNativeFunction,
         executeScripts,
+        renderInSandbox,
         renderRuntimeError
     };
 })(typeof window !== 'undefined' ? window : globalThis);

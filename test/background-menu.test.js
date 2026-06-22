@@ -312,7 +312,10 @@ describe('background context menu wiring', () => {
         expect(start).toBeGreaterThan(-1);
         expect(end).toBeGreaterThan(start);
         expect(noPageBranch).toContain('contentScriptJs');
+        expect(noPageBranch).toContain('toolInfo._devTool');
+        expect(noPageBranch).toContain('Awesome.getContentScript(tool)');
         expect(noPageBranch).toContain('_getContentScriptFiles(tool)');
+        expect(noPageBranch).toContain("tool.replace(/[-_]/g, '')");
         expect(noPageBranch).toContain("toolFunc + 'ContentScript'");
         expect(noPageBranch).toContain("toolFunc + 'NoPage'");
     });

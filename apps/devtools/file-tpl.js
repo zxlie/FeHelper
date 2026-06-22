@@ -5,7 +5,7 @@ window.FileTpl = {
         "name": "#toolFullName#",
         "tips": "我是 #toolName# 的描述信息！你可以在这里修改！",
         "icon": "#toolIcon#",
-        "contentScript": #contentScript#,
+        "contentScriptJs": #contentScript#,
         "noPage": #noPage#,
         "updateUrl":"#updateUrl#"
     }

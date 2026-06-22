@@ -776,7 +776,7 @@ new Vue({
             document.body.removeChild(input);
         },
         fhDeveloperDoc() {
-            window.open(`https://github.com/zxlie/FeHelper/blob/master/README_NEW.md#%E5%85%ADopen-api`);
+            window.open('https://fehelper.com/docs.html?tool=devtools');
         }
     }
 });

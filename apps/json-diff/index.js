@@ -208,6 +208,16 @@ function stringifyExample(value) {
     return typeof value === 'string' ? value : JSON.stringify(value, null, 4);
 }
 
+function parseJsonForDiff(text) {
+    if (window.FHJsonAutoUtils && typeof window.FHJsonAutoUtils.parseJSONLike === 'function') {
+        const parsed = window.FHJsonAutoUtils.parseJSONLike(text, {
+            nestedEscapeParse: true
+        });
+        if (parsed) return parsed.value;
+    }
+    return JSON.parse(text);
+}
+
 window.vueApp = new Vue({
     el: '#pageContainer',
     data: {
@@ -292,13 +302,13 @@ window.vueApp = new Vue({
             }
 
             try {
-                leftJson = JSON.parse(leftText);
+                leftJson = parseJsonForDiff(leftText);
             } catch (e) {
                 leftOk = false;
             }
 
             try {
-                rightJson = JSON.parse(rightText);
+                rightJson = parseJsonForDiff(rightText);
             } catch (e) {
                 rightOk = false;
             }

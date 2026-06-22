@@ -1,168 +1,210 @@
 # 开发者工具
 
-## 工具简介
+FeHelper 开发者工具用于创建和维护本地自定义 FH 工具。当前支持两类工具：
 
-开发者工具是一个功能强大的FeHelper插件开发工具，支持创建、编辑、管理和发布自定义工具。该工具提供了完整的开发环境，包括代码编辑器、文件管理、实时预览等功能，帮助开发者快速构建和部署自己的工具。
+- 页面工具：点击后打开 FeHelper 的动态工具页，适合表单、转换器、可视化面板等有独立 UI 的工具。
+- noPage 工具：点击右键菜单或弹窗入口后直接在当前网页执行，适合页面取数、页面标记、快捷操作等不需要打开新页的工具。
 
-## 主要功能
+本文示例已经按当前 MV3 版本验证：页面工具会运行在 `dynamic/sandbox.html` 隔离沙箱里，noPage 工具会从 `chrome.storage.local` 读取 `content-script.js` 后注入当前网页。
 
-### 1. 工具创建
-- 本地工具创建
-- 远程工具导入
-- 模板工具使用
-- 工具配置管理
-- 图标选择器
+## 工具包结构
 
-### 2. 开发环境
-- 代码编辑器
-- 语法高亮
-- 实时保存
-- 文件管理
-- 多文件支持
+一个自定义工具建议使用独立目录，例如：
 
-### 3. 工具管理
-- 工具启用/停用
-- 工具更新
-- 工具打包
-- 工具删除
-- 配置导出
+```text
+fh-doc-qa/
+  fh-config.js
+  index.html
+  index.css
+  index.js
+  content-script.js
+  content-script.css
+```
 
-### 4. 开发辅助
-- 代码模板
-- 文件导入
-- 实时预览
-- 错误提示
-- 开发文档
+最少需要 `fh-config.js` 和 `index.html`。只有 noPage 或页面注入能力需要 `content-script.js` / `content-script.css`。
 
-## 使用说明
+## 配置文件
 
-### 基本使用
-1. 创建新工具
-2. 编辑工具代码
-3. 管理工具文件
-4. 测试工具功能
-5. 发布工具
+`fh-config.js` 使用纯 JSON，键名就是工具 ID。工具 ID 建议使用小写字母、数字、连字符或下划线。
 
-### 工具创建方式
-1. **本地创建**：
-   - 点击"开始我的第一个FH工具"
-   - 填写工具信息
-   - 选择开发模式
-   - 开始编码
+```json
+{
+  "fh-doc-qa": {
+    "name": "文档验收工具",
+    "tips": "验证自定义 FH 工具开发流程",
+    "icon": "验",
+    "noPage": false,
+    "contentScriptJs": false,
+    "contentScriptCss": false,
+    "updateUrl": ""
+  }
+}
+```
 
-2. **远程导入**：
-   - 点击"从远程服务载入工具"
-   - 输入工具URL
-   - 等待下载完成
-   - 开始编辑
+字段说明：
 
-3. **示例工具**：
-   - 点击"来个HelloWorld试试"
-   - 查看示例代码
-   - 学习开发方式
-   - 基于示例开发
+- `name`：显示在弹窗、配置页和右键菜单里的工具名。
+- `tips`：工具描述。
+- `icon`：工具图标，可以使用单个文字或符号。
+- `noPage`：`false` 表示打开独立页面；`true` 表示直接在当前网页执行。
+- `contentScriptJs`：是否需要 `content-script.js`。
+- `contentScriptCss`：是否需要 `content-script.css`。
+- `contentScript`：旧字段别名，仍兼容；新工具建议使用 `contentScriptJs`。
+- `updateUrl`：远程更新入口；本地工具可留空。
 
-## 使用技巧
+安装后 FeHelper 会把配置保存到 `DEV-TOOLS:MY-TOOLS`，并自动追加内部字段 `_devTool` / `_enable`。
 
-1. **工具配置**：
-   - 设置工具ID
-   - 选择工具图标
-   - 配置更新地址
-   - 设置注入脚本
+## 页面工具
 
-2. **文件管理**：
-   - 创建新文件
-   - 导入已有文件
-   - 删除不需要的文件
-   - 管理文件结构
+页面工具适合有独立 UI 的工具。`fh-config.js` 中保持：
 
-3. **代码编辑**：
-   - 使用语法高亮
-   - 自动保存功能
-   - 代码格式化
-   - 错误检查
+```json
+{
+  "fh-doc-qa": {
+    "name": "文档验收工具",
+    "tips": "验证自定义 FH 工具开发流程",
+    "icon": "验",
+    "noPage": false,
+    "contentScriptJs": false,
+    "contentScriptCss": false,
+    "updateUrl": ""
+  }
+}
+```
 
-## 适用场景
+`index.html`：
 
-1. **工具开发**：
-   - 创建新工具
-   - 修改现有工具
-   - 调试工具功能
-   - 发布工具更新
+```html
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>FH 文档验收工具</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <main id="fh-doc-qa">加载中</main>
+  <script src="index.js"></script>
+</body>
+</html>
+```
 
-2. **学习实践**：
-   - 学习工具开发
-   - 练习编码技能
-   - 测试新功能
-   - 分享开发经验
+`index.css`：
 
-3. **团队协作**：
-   - 工具版本管理
-   - 代码共享
-   - 功能测试
-   - 问题修复
+```css
+#fh-doc-qa {
+  color: rgb(17, 112, 64);
+  font-weight: 700;
+}
+```
 
-## 注意事项
+`index.js`：
 
-1. 工具ID必须唯一
-2. 注意文件命名规范
-3. 定期备份工具代码
-4. 测试工具兼容性
+```js
+document.getElementById('fh-doc-qa').textContent = 'FH_CUSTOM_TOOL_OK';
+window.__FH_DOC_QA_TOOL_RAN__ = true;
+```
 
-## 技术实现
+运行方式：
 
-- 基于Vue.js开发
-- 使用CodeMirror编辑器
-- 支持文件系统操作
-- 提供完整的开发API
+1. 打开 FeHelper 配置页里的“开发者工具”。
+2. 创建本地工具，或导入包含上述文件的 zip 包。
+3. 在弹窗或配置页安装并打开 `fh-doc-qa`。
+4. 页面应显示 `FH_CUSTOM_TOOL_OK`。
 
-## 更新日志
+实现细节：保存或导入时，FeHelper 会把 `index.html` 中的外链 CSS/JS 转成内部 `<dynamic>` 标记，并把内容保存到 `DYNAMIC_TOOL:<toolId>`、`../<toolId>/index.css`、`../<toolId>/index.js`。运行时 `dynamic/index.html?tool=<toolId>` 会读取这些内容，再放入 sandbox iframe。
 
-### v1.0.0
-- 初始版本发布
-- 支持基本工具创建
-- 提供代码编辑器
+## noPage 工具
 
-### v1.1.0
-- 添加远程工具支持
-- 优化编辑器功能
-- 改进用户界面
+noPage 工具不会打开独立页面，而是在当前网页执行 `content-script.js` 中的函数。
 
-### v1.2.0
-- 添加文件管理
-- 支持工具打包
-- 提升开发体验
+`fh-config.js`：
+
+```json
+{
+  "fh-doc-nopage": {
+    "name": "文档 noPage 验收",
+    "tips": "在当前页面直接执行的 FH 工具",
+    "icon": "验",
+    "noPage": true,
+    "contentScriptJs": true,
+    "contentScriptCss": true,
+    "updateUrl": ""
+  }
+}
+```
+
+`content-script.js`：
+
+```js
+window.fhdocnopageContentScript = function () {
+  window.__FH_DOC_NOPAGE_READY__ = true;
+};
+
+window.fhdocnopageNoPage = function (tabInfo) {
+  window.__FH_DOC_NOPAGE_TAB_URL__ = tabInfo && tabInfo.url;
+  document.body.dataset.fhDocNoPage = 'FH_NOPAGE_OK';
+};
+```
+
+函数命名规则：
+
+- 先把工具 ID 中的 `-` 和 `_` 删除。
+- 再拼接 `ContentScript` 和 `NoPage`。
+- 例如 `fh-doc-nopage` 对应 `window.fhdocnopageContentScript` 和 `window.fhdocnopageNoPage`。
+
+`content-script.css` 可选：
+
+```css
+body[data-fh-doc-no-page="FH_NOPAGE_OK"] {
+  outline: 3px solid rgb(17, 112, 64);
+}
+```
+
+运行方式：
+
+1. 安装并启用该工具。
+2. 在普通网页中从 FeHelper 弹窗或右键菜单触发该工具。
+3. 页面 DOM 应出现 `data-fh-doc-no-page="FH_NOPAGE_OK"`。
+
+## 运行限制
+
+- 页面工具运行在 MV3 sandbox 中，可以操作自己的 DOM，也可以使用普通浏览器 API。
+- 页面工具的 sandbox 不能直接调用 `chrome.*` 扩展 API；需要扩展能力时，优先拆成 noPage/content-script 逻辑。
+- `index.js` 请使用普通脚本格式；不要直接写 ESM `import/export`，需要依赖时先打包成单文件脚本。
+- noPage 工具只能在可注入页面执行，不能在 `chrome://`、Chrome Web Store、扩展商店页等受限页面执行。
+- noPage 的 `tabInfo` 来自当前激活 tab，可读取 `tabInfo.url`、`tabInfo.title` 等基础信息。
 
 ## 常见问题
 
-1. **Q: 如何创建新工具？**
-   A: 点击"开始我的第一个FH工具"按钮，填写工具信息即可创建。
+**加载扩展时报 sandbox CSP 错误**
 
-2. **Q: 支持哪些文件类型？**
-   A: 支持HTML、JavaScript、CSS等Web开发相关文件。
+MV3 的 sandbox CSP 必须写在 `content_security_policy.sandbox`，`sandbox` 字段只放页面列表：
 
-3. **Q: 如何更新工具？**
-   A: 可以通过本地更新或远程URL更新两种方式。
+```json
+{
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'self'",
+    "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'"
+  },
+  "sandbox": {
+    "pages": ["dynamic/sandbox.html"]
+  }
+}
+```
 
-4. **Q: 如何分享工具？**
-   A: 可以将工具打包后分享给其他用户，或发布到远程服务器。
+**页面工具打开后空白**
 
-## 最佳实践
+检查 `index.html` 是否引用了实际存在的 `index.js` / `index.css`，并确认导入或保存后 storage 中有 `DYNAMIC_TOOL:<toolId>` 和 `../<toolId>/index.js`。
 
-1. **开发流程**：
-   - 规划工具功能
-   - 设计用户界面
-   - 编写核心代码
-   - 测试和优化
+**noPage 没有反应**
 
-2. **代码管理**：
-   - 使用版本控制
-   - 定期备份代码
-   - 遵循编码规范
-   - 做好注释说明
+优先检查三点：
 
-3. **工具发布**：
-   - 充分测试功能
-   - 优化用户体验
-   - 准备使用文档
-   - 收集用户反馈 
+- `fh-config.js` 中 `noPage: true` 且 `contentScriptJs: true`。
+- `content-script.js` 函数名是否按规则删除了 `-` 和 `_`。
+- 当前页面是否允许扩展注入脚本。
+
+**提示 `xxxNoPage is not a function`**
+
+通常是工具 ID 和函数名不匹配。例如工具 ID 是 `my-tool`，函数必须是 `window.mytoolNoPage`，不能写成 `window.myToolNoPage` 或 `window.my_toolNoPage`。

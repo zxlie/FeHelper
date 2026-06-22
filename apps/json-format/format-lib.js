@@ -95,6 +95,9 @@ window.Formatter = (function () {
 
     let lastItemIdGiven = 0;
     let cachedJsonString = '';
+    let plainJsonViewEnabled = false;
+    let prettyJsonSelectionActive = false;
+    let prettyJsonShortcutBound = false;
     
     // 单例Worker实例
     let workerInstance = null;
@@ -126,6 +129,125 @@ window.Formatter = (function () {
         return true;
     };
 
+    let _hasPrettyJsonResult = function () {
+        return _canRenderFormattedResult() && !!cachedJsonString;
+    };
+
+    let _isEditableShortcutTarget = function (target) {
+        if (!target || target === document || target === window) return false;
+        let el = target.nodeType === 1 ? target : target.parentElement;
+        if (!el) return false;
+        if (el.isContentEditable) return true;
+        let tagName = (el.tagName || '').toLowerCase();
+        if (/^(input|textarea|select)$/i.test(tagName)) return true;
+        return !!(el.closest && el.closest('input, textarea, select, [contenteditable="true"], .CodeMirror, .cm-editor, .cm-content'));
+    };
+
+    let _updatePlainJsonControls = function () {
+        let optionBar = $('#optionBar');
+        optionBar.find('.fh-json-meta-toggle').text(plainJsonViewEnabled ? 'JSON视图' : '元数据');
+    };
+
+    let _exitPrettyJsonSelection = function () {
+        prettyJsonSelectionActive = false;
+        _setPlainJsonView(false);
+        if (window.getSelection) {
+            let selection = window.getSelection();
+            selection && selection.removeAllRanges && selection.removeAllRanges();
+        }
+        jfStatusBar && jfStatusBar.hide();
+    };
+
+    let _setPlainJsonView = function (enabled) {
+        plainJsonViewEnabled = !!enabled;
+        if (plainJsonViewEnabled) {
+            jfPre.show();
+            jfContent.hide();
+        } else {
+            jfPre.hide();
+            jfContent.show();
+        }
+        _updatePlainJsonControls();
+    };
+
+    let _selectPrettyJsonText = function () {
+        if (!_hasPrettyJsonResult()) return false;
+        jfPre.html(htmlspecialchars(cachedJsonString));
+        _setPlainJsonView(true);
+        let preEl = jfPre[0];
+        if (!preEl || !window.getSelection || !document.createRange) return false;
+        let selection = window.getSelection();
+        let range = document.createRange();
+        range.selectNodeContents(preEl);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        prettyJsonSelectionActive = true;
+        return true;
+    };
+
+    let _copyPrettyJsonSelection = function (event) {
+        if (!prettyJsonSelectionActive || !_hasPrettyJsonResult()) return false;
+        if (event && event.clipboardData && event.clipboardData.setData) {
+            event.preventDefault();
+            event.clipboardData.setData('text/plain', cachedJsonString);
+            toast('格式化后的 JSON 全文已复制到剪贴板！');
+            return true;
+        }
+        _copyToClipboard(cachedJsonString, '格式化后的 JSON 全文已复制到剪贴板！');
+        return true;
+    };
+
+    let _bindPrettyJsonShortcuts = function () {
+        if (prettyJsonShortcutBound || !document.addEventListener) return;
+        prettyJsonShortcutBound = true;
+        document.addEventListener('keydown', function (event) {
+            let key = String(event.key || '').toLowerCase();
+            if (key === 'escape' && (plainJsonViewEnabled || prettyJsonSelectionActive) && _hasPrettyJsonResult()) {
+                event.preventDefault();
+                event.stopPropagation();
+                _exitPrettyJsonSelection();
+                return;
+            }
+
+            let isShortcut = event.ctrlKey || event.metaKey;
+            if (!isShortcut || event.altKey || event.shiftKey) return;
+
+            if (key === 'a') {
+                if (_isEditableShortcutTarget(event.target) || !_hasPrettyJsonResult()) {
+                    prettyJsonSelectionActive = false;
+                    return;
+                }
+                if (_selectPrettyJsonText()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                return;
+            }
+
+            if (key === 'c') {
+                if (prettyJsonSelectionActive && _hasPrettyJsonResult()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    prettyJsonSelectionActive = false;
+                    _copyToClipboard(cachedJsonString, '格式化后的 JSON 全文已复制到剪贴板！');
+                    return;
+                }
+                if (_isEditableShortcutTarget(event.target)) {
+                    prettyJsonSelectionActive = false;
+                }
+                return;
+            }
+
+            prettyJsonSelectionActive = false;
+        }, true);
+        document.addEventListener('copy', function (event) {
+            _copyPrettyJsonSelection(event);
+        }, true);
+        document.addEventListener('mousedown', function () {
+            prettyJsonSelectionActive = false;
+        }, true);
+    };
+
     let _initElements = function () {
 
         jfContent = $('#jfContent');
@@ -147,6 +269,8 @@ window.Formatter = (function () {
         if (!formattingMsg[0]) {
             formattingMsg = $('<div id="formattingMsg"><span class="x-loading"></span>格式化中...</div>').appendTo('body');
         }
+
+        _bindPrettyJsonShortcuts();
 
         try {
             jfContent.html('').show();
@@ -894,9 +1018,39 @@ window.Formatter = (function () {
             optionBar = $('<span id="optionBar" class="fh-option-bar" />').appendTo(jfContent.parent());
         }
 
+        plainJsonViewEnabled = false;
+        prettyJsonSelectionActive = false;
+        jfPre.hide();
+        jfContent.show();
+
+        $('<span class="x-split">|</span>').appendTo(optionBar);
+        let buttonFormatted = $('<button class="xjf-btn xjf-btn-left fh-json-meta-toggle">元数据</button>').appendTo(optionBar);
         let buttonCollapseAll = $('<button class="xjf-btn xjf-btn-mid">折叠</button>').appendTo(optionBar);
+        let buttonCopyPlain = $('<button class="xjf-btn xjf-btn-mid fh-json-copy-plain" title="复制格式化后的 JSON 全文">复制</button>').appendTo(optionBar);
+
+        buttonFormatted.bind('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            _setPlainJsonView(!plainJsonViewEnabled);
+
+            jfStatusBar && jfStatusBar.hide();
+        });
+
+        buttonCopyPlain.bind('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!cachedJsonString) {
+                toast('暂无可复制的格式化结果，请先执行格式化。');
+                return;
+            }
+            _copyToClipboard(cachedJsonString, '格式化后的 JSON 全文已复制到剪贴板！');
+        });
 
         buttonCollapseAll.bind('click', function (e) {
+            if (plainJsonViewEnabled) {
+                _setPlainJsonView(false);
+            }
+
             if (buttonCollapseAll.text() === '折叠') {
                 buttonCollapseAll.text('展开');
                 // 递归折叠所有层级的对象和数组，确保所有内容都被折叠
@@ -908,6 +1062,8 @@ window.Formatter = (function () {
             }
             jfStatusBar && jfStatusBar.hide();
         });
+
+        _updatePlainJsonControls();
 
     };
 

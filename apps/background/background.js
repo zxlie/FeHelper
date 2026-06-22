@@ -196,7 +196,7 @@ let BgPageInstance = (function () {
         let query = configs.query;
 
         if (configs.noPage) {
-            let toolFunc = tool.replace(/-/g, '');
+            let toolFunc = tool.replace(/[-_]/g, '');
             chrome.tabs.query({active: true, currentWindow: true}, tabs => {
                 let found = tabs.some(tab => {
                     if (isInjectableTabUrl(tab.url)) {
@@ -216,7 +216,28 @@ let BgPageInstance = (function () {
                             args: [initFuncName, funcName, tab]
                         };
                         Awesome.getInstalledTools().then(tools => {
-                            if (tools[tool] && tools[tool].contentScriptJs) {
+                            const toolInfo = tools[tool];
+                            if (toolInfo && toolInfo.contentScriptJs) {
+                                if (toolInfo._devTool) {
+                                    Promise.all([
+                                        Awesome.getContentScript(tool),
+                                        toolInfo.contentScriptCss ? Awesome.getContentScript(tool, true) : Promise.resolve('')
+                                    ]).then(([js, css]) => {
+                                        const invokeNoPage = () => InjectTools.inject(tab.id, invokeConfig);
+                                        const injectScript = () => js
+                                            ? InjectTools.inject(tab.id, { js }, invokeNoPage)
+                                            : invokeNoPage();
+
+                                        if (css) {
+                                            InjectTools.inject(tab.id, { css }, injectScript);
+                                            return;
+                                        }
+                                        injectScript();
+                                    }).catch(() => {
+                                        InjectTools.inject(tab.id, invokeConfig);
+                                    });
+                                    return;
+                                }
                                 invokeConfig.files = _getContentScriptFiles(tool);
                             }
                             InjectTools.inject(tab.id, invokeConfig);

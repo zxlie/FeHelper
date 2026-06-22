@@ -18,35 +18,34 @@ let DynamicTool = (() => {
                 }
                 return;
             }
-            // 生成界面
-            document.write(html);
-
             // 页面滤镜：关掉
             DarkModeMgr.turnLightAuto();
 
-            // 更新静态文件
-            let list = document.querySelectorAll('dynamic[data-source]');
-            if (!list.length) return;
+            // 更新静态文件。MV3 扩展页不允许 eval / new Function，
+            // 因此带脚本的自定义工具统一放到 sandbox 页面中运行。
+            let tpl = new DOMParser().parseFromString(html, 'text/html');
+            let list = tpl.querySelectorAll('dynamic[data-source]');
             let assets = Runtime.collectAssetKeys ? Runtime.collectAssetKeys(list) : { js: [], css: [] };
             let allJs = assets.js || [];
             let allCss = assets.css || [];
 
             Promise.all([Awesome.StorageMgr.get(allCss), Awesome.StorageMgr.get(allJs)]).then(values => {
+                allCss = allCss.map(f => values[0][f]).filter(Boolean);
+                allJs = allJs.map(f => values[1][f]).filter(Boolean);
+                if (Runtime.renderInSandbox) {
+                    Runtime.renderInSandbox({
+                        html,
+                        css: allCss,
+                        js: allJs
+                    }, document);
+                    return;
+                }
                 document.body.style.display = 'block';
-                allCss = allCss.map(f => values[0][f]).join(' ');
+                document.write(html);
                 if (allCss.length) {
                     let node = document.createElement('style');
-                    node.textContent = allCss;
+                    node.textContent = allCss.join(' ');
                     document.head.appendChild(node);
-                }
-                allJs = allJs.map(f => values[1][f]).filter(Boolean);
-                if (allJs.length) {
-                    if (Runtime.executeScripts) {
-                        Runtime.executeScripts(allJs, { win: window, doc: document });
-                    } else {
-                        const NativeFunction = window.__FH_NATIVE_FUNCTION__ || Function;
-                        try { NativeFunction(allJs.join(';\n'))(); } catch(e) { console.error('动态工具JS执行失败', e); }
-                    }
                 }
             });
         });

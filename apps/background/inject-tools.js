@@ -22,7 +22,7 @@ export default (() => {
             target: {tabId, allFrames},
             func: function(code){
                 try {
-                    new Function(code)();
+                    new Function('window', 'document', 'globalThis', 'self', code)(window, document, window, window);
                 } catch (e) {}
             },
             args: [js]

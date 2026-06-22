@@ -10,6 +10,7 @@
     bottom: 0;
     right:0;
     left:0;
+    overflow: hidden;
 }
 body[browser-extension] .wp-json .mod-json {
     top: 60px;
@@ -28,13 +29,18 @@ body[browser-extension] .wp-json .mod-json {
 }
 
 .json-examples {
-    margin: 0 15px 10px 15px;
-    padding-bottom: 10px;
+    height: 44px;
+    margin: 6px 12px 8px;
+    padding: 0 0 8px;
     border-bottom: 1px solid #eee;
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    scrollbar-width: thin;
 }
 
 .json-examples span {
@@ -59,7 +65,10 @@ body[browser-extension] .wp-json .mod-json {
 .result-display {
     margin-left: auto !important;
     font-size: 14px !important;
-    white-space: normal;
+    min-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .compare-mode-switch {
@@ -97,11 +106,11 @@ body[browser-extension] .wp-json .mod-json {
 }
 
 .box-wrapper-left {
-    height: 90%;
+    height: calc(100% - 58px);
     padding:0 5px 0 0;
 }
 .box-wrapper-right {
-    height: 90%;
+    height: calc(100% - 58px);
     padding:0 0 0 5px;
 }
 #jsonSourceLeft, #jsonSourceRight, .CodeMirror {
@@ -171,11 +180,11 @@ body[browser-extension] .wp-json .mod-json {
 
 @media (max-width: 900px) {
     .json-examples {
-        align-items: flex-start;
+        margin-left: 8px;
+        margin-right: 8px;
     }
 
     .result-display {
-        width: 100%;
-        margin-left: 0 !important;
+        min-width: 180px;
     }
 }
