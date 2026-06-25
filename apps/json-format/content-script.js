@@ -3,6 +3,10 @@
  * @author zhaoxianlie
  */
 
+// Popup wakeup may re-inject this script into an already formatted page.
+if (!window.__FH_JSON_AUTO_FORMAT_SCRIPT_LOADED__) {
+    window.__FH_JSON_AUTO_FORMAT_SCRIPT_LOADED__ = true;
+
 window.JsonAutoFormat = (() => {
 
     // 依赖已在 background 首轮注入，这里无需再次加载
@@ -915,4 +919,5 @@ if(location.protocol !== 'chrome-extension:') {
     (async () => {
         await window.JsonAutoFormat.format();
     })();
+}
 }

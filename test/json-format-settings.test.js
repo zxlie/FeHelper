@@ -104,6 +104,10 @@ describe('json-format settings regression guards', () => {
         expect(source).toContain("JSON_FORMAT_COMPACT_MODE: 'JSON_FORMAT_COMPACT_MODE'");
         expect(source).toContain("FH_UI_MODE: 'FH_UI_MODE'");
         expect(source).toContain("JSON_FORMAT_UI_MODE: 'JSON_FORMAT_UI_MODE'");
+        expect(source).toContain('if (!window.__FH_JSON_AUTO_FORMAT_SCRIPT_LOADED__) {');
+        expect(source).toContain('window.__FH_JSON_AUTO_FORMAT_SCRIPT_LOADED__ = true;');
+        expect(source.indexOf('if (!window.__FH_JSON_AUTO_FORMAT_SCRIPT_LOADED__) {')).toBeLessThan(source.indexOf('window.JsonAutoFormat = (() => {'));
+        expect(source.indexOf('window.JsonAutoFormat = (() => {')).toBeLessThan(source.indexOf('await window.JsonAutoFormat.format();'));
         expect(source).toContain("document.documentElement.classList.add('fh-jf');");
         expect(source).toContain('class="setting-section-title">运行</div>');
         expect(source).toContain('class="setting-section-title">解析与排序</div>');
