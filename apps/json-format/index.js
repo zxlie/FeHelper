@@ -255,6 +255,8 @@ new Vue({
         jsonPathResults: [],
         jsonPathError: '',
         copyButtonState: 'normal', // normal, copying, success, error
+        jsonPathCopyNotice: '',
+        jsonPathCopyNoticeTimer: null,
         showTableViewModal: false,
         tableViewError: '',
         tableViewMode: 'grid',
@@ -348,6 +350,7 @@ new Vue({
     },
     beforeDestroy: function () {
         document.removeEventListener('keydown', this.handleGlobalKeydown, true);
+        window.clearTimeout(this.jsonPathCopyNoticeTimer);
     },
     computed: {
         aiPanelResultHtml() {
@@ -1207,6 +1210,7 @@ new Vue({
         executeJsonPath: function() {
             this.jsonPathError = '';
             this.jsonPathResults = [];
+            this.jsonPathCopyNotice = '';
 
             if (!this.jsonPathQuery.trim()) {
                 this.jsonPathError = '请输入JSONPath查询表达式';
@@ -1220,7 +1224,7 @@ new Vue({
             }
 
             try {
-                let jsonObj = JSON.parse(source);
+                let jsonObj = parseWithBigInt(source);
                 this.jsonPathResults = this.queryJsonPath(jsonObj, this.jsonPathQuery.trim());
                 this.showJsonPathModal = true;
             } catch (error) {
@@ -1278,6 +1282,15 @@ new Vue({
             if ((match = path.match(/^\[([^\]]+)\](.*)$/))) {
                 let indexExpr = match[1];
                 let remainPath = match[2];
+                let quotedPropMatch = indexExpr.match(/^['"](.+)['"]$/);
+
+                if (quotedPropMatch) {
+                    let prop = quotedPropMatch[1];
+                    if (typeof current === 'object' && current !== null && current.hasOwnProperty(prop)) {
+                        this.evaluateJsonPath(current[prop], remainPath, currentPath + '[' + JSON.stringify(prop) + ']', results);
+                    }
+                    return;
+                }
                 
                 if (!Array.isArray(current)) {
                     return;
@@ -1431,12 +1444,14 @@ new Vue({
             this.jsonPathResults = [];
             this.jsonPathError = '';
             this.copyButtonState = 'normal';
+            this.jsonPathCopyNotice = '';
         },
 
         // 关闭JSONPath结果模态框
         closeJsonPathModal: function() {
             this.showJsonPathModal = false;
             this.copyButtonState = 'normal'; // 重置复制按钮状态
+            this.jsonPathCopyNotice = '';
         },
 
         // 关闭JSONPath示例模态框
@@ -1446,62 +1461,146 @@ new Vue({
 
         // 格式化JSONPath查询结果
         formatJsonPathResult: function(value) {
-            if (typeof value === 'object') {
-                return JSON.stringify(value, null, 2);
-            }
-            return String(value);
+            return this.serializeJsonPathValue(value);
         },
 
-        // 复制JSONPath查询结果
-        copyJsonPathResults: function() {
-            let resultText = this.jsonPathResults.map(result => {
-                return `路径: ${result.path}\n值: ${this.formatJsonPathResult(result.value)}`;
-            }).join('\n\n');
-            
-            // 设置复制状态
-            this.copyButtonState = 'copying';
-            
-            navigator.clipboard.writeText(resultText).then(() => {
-                this.copyButtonState = 'success';
-                setTimeout(() => {
-                    this.copyButtonState = 'normal';
-                }, 2000);
-            }).catch(() => {
-                // 兼容旧浏览器
+        serializeJsonPathValue: function(value) {
+            let output = this.safeStringify(value, 2);
+            return output === undefined ? String(value) : output;
+        },
+
+        buildJsonPathValuePayload: function() {
+            let values = this.jsonPathResults.map(result => result.value);
+            let payload = values.length === 1 ? values[0] : values;
+            return this.serializeJsonPathValue(payload);
+        },
+
+        buildJsonPathDetailsPayload: function() {
+            return this.safeStringify(this.jsonPathResults.map((result, index) => ({
+                index: index + 1,
+                path: result.path,
+                type: this.getJsonPathResultType(result.value),
+                value: result.value
+            })), 2);
+        },
+
+        buildJsonPathPathsPayload: function() {
+            return this.jsonPathResults.map(result => result.path).join('\n');
+        },
+
+        getJsonPathResultType: function(value) {
+            if (value === null) return 'null';
+            if (Array.isArray(value)) return 'array';
+            if (typeof value === 'bigint') return 'bigint';
+            return typeof value;
+        },
+
+        getJsonPathResultPreview: function(value) {
+            let output = this.serializeJsonPathValue(value);
+            return output.length > 600 ? output.slice(0, 600) + '\n...' : output;
+        },
+
+        copyTextToClipboard: function(text) {
+            let payload = String(text === undefined || text === null ? '' : text);
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                return navigator.clipboard.writeText(payload).catch(() => this.copyTextFallback(payload));
+            }
+            return this.copyTextFallback(payload);
+        },
+
+        copyTextFallback: function(text) {
+            return new Promise((resolve, reject) => {
+                let textArea = null;
                 try {
-                    let textArea = document.createElement('textarea');
-                    textArea.value = resultText;
+                    textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    textArea.setAttribute('readonly', 'readonly');
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-9999px';
                     document.body.appendChild(textArea);
                     textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    this.copyButtonState = 'success';
-                    setTimeout(() => {
-                        this.copyButtonState = 'normal';
-                    }, 2000);
+                    if (document.execCommand('copy') === false) {
+                        throw new Error('copy command failed');
+                    }
+                    resolve();
                 } catch (error) {
-                    this.copyButtonState = 'error';
-                    setTimeout(() => {
-                        this.copyButtonState = 'normal';
-                    }, 2000);
+                    reject(error);
+                } finally {
+                    if (textArea && textArea.parentNode) {
+                        textArea.parentNode.removeChild(textArea);
+                    }
                 }
             });
         },
 
-        // 下载JSONPath查询结果
+        showJsonPathCopyNotice: function(message) {
+            window.clearTimeout(this.jsonPathCopyNoticeTimer);
+            this.jsonPathCopyNotice = message;
+            this.jsonPathCopyNoticeTimer = window.setTimeout(() => {
+                this.jsonPathCopyNotice = '';
+            }, 1800);
+        },
+
+        copyJsonPathText: function(text, successMessage) {
+            return this.copyTextToClipboard(text).then(() => {
+                this.showJsonPathCopyNotice(successMessage);
+            }).catch(() => {
+                this.showJsonPathCopyNotice('复制失败');
+            });
+        },
+
+        // 复制可直接使用的 JSONPath 值结果
+        copyJsonPathValues: function() {
+            if (this.jsonPathResults.length === 0) {
+                return;
+            }
+
+            this.copyButtonState = 'copying';
+
+            this.copyTextToClipboard(this.buildJsonPathValuePayload()).then(() => {
+                this.copyButtonState = 'success';
+                this.showJsonPathCopyNotice('值 JSON 已复制');
+                setTimeout(() => {
+                    this.copyButtonState = 'normal';
+                }, 2000);
+            }).catch(() => {
+                this.copyButtonState = 'error';
+                this.showJsonPathCopyNotice('复制失败');
+                setTimeout(() => {
+                    this.copyButtonState = 'normal';
+                }, 2000);
+            });
+        },
+
+        // 复制JSONPath查询明细
+        copyJsonPathResults: function() {
+            this.copyJsonPathText(this.buildJsonPathDetailsPayload(), '明细 JSON 已复制');
+        },
+
+        copyJsonPathPaths: function() {
+            this.copyJsonPathText(this.buildJsonPathPathsPayload(), '路径已复制');
+        },
+
+        copyJsonPathRowPath: function(result) {
+            this.copyJsonPathText(result.path, '路径已复制');
+        },
+
+        copyJsonPathRowValue: function(result) {
+            this.copyJsonPathText(this.serializeJsonPathValue(result.value), '值 JSON 已复制');
+        },
+
+        // 下载可直接使用的 JSONPath 值结果
         downloadJsonPathResults: function() {
-            let resultText = this.jsonPathResults.map(result => {
-                return `路径: ${result.path}\n值: ${this.formatJsonPathResult(result.value)}`;
-            }).join('\n\n');
+            let resultText = this.buildJsonPathValuePayload();
             
             // 基于JSONPath生成文件名
             let filename = this.generateFilenameFromPath(this.jsonPathQuery);
             
-            let blob = new Blob([resultText], { type: 'text/plain;charset=utf-8' });
+            let blob = new Blob([resultText], { type: 'application/json;charset=utf-8' });
             let url = window.URL.createObjectURL(blob);
             let a = document.createElement('a');
             a.href = url;
-            a.download = filename + '.txt';
+            a.download = filename + '.json';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);

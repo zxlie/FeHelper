@@ -269,4 +269,30 @@ describe('json-format settings regression guards', () => {
         expect(optionsSource).toContain("document.documentElement.classList.toggle('fh-options-lite-mode', isLiteMode);");
         expect(optionsSource).toContain("this.viewMode = 'list';");
     });
+
+    it('Issue #603: JSONPath extraction returns copyable JSON payloads and row actions', () => {
+        const html = readSource('apps/json-format/index.html');
+        const source = readSource('apps/json-format/index.js');
+        const css = readSource('apps/json-format/index.css');
+
+        expect(html).toContain('复制值 JSON');
+        expect(html).toContain('复制路径');
+        expect(html).toContain('复制明细 JSON');
+        expect(html).toContain('下载 JSON');
+        expect(html).toContain('可直接使用的结果 JSON');
+        expect(html).toContain('@click="copyJsonPathRowPath(result)"');
+        expect(html).toContain('@click="copyJsonPathRowValue(result)"');
+        expect(source).toContain('let jsonObj = parseWithBigInt(source);');
+        expect(source).toContain('buildJsonPathValuePayload: function()');
+        expect(source).toContain('buildJsonPathDetailsPayload: function()');
+        expect(source).toContain('serializeJsonPathValue: function(value)');
+        expect(source).toContain('copyJsonPathValues: function()');
+        expect(source).toContain('copyJsonPathPaths: function()');
+        expect(source).toContain("a.download = filename + '.json';");
+        expect(source).toContain("type: 'application/json;charset=utf-8'");
+        expect(source).toContain('let quotedPropMatch = indexExpr.match');
+        expect(css).toContain('.jsonpath-output-panel');
+        expect(css).toContain('.jsonpath-result-row');
+        expect(css).toContain('.jsonpath-result-row-actions');
+    });
 });

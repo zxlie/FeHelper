@@ -1538,7 +1538,40 @@ html.fh-jf .mod-json .callback-name {
 .jsonpath-result-actions {
     margin-bottom: 12px;
     display: flex;
+    align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
+}
+
+.jsonpath-result-actions > .xjf-btn {
+    min-height: 30px;
+    padding: 0 13px;
+    border: 1px solid var(--fh-line) !important;
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--fh-text);
+    font-size: 12px;
+    font-weight: 720;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.jsonpath-result-actions > .xjf-btn:first-child {
+    border-color: rgba(37, 99, 235, 0.44) !important;
+    background: #eff6ff;
+    color: var(--fh-accent-strong);
+}
+
+.jsonpath-result-actions > .xjf-btn:hover,
+.jsonpath-result-row-actions .xjf-btn:hover {
+    border-color: rgba(37, 99, 235, 0.5) !important;
+    background: var(--fh-accent-soft);
+    color: var(--fh-accent-strong);
+}
+
+.jsonpath-copy-notice {
+    color: var(--fh-green);
+    font-size: 12px;
+    font-weight: 720;
 }
 
 .xjf-btn-copying {
@@ -1564,44 +1597,140 @@ html.fh-jf .mod-json .callback-name {
     cursor: not-allowed;
 }
 
+.jsonpath-output-panel {
+    margin-bottom: 12px;
+    border: 1px solid var(--fh-line-soft);
+    border-radius: var(--fh-radius);
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.jsonpath-output-header {
+    min-height: 34px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--fh-line-soft);
+    background: #f8fafc;
+    color: var(--fh-muted);
+    font-size: 12px;
+    font-weight: 720;
+}
+
+.jsonpath-output-value {
+    max-height: 220px;
+    margin: 0;
+    padding: 12px;
+    overflow: auto;
+    background: #ffffff;
+    color: var(--fh-text);
+    font-family: var(--fh-mono);
+    font-size: 12px;
+    line-height: 1.56;
+    white-space: pre;
+}
+
 .jsonpath-results {
     max-height: 400px;
     border: 1px solid var(--fh-line-soft);
     border-radius: var(--fh-radius);
-    overflow-y: auto;
+    overflow: auto;
     background: #ffffff;
 }
 
-.jsonpath-result-item {
-    padding: 12px;
+.jsonpath-result-row {
+    min-width: 820px;
+    display: grid;
+    grid-template-columns: 44px minmax(220px, 1fr) 86px minmax(280px, 1.3fr) 160px;
+    align-items: stretch;
     border-bottom: 1px solid var(--fh-line-soft);
 }
 
-.jsonpath-result-item:last-child {
+.jsonpath-result-row:last-child {
     border-bottom: 0;
 }
 
+.jsonpath-result-row-head {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    min-height: 34px;
+    align-items: center;
+    background: #f8fafc;
+    color: var(--fh-muted);
+    font-size: 12px;
+    font-weight: 760;
+}
+
+.jsonpath-result-row-head span,
+.jsonpath-result-index,
+.jsonpath-result-path,
+.jsonpath-result-type,
+.jsonpath-result-value,
+.jsonpath-result-row-actions {
+    padding: 10px 12px;
+    border-right: 1px solid var(--fh-line-soft);
+}
+
+.jsonpath-result-row-head span:last-child,
+.jsonpath-result-row-actions {
+    border-right: 0;
+}
+
+.jsonpath-result-index {
+    color: var(--fh-muted);
+    font-family: var(--fh-mono);
+    font-size: 12px;
+    font-weight: 720;
+}
+
 .jsonpath-result-path {
-    margin-bottom: 8px;
     color: var(--fh-text);
+    font-size: 12px;
+    font-weight: 720;
+    overflow-wrap: anywhere;
+}
+
+.jsonpath-result-type {
+    color: var(--fh-muted);
+    font-family: var(--fh-mono);
     font-size: 12px;
     font-weight: 720;
 }
 
 .jsonpath-result-value {
-    max-height: 210px;
+    max-height: 190px;
     margin: 0;
-    padding: 11px;
-    overflow-y: auto;
-    border: 1px solid var(--fh-line-soft);
-    border-radius: var(--fh-radius);
+    overflow: auto;
+    border: 0;
+    border-radius: 0;
     background: #f8fafc;
     color: var(--fh-text);
     font-family: var(--fh-mono);
     font-size: 12px;
     line-height: 1.56;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+    white-space: pre;
+}
+
+.jsonpath-result-row-actions {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: #ffffff;
+}
+
+.jsonpath-result-row-actions .xjf-btn {
+    min-height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--fh-line-soft) !important;
+    border-radius: 999px;
+    background: #f8fafc;
+    color: var(--fh-muted);
+    font-size: 12px;
+    font-weight: 720;
 }
 
 .jsonpath-no-results,
@@ -1764,6 +1893,8 @@ body.theme-dark .jsonpath-modal-content,
 body.theme-dark .jsonpath-modal-body,
 body.theme-dark .jsonpath-result-item,
 body.theme-dark .jsonpath-results,
+body.theme-dark .jsonpath-output-panel,
+body.theme-dark .jsonpath-result-row-actions,
 body.theme-dark .jsonpath-example-item,
 body.theme-dark .jsonpath-query-panel,
 body.theme-dark .jsonpath-query-info {
@@ -1781,11 +1912,18 @@ body.theme-dark .fh-link-action,
 body.theme-dark .jsonpath-modal-close,
 body.theme-dark .fh-empty-state,
 body.theme-dark .jsonpath-result-value,
+body.theme-dark .jsonpath-output-value,
 body.theme-dark .fh-tableview-meta code,
 body.theme-dark .xjf-input,
 body.theme-dark .jsonpath-header-input {
     background: var(--fh-surface-soft) !important;
     color: var(--fh-text) !important;
+}
+
+body.theme-dark .jsonpath-output-header,
+body.theme-dark .jsonpath-result-row-head {
+    background: #202836;
+    color: var(--fh-muted);
 }
 
 body.theme-dark .fh-input-pane #jsonSource,

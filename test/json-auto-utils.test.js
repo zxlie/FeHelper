@@ -88,4 +88,21 @@ describe('json-auto-utils', () => {
             allowJSONP: false,
         })).toBeNull();
     });
+
+    it('Issue #601: HTML 页面代码示例不会被正文 JSON 片段提取误判', () => {
+        const parseOptions = {
+            allowExtractJSONFragment: false,
+            allowJSONP: false,
+        };
+        const samples = [
+            "wx.switchTab({\n  url: '/index'\n})",
+            "import { motion } from 'motion/react';\n\nexport default function Demo() {\n  return <motion.div layout={{ duration: 0.2 }} />;\n}",
+            "<html><body><pre>wx.switchTab({ url: '/index' })</pre></body></html>",
+        ];
+
+        samples.forEach(source => {
+            expect(utils.parseJSONLike(source, parseOptions)).toBeNull();
+        });
+        expect(utils.parseJSONLike('{"status":"ok"}', parseOptions).value.status).toBe('ok');
+    });
 });

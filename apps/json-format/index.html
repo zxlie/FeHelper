@@ -229,19 +229,42 @@
                                             'xjf-btn-success': copyButtonState === 'success',
                                             'xjf-btn-error': copyButtonState === 'error'
                                         }"
-                                        @click="copyJsonPathResults"
+                                        @click="copyJsonPathValues"
                                         :disabled="copyButtonState === 'copying'">
-                                    <span v-if="copyButtonState === 'normal'">复制结果</span>
+                                    <span v-if="copyButtonState === 'normal'">复制值 JSON</span>
                                     <span v-if="copyButtonState === 'copying'">复制中...</span>
                                     <span v-if="copyButtonState === 'success'">复制成功</span>
                                     <span v-if="copyButtonState === 'error'">复制失败</span>
                                 </button>
-                                <button type="button" class="xjf-btn" @click="downloadJsonPathResults">下载结果</button>
+                                <button type="button" class="xjf-btn" @click="copyJsonPathPaths">复制路径</button>
+                                <button type="button" class="xjf-btn" @click="copyJsonPathResults">复制明细 JSON</button>
+                                <button type="button" class="xjf-btn" @click="downloadJsonPathResults">下载 JSON</button>
+                                <span class="jsonpath-copy-notice" v-if="jsonPathCopyNotice">{{jsonPathCopyNotice}}</span>
+                            </div>
+                            <div class="jsonpath-output-panel" v-if="jsonPathResults.length > 0">
+                                <div class="jsonpath-output-header">
+                                    <span>可直接使用的结果 JSON</span>
+                                    <span>{{jsonPathResults.length === 1 ? '单个值' : '数组'}}</span>
+                                </div>
+                                <pre class="jsonpath-output-value">{{buildJsonPathValuePayload()}}</pre>
                             </div>
                             <div class="jsonpath-results" v-if="jsonPathResults.length > 0">
-                                <div class="jsonpath-result-item" v-for="(result, index) in jsonPathResults" :key="index">
-                                    <div class="jsonpath-result-path">路径 <code>{{result.path}}</code></div>
-                                    <pre class="jsonpath-result-value">{{formatJsonPathResult(result.value)}}</pre>
+                                <div class="jsonpath-result-row jsonpath-result-row-head">
+                                    <span>#</span>
+                                    <span>Path</span>
+                                    <span>Type</span>
+                                    <span>Value</span>
+                                    <span>操作</span>
+                                </div>
+                                <div class="jsonpath-result-row" v-for="(result, index) in jsonPathResults" :key="result.path + index">
+                                    <div class="jsonpath-result-index">{{index + 1}}</div>
+                                    <div class="jsonpath-result-path"><code>{{result.path}}</code></div>
+                                    <div class="jsonpath-result-type">{{getJsonPathResultType(result.value)}}</div>
+                                    <pre class="jsonpath-result-value">{{getJsonPathResultPreview(result.value)}}</pre>
+                                    <div class="jsonpath-result-row-actions">
+                                        <button type="button" class="xjf-btn" @click="copyJsonPathRowPath(result)">复制路径</button>
+                                        <button type="button" class="xjf-btn" @click="copyJsonPathRowValue(result)">复制值</button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="jsonpath-no-results" v-if="jsonPathResults.length === 0 && !jsonPathError">
