@@ -97,6 +97,56 @@ body[browser-extension] .wp-json .mod-json {
     box-shadow: 0 4px 12px rgba(31, 111, 235, 0.22);
 }
 
+.diff-actions {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: 4px;
+}
+
+.diff-action-button {
+    height: 30px;
+    padding: 0 12px;
+    border: 1px solid #d8e2f5;
+    border-radius: 6px;
+    background: #fff;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.diff-action-button:hover,
+.diff-action-button:focus {
+    border-color: #9db7ee;
+    background: #f7f9fc;
+    outline: 0;
+}
+
+.diff-action-button:active {
+    transform: translateY(1px);
+}
+
+.diff-action-button:disabled {
+    color: #9aa4b2;
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+}
+
+.diff-action-primary {
+    border-color: #1f6feb;
+    background: #1f6feb;
+    color: #fff;
+}
+
+.diff-action-primary:hover,
+.diff-action-primary:focus {
+    border-color: #185bc4;
+    background: #185bc4;
+}
+
 .CodeMirror-linebackground.fh-diff-line-left {
     background: rgba(221, 68, 68, 0.16);
 }

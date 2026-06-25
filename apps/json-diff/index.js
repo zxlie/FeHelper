@@ -204,8 +204,15 @@ const TEXT_EXAMPLES = {
     }
 };
 
+function stringifyJSONForEditor(value) {
+    if (window.FHJsonAutoUtils && typeof window.FHJsonAutoUtils.safeStringify === 'function') {
+        return window.FHJsonAutoUtils.safeStringify(value, 4);
+    }
+    return JSON.stringify(value, null, 4);
+}
+
 function stringifyExample(value) {
-    return typeof value === 'string' ? value : JSON.stringify(value, null, 4);
+    return typeof value === 'string' ? value : stringifyJSONForEditor(value);
 }
 
 function parseJsonForDiff(text) {
@@ -229,6 +236,7 @@ window.vueApp = new Vue({
         rightSideError: false,
         differenceCount: 0,
         isDifferent: false,
+        hasPendingChanges: false,
         lineHighlights: {
             left: [],
             right: []
@@ -275,6 +283,7 @@ window.vueApp = new Vue({
 
         compareContent: function() {
             if (!jsonBox) return;
+            this.hasPendingChanges = false;
             if (this.compareMode === 'json') {
                 this.compareJson();
             } else {
@@ -388,6 +397,40 @@ window.vueApp = new Vue({
                 : '两侧文本比对完成，内容一致！';
         },
 
+        formatBothSides: function() {
+            if (!jsonBox || this.compareMode !== 'json') return;
+
+            const sides = ['left', 'right'];
+            let formattedCount = 0;
+
+            for (let i = 0; i < sides.length; i++) {
+                const side = sides[i];
+                const editor = jsonBox[side];
+                const text = editor.getValue();
+
+                if (!text.trim().length) {
+                    continue;
+                }
+
+                try {
+                    const parsed = parseJsonForDiff(text);
+                    editor.setValue(stringifyJSONForEditor(parsed));
+                    editor.refresh();
+                    formattedCount++;
+                } catch (e) {
+                    this.setInputError(side, side === 'left' ? '左侧 JSON 不合法，无法美化！' : '右侧 JSON 不合法，无法美化！');
+                    return;
+                }
+            }
+
+            if (!formattedCount) {
+                this.setInputError('left-right', '请先在左侧或右侧粘贴 JSON 内容！');
+                return;
+            }
+
+            this.markPendingChange('已美化 JSON，点击「对比」查看差异。');
+        },
+
         clearMarkers: function() {
             if (!jsonBox) return;
             jsonBox.left.getAllMarks().forEach(function(marker) {
@@ -477,6 +520,17 @@ window.vueApp = new Vue({
             this.errorMessage = '';
         },
 
+        markPendingChange: function(message) {
+            this.clearMarkers();
+            this.errorHighlight = false;
+            this.leftSideError = false;
+            this.rightSideError = false;
+            this.differenceCount = 0;
+            this.isDifferent = false;
+            this.hasPendingChanges = true;
+            this.errorMessage = message || '内容已变更，点击「对比」查看结果。';
+        },
+
         setInputError: function(which, message) {
             this.errorMessage = message;
             this.errorHighlight = true;
@@ -544,10 +598,10 @@ window.vueApp = new Vue({
         jsonBox = JsonDiff.init(this.$refs.srcLeft, this.$refs.srcRight);
 
         jsonBox.left.on('change', () => {
-            setTimeout(() => this.compareContent(), 300);
+            this.markPendingChange();
         });
         jsonBox.right.on('change', () => {
-            setTimeout(() => this.compareContent(), 300);
+            this.markPendingChange();
         });
 
         this.applyEditorPlaceholders();

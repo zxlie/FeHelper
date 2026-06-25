@@ -7,6 +7,8 @@ import { AI_FEATURE_PACKS } from '../aiagent/fh.ai-features.js';
 
 const FH_UI_MODE = 'FH_UI_MODE';
 const FH_OPTIONS_UI_MODE = 'FH_OPTIONS_UI_MODE';
+const JSON_FORMAT_KEY_LIMIT = 'MAX_JSON_KEYS_NUMBER';
+const DEFAULT_JSON_KEY_LIMIT = 10000;
 
 // 工具分类定义
 const TOOL_CATEGORIES = [
@@ -94,6 +96,7 @@ new Vue({
         selectedOpts: [], // 选中的选项（已支持FORBID_STATISTICS）
         menuDownloadCrx: false, // 菜单-插件下载
         menuFeHelperSeting: false, // 菜单-FeHelper设置
+        jsonFormatKeyLimit: DEFAULT_JSON_KEY_LIMIT,
         isFirefox: false, // 是否Firefox浏览器
 
         // 打赏相关
@@ -1387,9 +1390,48 @@ new Vue({
                 this.uiMode = String(uiModeValue || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
                 this.applyUiModeToDocument();
                 this.applyUiModePreferences();
+                await this.loadJsonFormatSettings();
             } catch (error) {
                 console.error('加载设置项失败:', error);
             }
+        },
+
+        normalizeJsonFormatKeyLimit(value) {
+            const parsedValue = parseInt(value, 10);
+            return Number.isFinite(parsedValue) && parsedValue > 0 ? parsedValue : DEFAULT_JSON_KEY_LIMIT;
+        },
+
+        normalizeJsonFormatKeyLimitInput() {
+            this.jsonFormatKeyLimit = this.normalizeJsonFormatKeyLimit(this.jsonFormatKeyLimit);
+        },
+
+        loadJsonFormatSettings() {
+            return new Promise(resolve => {
+                chrome.runtime.sendMessage({
+                    type: 'fh-dynamic-any-thing',
+                    thing: 'request-jsonformat-options',
+                    params: {
+                        [JSON_FORMAT_KEY_LIMIT]: DEFAULT_JSON_KEY_LIMIT
+                    }
+                }, result => {
+                    result = result || {};
+                    this.jsonFormatKeyLimit = this.normalizeJsonFormatKeyLimit(result[JSON_FORMAT_KEY_LIMIT]);
+                    resolve();
+                });
+            });
+        },
+
+        saveJsonFormatSettings() {
+            this.jsonFormatKeyLimit = this.normalizeJsonFormatKeyLimit(this.jsonFormatKeyLimit);
+            return new Promise(resolve => {
+                chrome.runtime.sendMessage({
+                    type: 'fh-dynamic-any-thing',
+                    thing: 'save-jsonformat-options',
+                    params: {
+                        [JSON_FORMAT_KEY_LIMIT]: this.jsonFormatKeyLimit
+                    }
+                }, resolve);
+            });
         },
 
         async setUiMode(mode) {
@@ -1670,6 +1712,7 @@ new Vue({
                         await chrome.storage.local.set({
                             [FH_OPTIONS_UI_MODE]: this.uiMode
                         });
+                        await this.saveJsonFormatSettings();
 
                         // 处理右键菜单
                         const crxAction = this.menuDownloadCrx ? 'install' : 'offload';

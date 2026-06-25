@@ -107,6 +107,11 @@ window.Formatter = (function () {
     let escapeJsonStringEnabled = false;
     // 状态栏与节点操作入口是否启用，手动格式化页默认保留旧行为
     let statusBarEnabled = true;
+    let jsonSearchState = {
+        query: '',
+        matches: [],
+        index: -1
+    };
 
     let _clearOptionBar = function () {
         try {
@@ -160,6 +165,10 @@ window.Formatter = (function () {
 
     let _setPlainJsonView = function (enabled) {
         plainJsonViewEnabled = !!enabled;
+        if (!jfPre || !jfContent) {
+            _updatePlainJsonControls();
+            return;
+        }
         if (plainJsonViewEnabled) {
             jfPre.show();
             jfContent.hide();
@@ -569,11 +578,10 @@ window.Formatter = (function () {
         return txt;
     };
 
-    // 添加json路径
-    let _showJsonPath = function (curEl) {
+    let _getJsonPathKeys = function (curEl) {
         let keys = [];
         let current = curEl;
-        
+
         // 处理当前节点
         if (current.hasClass('item') && !current.hasClass('rootItem')) {
             if (current.hasClass('item-array-element')) {
@@ -634,8 +642,17 @@ window.Formatter = (function () {
         });
 
         // 过滤掉空值和无效的key
-        let validKeys = keys.filter(key => key && key.trim() !== '');
-        
+        return keys.filter(key => key && key.trim() !== '');
+    };
+
+    let _getJsonPathForElement = function (curEl, language) {
+        return _formatJsonPath(_getJsonPathKeys(curEl), language || 'javascript');
+    };
+
+    // 添加json路径
+    let _showJsonPath = function (curEl) {
+        let validKeys = _getJsonPathKeys(curEl);
+
         // 创建或获取语言选择器和路径显示区域
         let jfPathContainer = $('#jsonPathContainer');
         if (!jfPathContainer.length) {
@@ -655,6 +672,7 @@ window.Formatter = (function () {
             
             // 创建路径显示区域
             let jfPath = $('<span id="jsonPath"/>').appendTo(jfPathContainer);
+            $('<span id="jsonSelectionMeta"/>').appendTo(jfPathContainer);
             
             // 绑定语言切换事件
             langSelector.on('change', function() {
@@ -687,12 +705,21 @@ window.Formatter = (function () {
         // 获取当前选择的语言
         let selectedLang = $('#jsonPathLangSelector').val() || 'javascript';
         _updateJsonPath(validKeys, selectedLang);
+        _updateStatusBarSelectionInfo(curEl);
     };
 
     // 根据不同编程语言格式化JSON路径
     let _updateJsonPath = function(keys, language) {
         let path = _formatJsonPath(keys, language);
-        $('#jsonPath').html('当前节点：' + path);
+        $('#jsonPath').text('当前节点：' + path);
+    };
+
+    let _updateStatusBarSelectionInfo = function(curEl) {
+        let info = _getSelectionInfo(curEl);
+        let meta = (info.type || 'node') + (info.preview ? ' / ' + info.preview : '');
+        $('#jsonSelectionMeta')
+            .text(meta)
+            .attr('title', meta);
     };
 
     // 格式化JSON路径为不同编程语言格式
@@ -940,10 +967,12 @@ window.Formatter = (function () {
             jfStatusBar = $('<div id="statusBar"/>').appendTo('body');
         }
 
-        if (!statusBarEnabled || !show) {
+        if (!show) {
             jfStatusBar.hide();
+            $('body').addClass('hide-status-bar');
             return;
         } else {
+            $('body').removeClass('hide-status-bar');
             jfStatusBar.show();
         }
 
@@ -954,8 +983,14 @@ window.Formatter = (function () {
         statusBarEnabled = enabled !== false;
 
         if (!statusBarEnabled) {
-            jfStatusBar && jfStatusBar.hide();
             $('.boxOpt').hide();
+            let selected = $('#jfContent .item.x-selected').first();
+            if (selected.length) {
+                _toogleStatusBar(selected, true);
+            } else {
+                jfStatusBar && jfStatusBar.hide();
+                $('body').addClass('hide-status-bar');
+            }
             return;
         }
 
@@ -967,10 +1002,279 @@ window.Formatter = (function () {
             return;
         }
 
+        _selectJsonElement(selected, {scroll: false});
+    };
+
+    let _getSelectedJsonElement = function () {
+        let selected = $('#jfContent .item.x-selected').first();
+        if (!selected.length) {
+            selected = $('#jfContent .item').first();
+        }
+        return selected;
+    };
+
+    let _getExplicitSelectedJsonElement = function () {
+        return $('#jfContent .item.x-selected').first();
+    };
+
+    let _getDirectNodeText = function (el) {
+        let directText = el.children('.key,.string,.number,.bool,.null').map(function () {
+            return $(this).text();
+        }).get().join(' ');
+
+        if (!directText) {
+            directText = el.clone().children('.kv-list,.boxOpt').remove().end().text();
+        }
+
+        return String(directText || '').replace(/\s+/g, ' ').trim();
+    };
+
+    let _getJsonNodeType = function (el, text) {
+        if (!el || !el.length) {
+            return 'root';
+        }
+        if (el.hasClass('item-array') || el.children('.brace').first().text() === '[') {
+            return 'array';
+        }
+        if (el.hasClass('item-object') || el.children('.brace').first().text() === '{') {
+            return 'object';
+        }
+        if (el.children('.string').length) {
+            return 'string';
+        }
+        if (el.children('.number').length) {
+            return 'number';
+        }
+        if (el.children('.bool').length) {
+            return 'boolean';
+        }
+        if (el.children('.null').length) {
+            return 'null';
+        }
+
+        try {
+            let parsed = JSON.parse(text);
+            if (Array.isArray(parsed)) {
+                return 'array';
+            }
+            if (parsed === null) {
+                return 'null';
+            }
+            return typeof parsed;
+        } catch (e) {
+            return 'node';
+        }
+    };
+
+    let _getJsonValueByKeys = function (keys) {
+        let value = JSON.parse(cachedJsonString);
+        keys.forEach(key => {
+            if (key.startsWith('[') && key.endsWith(']')) {
+                value = value[parseInt(key.slice(1, -1), 10)];
+                return;
+            }
+            value = value[key];
+        });
+        return value;
+    };
+
+    let _stringifyJsonNodeValue = function (el) {
+        if (!cachedJsonString) {
+            return getJsonText(el);
+        }
+
+        let value = _getJsonValueByKeys(_getJsonPathKeys(el));
+        let text = JSON.stringify(value, null, 4);
+        return text === undefined ? '' : text;
+    };
+
+    let _getSelectionInfo = function (el) {
+        let selected = (el !== undefined && el !== null) ? el : _getSelectedJsonElement();
+        if (!selected.length) {
+            return {
+                selected: false,
+                path: '',
+                type: '',
+                preview: '',
+                text: ''
+            };
+        }
+
+        let path = _getJsonPathForElement(selected, 'javascript');
+        let text = '';
+        try {
+            text = _stringifyJsonNodeValue(selected);
+        } catch (e) {
+            try {
+                text = getJsonText(selected);
+            } catch (err) {
+                text = selected.text() || '';
+            }
+        }
+
+        let preview = _getDirectNodeText(selected) || text;
+        preview = String(preview || '').replace(/\s+/g, ' ').trim();
+        if (preview.length > 140) {
+            preview = preview.slice(0, 137) + '...';
+        }
+
+        return {
+            selected: true,
+            path: path,
+            type: _getJsonNodeType(selected, text),
+            preview: preview,
+            text: text
+        };
+    };
+
+    let _emitSelectionChange = function (el) {
+        try {
+            document.dispatchEvent(new CustomEvent('fh-json-selection-change', {
+                detail: _getSelectionInfo(el)
+            }));
+        } catch (e) {
+        }
+    };
+
+    let _emitFormatReady = function () {
+        try {
+            document.dispatchEvent(new CustomEvent('fh-json-format-ready', {
+                detail: _getSelectionInfo(_getSelectedJsonElement())
+            }));
+        } catch (e) {
+        }
+    };
+
+    let _selectJsonElement = function (el, opts) {
+        opts = opts || {};
+        let selected = el && el.length ? el : _getSelectedJsonElement();
+        if (!selected.length) {
+            return _getSelectionInfo(selected);
+        }
+
+        _setPlainJsonView(false);
+        selected.parents('.collapsed').removeClass('collapsed');
         $('.x-selected').removeClass('x-selected');
         selected.addClass('x-selected');
+
+        if (opts.scroll !== false && selected[0] && selected[0].scrollIntoView) {
+            selected[0].scrollIntoView({block: 'center', inline: 'nearest'});
+        }
+
         _toogleStatusBar(selected, true);
         _addOptForItem(selected, true);
+        let info = _getSelectionInfo(selected);
+        _emitSelectionChange(selected);
+        return info;
+    };
+
+    let _clearSelection = function () {
+        $('.x-selected').removeClass('x-selected');
+        $('.boxOpt').hide();
+        $('#jsonPath,#jsonSelectionMeta').text('').removeAttr('title');
+        jfStatusBar && jfStatusBar.hide();
+        $('body').addClass('hide-status-bar');
+        _emitSelectionChange($());
+        return _getSelectionInfo($());
+    };
+
+    let _clearJsonSearch = function () {
+        $('#jfContent .fh-json-search-match, #jfContent .fh-json-search-active').removeClass('fh-json-search-match fh-json-search-active');
+        jsonSearchState = {
+            query: '',
+            matches: [],
+            index: -1
+        };
+        return _getSearchResultState();
+    };
+
+    let _getSearchableNodeText = function (el) {
+        let selected = $(el);
+        let directText = _getDirectNodeText(selected);
+        let path = _getJsonPathForElement(selected, 'javascript');
+        return (path + ' ' + directText).toLowerCase();
+    };
+
+    let _getSearchResultState = function () {
+        return {
+            query: jsonSearchState.query,
+            total: jsonSearchState.matches.length,
+            current: jsonSearchState.index >= 0 ? jsonSearchState.index + 1 : 0
+        };
+    };
+
+    let _selectSearchMatch = function (index) {
+        if (!jsonSearchState.matches.length) {
+            return _getSearchResultState();
+        }
+
+        let total = jsonSearchState.matches.length;
+        jsonSearchState.index = (index + total) % total;
+        $('#jfContent .fh-json-search-active').removeClass('fh-json-search-active');
+
+        let target = $(jsonSearchState.matches[jsonSearchState.index]);
+        target.addClass('fh-json-search-active');
+        _selectJsonElement(target);
+
+        return _getSearchResultState();
+    };
+
+    let _searchJsonNodes = function (query) {
+        query = String(query || '').trim();
+        _clearJsonSearch();
+
+        if (!query) {
+            return _getSearchResultState();
+        }
+
+        let normalizedQuery = query.toLowerCase();
+        let matches = [];
+        $('#jfContent .item').each(function () {
+            if (_getSearchableNodeText(this).indexOf(normalizedQuery) > -1) {
+                matches.push(this);
+            }
+        });
+
+        jsonSearchState.query = query;
+        jsonSearchState.matches = matches;
+        jsonSearchState.index = -1;
+        $(matches).addClass('fh-json-search-match');
+
+        if (matches.length) {
+            return _selectSearchMatch(0);
+        }
+
+        return _getSearchResultState();
+    };
+
+    let _nextJsonSearchMatch = function (delta) {
+        if (!jsonSearchState.matches.length) {
+            return _getSearchResultState();
+        }
+
+        return _selectSearchMatch(jsonSearchState.index + (delta || 1));
+    };
+
+    let _copySelectedPath = function () {
+        let selected = _getExplicitSelectedJsonElement();
+        if (!selected.length) {
+            toast('请先选中一个 JSON 节点。');
+            return _getSelectionInfo(selected);
+        }
+        let info = _getSelectionInfo(selected);
+        _copyToClipboard(info.path || '$', '当前 JSON Path 已复制到剪贴板！');
+        return info;
+    };
+
+    let _copySelectedValue = function () {
+        let selected = _getExplicitSelectedJsonElement();
+        if (!selected.length) {
+            toast('请先选中一个 JSON 节点。');
+            return _getSelectionInfo(selected);
+        }
+        let info = _getSelectionInfo(selected);
+        _copyToClipboard(info.text || getJsonText(selected), '当前节点 JSON 已复制到剪贴板！');
+        return info;
     };
 
 
@@ -1001,6 +1305,24 @@ window.Formatter = (function () {
         });
     }
 
+    let _collapseAllJsonNodes = function () {
+        if (plainJsonViewEnabled) {
+            _setPlainJsonView(false);
+        }
+        collapse($('#jfContent .item-object, #jfContent .item-block'));
+        $('#optionBar .fh-json-collapse-toggle').text('展开');
+        jfStatusBar && jfStatusBar.hide();
+    };
+
+    let _expandAllJsonNodes = function () {
+        if (plainJsonViewEnabled) {
+            _setPlainJsonView(false);
+        }
+        $('.item-object,.item-block').removeClass('collapsed');
+        $('#optionBar .fh-json-collapse-toggle').text('折叠');
+        jfStatusBar && jfStatusBar.hide();
+    };
+
     /**
      * 创建几个全局操作的按钮，置于页面右上角即可
      * @private
@@ -1025,7 +1347,7 @@ window.Formatter = (function () {
 
         $('<span class="x-split">|</span>').appendTo(optionBar);
         let buttonFormatted = $('<button class="xjf-btn xjf-btn-left fh-json-meta-toggle">元数据</button>').appendTo(optionBar);
-        let buttonCollapseAll = $('<button class="xjf-btn xjf-btn-mid">折叠</button>').appendTo(optionBar);
+        let buttonCollapseAll = $('<button class="xjf-btn xjf-btn-mid fh-json-collapse-toggle">折叠</button>').appendTo(optionBar);
         let buttonCopyPlain = $('<button class="xjf-btn xjf-btn-mid fh-json-copy-plain" title="复制格式化后的 JSON 全文">复制</button>').appendTo(optionBar);
 
         buttonFormatted.bind('click', function (e) {
@@ -1052,15 +1374,10 @@ window.Formatter = (function () {
             }
 
             if (buttonCollapseAll.text() === '折叠') {
-                buttonCollapseAll.text('展开');
-                // 递归折叠所有层级的对象和数组，确保所有内容都被折叠
-                collapse($('#jfContent .item-object, #jfContent .item-block'));
+                _collapseAllJsonNodes();
             } else {
-                buttonCollapseAll.text('折叠');
-                // 展开所有内容
-                $('.item-object,.item-block').removeClass('collapsed');
+                _expandAllJsonNodes();
             }
-            jfStatusBar && jfStatusBar.hide();
         });
 
         _updatePlainJsonControls();
@@ -1092,16 +1409,12 @@ window.Formatter = (function () {
                 _toogleStatusBar(el, false);
                 _addOptForItem(el, false);
                 el.removeClass('x-selected');
+                _emitSelectionChange($());
                 e.stopPropagation();
                 return true;
             }
 
-            $('.x-selected').removeClass('x-selected');
-            el.addClass('x-selected');
-
-            // 显示底部状态栏
-            _toogleStatusBar(el, true);
-            _addOptForItem(el, true);
+            _selectJsonElement(el, {scroll: false});
 
             if (!$(e.target).is('.item .expand')) {
                 e.stopPropagation();
@@ -1411,6 +1724,8 @@ window.Formatter = (function () {
                             _addEvents();
                             // 支持文件下载
                             _downloadSupport(cachedJsonString);
+                            _clearJsonSearch();
+                            _emitFormatReady();
                             break;
                     }
                 };
@@ -1493,6 +1808,8 @@ window.Formatter = (function () {
             _addEvents();
             // 支持文件下载
             _downloadSupport(cachedJsonString);
+            _clearJsonSearch();
+            _emitFormatReady();
             
             return;
         } catch (e) {
@@ -2082,6 +2399,52 @@ window.Formatter = (function () {
         },
         setStatusBarEnabled: function(enabled) {
             _syncStatusBarEnabled(enabled);
+        },
+        search: function(query) {
+            return _searchJsonNodes(query);
+        },
+        nextSearch: function(delta) {
+            return _nextJsonSearchMatch(delta);
+        },
+        clearSearch: function() {
+            return _clearJsonSearch();
+        },
+        getSearchState: function() {
+            return _getSearchResultState();
+        },
+        getSelectionInfo: function() {
+            return _getSelectionInfo(_getExplicitSelectedJsonElement());
+        },
+        selectFirst: function() {
+            return _selectJsonElement(_getSelectedJsonElement());
+        },
+        clearSelection: function() {
+            return _clearSelection();
+        },
+        copySelectedPath: function() {
+            return _copySelectedPath();
+        },
+        copySelectedValue: function() {
+            return _copySelectedValue();
+        },
+        collapseAll: function() {
+            _collapseAllJsonNodes();
+            return _getSelectionInfo(_getExplicitSelectedJsonElement());
+        },
+        expandAll: function() {
+            _expandAllJsonNodes();
+            return _getSelectionInfo(_getExplicitSelectedJsonElement());
+        },
+        setPlainJsonView: function(enabled) {
+            _setPlainJsonView(!!enabled);
+            return {plain: plainJsonViewEnabled};
+        },
+        togglePlainJsonView: function(enabled) {
+            _setPlainJsonView(enabled === undefined ? !plainJsonViewEnabled : !!enabled);
+            return {plain: plainJsonViewEnabled};
+        },
+        isPlainJsonViewEnabled: function() {
+            return plainJsonViewEnabled;
         }
     }
 })();

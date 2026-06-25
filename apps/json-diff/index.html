@@ -31,6 +31,10 @@
                     </div>
                     <span>{{ compareMode === 'json' ? '示例 JSON：' : '示例文本：' }}</span>
                     <a href="#" class="example-button" v-for="example in activeExamples" :key="example.key" :data-example="example.key" @click.prevent="fillExample(example.key)">{{ example.label }}</a>
+                    <div class="diff-actions" role="group" aria-label="对比操作">
+                        <button type="button" class="diff-action-button" @click="formatBothSides" :disabled="compareMode !== 'json'">美化</button>
+                        <button type="button" class="diff-action-button diff-action-primary" @click="compareContent">对比</button>
+                    </div>
                     <span class="x-error result-display" v-bind:class="{'x-hlt': errorHighlight}" v-if="!!errorMessage">
                         <span class="x-hlt">Tips：</span>
                         <span v-if="leftSideError" class="x-hlt1">左侧</span>

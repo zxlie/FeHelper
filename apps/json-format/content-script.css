@@ -94,9 +94,44 @@ html.fh-jf .item.fh-hover {
     border-radius: 2px;
 }
 
+html.fh-jf .item.fh-json-search-match > .key,
+html.fh-jf .item.fh-json-search-match > .string,
+html.fh-jf .item.fh-json-search-match > .number,
+html.fh-jf .item.fh-json-search-match > .bool,
+html.fh-jf .item.fh-json-search-match > .null {
+    border-radius: 2px;
+    background: rgba(250, 204, 21, 0.35);
+}
+
+html.fh-jf .item.fh-json-search-active > .key,
+html.fh-jf .item.fh-json-search-active > .string,
+html.fh-jf .item.fh-json-search-active > .number,
+html.fh-jf .item.fh-json-search-active > .bool,
+html.fh-jf .item.fh-json-search-active > .null {
+    background: #fde68a;
+    color: #713f12;
+}
+
 /* 深色主题悬停效果 */
 html.fh-jf .theme-dark .item.fh-hover {
     background-color: rgba(255, 255, 255, 0.02);
+}
+
+html.fh-jf .theme-dark .item.fh-json-search-match > .key,
+html.fh-jf .theme-dark .item.fh-json-search-match > .string,
+html.fh-jf .theme-dark .item.fh-json-search-match > .number,
+html.fh-jf .theme-dark .item.fh-json-search-match > .bool,
+html.fh-jf .theme-dark .item.fh-json-search-match > .null {
+    background: rgba(234, 179, 8, 0.28);
+}
+
+html.fh-jf .theme-dark .item.fh-json-search-active > .key,
+html.fh-jf .theme-dark .item.fh-json-search-active > .string,
+html.fh-jf .theme-dark .item.fh-json-search-active > .number,
+html.fh-jf .theme-dark .item.fh-json-search-active > .bool,
+html.fh-jf .theme-dark .item.fh-json-search-active > .null {
+    background: #a16207;
+    color: #fff7ed;
 }
 
 /* VS Code主题悬停效果 */
@@ -559,6 +594,17 @@ html.fh-jf .hide-status-bar #statusBar {
     flex-wrap: wrap;
 }
 
+#jsonSelectionMeta {
+    display: inline-block;
+    max-width: min(52vw, 640px);
+    overflow: hidden;
+    color: #475569;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
 /* 语言选择下拉框样式 */
 #jsonPathLangSelector {
     background: #fff;
@@ -873,11 +919,11 @@ html.fh-jf .x-toolbar.fh-json-viewbar {
     box-sizing: border-box;
     display: flex;
     width: auto;
-    min-height: 42px;
-    margin: 0 -8px 12px;
-    padding: 6px 10px;
+    min-height: 46px;
+    margin: 0 -8px 14px;
+    padding: 8px 12px;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     border: 0;
     border-bottom: 1px solid #dbe3ef;
     border-radius: 0;
@@ -913,8 +959,8 @@ html.fh-jf .fh-viewbar-group {
 
 html.fh-jf .fh-viewbar-brand {
     flex: 0 0 auto;
-    gap: 5px;
-    min-width: 152px;
+    gap: 7px;
+    min-width: 166px;
 }
 
 html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-logo {
@@ -960,7 +1006,7 @@ html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-title {
 html.fh-jf .fh-viewbar-main {
     flex: 1 1 auto;
     min-width: 0;
-    gap: 5px;
+    gap: 8px;
     overflow-x: auto;
     overflow-y: visible;
     scrollbar-width: none;
@@ -984,34 +1030,159 @@ html.fh-jf body.fh-json-compact .fh-viewbar-actions > .x-other-tools {
 }
 
 html.fh-jf body.fh-json-compact .x-toolbar.fh-json-viewbar {
-    gap: 3px;
-    padding: 2px 4px;
+    min-height: 38px;
+    gap: 6px;
+    padding: 5px 8px;
 }
 
 html.fh-jf body.fh-json-compact .x-toolbar.fh-json-viewbar .fh-viewbar-group {
-    min-height: 24px;
-    padding: 1px;
+    min-height: 30px;
+    padding: 2px 3px;
 }
 
 html.fh-jf body.fh-json-compact .fh-radio-pill span,
 html.fh-jf body.fh-json-compact .fh-toggle-pill span,
 html.fh-jf body.fh-json-compact .x-toolbar.fh-json-viewbar .xjf-btn {
-    height: 20px;
-    line-height: 20px;
-    padding: 0 7px;
-    font-size: 11px;
+    height: 24px;
+    line-height: 24px;
+    padding: 0 9px;
+    font-size: 12px;
 }
 
 html.fh-jf body.fh-json-compact .fh-viewbar-actions > .x-settings,
-html.fh-jf body.fh-json-compact .fh-viewbar-actions > #toggleBtn {
-    min-height: 22px;
-    padding: 0 7px;
+html.fh-jf body.fh-json-compact .fh-viewbar-actions > #toggleBtn,
+html.fh-jf body.fh-json-compact .fh-viewbar-actions > .xjf-btn {
+    min-height: 28px;
+    padding: 0 10px;
+}
+
+html.fh-jf body.fh-json-compact .fh-auto-mode-switch {
+    min-height: 28px;
+    padding: 2px;
+}
+
+html.fh-jf body.fh-json-compact .fh-auto-mode-switch button {
+    height: 24px;
+    padding: 0 9px;
+    line-height: 24px;
+}
+
+html.fh-jf body.fh-json-compact .fh-json-search-box input {
+    width: 148px;
+    height: 24px;
+    line-height: 24px;
+}
+
+html.fh-jf body.fh-json-compact .fh-json-search-count {
+    height: 24px;
+    line-height: 22px;
 }
 
 html.fh-jf body.fh-ui-mode-lite .x-fix-encoding,
+html.fh-jf body.fh-ui-mode-lite .fh-omni-tools,
 html.fh-jf body.fh-ui-mode-lite .fh-viewbar-actions > .x-other-tools,
 html.fh-jf body.fh-ui-mode-lite .fh-viewbar-actions > .x-donate-link {
     display: none !important;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar .fh-omni-tools {
+    display: inline-flex;
+    gap: 5px;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar #fhJsonExcludeSite.is-excluded {
+    background: #dcfce7;
+    color: #166534;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar #fhJsonExcludeSite.is-excluded:hover {
+    background: #bbf7d0;
+    color: #14532d;
+}
+
+html.fh-jf .fh-json-search-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+html.fh-jf .fh-json-search-box input {
+    width: 178px;
+    height: 26px;
+    min-width: 118px;
+    margin: 0;
+    padding: 0 10px;
+    border: 1px solid #d8dee9;
+    border-radius: 999px;
+    background: #fff;
+    color: #0f172a;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 26px;
+    outline: none;
+}
+
+html.fh-jf .fh-json-search-box input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+html.fh-jf .fh-json-search-box input:disabled,
+html.fh-jf .x-toolbar.fh-json-viewbar .xjf-btn:disabled {
+    cursor: default;
+    opacity: 0.48;
+}
+
+html.fh-jf .fh-json-search-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 26px;
+    padding: 0 8px;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 26px;
+}
+
+html.fh-jf .fh-json-search-count.is-empty {
+    color: #94a3b8;
+}
+
+html.fh-jf .fh-auto-mode-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    min-height: 30px;
+    padding: 3px;
+    border: 1px solid #d8dee9;
+    border-radius: 999px;
+    background: #f8fafc;
+}
+
+html.fh-jf .fh-auto-mode-switch button {
+    height: 24px;
+    margin: 0;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #475569;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 24px;
+}
+
+html.fh-jf .fh-auto-mode-switch button:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+html.fh-jf .fh-auto-mode-switch button.selected {
+    background: #2563eb;
+    color: #fff;
 }
 
 html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-actions > .x-other-tools,
@@ -1021,22 +1192,22 @@ html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-actions > .x-donate-link {
 
 html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-group {
     flex: 0 0 auto;
-    min-height: 28px;
-    gap: 2px;
-    padding: 2px;
-    border: 1px solid #d8dee9;
-    border-radius: 999px;
-    background: #f8fafc;
+    min-height: 32px;
+    gap: 4px;
+    padding: 3px 4px;
+    border: 1px solid #dfe6f1;
+    border-radius: 12px;
+    background: rgba(248, 250, 252, 0.92);
     white-space: nowrap !important;
 }
 
 html.fh-jf .x-toolbar.fh-json-viewbar .fh-sort-group {
     display: inline-flex;
-    gap: 2px;
+    gap: 4px;
 }
 
 html.fh-jf .x-toolbar.fh-json-viewbar .x-stitle {
-    padding: 0 6px;
+    padding: 0 7px;
     color: #64748b;
     font-size: 11px;
     font-weight: 700;
@@ -1072,8 +1243,8 @@ html.fh-jf .fh-toggle-pill span {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 22px;
-    padding: 0 8px;
+    height: 26px;
+    padding: 0 10px;
     border-radius: 999px;
     transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
     white-space: nowrap !important;
@@ -1098,10 +1269,10 @@ html.fh-jf .fh-toggle-pill input:checked + span {
 
 html.fh-jf .x-toolbar.fh-json-viewbar .xjf-btn {
     width: auto;
-    height: 22px;
+    height: 26px;
     min-width: 0;
     margin: 0;
-    padding: 0 8px;
+    padding: 0 10px;
     border: 0;
     border-radius: 999px;
     background: transparent;
@@ -1109,7 +1280,7 @@ html.fh-jf .x-toolbar.fh-json-viewbar .xjf-btn {
     cursor: pointer;
     font-size: 12px;
     font-weight: 700;
-    line-height: 22px;
+    line-height: 26px;
     transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
@@ -1142,7 +1313,7 @@ html.fh-jf .fh-viewbar-actions {
     top: auto;
     flex: 0 0 auto;
     float: none;
-    gap: 5px;
+    gap: 8px;
     margin: 0;
     padding: 0;
     color: #64748b;
@@ -1154,15 +1325,16 @@ html.fh-jf .fh-viewbar-actions {
 html.fh-jf .fh-viewbar-actions > .x-settings,
 html.fh-jf .fh-viewbar-actions > #toggleBtn,
 html.fh-jf .fh-viewbar-actions > .x-donate-link,
-html.fh-jf .fh-viewbar-actions > .x-other-tools {
+html.fh-jf .fh-viewbar-actions > .x-other-tools,
+html.fh-jf .fh-viewbar-actions > .xjf-btn {
     position: static;
     top: auto;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 26px;
+    min-height: 30px;
     margin: 0;
-    padding: 0 9px;
+    padding: 0 11px;
     border: 1px solid #d8dee9;
     border-radius: 999px;
     background: #fff;
@@ -1178,7 +1350,8 @@ html.fh-jf .fh-viewbar-actions > .x-other-tools {
 
 html.fh-jf .fh-viewbar-actions > .x-settings:hover,
 html.fh-jf .fh-viewbar-actions > #toggleBtn:hover,
-html.fh-jf .fh-viewbar-actions > .x-other-tools:hover {
+html.fh-jf .fh-viewbar-actions > .x-other-tools:hover,
+html.fh-jf .fh-viewbar-actions > .xjf-btn:hover {
     border-color: #cbd5e1;
     background: #f8fafc;
     color: #0f172a;
@@ -1284,6 +1457,8 @@ html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse {
 
 html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-brand,
 html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-main,
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > .fh-auto-mode-switch,
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > #fhJsonExcludeSite,
 html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > .x-settings,
 html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > .x-donate-link,
 html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > .x-other-tools {
@@ -1484,6 +1659,9 @@ html.fh-jf .theme-dark #jsonPath {
     border-color: #444;
     color: #ccc;
 }
+html.fh-jf .theme-dark #jsonSelectionMeta {
+    color: #a7b0c0;
+}
 html.fh-jf .theme-dark .boxOpt {
     background: -webkit-linear-gradient(#222,#222,#111);
     border: 1px solid #333;
@@ -1586,7 +1764,8 @@ html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar {
 html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar .fh-viewbar-title,
 html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar .fh-viewbar-group,
 html.fh-jf body.theme-dark .fh-viewbar-actions > .x-settings,
-html.fh-jf body.theme-dark .fh-viewbar-actions > #toggleBtn {
+html.fh-jf body.theme-dark .fh-viewbar-actions > #toggleBtn,
+html.fh-jf body.theme-dark .fh-viewbar-actions > .xjf-btn {
     border-color: #30363d;
     background: #1f2630;
     color: #c9d1d9;
@@ -1598,6 +1777,39 @@ html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar .fh-viewbar-title {
 }
 html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar .fh-viewbar-title-divider {
     color: #6b7280;
+}
+html.fh-jf body.theme-dark .fh-auto-mode-switch,
+html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar .fh-omni-tools,
+html.fh-jf body.theme-dark .fh-json-search-box input {
+    border-color: #30363d;
+    background: #1f2630;
+    color: #c9d1d9;
+}
+html.fh-jf body.theme-dark .fh-json-search-box input:focus {
+    border-color: #5d8df5;
+    box-shadow: 0 0 0 2px rgba(93, 141, 245, 0.2);
+}
+html.fh-jf body.theme-dark .fh-json-search-count {
+    color: #a7b0c0;
+}
+html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar #fhJsonExcludeSite.is-excluded {
+    background: #14532d;
+    color: #dcfce7;
+}
+html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar #fhJsonExcludeSite.is-excluded:hover {
+    background: #166534;
+    color: #f0fdf4;
+}
+html.fh-jf body.theme-dark .fh-auto-mode-switch button {
+    color: #c9d1d9;
+}
+html.fh-jf body.theme-dark .fh-auto-mode-switch button:hover {
+    background: #30363d;
+    color: #f0f6fc;
+}
+html.fh-jf body.theme-dark .fh-auto-mode-switch button.selected {
+    background: #5d8df5;
+    color: #fff;
 }
 html.fh-jf body.theme-dark .fh-radio-pill:hover span,
 html.fh-jf body.theme-dark .fh-toggle-pill:hover span,

@@ -35,6 +35,17 @@ describe('issue #594-#596 regressions', () => {
         expect(css).toContain('height: calc(100% - 58px);');
     });
 
+    it('json-diff uses explicit format and compare actions instead of auto comparing on every edit', () => {
+        const html = readSource('apps/json-diff/index.html');
+        const source = readSource('apps/json-diff/index.js');
+
+        expect(html).toContain('@click="formatBothSides"');
+        expect(html).toContain('@click="compareContent"');
+        expect(source).toContain('formatBothSides: function()');
+        expect(source).toContain('markPendingChange: function(message)');
+        expect(source).not.toContain('setTimeout(() => this.compareContent(), 300)');
+    });
+
     it('custom noPage tools inject storage-backed scripts with DOM globals', () => {
         const background = readSource('apps/background/background.js');
         const injectTools = readSource('apps/background/inject-tools.js');

@@ -78,4 +78,14 @@ describe('json-auto-utils', () => {
         expect(utils.parseJSONLike(source)).not.toBeNull();
         expect(utils.parseJSONLike(source, { allowExtractJSONFragment: false })).toBeNull();
     });
+
+    it('Issue #601: HTML 自动格式化路径可关闭函数调用/JSONP 解析', () => {
+        const source = "wx.switchTab({\n  url: '/index'\n})";
+
+        expect(utils.parseJSONLike(source, { allowExtractJSONFragment: false })).not.toBeNull();
+        expect(utils.parseJSONLike(source, {
+            allowExtractJSONFragment: false,
+            allowJSONP: false,
+        })).toBeNull();
+    });
 });

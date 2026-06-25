@@ -398,6 +398,24 @@
                                 </span>
                             </label>
 
+                            <div class="setting-info-row setting-number-row">
+                                <div class="setting-copy">
+                                    <strong>JSON 自动格式化 Key 数上限</strong>
+                                    <small>超过该数量时停止网页自动格式化，避免大 JSON 页面卡顿。</small>
+                                </div>
+                                <label class="setting-number-control" for="MAX_JSON_KEYS_NUMBER">
+                                    <input
+                                        id="MAX_JSON_KEYS_NUMBER"
+                                        type="number"
+                                        min="1"
+                                        step="1000"
+                                        v-model.number="jsonFormatKeyLimit"
+                                        @change="normalizeJsonFormatKeyLimitInput"
+                                    />
+                                    <span>keys</span>
+                                </label>
+                            </div>
+
                         </div>
                     </section>
 

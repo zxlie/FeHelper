@@ -235,11 +235,16 @@
             .replace(/"__FH_BIGNUM__(-?\d+(?:\.\d+)?)"/g, '$1');
     }
 
-    function unwrapJSONLikeSource(source) {
+    function unwrapJSONLikeSource(source, options) {
+        options = options || {};
         source = String(source || '').trim();
         let fnTry = null;
         let fnCatch = null;
         let funcName = null;
+
+        if (options.allowJSONP === false) {
+            return { source, funcName, fnTry, fnCatch };
+        }
 
         if (source.startsWith('try {')) {
             fnTry = 'try {';
@@ -349,7 +354,7 @@
 
     function parseJSONLike(source, options) {
         options = options || {};
-        const meta = unwrapJSONLikeSource(source);
+        const meta = unwrapJSONLikeSource(source, options);
         const candidates = buildJSONLikeCandidates(meta.source, options);
 
         for (let i = 0; i < candidates.length; i++) {

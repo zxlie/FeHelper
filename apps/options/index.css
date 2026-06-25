@@ -1497,6 +1497,39 @@ html.dark-mode .fh-ai-feature-card {
     align-items: start;
 }
 
+.setting-number-row {
+    align-items: center;
+}
+
+.setting-number-control {
+    display: inline-grid;
+    grid-template-columns: minmax(96px, 128px) auto;
+    align-items: center;
+    gap: 8px;
+    justify-self: end;
+    color: var(--fh-muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.setting-number-control input {
+    width: 100%;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--fh-line);
+    border-radius: 8px;
+    background: var(--fh-surface);
+    color: var(--fh-text);
+    font-family: var(--fh-mono);
+    font-size: 13px;
+    outline: 0;
+}
+
+.setting-number-control input:focus {
+    border-color: rgba(47, 111, 237, 0.56);
+    box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.12);
+}
+
 .setting-permission-tags {
     display: flex;
     flex-wrap: wrap;
@@ -1978,6 +2011,10 @@ html.dark-mode .fh-ai-feature-card {
     .setting-radio-group,
     .setting-info-row {
         grid-template-columns: 1fr;
+    }
+
+    .setting-number-control {
+        justify-self: stretch;
     }
 
     .settings-nav {

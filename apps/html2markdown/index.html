@@ -3,6 +3,7 @@
 <head>
     <title>Markdown编辑器（支持HTML转Markdown）</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="../static/img/favicon.ico">
     <link rel="stylesheet" href="index.css" />
     <link rel="stylesheet" href="../static/css/fehelper-tools.css">
@@ -26,33 +27,83 @@
             </h3>
         </div>
     </div>
-    <div class="panel-body mod-markdown" ref="modMarkdownBox">
+    <div :class="['panel-body mod-markdown', 'view-mode-' + viewMode, { 'sync-scroll-on': syncScroll }]" ref="modMarkdownBox">
 
         <div class="mod-toolbar">
-            <div class="editor-toolbar">
-                <a class="icon-bold" @click="insert('b')" title="加粗"></a>
-                <a class="icon-italic" @click="insert('i')" title="斜体"></a>
-                <i class="separator">|</i>
-                <a class="icon-quote" @click="insert('quote')" title="备注"></a>
-                <a class="icon-code" @click="insert('code')" title="代码"></a>
-                <i class="separator">|</i>
-                <a class="icon-unordered-list" @click="insert('unordered-list')" title="无序列表"></a>
-                <a class="icon-ordered-list" @click="insert('ordered-list')" title="有序列表"></a>
-                <i class="separator">|</i>
-                <a class="icon-link" @click="insert('link')" title="链接"></a>
-                <a class="icon-image" @click="insert('image')" title="图片"></a>
-                <i class="separator">|</i>
-                <a class="icon-preview" @click="togglePreview" title="实时预览切换"></a>
-                <a class="icon-save" @click="saveMarkdown('md')" title="下载Markdown内容"></a>
-                <a class="icon-pdf" @click="saveMarkdown('html')" title="下载HTML内容"></a>
-
-                <div class="x-mask"></div>
+            <div class="editor-toolbar" role="toolbar" aria-label="Markdown 编辑工具栏">
+                <div class="toolbar-group" aria-label="编辑历史">
+                    <button type="button" class="toolbar-button toolbar-icon" title="撤销" aria-label="撤销" @click="undoEdit"><i class="toolbar-symbol icon-undo" aria-hidden="true"></i></button>
+                    <button type="button" class="toolbar-button toolbar-icon" title="重做" aria-label="重做" @click="redoEdit"><i class="toolbar-symbol icon-redo" aria-hidden="true"></i></button>
+                </div>
+                <div class="toolbar-group toolbar-style-group" aria-label="段落样式">
+                    <select class="toolbar-select" title="段落样式" aria-label="段落样式" :disabled="codeType !== 'Markdown'" @change="applyBlockStyle($event)">
+                        <option value="">正文</option>
+                        <option value="h1">一级标题</option>
+                        <option value="h2">二级标题</option>
+                        <option value="h3">三级标题</option>
+                        <option value="quote">引用</option>
+                        <option value="code">代码块</option>
+                    </select>
+                </div>
+                <div class="toolbar-group" aria-label="文字格式">
+                    <button type="button" class="toolbar-button toolbar-labeled toolbar-bold" title="加粗 Ctrl+B" aria-label="加粗" :disabled="codeType !== 'Markdown'" @click="insert('b')"><i class="toolbar-symbol icon-bold" aria-hidden="true"></i><span class="toolbar-label">加粗</span></button>
+                    <button type="button" class="toolbar-button toolbar-labeled toolbar-italic" title="斜体 Ctrl+I" aria-label="斜体" :disabled="codeType !== 'Markdown'" @click="insert('i')"><i class="toolbar-symbol icon-italic" aria-hidden="true"></i><span class="toolbar-label">斜体</span></button>
+                    <button type="button" class="toolbar-button toolbar-labeled toolbar-strike" title="删除线" aria-label="删除线" :disabled="codeType !== 'Markdown'" @click="insert('strike')"><span class="toolbar-symbol toolbar-symbol-strike" aria-hidden="true"></span><span class="toolbar-label">删除</span></button>
+                    <button type="button" class="toolbar-button toolbar-labeled" title="行内代码" aria-label="行内代码" :disabled="codeType !== 'Markdown'" @click="insert('inline-code')"><i class="toolbar-symbol icon-code" aria-hidden="true"></i><span class="toolbar-label">代码</span></button>
+                </div>
+                <div class="toolbar-group" aria-label="段落与列表">
+                    <button type="button" class="toolbar-button toolbar-labeled" title="无序列表" aria-label="无序列表" :disabled="codeType !== 'Markdown'" @click="insert('unordered-list')"><i class="toolbar-symbol icon-unordered-list" aria-hidden="true"></i><span class="toolbar-label">列表</span></button>
+                    <button type="button" class="toolbar-button toolbar-labeled" title="有序列表" aria-label="有序列表" :disabled="codeType !== 'Markdown'" @click="insert('ordered-list')"><i class="toolbar-symbol icon-ordered-list" aria-hidden="true"></i><span class="toolbar-label">编号</span></button>
+                    <button type="button" class="toolbar-button toolbar-labeled" title="任务列表" aria-label="任务列表" :disabled="codeType !== 'Markdown'" @click="insert('task-list')"><span class="toolbar-symbol toolbar-symbol-task" aria-hidden="true"></span><span class="toolbar-label">任务</span></button>
+                    <button type="button" class="toolbar-button toolbar-labeled" title="引用" aria-label="引用" :disabled="codeType !== 'Markdown'" @click="insert('quote')"><i class="toolbar-symbol icon-quote" aria-hidden="true"></i><span class="toolbar-label">引用</span></button>
+                </div>
+                <div class="toolbar-group" aria-label="插入">
+                    <button type="button" class="toolbar-button toolbar-labeled" title="插入链接 Ctrl+K" aria-label="插入链接" :disabled="codeType !== 'Markdown'" @click="insert('link')"><i class="toolbar-symbol icon-link" aria-hidden="true"></i><span class="toolbar-label">链接</span></button>
+                    <button type="button" class="toolbar-button toolbar-labeled" title="插入图片" aria-label="插入图片" :disabled="codeType !== 'Markdown'" @click="insert('image')"><i class="toolbar-symbol icon-image" aria-hidden="true"></i><span class="toolbar-label">图片</span></button>
+                    <button type="button" class="toolbar-button toolbar-labeled" title="插入表格" aria-label="插入表格" :disabled="codeType !== 'Markdown'" @click="insert('table')"><span class="toolbar-symbol toolbar-symbol-table" aria-hidden="true"></span><span class="toolbar-label">表格</span></button>
+                    <button type="button" class="toolbar-button toolbar-labeled" title="插入分割线" aria-label="插入分割线" :disabled="codeType !== 'Markdown'" @click="insert('hr')"><span class="toolbar-symbol toolbar-symbol-divider" aria-hidden="true"></span><span class="toolbar-label">分割</span></button>
+                    <button type="button" class="toolbar-button toolbar-labeled" title="插入提示块" aria-label="插入提示块" :disabled="codeType !== 'Markdown'" @click="insert('callout')"><i class="toolbar-symbol icon-info" aria-hidden="true"></i><span class="toolbar-label">提示</span></button>
+                </div>
+                <div class="toolbar-group" aria-label="文档工具">
+                    <button type="button" class="toolbar-button toolbar-labeled" title="生成标题目录" aria-label="生成标题目录" :disabled="codeType !== 'Markdown'" @click="insert('toc')"><span class="toolbar-symbol toolbar-symbol-toc" aria-hidden="true"></span><span class="toolbar-label">目录</span></button>
+                    <button type="button" class="toolbar-button toolbar-labeled" title="整理 Markdown 表格" aria-label="整理 Markdown 表格" :disabled="codeType !== 'Markdown'" @click="insert('format-table')"><span class="toolbar-symbol toolbar-symbol-format" aria-hidden="true"></span><span class="toolbar-label">整理</span></button>
+                </div>
+                <div class="toolbar-spacer"></div>
+                <div class="toolbar-group toolbar-export-group" aria-label="预览与导出">
+                    <button type="button" class="toolbar-button toolbar-action toolbar-labeled" title="切换编辑/分栏视图" aria-label="切换编辑/分栏视图" @click="togglePreview"><i class="toolbar-symbol icon-preview" aria-hidden="true"></i><span class="toolbar-label">预览</span></button>
+                    <button type="button" class="toolbar-button toolbar-action toolbar-labeled" title="全屏专注" aria-label="全屏专注" @click="toggleFullscreen"><i class="toolbar-symbol icon-fullscreen" aria-hidden="true"></i><span class="toolbar-label">全屏</span></button>
+                    <button type="button" class="toolbar-button toolbar-action toolbar-labeled" title="下载 Markdown 文件" aria-label="下载 Markdown 文件" @click="saveMarkdown('md')"><span class="toolbar-symbol toolbar-symbol-download" aria-hidden="true"></span><span class="toolbar-label">MD</span></button>
+                    <button type="button" class="toolbar-button toolbar-action toolbar-labeled" title="下载 HTML 文件" aria-label="下载 HTML 文件" @click="saveMarkdown('html')"><span class="toolbar-symbol toolbar-symbol-download" aria-hidden="true"></span><span class="toolbar-label">HTML</span></button>
+                </div>
             </div>
         </div>
         <div class="mod-editor">
             <textarea id="editor" ref="elEditor"></textarea>
         </div>
         <div class="markdown-body" ref="boxPreview"></div>
+        <div class="mod-statusbar">
+            <div class="status-metrics" aria-label="Markdown 文档状态">
+                <span>{{stats.lines}} 行</span>
+                <span>{{stats.words}} 词</span>
+                <span>{{stats.chars}} 字符</span>
+                <span>{{stats.readingTime}} 分钟阅读</span>
+            </div>
+            <span class="status-notice" aria-live="polite">{{noticeText}}</span>
+            <div class="status-actions" aria-label="Markdown 快捷操作">
+                <label class="status-sync-toggle">
+                    <input type="checkbox" v-model="syncScroll">
+                    <span>同步滚动</span>
+                </label>
+                <div class="status-view-switch" role="group" aria-label="视图模式">
+                    <button type="button" :class="{active: viewMode === 'split'}" @click="setViewMode('split')">分栏</button>
+                    <button type="button" :class="{active: viewMode === 'editor'}" @click="setViewMode('editor')">编辑</button>
+                    <button type="button" :class="{active: viewMode === 'preview'}" @click="setViewMode('preview')">预览</button>
+                </div>
+                <button type="button" class="status-action-button" title="复制 Markdown" aria-label="复制 Markdown" @click="copyMarkdown">MD</button>
+                <button type="button" class="status-action-button" title="复制 HTML" aria-label="复制 HTML" @click="copyHtml">HTML</button>
+                <button type="button" class="status-action-button" title="清空内容" aria-label="清空内容" @click="clearContent">清空</button>
+            </div>
+        </div>
     </div>
 
 </div>

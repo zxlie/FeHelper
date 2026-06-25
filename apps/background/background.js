@@ -908,6 +908,7 @@ let BgPageInstance = (function () {
             JSON_FORMAT_COMPACT_MODE: true,
             FH_UI_MODE: 'lite',
             JSON_FORMAT_UI_MODE: 'lite',
+            JSON_FORMAT_EXCLUDED_ORIGINS: '',
             MAX_JSON_KEYS_NUMBER: 10000,
             JSON_FORMAT_THEME: 0,
             AUTO_DARK_MODE: false,
@@ -915,6 +916,7 @@ let BgPageInstance = (function () {
         };
         const numberOptions = ['MAX_JSON_KEYS_NUMBER', 'JSON_FORMAT_THEME'];
         const stringOptions = ['FH_UI_MODE', 'JSON_FORMAT_UI_MODE'];
+        const rawStringOptions = ['JSON_FORMAT_EXCLUDED_ORIGINS'];
 
         let storageQuery;
         if (Array.isArray(params)) {
@@ -956,6 +958,9 @@ let BgPageInstance = (function () {
                     const fallbackValue = defaultOptions.hasOwnProperty(key) ? defaultOptions[key] : '';
                     const normalizedValue = String(result[key] || '').toLowerCase();
                     result[key] = normalizedValue === 'omni' ? 'omni' : fallbackValue;
+                } else if (rawStringOptions.includes(key)) {
+                    const fallbackValue = defaultOptions.hasOwnProperty(key) ? defaultOptions[key] : '';
+                    result[key] = result[key] === undefined || result[key] === null ? fallbackValue : String(result[key]);
                 } else {
                     const fallbackValue = defaultOptions.hasOwnProperty(key) ? defaultOptions[key] : false;
                     if (result[key] === undefined || result[key] === null || result[key] === '') {

@@ -38,6 +38,8 @@ window.JsonAutoFormat = (() => {
         FH_UI_MODE: 'FH_UI_MODE',
         // JSON 格式化独立模式
         JSON_FORMAT_UI_MODE: 'JSON_FORMAT_UI_MODE',
+        // JSON 自动格式化排除站点
+        JSON_FORMAT_EXCLUDED_ORIGINS: 'JSON_FORMAT_EXCLUDED_ORIGINS',
         // 最大json key数量
         MAX_JSON_KEYS_NUMBER: 'MAX_JSON_KEYS_NUMBER',
         // 自定义皮肤
@@ -78,11 +80,15 @@ window.JsonAutoFormat = (() => {
         JSON_FORMAT_COMPACT_MODE: true,
         FH_UI_MODE: 'lite',
         JSON_FORMAT_UI_MODE: 'lite',
+        JSON_FORMAT_EXCLUDED_ORIGINS: '',
         AUTO_DARK_MODE: false,
         ALWAYS_DARK_MODE: false
     };
 
     let darkModePreferenceBound = false;
+    let omniShortcutsBound = false;
+    let omniSelectionEventsBound = false;
+    let excludedOriginPromptAutoTuckTimer = null;
 
     let _isEnabledSetting = value => value === true || value === 'true';
 
@@ -131,6 +137,19 @@ window.JsonAutoFormat = (() => {
         return parsed ? parsed.normalizedSource : source;
     };
 
+    let _injectContentCss = () => {
+        if (cssInjected) {
+            return;
+        }
+
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing:'inject-content-css',
+            tool: 'json-format'
+        });
+        cssInjected = true;
+    };
+
     let _applyCompactMode = () => {
         let body = document.body;
         if (!body) {
@@ -152,6 +171,7 @@ window.JsonAutoFormat = (() => {
         const isLiteMode = _getResolvedUiMode() !== 'omni';
         body.classList.toggle('fh-ui-mode-lite', isLiteMode);
         body.classList.toggle('fh-ui-mode-omni', !isLiteMode);
+        _syncOmniToolbarState();
     };
 
     let _applyToolbarDisplayState = () => {
@@ -166,6 +186,312 @@ window.JsonAutoFormat = (() => {
         $('#jfToolbar input[name="alwaysShowToolbar"]').prop('checked', showToolBar);
     };
 
+    let _isOmniMode = () => _getResolvedUiMode() === 'omni';
+
+    let _saveJsonFormatOptions = (params, callback) => {
+        chrome.runtime.sendMessage({
+            type: 'fh-dynamic-any-thing',
+            thing: 'save-jsonformat-options',
+            params: params
+        }, callback);
+    };
+
+    let _getExcludedOriginList = value => {
+        if (Array.isArray(value)) {
+            return value.map(item => String(item || '').trim()).filter(Boolean);
+        }
+
+        return String(value || '')
+            .split(/[\n,]+/)
+            .map(item => item.trim())
+            .filter(Boolean);
+    };
+
+    let _getCurrentOriginPattern = () => {
+        if (location.origin && location.origin !== 'null') {
+            return location.origin.replace(/\/+$/, '');
+        }
+        return location.hostname || location.href;
+    };
+
+    let _normalizeExcludedOriginPattern = value => String(value || '').trim().replace(/\/+$/, '').toLowerCase();
+
+    let _matchesCurrentOriginPattern = value => {
+        let origin = _getCurrentOriginPattern().toLowerCase();
+        let hostname = String(location.hostname || '').toLowerCase();
+        let pattern = _normalizeExcludedOriginPattern(value);
+
+        if (!pattern) {
+            return false;
+        }
+        if (pattern === '*') {
+            return true;
+        }
+        if (pattern === origin || (hostname && pattern === hostname)) {
+            return true;
+        }
+        if (pattern.indexOf('*.') === 0 && hostname) {
+            let suffix = pattern.slice(2);
+            return hostname === suffix || hostname.endsWith('.' + suffix);
+        }
+        return false;
+    };
+
+    let _isCurrentOriginExcluded = () => {
+        return _getExcludedOriginList(formatOptions.JSON_FORMAT_EXCLUDED_ORIGINS).some(_matchesCurrentOriginPattern);
+    };
+
+    let _setExcludeSiteButtonState = excluded => {
+        $('#fhJsonExcludeSite')
+            .text(excluded ? '恢复JSON美化' : '排除此站')
+            .attr('title', excluded ? '从排除名单移除此站，刷新后重新启用 JSON 自动格式化' : '将此站加入排除名单，刷新后不再自动格式化')
+            .toggleClass('is-excluded', excluded)
+            .prop('disabled', false);
+    };
+
+    let _syncExcludeSiteButtonState = () => {
+        _setExcludeSiteButtonState(_isCurrentOriginExcluded());
+    };
+
+    let _renderOmniSearchState = state => {
+        state = state || (window.Formatter && Formatter.getSearchState && Formatter.getSearchState()) || {current: 0, total: 0};
+        let text = state.total ? (state.current + '/' + state.total) : '0/0';
+        $('#fhJsonSearchCount')
+            .text(text)
+            .toggleClass('is-empty', !state.total);
+    };
+
+    let _refreshOmniSelectionState = () => {
+        window.Formatter && Formatter.getSelectionInfo && Formatter.getSelectionInfo();
+    };
+
+    let _resetOmniActions = () => {
+        if (!window.Formatter) {
+            return;
+        }
+        if (Formatter.clearSearch) {
+            Formatter.clearSearch();
+        }
+        if (Formatter.setPlainJsonView) {
+            Formatter.setPlainJsonView(false);
+        }
+        $('#fhJsonSearchInput').val('');
+        _renderOmniSearchState({current: 0, total: 0});
+    };
+
+    let _syncOmniToolbarState = () => {
+        let toolbar = $('#jfToolbar');
+        if (!toolbar.length) {
+            return;
+        }
+
+        let isOmni = _isOmniMode();
+        toolbar.find('.fh-auto-mode-switch button').each(function () {
+            let isActive = $(this).data('jsonUiMode') === (isOmni ? 'omni' : 'lite');
+            $(this)
+                .toggleClass('selected', isActive)
+                .attr('aria-pressed', isActive ? 'true' : 'false');
+        });
+
+        toolbar.find('.fh-omni-tools')
+            .attr('aria-hidden', isOmni ? 'false' : 'true')
+            .find('input,button')
+            .prop('disabled', !isOmni);
+
+        _syncExcludeSiteButtonState();
+
+        if (!isOmni) {
+            _resetOmniActions();
+            return;
+        }
+
+        _refreshOmniSelectionState();
+        _renderOmniSearchState();
+    };
+
+    let _setJsonFormatUiMode = mode => {
+        mode = String(mode || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
+        if (formatOptions.JSON_FORMAT_UI_MODE === mode && document.body.classList.contains('fh-ui-mode-' + mode)) {
+            _syncOmniToolbarState();
+            return;
+        }
+
+        formatOptions.JSON_FORMAT_UI_MODE = mode;
+        _applyUiMode();
+        _applyCompactMode();
+        let params = {};
+        params[STORAGE_KEYS.JSON_FORMAT_UI_MODE] = mode;
+        _saveJsonFormatOptions(params);
+    };
+
+    let _runOmniSearch = delta => {
+        if (!_isOmniMode() || !window.Formatter) {
+            return;
+        }
+
+        let query = $('#fhJsonSearchInput').val();
+        let state;
+        if (!query && Formatter.clearSearch) {
+            state = Formatter.clearSearch();
+        } else if (delta && Formatter.nextSearch) {
+            state = Formatter.nextSearch(delta);
+        } else if (Formatter.search) {
+            state = Formatter.search(query);
+        }
+
+        _renderOmniSearchState(state);
+        _refreshOmniSelectionState();
+    };
+
+    let _toggleCurrentOriginExclusion = () => {
+        let origin = _getCurrentOriginPattern();
+        let list = _getExcludedOriginList(formatOptions.JSON_FORMAT_EXCLUDED_ORIGINS);
+        let isExcluded = list.some(_matchesCurrentOriginPattern);
+        if (isExcluded) {
+            list = list.filter(item => !_matchesCurrentOriginPattern(item));
+        } else if (!list.some(item => _normalizeExcludedOriginPattern(item) === origin.toLowerCase())) {
+            list.push(origin);
+        }
+
+        let nextValue = list.join('\n');
+        formatOptions.JSON_FORMAT_EXCLUDED_ORIGINS = nextValue;
+        let params = {};
+        params[STORAGE_KEYS.JSON_FORMAT_EXCLUDED_ORIGINS] = nextValue;
+        _saveJsonFormatOptions(params, () => {
+            window.location.reload();
+        });
+        _setExcludeSiteButtonState(!isExcluded);
+    };
+
+    let _isEditableShortcutTarget = target => {
+        if (!target || target === document || target === window) {
+            return false;
+        }
+        let el = target.nodeType === 1 ? target : target.parentElement;
+        if (!el) {
+            return false;
+        }
+        if (el.isContentEditable) {
+            return true;
+        }
+        let tagName = (el.tagName || '').toLowerCase();
+        return /^(input|textarea|select)$/i.test(tagName) || !!(el.closest && el.closest('input, textarea, select, [contenteditable="true"]'));
+    };
+
+    let _bindOmniShortcuts = () => {
+        if (omniShortcutsBound) {
+            return;
+        }
+        omniShortcutsBound = true;
+
+        document.addEventListener('keydown', event => {
+            if (!_isOmniMode() || event.altKey || event.ctrlKey || event.metaKey || _isEditableShortcutTarget(event.target)) {
+                return;
+            }
+
+            let key = String(event.key || '').toLowerCase();
+            if (key === '/') {
+                event.preventDefault();
+                $('#fhJsonSearchInput').trigger('focus');
+                return;
+            }
+            if (key === 'escape' && window.Formatter && Formatter.clearSelection) {
+                event.preventDefault();
+                Formatter.clearSelection();
+                return;
+            }
+            if (key === '[' && window.Formatter && Formatter.collapseAll) {
+                event.preventDefault();
+                Formatter.collapseAll();
+                _refreshOmniSelectionState();
+                return;
+            }
+            if (key === ']' && window.Formatter && Formatter.expandAll) {
+                event.preventDefault();
+                Formatter.expandAll();
+                _refreshOmniSelectionState();
+            }
+        }, true);
+    };
+
+    let _bindOmniSelectionEvents = () => {
+        if (omniSelectionEventsBound) {
+            return;
+        }
+        omniSelectionEventsBound = true;
+
+        document.addEventListener('fh-json-selection-change', event => {
+            event.detail && _refreshOmniSelectionState();
+        });
+        document.addEventListener('fh-json-format-ready', event => {
+            _renderOmniSearchState();
+        });
+    };
+
+    let _bindOmniToolbar = () => {
+        let toolbar = $('#jfToolbar');
+        if (!toolbar.length) {
+            return;
+        }
+
+        toolbar.find('.fh-auto-mode-switch button').off('click.fhOmni').on('click.fhOmni', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            _setJsonFormatUiMode($(this).data('jsonUiMode'));
+        });
+
+        let searchTimer = null;
+        $('#fhJsonSearchInput').off('.fhOmni')
+            .on('input.fhOmni', function () {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(() => _runOmniSearch(0), 120);
+            })
+            .on('keydown.fhOmni', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    _runOmniSearch(e.shiftKey ? -1 : 1);
+                }
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    $(this).val('');
+                    _runOmniSearch(0);
+                    if (window.Formatter && Formatter.clearSelection) {
+                        Formatter.clearSelection();
+                    }
+                    this.blur();
+                }
+            });
+
+        $('#fhJsonSearchPrev').off('click.fhOmni').on('click.fhOmni', e => {
+            e.preventDefault();
+            _runOmniSearch(-1);
+        });
+        $('#fhJsonSearchNext').off('click.fhOmni').on('click.fhOmni', e => {
+            e.preventDefault();
+            _runOmniSearch(1);
+        });
+        $('#fhJsonCopyPath').off('click.fhOmni').on('click.fhOmni', e => {
+            e.preventDefault();
+            if (window.Formatter && Formatter.copySelectedPath) {
+                Formatter.copySelectedPath();
+            }
+        });
+        $('#fhJsonCopyValue').off('click.fhOmni').on('click.fhOmni', e => {
+            e.preventDefault();
+            if (window.Formatter && Formatter.copySelectedValue) {
+                Formatter.copySelectedValue();
+            }
+        });
+        $('#fhJsonExcludeSite').off('click.fhOmni').on('click.fhOmni', e => {
+            e.preventDefault();
+            _toggleCurrentOriginExclusion();
+        });
+
+        _bindOmniShortcuts();
+        _bindOmniSelectionEvents();
+        _syncOmniToolbarState();
+    };
+
     let _syncFormatterEscapeState = () => {
         if (typeof window.Formatter !== 'undefined' && window.Formatter.setEscapeEnabled) {
             window.Formatter.setEscapeEnabled(!!formatOptions.NESTED_ESCAPE_PARSE);
@@ -174,10 +500,93 @@ window.JsonAutoFormat = (() => {
 
     let _syncFormatterStatusBarState = () => {
         const enabled = !!formatOptions.STATUS_BAR_ALWAYS_SHOW;
-        $('body').toggleClass('hide-status-bar', !enabled);
+        const hasSelectedNode = !!document.querySelector('#jfContent .item.x-selected');
+        $('body').toggleClass('hide-status-bar', !enabled && !hasSelectedNode);
         if (typeof window.Formatter !== 'undefined' && window.Formatter.setStatusBarEnabled) {
             window.Formatter.setStatusBarEnabled(enabled);
         }
+    };
+
+    let _setExcludedOriginPromptTucked = tucked => {
+        let prompt = document.getElementById('fhJsonExcludedOriginPrompt');
+        if (!prompt) {
+            return;
+        }
+
+        prompt.dataset.fhJsonTucked = tucked ? '1' : '0';
+        prompt.setAttribute('aria-expanded', tucked ? 'false' : 'true');
+        prompt.style.transform = tucked ? 'translateX(calc(100% - 40px))' : 'translateX(0)';
+    };
+
+    let _scheduleExcludedOriginPromptAutoTuck = delay => {
+        clearTimeout(excludedOriginPromptAutoTuckTimer);
+        excludedOriginPromptAutoTuckTimer = setTimeout(() => _setExcludedOriginPromptTucked(true), delay);
+    };
+
+    let _setExcludedOriginRestoreButtonFeedback = state => {
+        let button = document.getElementById('fhJsonExcludeSite');
+        if (!button || !document.getElementById('fhJsonExcludedOriginPrompt')) {
+            return;
+        }
+
+        if (state === 'active') {
+            button.style.transform = 'translateY(0) scale(.98)';
+            button.style.boxShadow = '0 1px 1px rgba(22,101,52,.16), inset 0 1px 0 rgba(255,255,255,.72)';
+            return;
+        }
+
+        if (state === 'hover') {
+            button.style.background = 'linear-gradient(180deg,#dcfce7 0%,#86efac 100%)';
+            button.style.borderColor = '#4ade80';
+            button.style.boxShadow = '0 4px 10px rgba(22,101,52,.20), inset 0 1px 0 rgba(255,255,255,.72)';
+            button.style.transform = 'translateY(-1px)';
+            return;
+        }
+
+        button.style.background = 'linear-gradient(180deg,#f0fdf4 0%,#bbf7d0 100%)';
+        button.style.borderColor = '#86efac';
+        button.style.boxShadow = '0 2px 6px rgba(22,101,52,.16), inset 0 1px 0 rgba(255,255,255,.72)';
+        button.style.transform = 'translateY(0)';
+    };
+
+    let _bindExcludedOriginPromptBehavior = () => {
+        let prompt = document.getElementById('fhJsonExcludedOriginPrompt');
+        if (!prompt) {
+            return;
+        }
+
+        if (!prompt.dataset.fhJsonPromptBound) {
+            prompt.dataset.fhJsonPromptBound = '1';
+            prompt.addEventListener('mouseenter', () => {
+                clearTimeout(excludedOriginPromptAutoTuckTimer);
+                _setExcludedOriginPromptTucked(false);
+            });
+            prompt.addEventListener('mouseleave', () => {
+                _scheduleExcludedOriginPromptAutoTuck(1200);
+            });
+            prompt.addEventListener('focusin', () => {
+                clearTimeout(excludedOriginPromptAutoTuckTimer);
+                _setExcludedOriginPromptTucked(false);
+            });
+            prompt.addEventListener('focusout', () => {
+                _scheduleExcludedOriginPromptAutoTuck(1200);
+            });
+        }
+
+        let button = document.getElementById('fhJsonExcludeSite');
+        if (button && !button.dataset.fhJsonButtonBound) {
+            button.dataset.fhJsonButtonBound = '1';
+            button.addEventListener('mouseenter', () => _setExcludedOriginRestoreButtonFeedback('hover'));
+            button.addEventListener('mouseleave', () => _setExcludedOriginRestoreButtonFeedback('normal'));
+            button.addEventListener('focus', () => _setExcludedOriginRestoreButtonFeedback('hover'));
+            button.addEventListener('blur', () => _setExcludedOriginRestoreButtonFeedback('normal'));
+            button.addEventListener('mousedown', () => _setExcludedOriginRestoreButtonFeedback('active'));
+            button.addEventListener('mouseup', () => _setExcludedOriginRestoreButtonFeedback('hover'));
+        }
+
+        _setExcludedOriginRestoreButtonFeedback('normal');
+        _setExcludedOriginPromptTucked(false);
+        _scheduleExcludedOriginPromptAutoTuck(1500);
     };
 
     let _openDonateModal = e => {
@@ -248,8 +657,24 @@ window.JsonAutoFormat = (() => {
             '        </span>' +
             '        <span class="x-fix-encoding fh-viewbar-group"><span class="x-split">|</span><button class="xjf-btn" id="jsonGetCorrectCnt">乱码修正</button></span>' +
             '        <span id="optionBar" class="fh-viewbar-group fh-option-bar"></span>' +
+            '        <span class="fh-viewbar-group fh-omni-tools" aria-label="JSON Omni 高级操作">' +
+            '            <span class="x-split">|</span>' +
+            '            <span class="fh-json-search-box">' +
+            '                <input id="fhJsonSearchInput" type="search" placeholder="搜索 Key / 值" autocomplete="off" spellcheck="false" title="搜索 JSON 内容，按 Enter 跳转">' +
+            '                <button type="button" class="xjf-btn" id="fhJsonSearchPrev" title="上一条">上</button>' +
+            '                <button type="button" class="xjf-btn" id="fhJsonSearchNext" title="下一条">下</button>' +
+            '                <span id="fhJsonSearchCount" class="fh-json-search-count">0/0</span>' +
+            '            </span>' +
+            '            <button type="button" class="xjf-btn" id="fhJsonCopyPath">复制路径</button>' +
+            '            <button type="button" class="xjf-btn" id="fhJsonCopyValue">复制节点</button>' +
+            '        </span>' +
             '    </div>' +
             '    <span class="fe-feedback fh-viewbar-actions">' +
+            '       <button type="button" class="xjf-btn" id="fhJsonExcludeSite">排除此站</button>' +
+            '       <span class="fh-auto-mode-switch" role="group" aria-label="JSON 自动格式化模式">' +
+            '           <button type="button" data-json-ui-mode="lite" aria-pressed="true">Lite</button>' +
+            '           <button type="button" data-json-ui-mode="omni" aria-pressed="false">Omni</button>' +
+            '       </span>' +
             '       <span class="x-settings" title="高级定制"><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" width="14">' +
             '           <path fill-rule="evenodd" d="M14 8.77v-1.6l-1.94-.64-.45-1.09.88-1.84-1.13-1.13-1.81.91-1.09-.45-.69-1.92h-1.6l-.63 1.94-1.11.45-1.84-.88-1.13 1.13.91 1.81-.45 1.09L0 7.23v1.59l1.94.64.45 1.09-.88 1.84 1.13 1.13 1.81-.91 1.09.45.69 1.92h1.59l.63-1.94 1.11-.45 1.84.88 1.13-1.13-.92-1.81.47-1.09L14 8.75v.02zM7 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"></path>' +
             '       </svg><span>高级定制</span></span>' +
@@ -266,6 +691,15 @@ window.JsonAutoFormat = (() => {
             '<div id="jfCallbackName_end" class="callback-name"></div>',
             '</div></div>'
         ].join('')
+    };
+
+    let _getExcludedOriginToolbarFragment = () => {
+        return [
+            '<div id="fhJsonExcludedOriginPrompt" aria-expanded="true" style="position:fixed;top:12px;right:0;z-index:2147483647;display:flex;align-items:center;gap:8px;max-width:min(420px,calc(100vw - 12px));box-sizing:border-box;padding:7px 8px;border:1px solid #dbe3ef;border-right:0;border-radius:999px 0 0 999px;background:rgba(255,255,255,.98);box-shadow:0 10px 28px rgba(15,23,42,.16);color:#334155;font:600 12px/1.2 -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Microsoft YaHei,sans-serif;transform:translateX(0);transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease;will-change:transform;">' +
+            '    <img src="' + chrome.runtime.getURL('static/img/fe-16.png') + '" alt="FeHelper" style="width:16px;height:16px;flex:0 0 auto;">' +
+            '    <button type="button" class="is-excluded" id="fhJsonExcludeSite" style="height:28px;flex:0 0 auto;margin:0;padding:0 13px;border:1px solid #86efac;border-radius:999px;background:linear-gradient(180deg,#f0fdf4 0%,#bbf7d0 100%);box-shadow:0 2px 6px rgba(22,101,52,.16),inset 0 1px 0 rgba(255,255,255,.72);color:#14532d;cursor:pointer;font:800 12px/26px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Microsoft YaHei,sans-serif;outline:none;transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease;">恢复JSON美化</button>' +
+            '</div>'
+        ].join('');
     };
 
     let _mountFormatterShell = () => {
@@ -286,6 +720,19 @@ window.JsonAutoFormat = (() => {
         }
 
         $('body').prepend(_getHtmlFragment());
+    };
+
+    let _mountExcludedOriginToolbar = () => {
+        if (!document.getElementById('fhJsonExcludedOriginPrompt')) {
+            $('body').prepend(_getExcludedOriginToolbarFragment());
+        }
+
+        _bindExcludedOriginPromptBehavior();
+        _setExcludeSiteButtonState(true);
+        $('#fhJsonExcludeSite').off('click.fhOmni').on('click.fhOmni', e => {
+            e.preventDefault();
+            _toggleCurrentOriginExclusion();
+        });
     };
 
     let _createSettingPanel = () => {
@@ -530,6 +977,8 @@ window.JsonAutoFormat = (() => {
         $('#jsonGetCorrectCnt').click(e => _getCorrectContent());
 
         $('.x-toolbar .x-donate-link').on('click', _openDonateModal);
+
+        _bindOmniToolbar();
         
     };
 
@@ -693,7 +1142,10 @@ window.JsonAutoFormat = (() => {
             doc.querySelectorAll('style, script').forEach(el => el.remove());
             // 获取清理后的文本
             const cleanText = doc.body.textContent;
-            const htmlParseOptions = { allowExtractJSONFragment: false };
+            const htmlParseOptions = {
+                allowExtractJSONFragment: false,
+                allowJSONP: false
+            };
             let jsonObj = _getJsonObject(cleanText, htmlParseOptions);
             if(!jsonObj) {
                 return false;
@@ -760,6 +1212,9 @@ window.JsonAutoFormat = (() => {
             formatOptions.JSON_FORMAT_UI_MODE = String(options.JSON_FORMAT_UI_MODE || '').toLowerCase() === 'omni' ? 'omni' : 'lite';
         } else if (!formatOptions.JSON_FORMAT_UI_MODE) {
             formatOptions.JSON_FORMAT_UI_MODE = formatOptions.FH_UI_MODE || 'lite';
+        }
+        if (options.hasOwnProperty('JSON_FORMAT_EXCLUDED_ORIGINS')) {
+            formatOptions.JSON_FORMAT_EXCLUDED_ORIGINS = String(options.JSON_FORMAT_EXCLUDED_ORIGINS || '');
         }
     };
 
@@ -840,20 +1295,13 @@ window.JsonAutoFormat = (() => {
         if (jsonObj != null && typeof jsonObj === "object") {
 
             // 提前注入css
-            if(!cssInjected) {
-                chrome.runtime.sendMessage({
-                    type: 'fh-dynamic-any-thing',
-                    thing:'inject-content-css',
-                    tool: 'json-format'
-                });
-                cssInjected = true;
-            }
+            _injectContentCss();
 
             // JSON的所有key不能超过预设的值，比如 10000 个，要不然自动格式化会比较卡
             if (formatOptions['MAX_JSON_KEYS_NUMBER']) {
                 let keysCount = _getAllKeysCount(jsonObj);
                 if (keysCount > formatOptions['MAX_JSON_KEYS_NUMBER']) {
-                    let msg = '当前JSON共 <b style="color:red">' + keysCount + '</b> 个Key，大于预设值' + formatOptions['MAX_JSON_KEYS_NUMBER'] + '，已取消自动格式化；可到FeHelper设置页调整此配置！';
+                    let msg = '当前JSON共 <b style="color:red">' + keysCount + '</b> 个Key，大于预设值' + formatOptions['MAX_JSON_KEYS_NUMBER'] + '，已取消自动格式化；可在FeHelper设置页的「JSON 自动格式化 Key 数上限」中调整此配置！';
                     return toast(msg);
                 }
             }
@@ -878,9 +1326,12 @@ window.JsonAutoFormat = (() => {
      * @private
      */
     let _format = function () {
-
         let source = _getJsonText();
         if (source) {
+            if (_isCurrentOriginExcluded()) {
+                _mountExcludedOriginToolbar();
+                return false;
+            }
             _formatTheSource(source);
         }
     };

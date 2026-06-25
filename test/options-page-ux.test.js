@@ -179,4 +179,26 @@ describe('options page UX policy', () => {
         expect(privacyPolicy).toContain('<code>tabs</code>');
         expect(privacyPolicy).toContain('<code>webNavigation</code>');
     });
+
+    it('exposes the JSON auto-format key limit from the settings page', () => {
+        const optionsHtml = readSource('apps/options/index.html');
+        const optionsSource = readSource('apps/options/index.js');
+        const optionsCss = readSource('apps/options/index.css');
+        const contentScript = readSource('apps/json-format/content-script.js');
+
+        expect(optionsHtml).toContain('JSON 自动格式化 Key 数上限');
+        expect(optionsHtml).toContain('id="MAX_JSON_KEYS_NUMBER"');
+        expect(optionsHtml).toContain('v-model.number="jsonFormatKeyLimit"');
+        expect(optionsHtml).toContain('@change="normalizeJsonFormatKeyLimitInput"');
+        expect(optionsSource).toContain("const JSON_FORMAT_KEY_LIMIT = 'MAX_JSON_KEYS_NUMBER';");
+        expect(optionsSource).toContain('const DEFAULT_JSON_KEY_LIMIT = 10000;');
+        expect(optionsSource).toContain('jsonFormatKeyLimit: DEFAULT_JSON_KEY_LIMIT');
+        expect(optionsSource).toContain('loadJsonFormatSettings()');
+        expect(optionsSource).toContain("thing: 'request-jsonformat-options'");
+        expect(optionsSource).toContain('saveJsonFormatSettings()');
+        expect(optionsSource).toContain("thing: 'save-jsonformat-options'");
+        expect(optionsSource).toContain('await this.saveJsonFormatSettings();');
+        expect(optionsCss).toContain('.setting-number-control');
+        expect(contentScript).toContain('FeHelper设置页的「JSON 自动格式化 Key 数上限」');
+    });
 });
