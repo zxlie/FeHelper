@@ -1364,6 +1364,21 @@ html.fh-jf .fh-viewbar-actions > .x-settings svg {
     fill: currentColor;
 }
 
+html.fh-jf .fh-viewbar-actions > .fh-collapse-icon {
+    display: none;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: 0;
+}
+
+html.fh-jf .fh-viewbar-actions > #toggleBtn .fh-toggle-label {
+    white-space: nowrap !important;
+}
+
 html.fh-jf .fh-viewbar-actions > .x-donate-link {
     border-color: #bbf7d0;
     background: #f0fdf4;
@@ -1442,17 +1457,28 @@ html.fh-jf .x-toolbar.fh-json-viewbar .mod-setting-panel {
 
 html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse {
     position: fixed;
-    top: 8px;
-    right: 8px;
+    top: 10px;
+    right: 0;
     left: auto;
+    z-index: 2147483647;
     width: auto;
-    min-height: 34px;
+    min-height: 30px;
     margin: 0;
-    padding: 4px;
+    padding: 4px 8px 4px 6px;
     border: 1px solid #dbe3ef;
-    border-radius: 999px;
+    border-right: 0;
+    border-radius: 6px 0 0 6px;
     background: rgba(255, 255, 255, 0.98);
-    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+    box-shadow: -2px 5px 14px rgba(15, 23, 42, 0.1);
+    pointer-events: auto;
+    transform: translateX(0);
+    transition: transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s ease;
+    will-change: transform;
+}
+
+html.fh-jf body.fh-json-compact .x-toolbar.fh-json-viewbar.t-collapse {
+    min-height: 30px;
+    padding: 4px 8px 4px 6px;
 }
 
 html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-brand,
@@ -1470,12 +1496,79 @@ html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > #toggleBt
     display: inline-flex;
 }
 
-html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > #toggleBtn {
-    min-height: 26px;
-    padding: 0 12px;
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions {
+    align-items: center;
+    gap: 6px;
+    min-height: 0;
+    padding: 0;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > .fh-collapse-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    padding: 0;
     border: 0;
-    background: #eff6ff;
-    color: #1d4ed8;
+    border-radius: 0;
+    background: transparent;
+    opacity: 1;
+    position: static;
+    top: auto;
+    margin: 0 0 0 9px;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > .fh-collapse-icon img {
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    opacity: 1;
+    position: static;
+    top: auto;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > #toggleBtn {
+    height: 22px;
+    min-height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 22px;
+    transition: color .16s ease, opacity .16s ease;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > #toggleBtn:hover {
+    color: #1e40af;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse[data-fh-json-toolbar-tucked="1"] {
+    box-shadow: -1px 3px 10px rgba(15, 23, 42, 0.08);
+    transform: translateX(calc(100% - 36px));
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse[data-fh-json-toolbar-tucked="1"]:hover,
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse[data-fh-json-toolbar-tucked="1"]:focus-within {
+    box-shadow: -2px 5px 14px rgba(15, 23, 42, 0.1);
+    transform: translateX(0);
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse[data-fh-json-toolbar-tucked="1"] .fh-toggle-label {
+    opacity: 0;
+}
+
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse[data-fh-json-toolbar-tucked="1"]:hover .fh-toggle-label,
+html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse[data-fh-json-toolbar-tucked="1"]:focus-within .fh-toggle-label {
+    opacity: 1;
 }
 
 @media (max-width: 960px) {
@@ -1839,6 +1932,19 @@ html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar.t-collapse {
     background: rgba(22, 27, 34, 0.98);
 }
 
+html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > #toggleBtn {
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+    color: #9cc8ff;
+}
+
+html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar.t-collapse .fh-viewbar-actions > .fh-collapse-icon {
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+}
+
 html.fh-jf body.theme-dark {
     --fh-bg: #151922;
     --fh-surface: #1d2430;
@@ -2070,10 +2176,10 @@ html.fh-jf body.theme-dark .boxOpt a:hover {
     background: #f9f9f9;
 }
 .fh-jf .json-formatter-container {display: none;}
-.t-collapse .fe-feedback {
+.x-toolbar:not(.fh-json-viewbar).t-collapse .fe-feedback {
     height: 20px;
 }
-.t-collapse .fe-feedback #toggleBtn{
+.x-toolbar:not(.fh-json-viewbar).t-collapse .fe-feedback #toggleBtn{
     padding-bottom: 20px;
 }
 

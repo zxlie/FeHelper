@@ -89,6 +89,7 @@ window.JsonAutoFormat = (() => {
     let omniShortcutsBound = false;
     let omniSelectionEventsBound = false;
     let excludedOriginPromptAutoTuckTimer = null;
+    let toolbarCollapseAutoTuckTimer = null;
 
     let _isEnabledSetting = value => value === true || value === 'true';
 
@@ -182,8 +183,23 @@ window.JsonAutoFormat = (() => {
 
         showToolBar = !!formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW;
         toolbar.classList.toggle('t-collapse', !showToolBar);
-        $('.fe-feedback #toggleBtn').html(showToolBar ? '收起' : '展开');
+        $('.fe-feedback #toggleBtn .fh-toggle-label').text(showToolBar ? '收起' : '展开');
+        $('.fe-feedback #toggleBtn').attr('aria-expanded', showToolBar ? 'true' : 'false');
+        $('.fe-feedback #toggleBtn').attr('title', showToolBar ? '收起工具栏' : '展开工具栏');
+        $('.fe-feedback .fh-collapse-icon').attr('title', showToolBar ? '收起工具栏' : '展开工具栏');
+        $('.fe-feedback .fh-collapse-icon').attr('aria-label', showToolBar ? '收起工具栏' : '展开工具栏');
         $('#jfToolbar input[name="alwaysShowToolbar"]').prop('checked', showToolBar);
+
+        _bindToolbarCollapseBehavior();
+        if (showToolBar) {
+            clearTimeout(toolbarCollapseAutoTuckTimer);
+            toolbar.dataset.fhJsonToolbarTucked = '0';
+            toolbar.setAttribute('aria-expanded', 'true');
+            toolbar.style.transform = '';
+        } else {
+            _setToolbarTucked(false);
+            _scheduleToolbarAutoTuck(1500);
+        }
     };
 
     let _isOmniMode = () => _getResolvedUiMode() === 'omni';
@@ -515,12 +531,55 @@ window.JsonAutoFormat = (() => {
 
         prompt.dataset.fhJsonTucked = tucked ? '1' : '0';
         prompt.setAttribute('aria-expanded', tucked ? 'false' : 'true');
-        prompt.style.transform = tucked ? 'translateX(calc(100% - 40px))' : 'translateX(0)';
+        prompt.style.transform = tucked ? 'translateX(calc(100% - 36px))' : 'translateX(0)';
     };
 
     let _scheduleExcludedOriginPromptAutoTuck = delay => {
         clearTimeout(excludedOriginPromptAutoTuckTimer);
         excludedOriginPromptAutoTuckTimer = setTimeout(() => _setExcludedOriginPromptTucked(true), delay);
+    };
+
+    let _setToolbarTucked = tucked => {
+        let toolbar = document.getElementById('jfToolbar');
+        if (!toolbar || !toolbar.classList.contains('t-collapse')) {
+            return;
+        }
+
+        toolbar.dataset.fhJsonToolbarTucked = tucked ? '1' : '0';
+        toolbar.setAttribute('aria-expanded', tucked ? 'false' : 'true');
+        toolbar.style.transform = '';
+    };
+
+    let _scheduleToolbarAutoTuck = delay => {
+        clearTimeout(toolbarCollapseAutoTuckTimer);
+        toolbarCollapseAutoTuckTimer = setTimeout(() => _setToolbarTucked(true), delay);
+    };
+
+    let _bindToolbarCollapseBehavior = () => {
+        let toolbar = document.getElementById('jfToolbar');
+        if (!toolbar || toolbar.dataset.fhJsonToolbarCollapseBound) {
+            return;
+        }
+
+        toolbar.dataset.fhJsonToolbarCollapseBound = '1';
+        toolbar.addEventListener('mouseenter', () => {
+            clearTimeout(toolbarCollapseAutoTuckTimer);
+            _setToolbarTucked(false);
+        });
+        toolbar.addEventListener('mouseleave', () => {
+            if (toolbar.classList.contains('t-collapse')) {
+                _scheduleToolbarAutoTuck(1200);
+            }
+        });
+        toolbar.addEventListener('focusin', () => {
+            clearTimeout(toolbarCollapseAutoTuckTimer);
+            _setToolbarTucked(false);
+        });
+        toolbar.addEventListener('focusout', () => {
+            if (toolbar.classList.contains('t-collapse')) {
+                _scheduleToolbarAutoTuck(1200);
+            }
+        });
     };
 
     let _setExcludedOriginRestoreButtonFeedback = state => {
@@ -531,21 +590,17 @@ window.JsonAutoFormat = (() => {
 
         if (state === 'active') {
             button.style.transform = 'translateY(0) scale(.98)';
-            button.style.boxShadow = '0 1px 1px rgba(22,101,52,.16), inset 0 1px 0 rgba(255,255,255,.72)';
+            button.style.color = '#1e40af';
             return;
         }
 
         if (state === 'hover') {
-            button.style.background = 'linear-gradient(180deg,#dcfce7 0%,#86efac 100%)';
-            button.style.borderColor = '#4ade80';
-            button.style.boxShadow = '0 4px 10px rgba(22,101,52,.20), inset 0 1px 0 rgba(255,255,255,.72)';
-            button.style.transform = 'translateY(-1px)';
+            button.style.color = '#1e40af';
+            button.style.transform = 'translateY(0)';
             return;
         }
 
-        button.style.background = 'linear-gradient(180deg,#f0fdf4 0%,#bbf7d0 100%)';
-        button.style.borderColor = '#86efac';
-        button.style.boxShadow = '0 2px 6px rgba(22,101,52,.16), inset 0 1px 0 rgba(255,255,255,.72)';
+        button.style.color = '#2563eb';
         button.style.transform = 'translateY(0)';
     };
 
@@ -678,7 +733,8 @@ window.JsonAutoFormat = (() => {
             '       <span class="x-settings" title="高级定制"><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 14 16" width="14">' +
             '           <path fill-rule="evenodd" d="M14 8.77v-1.6l-1.94-.64-.45-1.09.88-1.84-1.13-1.13-1.81.91-1.09-.45-.69-1.92h-1.6l-.63 1.94-1.11.45-1.84-.88-1.13 1.13.91 1.81-.45 1.09L0 7.23v1.59l1.94.64.45 1.09-.88 1.84 1.13 1.13 1.81-.91 1.09.45.69 1.92h1.59l.63-1.94 1.11-.45 1.84.88 1.13-1.13-.92-1.81.47-1.09L14 8.75v.02zM7 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"></path>' +
             '       </svg><span>高级定制</span></span>' +
-            '       <a id="toggleBtn" title="展开或收起工具栏">收起</a>' +
+            '       <span class="fh-collapse-icon" role="button" tabindex="0" title="收起工具栏" aria-label="收起工具栏"><img src="' + chrome.runtime.getURL('static/img/fe-16.png') + '" alt="" aria-hidden="true"></span>' +
+            '       <a id="toggleBtn" title="收起工具栏" aria-expanded="true"><span class="fh-toggle-label">收起</span></a>' +
             '       <a class="x-other-tools' + (isInUSA() ? ' x-other-tools-us' : '') + '" style="cursor:pointer"><span>工具市场</span></a>' +
             '       <span class="x-donate-link' + (isInUSA() ? ' x-donate-link-us' : '') + '"><a href="#" id="donateLink"><i class="nav-icon">SP</i><span>请作者喝咖啡</span></a></span>' +
             '    </span>' +
@@ -695,9 +751,11 @@ window.JsonAutoFormat = (() => {
 
     let _getExcludedOriginToolbarFragment = () => {
         return [
-            '<div id="fhJsonExcludedOriginPrompt" aria-expanded="true" style="position:fixed;top:12px;right:0;z-index:2147483647;display:flex;align-items:center;gap:8px;max-width:min(420px,calc(100vw - 12px));box-sizing:border-box;padding:7px 8px;border:1px solid #dbe3ef;border-right:0;border-radius:999px 0 0 999px;background:rgba(255,255,255,.98);box-shadow:0 10px 28px rgba(15,23,42,.16);color:#334155;font:600 12px/1.2 -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Microsoft YaHei,sans-serif;transform:translateX(0);transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease;will-change:transform;">' +
-            '    <img src="' + chrome.runtime.getURL('static/img/fe-16.png') + '" alt="FeHelper" style="width:16px;height:16px;flex:0 0 auto;">' +
-            '    <button type="button" class="is-excluded" id="fhJsonExcludeSite" style="height:28px;flex:0 0 auto;margin:0;padding:0 13px;border:1px solid #86efac;border-radius:999px;background:linear-gradient(180deg,#f0fdf4 0%,#bbf7d0 100%);box-shadow:0 2px 6px rgba(22,101,52,.16),inset 0 1px 0 rgba(255,255,255,.72);color:#14532d;cursor:pointer;font:800 12px/26px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Microsoft YaHei,sans-serif;outline:none;transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease;">恢复JSON美化</button>' +
+            '<div id="fhJsonExcludedOriginPrompt" aria-expanded="true" style="position:fixed;top:10px;right:0;z-index:2147483647;display:flex;align-items:center;gap:6px;max-width:min(420px,calc(100vw - 12px));box-sizing:border-box;padding:4px 8px 4px 6px;border:1px solid #dbe3ef;border-right:0;border-radius:6px 0 0 6px;background:rgba(255,255,255,.98);box-shadow:-2px 5px 14px rgba(15,23,42,.1);color:#334155;font:600 12px/1.2 -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Microsoft YaHei,sans-serif;transform:translateX(0);transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease;will-change:transform;">' +
+            '    <span aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex:0 0 22px;margin:0;">' +
+            '        <img src="' + chrome.runtime.getURL('static/img/fe-16.png') + '" alt="" style="display:block;width:16px;height:16px;border-radius:4px;opacity:1;position:static;top:auto;">' +
+            '    </span>' +
+            '    <button type="button" class="is-excluded" id="fhJsonExcludeSite" style="height:22px;min-height:22px;flex:0 0 auto;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#2563eb;cursor:pointer;font:800 12px/22px -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Microsoft YaHei,sans-serif;outline:none;transition:color .16s ease,opacity .16s ease;">恢复JSON美化</button>' +
             '</div>'
         ].join('');
     };
@@ -964,6 +1022,20 @@ window.JsonAutoFormat = (() => {
             showToolBar = !showToolBar;
             formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW = showToolBar;
             _applyToolbarDisplayState();
+            _saveJsonFormatOptions({JSON_TOOL_BAR_ALWAYS_SHOW: showToolBar});
+        });
+        $('.fe-feedback .fh-collapse-icon').on('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            tgBtn.trigger('click');
+        });
+        $('.fe-feedback .fh-collapse-icon').on('keydown', function (e) {
+            if (e.key !== 'Enter' && e.key !== ' ') {
+                return;
+            }
+            e.preventDefault();
+            e.stopPropagation();
+            tgBtn.trigger('click');
         });
         
         $('.fe-feedback .x-other-tools').on('click', function (e) {
