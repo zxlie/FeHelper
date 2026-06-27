@@ -126,6 +126,7 @@ describe('json-format settings regression guards', () => {
         expect(source).toContain("body.classList.toggle('fh-ui-mode-lite', isLiteMode);");
         expect(source).toContain('class="fh-auto-mode-switch"');
         expect(source).toContain('class="fh-viewbar-group fh-omni-tools"');
+        expect(source).toContain('id="jsonGetCorrectCnt">乱码修正</button>');
         expect(source).toContain('id="fhJsonSearchInput"');
         expect(source).toContain("data-json-ui-mode=\"lite\"");
         expect(source).toContain("data-json-ui-mode=\"omni\"");
@@ -226,6 +227,7 @@ describe('json-format settings regression guards', () => {
         expect(cssSource).toContain('width: 178px;');
         expect(cssSource).toContain('body.fh-json-compact .x-toolbar.fh-json-viewbar {\n    min-height: 38px;');
         expect(cssSource).toContain('body.fh-ui-mode-lite .fh-omni-tools');
+        expect(cssSource).not.toContain('body.fh-ui-mode-lite .x-fix-encoding');
         expect(cssSource).not.toContain('body.fh-ui-mode-lite .fh-viewbar-actions > #fhJsonExcludeSite');
         expect(cssSource).toContain('.fh-auto-mode-switch');
         expect(cssSource).toContain('.fh-json-search-box input');
