@@ -904,6 +904,10 @@
 /* select下拉框默认宽度调整 */
 .panel-section select.form-control {
     width: 100% !important;
+    height: 50px;
+    line-height: normal;
+    padding-right: 16px;
+    cursor: pointer;
 }
 
 .panel-section .form-control:focus {
@@ -912,30 +916,7 @@
     outline: none;
 }
 
-/* select下拉框特殊样式 */
-.panel-section select.form-control {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 16px 12px;
-    padding-right: 40px;
-    cursor: pointer;
-}
-
-.panel-section select.form-control:focus {
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23007bff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
-}
-
-/* select选项样式 */
-.panel-section select.form-control option {
-    padding: 8px 12px;
-    background-color: #ffffff;
-    color: #343a40;
-    font-size: 15px;
-}
+/* 保持原生select箭头，避免Chrome新版把CSS背景箭头重复绘制到下拉弹层中。 */
 
 /* 输入标签样式优化 */
 .input-label {

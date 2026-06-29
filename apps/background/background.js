@@ -920,11 +920,14 @@ let BgPageInstance = (function () {
 
         let storageQuery;
         if (Array.isArray(params)) {
-            storageQuery = ['FH_JSONFORMAT_DEFAULTS_MIGRATED'].concat(params);
+            storageQuery = ['FH_JSONFORMAT_DEFAULTS_MIGRATED', 'FH_JSONFORMAT_FIX_ENCODING_RESTORED'].concat(params);
         } else if (typeof params === 'string') {
-            storageQuery = ['FH_JSONFORMAT_DEFAULTS_MIGRATED', params];
+            storageQuery = ['FH_JSONFORMAT_DEFAULTS_MIGRATED', 'FH_JSONFORMAT_FIX_ENCODING_RESTORED', params];
         } else {
-            storageQuery = {FH_JSONFORMAT_DEFAULTS_MIGRATED: false};
+            storageQuery = {
+                FH_JSONFORMAT_DEFAULTS_MIGRATED: false,
+                FH_JSONFORMAT_FIX_ENCODING_RESTORED: false
+            };
             Object.keys(params || {}).forEach(key => {
                 storageQuery[key] = defaultOptions.hasOwnProperty(key) ? defaultOptions[key] : params[key];
             });
@@ -933,17 +936,31 @@ let BgPageInstance = (function () {
         Awesome.StorageMgr.get(storageQuery).then(result => {
             result = result || {};
             const migrated = String(result.FH_JSONFORMAT_DEFAULTS_MIGRATED) === 'true';
+            const fixEncodingRestored = String(result.FH_JSONFORMAT_FIX_ENCODING_RESTORED) === 'true';
+            const migrationParams = {};
 
             if (!migrated) {
                 result.JSON_TOOL_BAR_ALWAYS_SHOW = true;
                 result.ENABLE_JSON_KEY_SORT = true;
                 result.NESTED_ESCAPE_PARSE = false;
-                Awesome.StorageMgr.set({
+                Object.assign(migrationParams, {
                     JSON_TOOL_BAR_ALWAYS_SHOW: 'true',
                     ENABLE_JSON_KEY_SORT: 'true',
                     NESTED_ESCAPE_PARSE: 'false',
                     FH_JSONFORMAT_DEFAULTS_MIGRATED: 'true'
-                }).catch(() => {});
+                });
+            }
+
+            if (!fixEncodingRestored) {
+                result.FIX_ERROR_ENCODING = true;
+                Object.assign(migrationParams, {
+                    FIX_ERROR_ENCODING: 'true',
+                    FH_JSONFORMAT_FIX_ENCODING_RESTORED: 'true'
+                });
+            }
+
+            if (Object.keys(migrationParams).length) {
+                Awesome.StorageMgr.set(migrationParams).catch(() => {});
             }
 
             Object.keys(params || result).forEach(key => {
