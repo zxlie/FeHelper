@@ -138,6 +138,15 @@ window.JsonAutoFormat = (() => {
         return parsed ? parsed.normalizedSource : source;
     };
 
+    let _isYamlLikeResource = () => {
+        const utils = _getJsonAutoUtils();
+        if (typeof utils.isYAMLResource === 'function') {
+            return utils.isYAMLResource(location.href, document.contentType);
+        }
+
+        return /\.ya?ml$/i.test(new URL(location.href).pathname);
+    };
+
     let _injectContentCss = () => {
         if (cssInjected) {
             return;
@@ -1198,6 +1207,10 @@ window.JsonAutoFormat = (() => {
      * @private
      */
     let _getJsonText = function () {
+        if (_isYamlLikeResource()) {
+            return false;
+        }
+
         // 如果是js内容，则不进行json格式化
         let isJs = /\.js$/.test(new URL(location.href).pathname);
         isJs = isJs && document.contentType === 'application/javascript';

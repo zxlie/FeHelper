@@ -336,24 +336,156 @@ new Vue({
         _qrDecode: function (imgSrc, callback) {
 
             let self = this;
-            const codeReader = new ZXing.BrowserMultiFormatReader();
-
             let image = new Image();
-            image.src = imgSrc;
             image.setAttribute('crossOrigin', 'Anonymous');
-            image.onload = function () {
-                codeReader.decodeFromImage(this).then((result) => {
+            image.onload = async function () {
+                try {
+                    const result = await self._decodeImageWithRetries(this);
                     self._showDecodeResult(imgSrc, result.text);
                     callback && callback(result.text);
-                }).catch((err) => {
-                    self._showDecodeResult(imgSrc, err);
-                    callback && callback(err);
-                });
+                } catch (err) {
+                    const message = self._formatQrDecodeError(err);
+                    console.warn('二维码解码失败', err);
+                    self._showDecodeResult(imgSrc, message);
+                    callback && callback(false);
+                }
             };
             image.onerror = function (e) {
                 callback && callback(false);
                 alert('抱歉，当前图片无法被解码，请保存图片再拖拽进来试试！')
             };
+            image.src = imgSrc;
+        },
+
+        _decodeImageWithRetries: async function(image) {
+            const candidates = this._createQrDecodeCandidates(image);
+            const readers = this._createQrReaders();
+            let lastError = null;
+
+            for (let i = 0; i < candidates.length; i++) {
+                for (let j = 0; j < readers.length; j++) {
+                    const reader = readers[j];
+                    try {
+                        const result = await reader.decodeFromImage(candidates[i].source);
+                        if (result && result.text) {
+                            return result;
+                        }
+                    } catch (err) {
+                        lastError = err;
+                    } finally {
+                        if (reader && typeof reader.reset === 'function') {
+                            reader.reset();
+                        }
+                    }
+                }
+            }
+
+            throw lastError || new Error('二维码解析失败');
+        },
+
+        _createQrReaders: function() {
+            const hints = this._createQrDecodeHints();
+            const readers = [];
+
+            if (ZXing.BrowserQRCodeReader) {
+                readers.push(new ZXing.BrowserQRCodeReader());
+            }
+            readers.push(new ZXing.BrowserMultiFormatReader(hints, 300));
+
+            return readers;
+        },
+
+        _createQrDecodeHints: function() {
+            const hints = new Map();
+
+            if (ZXing.DecodeHintType && ZXing.BarcodeFormat) {
+                hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+                hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.QR_CODE]);
+            }
+
+            return hints;
+        },
+
+        _createQrDecodeCandidates: function(image) {
+            const candidates = [{ label: 'original', source: image }];
+            const width = image.naturalWidth || image.width || 0;
+            const height = image.naturalHeight || image.height || 0;
+
+            if (!width || !height) {
+                return candidates;
+            }
+
+            [
+                { label: 'padded', padding: 32, scale: 1 },
+                { label: 'scaled', padding: 48, scale: Math.max(2, Math.ceil(800 / Math.max(width, height))) },
+                { label: 'contrast', padding: 64, scale: Math.max(2, Math.ceil(1000 / Math.max(width, height))), grayscale: true, contrast: 1.35 }
+            ].forEach(config => {
+                const source = this._drawQrDecodeCanvas(image, config);
+                if (source) {
+                    candidates.push({ label: config.label, source });
+                }
+            });
+
+            return candidates;
+        },
+
+        _drawQrDecodeCanvas: function(image, config) {
+            try {
+                const sourceWidth = image.naturalWidth || image.width;
+                const sourceHeight = image.naturalHeight || image.height;
+                const scale = Math.max(1, Math.min(config.scale || 1, 4));
+                const padding = config.padding || 0;
+                const targetWidth = Math.max(1, Math.round(sourceWidth * scale));
+                const targetHeight = Math.max(1, Math.round(sourceHeight * scale));
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d', { willReadFrequently: !!config.grayscale });
+
+                if (!context) {
+                    return null;
+                }
+
+                canvas.width = targetWidth + padding * 2;
+                canvas.height = targetHeight + padding * 2;
+                context.fillStyle = '#fff';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                context.imageSmoothingEnabled = false;
+                context.drawImage(image, padding, padding, targetWidth, targetHeight);
+
+                if (config.grayscale) {
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    const contrast = config.contrast || 1;
+
+                    for (let i = 0; i < data.length; i += 4) {
+                        const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+                        const adjusted = Math.max(0, Math.min(255, (gray - 128) * contrast + 128));
+                        data[i] = adjusted;
+                        data[i + 1] = adjusted;
+                        data[i + 2] = adjusted;
+                    }
+
+                    context.putImageData(imageData, 0, 0);
+                }
+
+                return canvas;
+            } catch (err) {
+                console.warn('二维码候选图生成失败', err);
+                return null;
+            }
+        },
+
+        _formatQrDecodeError: function(err) {
+            const details = err && (err.message || String(err)) || '';
+
+            if (/tainted|cross-origin|cors|security/i.test(details)) {
+                return '二维码解析失败：当前图片存在跨域限制。请保存图片后拖拽上传，或截图后粘贴到这里再试。';
+            }
+
+            if (/No MultiFormat Readers|detect the code|NotFound/i.test(details)) {
+                return '未识别到二维码内容。请确认图片中二维码完整清晰，或尝试截图后粘贴、保存原图后上传。';
+            }
+
+            return '二维码解析失败。请换用更清晰的原图，或截图后粘贴到这里再试。';
         },
 
         _showDecodeResult: function (src, txt) {

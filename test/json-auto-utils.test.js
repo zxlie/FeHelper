@@ -105,4 +105,14 @@ describe('json-auto-utils', () => {
         });
         expect(utils.parseJSONLike('{"status":"ok"}', parseOptions).value.status).toBe('ok');
     });
+
+    it('Issue #608: raw YAML/YML resources are not JSON auto-format targets', () => {
+        expect(utils.isYAMLResource(
+            'https://raw.githubusercontent.com/bitxeno/go-docker-skeleton/refs/heads/master/.github/workflows/release.yml',
+            'text/plain; charset=utf-8',
+        )).toBe(true);
+        expect(utils.isYAMLResource('https://example.com/config.yaml', 'text/plain')).toBe(true);
+        expect(utils.isYAMLResource('https://example.com/config', 'application/x-yaml')).toBe(true);
+        expect(utils.isYAMLResource('https://example.com/data.json', 'application/json')).toBe(false);
+    });
 });

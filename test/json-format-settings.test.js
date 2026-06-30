@@ -158,6 +158,9 @@ describe('json-format settings regression guards', () => {
         expect(source).toContain("let _setToolbarTucked = tucked => {");
         expect(source).toContain("toolbar.style.transform = '';");
         expect(source).toContain("_scheduleToolbarAutoTuck(1500);");
+        expect(source).toContain("let _isYamlLikeResource = () => {");
+        expect(source).toContain("utils.isYAMLResource(location.href, document.contentType)");
+        expect(source.indexOf("if (_isYamlLikeResource()) {")).toBeLessThan(source.indexOf("let isJs = /\\.js$/.test(new URL(location.href).pathname);"));
         expect(source).toContain("toolbar.addEventListener('mouseenter'");
         expect(source).toContain("toolbar.addEventListener('mouseleave'");
         expect(source).toContain("class=\"fh-collapse-icon\"");

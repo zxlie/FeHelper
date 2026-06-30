@@ -79,7 +79,7 @@ new Vue({
             const result = this.parseHEX(this.fromHEX);
             if (result) {
                 this.color = result;
-                this.updateAllOutputs(); // Removed parameter
+                this.updateAllOutputs('fromHEX');
             } else {
                 this.clearOutputs();
             }
@@ -99,7 +99,7 @@ new Vue({
             const result = this.parseRGB(this.fromRGB);
             if (result) {
                 this.color = result;
-                this.updateAllOutputs();
+                this.updateAllOutputs('fromRGB');
             } else {
                 this.clearOutputs();
             }
@@ -120,7 +120,7 @@ new Vue({
             const result = this.parseHSL(this.fromHSL);
             if (result) {
                 this.color = this.hslToRgb(result.h, result.s, result.l, result.a);
-                this.updateAllOutputs();
+                this.updateAllOutputs('fromHSL');
             } else {
                 this.clearOutputs();
             }
@@ -141,7 +141,7 @@ new Vue({
             const result = this.parseHSV(this.fromHSV);
             if (result) {
                 this.color = this.hsvToRgb(result.h, result.s, result.v, result.a);
-                this.updateAllOutputs();
+                this.updateAllOutputs('fromHSV');
             } else {
                 this.clearOutputs();
             }
@@ -162,7 +162,7 @@ new Vue({
         },
 
         // --- Update All Outputs ---
-        updateAllOutputs: function() {
+        updateAllOutputs: function(sourceField) {
             if (!this.color) return;
             const { r, g, b, a } = this.color;
 
@@ -184,11 +184,11 @@ new Vue({
             this.toHSL = newHSL;
             this.toHSV = newHSV;
 
-             // Update inputs (only if they differ to avoid cursor jumps)
-             if (this.fromHEX !== newHEX) this.fromHEX = newHEX;
-             if (this.fromRGB !== newRGB) this.fromRGB = newRGB;
-             if (this.fromHSL !== newHSL) this.fromHSL = newHSL;
-             if (this.fromHSV !== newHSV) this.fromHSV = newHSV;
+             // Keep the actively edited input stable; update the other source fields.
+             if (sourceField !== 'fromHEX' && this.fromHEX !== newHEX) this.fromHEX = newHEX;
+             if (sourceField !== 'fromRGB' && this.fromRGB !== newRGB) this.fromRGB = newRGB;
+             if (sourceField !== 'fromHSL' && this.fromHSL !== newHSL) this.fromHSL = newHSL;
+             if (sourceField !== 'fromHSV' && this.fromHSV !== newHSV) this.fromHSV = newHSV;
 
             // Update the color picker IF the change didn't originate from it
             // Remove picker update logic

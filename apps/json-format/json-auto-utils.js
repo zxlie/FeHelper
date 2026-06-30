@@ -419,8 +419,25 @@
         return parsed.normalizedSource;
     }
 
+    function isYAMLResource(url, contentType) {
+        const type = String(contentType || '').toLowerCase();
+        if (type.includes('yaml') || type.includes('yml')) {
+            return true;
+        }
+
+        let pathname = '';
+        try {
+            pathname = new URL(String(url || ''), 'https://fehelper.local').pathname;
+        } catch (_) {
+            pathname = String(url || '').split(/[?#]/)[0];
+        }
+
+        return /\.ya?ml$/i.test(pathname);
+    }
+
     return {
         isBigNumberLike,
+        isYAMLResource,
         parseWithBigInt,
         normalizeLooseJSONSource,
         deepParseJSONStrings,
