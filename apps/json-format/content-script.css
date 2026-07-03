@@ -1017,7 +1017,7 @@ html.fh-jf .fh-viewbar-main {
     flex: 1 1 auto;
     min-width: 0;
     gap: 8px;
-    overflow-x: auto;
+    overflow-x: visible;
     overflow-y: visible;
     scrollbar-width: none;
 }
@@ -1052,6 +1052,8 @@ html.fh-jf body.fh-json-compact .x-toolbar.fh-json-viewbar .fh-viewbar-group {
 
 html.fh-jf body.fh-json-compact .fh-radio-pill span,
 html.fh-jf body.fh-json-compact .fh-toggle-pill span,
+html.fh-jf body.fh-json-compact .fh-sort-trigger,
+html.fh-jf body.fh-json-compact .fh-search-trigger,
 html.fh-jf body.fh-json-compact .x-toolbar.fh-json-viewbar .xjf-btn {
     height: 24px;
     line-height: 24px;
@@ -1096,7 +1098,9 @@ html.fh-jf body.fh-ui-mode-lite .fh-viewbar-actions > .x-donate-link {
 
 html.fh-jf .x-toolbar.fh-json-viewbar .fh-omni-tools {
     display: inline-flex;
+    position: relative;
     gap: 5px;
+    overflow: visible;
 }
 
 html.fh-jf .x-toolbar.fh-json-viewbar #fhJsonExcludeSite.is-excluded {
@@ -1109,14 +1113,106 @@ html.fh-jf .x-toolbar.fh-json-viewbar #fhJsonExcludeSite.is-excluded:hover {
     color: #14532d;
 }
 
-html.fh-jf .fh-json-search-box {
+html.fh-jf .fh-search-menu {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+html.fh-jf .fh-search-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 26px;
+    margin: 0;
+    padding: 0 10px 0 11px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #475569;
+    cursor: pointer;
+    font: 800 12px/26px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    white-space: nowrap !important;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+html.fh-jf .fh-search-trigger:hover,
+html.fh-jf .fh-search-menu:focus-within .fh-search-trigger {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+html.fh-jf .fh-search-trigger strong {
+    color: #94a3b8;
+    font: inherit;
+}
+
+html.fh-jf .fh-search-trigger.has-result strong {
+    color: #2563eb;
+}
+
+html.fh-jf .fh-search-trigger i {
+    width: 6px;
+    height: 6px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-1px) rotate(45deg);
+}
+
+html.fh-jf .fh-search-popover {
+    position: absolute;
+    top: calc(100% + 7px);
+    left: 0;
+    z-index: 2147483647;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: max-content;
+    max-width: calc(100vw - 24px);
+    padding: 6px;
+    border: 1px solid #d8dee9;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
+    visibility: hidden;
+}
+
+html.fh-jf .fh-search-menu:hover .fh-search-popover,
+html.fh-jf .fh-search-menu:focus-within .fh-search-popover {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+html.fh-jf .fh-search-popover::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+    left: 0;
+    height: 8px;
+}
+
+html.fh-jf .fh-json-search-box,
+html.fh-jf .fh-node-actions {
     display: inline-flex;
     align-items: center;
     gap: 4px;
 }
 
+html.fh-jf .fh-node-actions {
+    padding-left: 5px;
+    border-left: 1px solid #d8dee9;
+}
+
 html.fh-jf .fh-json-search-box input {
-    width: 178px;
+    width: 168px;
     height: 26px;
     min-width: 118px;
     margin: 0;
@@ -1146,13 +1242,13 @@ html.fh-jf .fh-json-search-count {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 36px;
-    height: 26px;
-    padding: 0 8px;
+    min-width: 30px;
+    height: auto;
+    padding: 0;
     color: #475569;
     font-size: 11px;
     font-weight: 800;
-    line-height: 26px;
+    line-height: inherit;
 }
 
 html.fh-jf .fh-json-search-count.is-empty {
@@ -1212,7 +1308,9 @@ html.fh-jf .x-toolbar.fh-json-viewbar .fh-viewbar-group {
 
 html.fh-jf .x-toolbar.fh-json-viewbar .fh-sort-group {
     display: inline-flex;
-    gap: 4px;
+    position: relative;
+    gap: 0;
+    overflow: visible;
 }
 
 html.fh-jf .x-toolbar.fh-json-viewbar .x-stitle {
@@ -1220,6 +1318,100 @@ html.fh-jf .x-toolbar.fh-json-viewbar .x-stitle {
     color: #64748b;
     font-size: 11px;
     font-weight: 700;
+}
+
+html.fh-jf .fh-sort-menu {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+html.fh-jf .fh-sort-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 26px;
+    margin: 0;
+    padding: 0 10px 0 11px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #475569;
+    cursor: pointer;
+    font: 800 12px/26px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    white-space: nowrap !important;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+html.fh-jf .fh-sort-trigger:hover,
+html.fh-jf .fh-sort-menu:focus-within .fh-sort-trigger {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+html.fh-jf .fh-sort-trigger strong {
+    color: #2563eb;
+    font: inherit;
+}
+
+html.fh-jf .fh-sort-trigger i {
+    width: 6px;
+    height: 6px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-1px) rotate(45deg);
+}
+
+html.fh-jf .fh-sort-options {
+    position: absolute;
+    top: calc(100% + 7px);
+    left: 0;
+    z-index: 2147483647;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    min-width: 98px;
+    height: auto;
+    padding: 5px;
+    border: 1px solid #d8dee9;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+    opacity: 0;
+    overflow: visible;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
+    visibility: hidden;
+}
+
+html.fh-jf .fh-sort-menu:hover .fh-sort-options,
+html.fh-jf .fh-sort-menu:focus-within .fh-sort-options {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+html.fh-jf .fh-sort-options::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+    left: 0;
+    height: 8px;
+}
+
+html.fh-jf .fh-sort-options .fh-sort-option {
+    display: flex;
+    width: 100%;
+}
+
+html.fh-jf .fh-sort-options .fh-sort-option span {
+    width: 100%;
+    justify-content: flex-start;
 }
 
 html.fh-jf .fh-radio-pill,
@@ -1598,6 +1790,12 @@ html.fh-jf .x-toolbar.fh-json-viewbar.t-collapse[data-fh-json-toolbar-tucked="1"
     html.fh-jf .fh-viewbar-actions {
         margin-left: auto;
     }
+
+    html.fh-jf .fh-search-popover {
+        right: 0;
+        left: auto;
+        flex-wrap: wrap;
+    }
 }
 
 /*================ 皮肤：theme-default ===================*/
@@ -1894,6 +2092,25 @@ html.fh-jf body.theme-dark .fh-json-search-box input:focus {
 html.fh-jf body.theme-dark .fh-json-search-count {
     color: #a7b0c0;
 }
+html.fh-jf body.theme-dark .fh-search-trigger {
+    color: #9da7b3;
+}
+html.fh-jf body.theme-dark .fh-search-trigger.has-result strong {
+    color: #8fb1ff;
+}
+html.fh-jf body.theme-dark .fh-search-popover {
+    border-color: #30363d;
+    background: rgba(22, 27, 34, 0.98);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+}
+html.fh-jf body.theme-dark .fh-node-actions {
+    border-left-color: #30363d;
+}
+html.fh-jf body.theme-dark .fh-search-trigger:hover,
+html.fh-jf body.theme-dark .fh-search-menu:focus-within .fh-search-trigger {
+    background: #30363d;
+    color: #f0f6fc;
+}
 html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar #fhJsonExcludeSite.is-excluded {
     background: #14532d;
     color: #dcfce7;
@@ -1913,6 +2130,19 @@ html.fh-jf body.theme-dark .fh-auto-mode-switch button.selected {
     background: #5d8df5;
     color: #fff;
 }
+html.fh-jf body.theme-dark .fh-sort-trigger {
+    color: #9da7b3;
+}
+html.fh-jf body.theme-dark .fh-sort-trigger strong {
+    color: #8fb1ff;
+}
+html.fh-jf body.theme-dark .fh-sort-options {
+    border-color: #30363d;
+    background: rgba(22, 27, 34, 0.98);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+}
+html.fh-jf body.theme-dark .fh-sort-trigger:hover,
+html.fh-jf body.theme-dark .fh-sort-menu:focus-within .fh-sort-trigger,
 html.fh-jf body.theme-dark .fh-radio-pill:hover span,
 html.fh-jf body.theme-dark .fh-toggle-pill:hover span,
 html.fh-jf body.theme-dark .x-toolbar.fh-json-viewbar .xjf-btn:hover {

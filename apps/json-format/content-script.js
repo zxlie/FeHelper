@@ -284,6 +284,9 @@ window.JsonAutoFormat = (() => {
         $('#fhJsonSearchCount')
             .text(text)
             .toggleClass('is-empty', !state.total);
+        $('#fhJsonSearchTrigger')
+            .attr('title', state.total ? ('搜索结果：' + text) : '搜索 Key / 值')
+            .toggleClass('has-result', !!state.total);
     };
 
     let _refreshOmniSelectionState = () => {
@@ -466,6 +469,10 @@ window.JsonAutoFormat = (() => {
         });
 
         let searchTimer = null;
+        $('#fhJsonSearchTrigger').off('click.fhOmni').on('click.fhOmni', e => {
+            e.preventDefault();
+            $('#fhJsonSearchInput').trigger('focus');
+        });
         $('#fhJsonSearchInput').off('.fhOmni')
             .on('input.fhOmni', function () {
                 clearTimeout(searchTimer);
@@ -714,23 +721,37 @@ window.JsonAutoFormat = (() => {
             '    <div class="fh-viewbar-main">' +
             '        <span class="x-sort fh-viewbar-group fh-sort-group">' +
             '            <span class="x-split">|</span>' +
-            '            <span class="x-stitle">排序</span>' +
-            '            <label class="fh-radio-pill" for="sort_null"><input type="radio" name="jsonsort" id="sort_null" value="0" checked><span>默认</span></label>' +
-            '            <label class="fh-radio-pill" for="sort_asc"><input type="radio" name="jsonsort" id="sort_asc" value="1"><span>升序</span></label>' +
-            '            <label class="fh-radio-pill" for="sort_desc"><input type="radio" name="jsonsort" id="sort_desc" value="-1"><span>降序</span></label>' +
+            '            <span class="fh-sort-menu">' +
+            '                <button type="button" class="fh-sort-trigger" aria-haspopup="true" aria-label="JSON 键名排序">' +
+            '                    <span>排序</span><strong id="fhJsonSortCurrent">默认</strong><i aria-hidden="true"></i>' +
+            '                </button>' +
+            '                <span class="fh-sort-options" role="radiogroup" aria-label="JSON 键名排序选项">' +
+            '                    <label class="fh-radio-pill fh-sort-option" for="sort_null"><input type="radio" name="jsonsort" id="sort_null" value="0" checked><span>默认</span></label>' +
+            '                    <label class="fh-radio-pill fh-sort-option" for="sort_asc"><input type="radio" name="jsonsort" id="sort_asc" value="1"><span>升序</span></label>' +
+            '                    <label class="fh-radio-pill fh-sort-option" for="sort_desc"><input type="radio" name="jsonsort" id="sort_desc" value="-1"><span>降序</span></label>' +
+            '                </span>' +
+            '            </span>' +
             '        </span>' +
             '        <span class="x-fix-encoding fh-viewbar-group"><span class="x-split">|</span><button class="xjf-btn" id="jsonGetCorrectCnt">乱码修正</button></span>' +
             '        <span id="optionBar" class="fh-viewbar-group fh-option-bar"></span>' +
             '        <span class="fh-viewbar-group fh-omni-tools" aria-label="JSON Omni 高级操作">' +
             '            <span class="x-split">|</span>' +
-            '            <span class="fh-json-search-box">' +
-            '                <input id="fhJsonSearchInput" type="search" placeholder="搜索 Key / 值" autocomplete="off" spellcheck="false" title="搜索 JSON 内容，按 Enter 跳转">' +
-            '                <button type="button" class="xjf-btn" id="fhJsonSearchPrev" title="上一条">上</button>' +
-            '                <button type="button" class="xjf-btn" id="fhJsonSearchNext" title="下一条">下</button>' +
-            '                <span id="fhJsonSearchCount" class="fh-json-search-count">0/0</span>' +
+            '            <span class="fh-search-menu">' +
+            '                <button type="button" class="fh-search-trigger" id="fhJsonSearchTrigger" aria-haspopup="true" aria-label="搜索 JSON 内容">' +
+            '                    <span>搜索</span><strong id="fhJsonSearchCount" class="fh-json-search-count is-empty">0/0</strong><i aria-hidden="true"></i>' +
+            '                </button>' +
+            '                <span class="fh-search-popover" role="group" aria-label="搜索与节点操作">' +
+            '                    <span class="fh-json-search-box">' +
+            '                        <input id="fhJsonSearchInput" type="search" placeholder="搜索 Key / 值" autocomplete="off" spellcheck="false" title="搜索 JSON 内容，按 Enter 跳转">' +
+            '                        <button type="button" class="xjf-btn" id="fhJsonSearchPrev" title="上一条">上</button>' +
+            '                        <button type="button" class="xjf-btn" id="fhJsonSearchNext" title="下一条">下</button>' +
+            '                    </span>' +
+            '                    <span class="fh-node-actions">' +
+            '                        <button type="button" class="xjf-btn" id="fhJsonCopyPath">复制路径</button>' +
+            '                        <button type="button" class="xjf-btn" id="fhJsonCopyValue">复制节点</button>' +
+            '                    </span>' +
+            '                </span>' +
             '            </span>' +
-            '            <button type="button" class="xjf-btn" id="fhJsonCopyPath">复制路径</button>' +
-            '            <button type="button" class="xjf-btn" id="fhJsonCopyValue">复制节点</button>' +
             '        </span>' +
             '    </div>' +
             '    <span class="fe-feedback fh-viewbar-actions">' +
@@ -900,6 +921,7 @@ window.JsonAutoFormat = (() => {
                         localStorage.setItem(JSON_SORT_TYPE_KEY, 0);
                     } catch (e) {}
                 }
+                _syncSortMenuState();
 
                 if (opts.reformat) {
                     _didFormat();
@@ -987,6 +1009,21 @@ window.JsonAutoFormat = (() => {
         return true;
     };
 
+    let _getSortLabel = sortType => {
+        const labels = {
+            0: '默认',
+            1: '升序',
+            '-1': '降序'
+        };
+        return labels[String(parseInt(sortType, 10) || 0)] || '默认';
+    };
+
+    let _syncSortMenuState = () => {
+        let label = _getSortLabel(formatOptions.sortType);
+        $('#fhJsonSortCurrent').text(label);
+        $('.fh-sort-trigger').attr('title', '排序：' + label);
+    };
+
     let _initToolbar = () => {
         showToolBar = formatOptions.JSON_TOOL_BAR_ALWAYS_SHOW;
         let cspSafe = _checkContentSecurityPolicy();
@@ -995,11 +1032,12 @@ window.JsonAutoFormat = (() => {
             if (formatOptions.ENABLE_JSON_KEY_SORT) {
                 formatOptions.sortType = parseInt(localStorage.getItem(JSON_SORT_TYPE_KEY) || 0);
                 // 排序选项初始化
-                $('[name=jsonsort][value=' + formatOptions.sortType + ']').attr('checked', 1);
+                $('[name=jsonsort][value=' + formatOptions.sortType + ']').prop('checked', true);
             } else {
                 formatOptions.sortType = 0;
                 $('#jfToolbar .x-sort').hide();
             }
+            _syncSortMenuState();
 
             // =============================事件初始化
             $('[name=jsonsort]').click(function (e) {
@@ -1008,6 +1046,7 @@ window.JsonAutoFormat = (() => {
                     formatOptions.sortType = sortType;
                     _didFormat();
                 }
+                _syncSortMenuState();
                 localStorage.setItem(JSON_SORT_TYPE_KEY, sortType);
             });
         } else {
