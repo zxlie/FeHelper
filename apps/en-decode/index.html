@@ -41,7 +41,7 @@
                         <span class="encode-kicker">Method</span>
                         <h4>转换方式</h4>
                     </div>
-                    <span class="encode-count">23 种</span>
+                    <span class="encode-count">24 种</span>
                 </div>
 
                 <div class="encode-method-group">
@@ -75,7 +75,8 @@
                         <label class="encode-pill"><input type="radio" name="codeType" value="utf8Decode" v-model="selectedType" @click="convert()"><span>URL解码<em>%开头</em></span></label>
                         <label class="encode-pill"><input type="radio" name="codeType" value="utf16Decode" v-model="selectedType" @click="convert()"><span>UTF16解码<em>\x开头</em></span></label>
                         <label class="encode-pill"><input type="radio" name="codeType" value="base64Decode" v-model="selectedType" @click="convert()"><span>Base64解码</span></label>
-                        <label class="encode-pill"><input type="radio" name="codeType" value="hexDecode" v-model="selectedType" @click="convert()"><span>十六进制解码</span></label>
+                        <label class="encode-pill"><input type="radio" name="codeType" value="hexDecode" v-model="selectedType" @click="convert()"><span>Hex/ASCII解码</span></label>
+                        <label class="encode-pill"><input type="radio" name="codeType" value="protobufHexDecode" v-model="selectedType" @click="convert()"><span>Proto Hex解析<em>转JSON</em></span></label>
                         <label class="encode-pill"><input type="radio" name="codeType" value="htmlEntityDecode" v-model="selectedType" @click="convert()"><span>HTML实体解码</span></label>
                         <label class="encode-pill"><input type="radio" name="codeType" value="urlParamsDecode" v-model="selectedType" @click="convert()"><span>URL参数解析</span></label>
                         <label class="encode-pill"><input type="radio" name="codeType" value="jwtDecode" v-model="selectedType" @click="convert()"><span>JWT解码</span></label>

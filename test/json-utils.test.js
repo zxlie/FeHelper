@@ -19,6 +19,7 @@ import {
     formatDate,
     getStringBytes,
     createSafeToastHTML,
+    normalizePreservedKey,
 } from '../apps/json-format/json-utils.js';
 
 // ═══════════════════════════════════════════════════════
@@ -151,6 +152,14 @@ describe('parseWithBigInt', () => {
         const json = '{"schema": ",m:"}';
         const result = parseWithBigInt(json);
         expect(result).toEqual({ schema: ',m:' });
+    });
+
+    it('Issue #613: 数字字符串 key 按输入顺序展示', () => {
+        const json = '{"2":"b","1":"a","name":"FeHelper"}';
+        const result = parseWithBigInt(json);
+
+        expect(Object.keys(result).map(normalizePreservedKey)).toEqual(['2', '1', 'name']);
+        expect(safeStringify(result)).toBe('{"2":"b","1":"a","name":"FeHelper"}');
     });
 
     it('数组中的大整数', () => {

@@ -1,4 +1,85 @@
 // 创建一个处理BigInt的JSON解析器
+const PRESERVED_INTEGER_KEY_PREFIX = '__FH_PRESERVE_INTEGER_KEY__';
+
+function isIntegerIndexKey(key) {
+    if (typeof key !== 'string' || !/^(0|[1-9]\d*)$/.test(key)) return false;
+    const value = Number(key);
+    return Number.isSafeInteger(value) && value >= 0 && value < 4294967295 && String(value) === key;
+}
+
+function markIntegerIndexKeys(source) {
+    source = String(source || '');
+    let result = '';
+    let i = 0;
+
+    while (i < source.length) {
+        if (source[i] !== '"') {
+            result += source[i++];
+            continue;
+        }
+
+        const start = i;
+        i++;
+        let escaped = false;
+        while (i < source.length) {
+            const char = source[i++];
+            if (escaped) {
+                escaped = false;
+                continue;
+            }
+            if (char === '\\') {
+                escaped = true;
+                continue;
+            }
+            if (char === '"') {
+                break;
+            }
+        }
+
+        const rawKey = source.slice(start, i);
+        let j = i;
+        while (j < source.length && /\s/.test(source[j])) j++;
+
+        if (source[j] === ':') {
+            try {
+                const key = JSON.parse(rawKey);
+                if (isIntegerIndexKey(key)) {
+                    result += JSON.stringify(PRESERVED_INTEGER_KEY_PREFIX + key);
+                    continue;
+                }
+            } catch (_) {}
+        }
+
+        result += rawKey;
+    }
+
+    return result;
+}
+
+function normalizePreservedKey(key) {
+    if (typeof key === 'string' && key.indexOf(PRESERVED_INTEGER_KEY_PREFIX) === 0) {
+        return key.slice(PRESERVED_INTEGER_KEY_PREFIX.length);
+    }
+    return key;
+}
+
+function safeStringify(obj, space) {
+    const tagged = JSON.stringify(obj, function(key, value) {
+        if (typeof value === 'bigint') {
+            return value.toString();
+        }
+        if (isBigNumberLike(value)) {
+            return getBigNumberDisplayString(value);
+        }
+        if (typeof value === 'number' && value.toString().includes('e')) {
+            return value.toLocaleString('fullwide', {useGrouping: false});
+        }
+        return value;
+    }, space);
+
+    return tagged.replace(new RegExp('"' + PRESERVED_INTEGER_KEY_PREFIX + '(\\d+)":', 'g'), '"$1":');
+}
+
 const JSONBigInt = {
     // 自定义的parse方法，处理大数字
     parse: function(text) {
@@ -12,12 +93,13 @@ const JSONBigInt = {
         } catch (e) {
             // 如果处理失败，尝试原始解析方式
             console.error('BigInt处理失败，回退到标准解析', e);
-            return JSON.parse(text);
+            return JSON.parse(markIntegerIndexKeys(text));
         }
     },
     
     // 将JSON字符串中的大整数标记为特殊格式
     _markBigInts: function(text) {
+        text = markIntegerIndexKeys(text);
         // 这个正则匹配JSON中的数字，但需要避免匹配到引号内的字符串
         // 匹配模式: 找到数字前面是冒号或左方括号的情况（表示这是个值而不是键名）
         // 允许数字后面有可选的空白字符
@@ -107,22 +189,7 @@ self.onmessage = function(event) {
             
             // 如果是简单主题，直接返回格式化的JSON
             if (event.data.skin && event.data.skin === 'theme-simple') {
-                // 处理BigInt特殊情况
-                let formatted = JSON.stringify(jsonObj, function(key, value) {
-                    if (typeof value === 'bigint') {
-                        // 移除n后缀，只显示数字本身
-                        return value.toString();
-                    }
-                    if (isBigNumberLike(value)) {
-                        return getBigNumberDisplayString(value);
-                    }
-                    // 处理普通数字，避免科学计数法
-                    if (typeof value === 'number' && value.toString().includes('e')) {
-                        // 大数字转为字符串以避免科学计数法
-                        return value.toLocaleString('fullwide', {useGrouping: false});
-                    }
-                    return value;
-                }, 4);
+                let formatted = safeStringify(jsonObj, 4);
                 
                 let html = '<div id="formattedJson"><pre class="rootItem">' + 
                     formatted.replace(/&/g, '&amp;')
@@ -273,6 +340,7 @@ function createNode(value) {
                 
             let keys = Object.keys(this.value);
             keys.forEach((key, index) => {
+                let displayKey = normalizePreservedKey(key);
                 let prop = this.value[key];
                 let childNode = createNode(prop);
                 // 判断子节点是否为对象或数组，决定是否加item-block
@@ -283,7 +351,7 @@ function createNode(value) {
                     html += '<span class="expand"></span>';
                 }
                 html += '<span class="quote">"</span>' +
-                    '<span class="key">' + htmlspecialchars(key) + '</span>' +
+                    '<span class="key">' + htmlspecialchars(displayKey) + '</span>' +
                     '<span class="quote">"</span>' +
                     '<span class="colon">: </span>';
                 // 添加值
@@ -373,6 +441,7 @@ function createNode(value) {
                 '<div class="kv-list">';
             let keys = Object.keys(this.value);
             keys.forEach((key, index) => {
+                let displayKey = normalizePreservedKey(key);
                 let prop = this.value[key];
                 let childNode = createNode(prop);
                 // 判断子节点是否为对象或数组，决定是否加item-block
@@ -382,7 +451,7 @@ function createNode(value) {
                     html += '<span class="expand"></span>';
                 }
                 html += '<span class="quote">"</span>' +
-                    '<span class="key">' + htmlspecialchars(key) + '</span>' +
+                    '<span class="key">' + htmlspecialchars(displayKey) + '</span>' +
                     '<span class="quote">"</span>' +
                     '<span class="colon">: </span>';
                 if (childNode.type === 'object' || childNode.type === 'array') {
@@ -443,6 +512,7 @@ function createNode(value) {
                 '<div class="kv-list">';
             let keys = Object.keys(this.value);
             keys.forEach((key, index) => {
+                let displayKey = normalizePreservedKey(key);
                 let prop = this.value[key];
                 let childNode = createNode(prop);
                 // 判断子节点是否为对象或数组，决定是否加item-block
@@ -452,7 +522,7 @@ function createNode(value) {
                     html += '<span class="expand"></span>';
                 }
                 html += '<span class="quote">"</span>' +
-                    '<span class="key">' + htmlspecialchars(key) + '</span>' +
+                    '<span class="key">' + htmlspecialchars(displayKey) + '</span>' +
                     '<span class="quote">"</span>' +
                     '<span class="colon">: </span>';
                 if (childNode.type === 'object' || childNode.type === 'array') {

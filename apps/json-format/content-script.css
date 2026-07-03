@@ -441,8 +441,16 @@ html.fh-jf  body {
     margin: 0;
 }
 
+html.fh-jf,
+html.fh-jf body {
+    min-height: 100%;
+    height: auto !important;
+    overflow-y: auto !important;
+}
+
 html.fh-jf body {
     padding: 0 8px;
+    overflow-x: auto;
 }
 
 /* 工具栏 */
@@ -533,6 +541,8 @@ html.fh-jf .mod-json .format-item button {
 
 html.fh-jf .mod-contentscript {
     width: auto;
+    min-height: calc(100vh - 72px);
+    overflow: visible;
 }
 
 #optionBar {

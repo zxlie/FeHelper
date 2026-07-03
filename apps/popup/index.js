@@ -59,7 +59,7 @@ const TOOL_BADGES = {
 
 const TOOL_ALIASES = {
     'json-format': 'json formatter format pretty parse',
-    'json-diff': 'json diff compare',
+    'json-diff': 'json diff compare text 文本 比对 对比 diffcheck markdown log',
     'qr-code': 'qrcode qr decode encode',
     'image-base64': 'image base64',
     'en-decode': 'encode decode url unicode md5 gzip hex base64',
@@ -222,16 +222,7 @@ new Vue({
     created: function () {
         this.manifest = chrome.runtime.getManifest();
 
-        try {
-            const wakeup = chrome.runtime.sendMessage({ type: 'fh-popup-opened' });
-            if (wakeup && typeof wakeup.catch === 'function') {
-                wakeup.catch(() => {});
-            }
-        } catch (e) {
-        }
-
         this.loadTools();
-        this.loadPatchHotfix();
     },
 
     mounted: function () {
@@ -249,15 +240,11 @@ new Vue({
                     DarkModeMgr.turnLightAuto();
                 }
 
-                this.recordUsage();
-
-                if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
-                    Awesome.collectAndSendClientInfo();
-                }
-
                 if (this.$refs.searchInput) {
                     this.$refs.searchInput.focus();
                 }
+
+                this.deferNonCriticalStartup();
             }, 50);
         });
     },
@@ -269,6 +256,40 @@ new Vue({
     },
 
     methods: {
+        deferTask(callback, timeout = 250) {
+            const runner = () => {
+                try {
+                    callback();
+                } catch (e) {}
+            };
+            if (window.requestIdleCallback) {
+                window.requestIdleCallback(runner, {timeout});
+                return;
+            }
+            setTimeout(runner, timeout);
+        },
+
+        deferNonCriticalStartup() {
+            this.deferTask(() => this.notifyPopupOpened(), 120);
+            this.deferTask(() => this.loadPatchHotfix(), 450);
+            this.deferTask(() => this.recordUsage(), 650);
+            this.deferTask(() => {
+                if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
+                    Awesome.collectAndSendClientInfo();
+                }
+            }, 900);
+        },
+
+        notifyPopupOpened() {
+            try {
+                const wakeup = chrome.runtime.sendMessage({ type: 'fh-popup-opened' });
+                if (wakeup && typeof wakeup.catch === 'function') {
+                    wakeup.catch(() => {});
+                }
+            } catch (e) {
+            }
+        },
+
         loadPatchHotfix() {
             chrome.runtime.sendMessage({
                 type: 'fh-dynamic-any-thing',
@@ -317,8 +338,11 @@ new Vue({
 
         async loadTools() {
             try {
-                const tools = await Awesome.getInstalledTools();
-                const customOrder = await this.storageGet('tool_custom_order');
+                const [tools, customOrder, meta] = await Promise.all([
+                    Awesome.getInstalledTools(),
+                    this.storageGet('tool_custom_order'),
+                    this.storageGet(['favorites', POPUP_RECENT_TOOLS, USER_USAGE_DATA_KEY, FH_POPUP_UI_MODE, FH_UI_MODE])
+                ]);
                 const savedOrder = customOrder.tool_custom_order ? this.safeParseJson(customOrder.tool_custom_order, null) : null;
 
                 if (savedOrder && Array.isArray(savedOrder)) {
@@ -338,7 +362,7 @@ new Vue({
                     this.fhTools = tools;
                 }
 
-                await this.loadPopupMeta();
+                this.applyPopupMeta(meta);
                 this.isLoading = false;
                 this.syncActiveTool();
             } catch (error) {
@@ -350,6 +374,11 @@ new Vue({
 
         async loadPopupMeta() {
             const meta = await this.storageGet(['favorites', POPUP_RECENT_TOOLS, USER_USAGE_DATA_KEY, FH_POPUP_UI_MODE, FH_UI_MODE]);
+            this.applyPopupMeta(meta);
+        },
+
+        applyPopupMeta(meta) {
+            meta = meta || {};
             const favorites = Array.isArray(meta.favorites) ? meta.favorites : [];
             const popupRecent = Array.isArray(meta[POPUP_RECENT_TOOLS]) ? meta[POPUP_RECENT_TOOLS] : [];
             const usageRecent = this.readRecentUsedTools(meta[USER_USAGE_DATA_KEY]);
@@ -679,7 +708,9 @@ new Vue({
         runHelper: async function (toolName, options = {}) {
             if (!toolName || !this.fhTools[toolName]) return;
 
-            await this.rememberTool(toolName);
+            this.rememberTool(toolName).catch(error => {
+                console.warn('记录最近使用工具失败:', error);
+            });
 
             if (toolName === 'screenshot') {
                 triggerScreenshot();
@@ -705,13 +736,20 @@ new Vue({
                     : `tool=${toolName}`;
             }
             try {
-                await chrome.runtime.sendMessage(request);
+                const response = await chrome.runtime.sendMessage(request);
+                if (response && response.ok === false) {
+                    throw new Error(response.error || '后台未能打开工具页面');
+                }
                 !!tool.noPage && setTimeout(window.close, 200);
             } catch (e) {
-                chrome.tabs.create({
-                    url: `/${toolName}/index.html` + (request.query ? `?${request.query}` : ''),
-                    active: true
-                });
+                try {
+                    await chrome.tabs.create({
+                        url: `/${toolName}/index.html` + (request.query ? `?${request.query}` : ''),
+                        active: true
+                    });
+                } catch (fallbackError) {
+                    console.error('工具页面打开失败:', e, fallbackError);
+                }
             }
         },
 

@@ -97,8 +97,10 @@ describe('json-format settings regression guards', () => {
         expect(css).toContain('.fh-json-error-actions');
         expect(css).toContain('.fh-raw-fallback-pre');
         expect(css).toContain('.fh-error-state');
-        expect(html).not.toContain('<section class="fh-inline-command-bar" aria-label="JSON 主要操作" v-if="uiMode === \'lite\'">\n                        <div class="fh-command-group fh-command-primary">');
+        expect(html).toContain('id="btnFormatLite"');
+        expect(html).toContain('id="btnCompressLite"');
         expect((html.match(/id="btnFormat"/g) || []).length).toBe(1);
+        expect((html.match(/id="btnCompress"/g) || []).length).toBe(1);
         expect(html).not.toContain("showLiteAdvanced");
         expect(source).not.toContain('jsonformat:auto-unpack-json-string');
         expect(source).not.toContain('jsonformat:escape-json-string');
@@ -230,6 +232,8 @@ describe('json-format settings regression guards', () => {
         expect(formatLibSource).toContain("selected = $('#jfContent .item').first();");
         expect(backgroundSource).toContain("'static/vendor/jquery/jquery-3.3.1.min.js'");
         expect(cssSource).toContain('body.fh-json-compact');
+        expect(cssSource).toContain('html.fh-jf,\nhtml.fh-jf body {\n    min-height: 100%;\n    height: auto !important;\n    overflow-y: auto !important;');
+        expect(cssSource).toContain('html.fh-jf .mod-contentscript {\n    width: auto;\n    min-height: calc(100vh - 72px);\n    overflow: visible;');
         expect(cssSource).toContain('min-height: 46px;');
         expect(cssSource).toContain('gap: 12px;');
         expect(cssSource).toContain('min-height: 32px;');

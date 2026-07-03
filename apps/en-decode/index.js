@@ -119,6 +119,9 @@ new Vue({
                     } else if (this.selectedType === 'hexDecode') {
 
                         this.resultContent = EncodeUtils.hexDecode(this.sourceContent);
+                    } else if (this.selectedType === 'protobufHexDecode') {
+
+                        this.resultContent = EncodeUtils.protobufHexDecode(this.sourceContent);
                     } else if (this.selectedType === 'html2js') {
 
                         this.resultContent = EncodeUtils.html2js(this.sourceContent);

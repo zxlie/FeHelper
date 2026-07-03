@@ -332,15 +332,168 @@ let EncodeUtils = (() => {
         };
 
 
-        let hexDecode = function (str) {
+        let normalizeHexInput = function (str) {
+            let normalized = String(str || '')
+                .replace(/0x/gi, '')
+                .replace(/[\s,;:_-]/g, '');
+            if (!normalized) return '';
+            if (/[^0-9a-f]/i.test(normalized)) {
+                throw new Error('请输入有效的十六进制字符串');
+            }
+            return normalized.length % 2 === 0 ? normalized : '0' + normalized;
+        };
+
+        let hexToBytes = function (str) {
+            str = normalizeHexInput(str);
             let buf = [];
             for (let i = 0; i < str.length; i += 2) {
                 buf.push(parseInt(str.substring(i, i + 2), 16));
             }
-            return utf8decode(buf);
+            return buf;
         };
 
-        return {hexEncode, hexDecode};
+        let bytesToHex = function (bytes) {
+            return bytes.map(item => ('0' + (item & 0xff).toString(16)).slice(-2)).join('');
+        };
+
+        let hexDecode = function (str) {
+            return utf8decode(hexToBytes(str));
+        };
+
+        let formatProtoInteger = function (value) {
+            return value <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(value) : value.toString();
+        };
+
+        let readProtoVarint = function (bytes, offset) {
+            let result = 0n;
+            let shift = 0n;
+            let current = offset;
+            while (current < bytes.length) {
+                let byte = bytes[current++];
+                result |= BigInt(byte & 0x7f) << shift;
+                if ((byte & 0x80) === 0) {
+                    return { value: result, next: current };
+                }
+                shift += 7n;
+                if (shift > 70n) {
+                    throw new Error('Protobuf varint 过长或格式异常');
+                }
+            }
+            throw new Error('Protobuf varint 未完整结束');
+        };
+
+        let decodeUtf8Bytes = function (bytes) {
+            try {
+                let text = new TextDecoder('utf-8', {fatal: true}).decode(new Uint8Array(bytes));
+                if (!text || /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(text)) return '';
+                return text;
+            } catch (e) {
+                return '';
+            }
+        };
+
+        let readLittleEndianHex = function (bytes, offset, size) {
+            if (offset + size > bytes.length) {
+                throw new Error('Protobuf fixed 字段长度不足');
+            }
+            let valueBytes = bytes.slice(offset, offset + size);
+            return {
+                rawHex: bytesToHex(valueBytes),
+                littleEndianHex: bytesToHex(valueBytes.slice().reverse()),
+                next: offset + size
+            };
+        };
+
+        let parseProtoMessage = function (bytes, depth) {
+            let fields = [];
+            let offset = 0;
+
+            while (offset < bytes.length) {
+                let key = readProtoVarint(bytes, offset);
+                offset = key.next;
+                let fieldNumber = Number(key.value >> 3n);
+                let wireType = Number(key.value & 7n);
+                if (!fieldNumber) {
+                    throw new Error('Protobuf 字段号无效');
+                }
+
+                let field = {
+                    field: fieldNumber,
+                    wireType,
+                    offset: key.next - 1
+                };
+
+                if (wireType === 0) {
+                    let value = readProtoVarint(bytes, offset);
+                    offset = value.next;
+                    field.type = 'varint';
+                    field.value = formatProtoInteger(value.value);
+                } else if (wireType === 1) {
+                    let value = readLittleEndianHex(bytes, offset, 8);
+                    offset = value.next;
+                    field.type = 'fixed64';
+                    field.rawHex = value.rawHex;
+                    field.littleEndianHex = value.littleEndianHex;
+                } else if (wireType === 2) {
+                    let lengthInfo = readProtoVarint(bytes, offset);
+                    let length = Number(lengthInfo.value);
+                    offset = lengthInfo.next;
+                    if (!Number.isSafeInteger(length) || offset + length > bytes.length) {
+                        throw new Error('Protobuf length-delimited 字段长度异常');
+                    }
+                    let valueBytes = bytes.slice(offset, offset + length);
+                    offset += length;
+                    field.type = 'length-delimited';
+                    field.length = length;
+                    field.rawHex = bytesToHex(valueBytes);
+
+                    let text = decodeUtf8Bytes(valueBytes);
+                    if (text) {
+                        field.valueType = 'string';
+                        field.value = text;
+                    } else if (depth < 4 && valueBytes.length) {
+                        try {
+                            let nested = parseProtoMessage(valueBytes, depth + 1);
+                            field.valueType = 'message';
+                            field.value = nested;
+                        } catch (e) {
+                            field.valueType = 'bytes';
+                            field.value = field.rawHex;
+                        }
+                    } else {
+                        field.valueType = 'bytes';
+                        field.value = field.rawHex;
+                    }
+                } else if (wireType === 5) {
+                    let value = readLittleEndianHex(bytes, offset, 4);
+                    offset = value.next;
+                    field.type = 'fixed32';
+                    field.rawHex = value.rawHex;
+                    field.littleEndianHex = value.littleEndianHex;
+                } else {
+                    throw new Error('暂不支持的 protobuf wire type: ' + wireType);
+                }
+
+                fields.push(field);
+            }
+
+            return fields;
+        };
+
+        let protobufHexDecode = function (str) {
+            let bytes = hexToBytes(str);
+            if (!bytes.length) {
+                return '';
+            }
+            let result = {
+                format: 'protobuf-wire',
+                note: '未加载 .proto 描述时只能解析字段号、wire type 和原始值，无法还原字段名。',
+                fields: parseProtoMessage(bytes, 0)
+            };
+            return JSON.stringify(result, null, 4);
+        };
+
+        return {hexEncode, hexDecode, protobufHexDecode};
     })();
 
 
@@ -648,6 +801,7 @@ let EncodeUtils = (() => {
         md5: md5,
         hexEncode: hexTools.hexEncode,
         hexDecode: hexTools.hexDecode,
+        protobufHexDecode: hexTools.protobufHexDecode,
         html2js: _html2js,
         urlParamsDecode: _urlParamsDecode,
         sha1Encode: _sha1Encode,

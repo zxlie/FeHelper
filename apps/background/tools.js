@@ -12,11 +12,11 @@ let toolMap = {
         }]
     },
     'json-diff': {
-        name: '内容比对工具',
-        tips: '支持 JSON 结构化比对，也支持任意文本、代码、日志、Markdown 的按行对比',
+        name: '文本/JSON Diff',
+        tips: '支持文本 Diff、JSON 结构化比对，也支持代码、日志、Markdown 的按行对比',
         menuConfig: [{
             icon: 'JD',
-            text: '内容比对器'
+            text: '文本/JSON Diff'
         }]
     },
     'qr-code': {

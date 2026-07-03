@@ -26,6 +26,10 @@
 
                 <div :class="['fh-header-right', uiMode === 'omni' ? 'fh-header-right-omni' : '']">
                     <section class="fh-inline-command-bar" aria-label="JSON 主要操作" v-if="uiMode === 'lite'">
+                        <div class="fh-command-group fh-command-primary fh-lite-primary-actions" aria-label="JSON 操作">
+                            <button type="button" id="btnFormatLite" class="xjf-btn fh-btn-primary" @click="format">格式化</button>
+                            <button type="button" id="btnCompressLite" class="xjf-btn fh-btn-secondary" @click="compress">压缩</button>
+                        </div>
                         <div id="layoutBarLite" class="fh-command-group fh-segmented" aria-label="布局">
                             <button type="button" :class="{selected: currentLayout === 'left-right'}" @click="changeLayout('left-right')">左右</button>
                             <button type="button" :class="{selected: currentLayout === 'up-down'}" @click="changeLayout('up-down')">上下</button>

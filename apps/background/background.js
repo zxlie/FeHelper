@@ -63,6 +63,70 @@ let BgPageInstance = (function () {
 
     };
 
+    let _getChromeLastErrorMessage = function (fallback) {
+        try {
+            let lastError = chrome.runtime && chrome.runtime.lastError;
+            if (lastError && lastError.message) {
+                return lastError.message;
+            }
+        } catch (_) {}
+        return fallback || '未知错误';
+    };
+
+    let _queryTabs = function (queryInfo) {
+        return new Promise((resolve, reject) => {
+            try {
+                chrome.tabs.query(queryInfo, tabs => {
+                    let err = chrome.runtime.lastError;
+                    if (err) {
+                        reject(new Error(err.message || '查询标签页失败'));
+                        return;
+                    }
+                    resolve(tabs || []);
+                });
+            } catch (e) {
+                reject(e);
+            }
+        });
+    };
+
+    let _getOptions = function () {
+        return new Promise(resolve => {
+            try {
+                Settings.getOptions(opts => resolve(opts || {}));
+            } catch (_) {
+                resolve({});
+            }
+        });
+    };
+
+    let _saveContentForTab = function (tabId, withContent) {
+        if (!tabId || withContent === undefined || withContent === null) {
+            return;
+        }
+
+        try {
+            let key = `fh-content-${tabId}`;
+            if (chrome.storage && chrome.storage.session) {
+                chrome.storage.session.set({[key]: {content: withContent}}).catch(() => {});
+            } else {
+                FeJson[tabId] = {content: withContent};
+            }
+        } catch (_) {
+            FeJson[tabId] = {content: withContent};
+        }
+    };
+
+    let _notifyToolOpenFailure = function (tool, error) {
+        let message = `打开「${tool || '工具'}」失败：${(error && error.message) || error || '请重新点击插件图标后再试'}`;
+        console.error('[FeHelper] DynamicToolRunner failed:', message, error);
+        notifyText({
+            title: '工具打开失败',
+            message,
+            autoClose: 5000
+        });
+    };
+
     // 像页面注入css脚本
     let _injectContentCss = function(tabId,toolName,isDevTool){
         if(isDevTool){
@@ -187,9 +251,9 @@ let BgPageInstance = (function () {
      */
     FeHelperBg.DynamicToolRunner = async function (configs) {
 
-        if (!configs || typeof configs !== 'object') return;
+        if (!configs || typeof configs !== 'object') return {ok: false, error: '工具配置无效'};
         let tool = configs.tool || configs.page;
-        if (!tool) return;
+        if (!tool) return {ok: false, error: '缺少工具名称'};
 
         let withContent = configs.withContent;
         let activeTab = null;
@@ -197,124 +261,122 @@ let BgPageInstance = (function () {
 
         if (configs.noPage) {
             let toolFunc = tool.replace(/[-_]/g, '');
-            chrome.tabs.query({active: true, currentWindow: true}, tabs => {
-                let found = tabs.some(tab => {
-                    if (isInjectableTabUrl(tab.url)) {
-                        let funcName = toolFunc + 'NoPage';
-                        let initFuncName = toolFunc + 'ContentScript';
-                        let invokeConfig = {
-                            func: (initFn, fn, t) => {
-                                try {
-                                    if (typeof window[fn] !== 'function' && typeof window[initFn] === 'function') {
-                                        window[initFn]();
-                                    }
-                                    if (typeof window[fn] === 'function') {
-                                        window[fn](t);
-                                    }
-                                } catch (e) {}
-                            },
-                            args: [initFuncName, funcName, tab]
-                        };
-                        Awesome.getInstalledTools().then(tools => {
-                            const toolInfo = tools[tool];
-                            if (toolInfo && toolInfo.contentScriptJs) {
-                                if (toolInfo._devTool) {
-                                    Promise.all([
-                                        Awesome.getContentScript(tool),
-                                        toolInfo.contentScriptCss ? Awesome.getContentScript(tool, true) : Promise.resolve('')
-                                    ]).then(([js, css]) => {
-                                        const invokeNoPage = () => InjectTools.inject(tab.id, invokeConfig);
-                                        const injectScript = () => js
-                                            ? InjectTools.inject(tab.id, { js }, invokeNoPage)
-                                            : invokeNoPage();
-
-                                        if (css) {
-                                            InjectTools.inject(tab.id, { css }, injectScript);
-                                            return;
-                                        }
-                                        injectScript();
-                                    }).catch(() => {
-                                        InjectTools.inject(tab.id, invokeConfig);
-                                    });
-                                    return;
-                                }
-                                invokeConfig.files = _getContentScriptFiles(tool);
-                            }
-                            InjectTools.inject(tab.id, invokeConfig);
-                        }).catch(() => {
-                            InjectTools.inject(tab.id, invokeConfig);
-                        });
-                        return true;
+            return new Promise(resolve => {
+                chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+                    if (chrome.runtime.lastError) {
+                        let error = _getChromeLastErrorMessage('查询当前页面失败');
+                        _notifyToolOpenFailure(tool, error);
+                        resolve({ok: false, error});
+                        return;
                     }
-                    return false;
-                });
-                if (!found) {
-                    notifyText({
-                        message: '抱歉，此工具无法在当前页面使用！'
+
+                    let found = (tabs || []).some(tab => {
+                        if (isInjectableTabUrl(tab.url)) {
+                            let funcName = toolFunc + 'NoPage';
+                            let initFuncName = toolFunc + 'ContentScript';
+                            let invokeConfig = {
+                                func: (initFn, fn, t) => {
+                                    try {
+                                        if (typeof window[fn] !== 'function' && typeof window[initFn] === 'function') {
+                                            window[initFn]();
+                                        }
+                                        if (typeof window[fn] === 'function') {
+                                            window[fn](t);
+                                        }
+                                    } catch (e) {}
+                                },
+                                args: [initFuncName, funcName, tab]
+                            };
+
+                            Awesome.getInstalledTools().then(tools => {
+                                const toolInfo = tools[tool];
+                                if (toolInfo && toolInfo.contentScriptJs) {
+                                    if (toolInfo._devTool) {
+                                        Promise.all([
+                                            Awesome.getContentScript(tool),
+                                            toolInfo.contentScriptCss ? Awesome.getContentScript(tool, true) : Promise.resolve('')
+                                        ]).then(([js, css]) => {
+                                            const invokeNoPage = () => InjectTools.inject(tab.id, invokeConfig);
+                                            const injectScript = () => js
+                                                ? InjectTools.inject(tab.id, { js }, invokeNoPage)
+                                                : invokeNoPage();
+
+                                            if (css) {
+                                                InjectTools.inject(tab.id, { css }, injectScript);
+                                                return;
+                                            }
+                                            injectScript();
+                                        }).catch(() => {
+                                            InjectTools.inject(tab.id, invokeConfig);
+                                        });
+                                        return;
+                                    }
+                                    invokeConfig.files = _getContentScriptFiles(tool);
+                                }
+                                InjectTools.inject(tab.id, invokeConfig);
+                            }).catch(() => {
+                                InjectTools.inject(tab.id, invokeConfig);
+                            });
+                            return true;
+                        }
+                        return false;
                     });
-                }
+
+                    if (!found) {
+                        notifyText({
+                            message: '抱歉，此工具无法在当前页面使用！'
+                        });
+                    }
+                    resolve(found ? {ok: true, noPage: true} : {ok: false, error: '当前页面不支持此工具'});
+                });
             });
-            return;
         }
 
-        chrome.tabs.query({currentWindow: true}, function (tabs) {
+        let tabs = await _queryTabs({currentWindow: true});
 
-            activeTab = tabs.filter(tab => tab.active)[0];
+        activeTab = tabs.filter(tab => tab.active)[0];
 
-            // 如果是二维码工具，且没有传入内容，则使用当前页面的URL
-            if (tool === 'qr-code' && !withContent && activeTab) {
-                withContent = activeTab.url;
+        // 如果是二维码工具，且没有传入内容，则使用当前页面的URL
+        if (tool === 'qr-code' && !withContent && activeTab) {
+            withContent = activeTab.url;
+        }
+
+        let opts = await _getOptions();
+        let isOpened = false;
+        let tabId;
+
+        // 允许在新窗口打开
+        if (String(opts['FORBID_OPEN_IN_NEW_TAB']) === 'true') {
+            let reg = new RegExp("^chrome.*\\/" + tool + "\\/index.html" + (query ? "\\?" + query : '') + "$", "i");
+            for (let i = 0, len = tabs.length; i < len; i++) {
+                if (reg.test(tabs[i].url)) {
+                    isOpened = true;
+                    tabId = tabs[i].id;
+                    break;
+                }
+            }
+        }
+
+        try {
+            if (!isOpened) {
+                let url = `/${tool}/index.html` + (query ? "?" + query : '');
+                let tab = await chrome.tabs.create({
+                    url,
+                    active: true
+                });
+                _saveContentForTab(tab && tab.id, withContent);
+                return {ok: true, action: 'create', tabId: tab && tab.id};
             }
 
-            Settings.getOptions((opts) => {
-                let isOpened = false;
-                let tabId;
-
-                // 允许在新窗口打开
-                if (String(opts['FORBID_OPEN_IN_NEW_TAB']) === 'true') {
-                    let reg = new RegExp("^chrome.*\\/" + tool + "\\/index.html" + (query ? "\\?" + query : '') + "$", "i");
-                    for (let i = 0, len = tabs.length; i < len; i++) {
-                        if (reg.test(tabs[i].url)) {
-                            isOpened = true;
-                            tabId = tabs[i].id;
-                            break;
-                        }
-                    }
-                }
-
-                // 跨 tab 传递内容时不要再依赖 SW 内存，改写到 chrome.storage.session，
-                // 这样即使 SW 被销毁，工具页面也能取到原始内容。
-                let _saveContentForTab = (tabId) => {
-                    try {
-                        let key = `fh-content-${tabId}`;
-                        if (chrome.storage && chrome.storage.session) {
-                            chrome.storage.session.set({[key]: {content: withContent}}).catch(() => {});
-                        } else {
-                            FeJson[tabId] = {content: withContent};
-                        }
-                    } catch (_) {
-                        FeJson[tabId] = {content: withContent};
-                    }
-                };
-
-                if (!isOpened) {
-                    let url = `/${tool}/index.html` + (query ? "?" + query : '');
-                    chrome.tabs.create({
-                        url,
-                        active: true
-                    }).then(tab => {
-                        _saveContentForTab(tab.id);
-                    }).catch(() => {});
-                } else {
-                    chrome.tabs.update(tabId, {highlighted: true}).then(tab => {
-                        _saveContentForTab(tabId);
-                        chrome.tabs.reload(tabId);
-                    }).catch(() => {});
-                }
-
-            });
-
-        });
+            await chrome.tabs.update(tabId, {highlighted: true});
+            _saveContentForTab(tabId, withContent);
+            await chrome.tabs.reload(tabId);
+            return {ok: true, action: 'reuse', tabId};
+        } catch (e) {
+            let error = (e && e.message) || _getChromeLastErrorMessage('标签页打开失败');
+            _notifyToolOpenFailure(tool, error);
+            return {ok: false, error};
+        }
     };
 
     /**
@@ -578,23 +640,43 @@ let BgPageInstance = (function () {
             }
             // 打开动态工具页面
             else if (request.type === MSG_TYPE.OPEN_DYNAMIC_TOOL) {
-                FeHelperBg.DynamicToolRunner(request);
-                // 记录工具使用
-                if (request.page) {
-                    Statistics.recordToolUsage(request.page);
-                }
-                callback && callback();
+                FeHelperBg.DynamicToolRunner(request).then(result => {
+                    if (!result || result.ok !== false) {
+                        // 记录工具使用
+                        if (request.page) {
+                            Statistics.recordToolUsage(request.page);
+                        }
+                    }
+                    callback && callback(result || {ok: true});
+                }).catch(error => {
+                    _notifyToolOpenFailure(request.page || request.tool, error);
+                    callback && callback({
+                        ok: false,
+                        error: (error && error.message) || '工具打开失败'
+                    });
+                });
+                return true;
             }
             // 打开其他页面
             else if (request.type === MSG_TYPE.OPEN_PAGE) {
                 FeHelperBg.DynamicToolRunner({
                     tool: request.page
+                }).then(result => {
+                    if (!result || result.ok !== false) {
+                        // 记录工具使用
+                        if (request.page) {
+                            Statistics.recordToolUsage(request.page);
+                        }
+                    }
+                    callback && callback(result || {ok: true});
+                }).catch(error => {
+                    _notifyToolOpenFailure(request.page, error);
+                    callback && callback({
+                        ok: false,
+                        error: (error && error.message) || '页面打开失败'
+                    });
                 });
-                // 记录工具使用
-                if (request.page) {
-                    Statistics.recordToolUsage(request.page);
-                }
-                callback && callback();
+                return true;
             }
             // 任何事件，都可以通过这个钩子来完成
             else if (request.type === MSG_TYPE.DYNAMIC_ANY_THING) {

@@ -46,6 +46,18 @@ describe('issue #594-#596 regressions', () => {
         expect(source).not.toContain('setTimeout(() => this.compareContent(), 300)');
     });
 
+    it('Issue #611: json-diff is discoverable as a text diff tool', () => {
+        const tools = readSource('apps/background/tools.js');
+        const popup = readSource('apps/popup/index.js');
+        const html = readSource('apps/json-diff/index.html');
+
+        expect(tools).toContain("name: '文本/JSON Diff'");
+        expect(tools).toContain('支持文本 Diff、JSON 结构化比对');
+        expect(popup).toContain("'json-diff': 'json diff compare text 文本 比对 对比 diffcheck markdown log'");
+        expect(html).toContain('<title>文本/JSON Diff</title>');
+        expect(html).toContain('文本/JSON Diff');
+    });
+
     it('custom noPage tools inject storage-backed scripts with DOM globals', () => {
         const background = readSource('apps/background/background.js');
         const injectTools = readSource('apps/background/inject-tools.js');

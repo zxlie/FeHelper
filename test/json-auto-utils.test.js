@@ -115,4 +115,12 @@ describe('json-auto-utils', () => {
         expect(utils.isYAMLResource('https://example.com/config', 'application/x-yaml')).toBe(true);
         expect(utils.isYAMLResource('https://example.com/data.json', 'application/json')).toBe(false);
     });
+
+    it('Issue #613: 自动格式化保留数字字符串 key 的输入顺序', () => {
+        const parsed = utils.parseJSONLike('{"2":"b","1":"a","name":"FeHelper"}');
+        const keys = Object.keys(parsed.value).map(utils.normalizePreservedKey);
+
+        expect(keys).toEqual(['2', '1', 'name']);
+        expect(utils.safeStringify(parsed.value)).toBe('{"2":"b","1":"a","name":"FeHelper"}');
+    });
 });

@@ -306,7 +306,7 @@ describe('background context menu wiring', () => {
     it('keeps noPage execution resilient by injecting content scripts before invoking page functions', () => {
         const backgroundSource = fs.readFileSync(path.resolve('apps/background/background.js'), 'utf8');
         const start = backgroundSource.indexOf('if (configs.noPage)');
-        const end = backgroundSource.indexOf('chrome.tabs.query({currentWindow: true}', start);
+        const end = backgroundSource.indexOf('let tabs = await _queryTabs({currentWindow: true});', start);
         const noPageBranch = backgroundSource.slice(start, end);
 
         expect(start).toBeGreaterThan(-1);

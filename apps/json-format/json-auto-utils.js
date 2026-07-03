@@ -10,6 +10,8 @@
     }
     root.FHJsonAutoUtils = utils;
 })(typeof globalThis !== 'undefined' ? globalThis : window, function () {
+    const PRESERVED_INTEGER_KEY_PREFIX = '__FH_PRESERVE_INTEGER_KEY__';
+
     function isBigNumberLike(value) {
         return (
             value !== null &&
@@ -134,13 +136,76 @@
         return fixed;
     }
 
+    function isIntegerIndexKey(key) {
+        if (typeof key !== 'string' || !/^(0|[1-9]\d*)$/.test(key)) return false;
+        const value = Number(key);
+        return Number.isSafeInteger(value) && value >= 0 && value < 4294967295 && String(value) === key;
+    }
+
+    function markIntegerIndexKeys(source) {
+        source = String(source || '');
+        let result = '';
+        let i = 0;
+
+        while (i < source.length) {
+            if (source[i] !== '"') {
+                result += source[i++];
+                continue;
+            }
+
+            const start = i;
+            i++;
+            let escaped = false;
+            while (i < source.length) {
+                const char = source[i++];
+                if (escaped) {
+                    escaped = false;
+                    continue;
+                }
+                if (char === '\\') {
+                    escaped = true;
+                    continue;
+                }
+                if (char === '"') {
+                    break;
+                }
+            }
+
+            const rawKey = source.slice(start, i);
+            let j = i;
+            while (j < source.length && /\s/.test(source[j])) j++;
+
+            if (source[j] === ':') {
+                try {
+                    const key = JSON.parse(rawKey);
+                    if (isIntegerIndexKey(key)) {
+                        result += JSON.stringify(PRESERVED_INTEGER_KEY_PREFIX + key);
+                        continue;
+                    }
+                } catch (_) {}
+            }
+
+            result += rawKey;
+        }
+
+        return result;
+    }
+
+    function normalizePreservedKey(key) {
+        if (typeof key === 'string' && key.indexOf(PRESERVED_INTEGER_KEY_PREFIX) === 0) {
+            return key.slice(PRESERVED_INTEGER_KEY_PREFIX.length);
+        }
+        return key;
+    }
+
     function parseWithBigInt(text) {
         const fixed = normalizeLooseJSONSource(text);
+        const ordered = markIntegerIndexKeys(fixed);
 
-        const marked = fixed.replace(
+        const marked = ordered.replace(
             /([:,\[]\s*)(-?\d{16,})(\s*)(?=(?:,|\]|\}|$))/g,
             function (match, prefix, number, spaces, offset) {
-                if (isInsideQuotedSegment(fixed, offset)) return match;
+                if (isInsideQuotedSegment(ordered, offset)) return match;
                 return prefix + '"__BigInt__' + number + '"' + spaces;
             },
         );
@@ -232,7 +297,8 @@
         return tagged
             .replace(/"__FH_BIGINT__(-?\d+)"/g, '$1')
             .replace(/"__FH_NUMSTR__(-?\d+)"/g, '$1')
-            .replace(/"__FH_BIGNUM__(-?\d+(?:\.\d+)?)"/g, '$1');
+            .replace(/"__FH_BIGNUM__(-?\d+(?:\.\d+)?)"/g, '$1')
+            .replace(new RegExp('"' + PRESERVED_INTEGER_KEY_PREFIX + '(\\d+)":', 'g'), '"$1":');
     }
 
     function unwrapJSONLikeSource(source, options) {
@@ -438,6 +504,8 @@
     return {
         isBigNumberLike,
         isYAMLResource,
+        markIntegerIndexKeys,
+        normalizePreservedKey,
         parseWithBigInt,
         normalizeLooseJSONSource,
         deepParseJSONStrings,

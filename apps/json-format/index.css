@@ -810,10 +810,20 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
     min-height: 28px;
 }
 
+.fh-json-tool.fh-json-tool-lite .fh-inline-command-bar .fh-lite-primary-actions {
+    gap: 4px;
+}
+
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar .xjf-btn,
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #layoutBarLite button,
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar .fh-radio-pill span {
     height: 24px;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-inline-command-bar .fh-lite-primary-actions .xjf-btn {
+    min-width: 48px;
+    padding: 0 10px;
+    border-radius: 10px;
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #layoutBarLite button {

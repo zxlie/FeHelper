@@ -1651,18 +1651,7 @@ window.Formatter = (function () {
             // 先验证JSON是否有效（使用与worker一致的BigInt安全解析）
             let parsedJson = _parseWithBigInt(jsonStr);
             // 使用replacer保证bigint与大数字不丢精度
-            cachedJsonString = JSON.stringify(parsedJson, function(key, value) {
-                if (typeof value === 'bigint') {
-                    return value.toString();
-                }
-                if (isBigNumberLike(value)) {
-                    return getBigNumberDisplayString(value);
-                }
-                if (typeof value === 'number' && value.toString().includes('e')) {
-                    return value.toLocaleString('fullwide', {useGrouping: false});
-                }
-                return value;
-            }, 4);
+            cachedJsonString = _safeStringify(parsedJson, 4);
             jfPre.html(htmlspecialchars(cachedJsonString));
         } catch (e) {
             console.error('JSON解析失败:', e);
@@ -1775,18 +1764,7 @@ window.Formatter = (function () {
         try {
             // 先验证JSON是否有效（使用与worker一致的BigInt安全解析）
             let parsedJson = _parseWithBigInt(jsonStr);
-            cachedJsonString = JSON.stringify(parsedJson, function(key, value) {
-                if (typeof value === 'bigint') {
-                    return value.toString();
-                }
-                if (isBigNumberLike(value)) {
-                    return getBigNumberDisplayString(value);
-                }
-                if (typeof value === 'number' && value.toString().includes('e')) {
-                    return value.toLocaleString('fullwide', {useGrouping: false});
-                }
-                return value;
-            }, 4);
+            cachedJsonString = _safeStringify(parsedJson, 4);
             
             // 保留原始 JSON 内容，供旧 DOM 节点复用。
             jfPre.html(htmlspecialchars(cachedJsonString));
@@ -1910,6 +1888,40 @@ window.Formatter = (function () {
         }
     };
 
+    let _safeStringify = function(value, space) {
+        if (
+            typeof window !== 'undefined' &&
+            window.FHJsonAutoUtils &&
+            typeof window.FHJsonAutoUtils.safeStringify === 'function'
+        ) {
+            return window.FHJsonAutoUtils.safeStringify(value, space);
+        }
+
+        return JSON.stringify(value, function(key, item) {
+            if (typeof item === 'bigint') {
+                return item.toString();
+            }
+            if (isBigNumberLike(item)) {
+                return getBigNumberDisplayString(item);
+            }
+            if (typeof item === 'number' && item.toString().includes('e')) {
+                return item.toLocaleString('fullwide', {useGrouping: false});
+            }
+            return item;
+        }, space);
+    };
+
+    let _normalizePreservedKey = function(key) {
+        if (
+            typeof window !== 'undefined' &&
+            window.FHJsonAutoUtils &&
+            typeof window.FHJsonAutoUtils.normalizePreservedKey === 'function'
+        ) {
+            return window.FHJsonAutoUtils.normalizePreservedKey(key);
+        }
+        return key;
+    };
+
     // 工具函数：获取或创建唯一图片预览浮窗节点
     function getOrCreateImgPreview() {
         let $img = $('#fh-img-preview');
@@ -2026,6 +2038,7 @@ window.Formatter = (function () {
                 let keys = Object.keys(this.value);
                 keys.forEach((key, index) => {
                     let prop = this.value[key];
+                    let displayKey = _normalizePreservedKey(key);
                     let childNode = createNode(prop);
                     // 判断子节点是否为对象或数组，决定是否加item-block
                     let itemClass = (childNode.type === 'object' || childNode.type === 'array') ? 'item item-block' : 'item';
@@ -2035,7 +2048,7 @@ window.Formatter = (function () {
                         html += '<span class="expand"></span>';
                     }
                     html += '<span class="quote">"</span>' +
-                        '<span class="key">' + htmlspecialchars(key) + '</span>' +
+                        '<span class="key">' + htmlspecialchars(displayKey) + '</span>' +
                         '<span class="quote">"</span>' +
                         '<span class="colon">: </span>';
                     // 添加值
@@ -2126,6 +2139,7 @@ window.Formatter = (function () {
                 let keys = Object.keys(this.value);
                 keys.forEach((key, index) => {
                     let prop = this.value[key];
+                    let displayKey = _normalizePreservedKey(key);
                     let childNode = createNode(prop);
                     // 判断子节点是否为对象或数组，决定是否加item-block
                     let itemClass = (childNode.type === 'object' || childNode.type === 'array') ? 'item item-block' : 'item';
@@ -2134,7 +2148,7 @@ window.Formatter = (function () {
                         html += '<span class="expand"></span>';
                     }
                     html += '<span class="quote">"</span>' +
-                        '<span class="key">' + htmlspecialchars(key) + '</span>' +
+                        '<span class="key">' + htmlspecialchars(displayKey) + '</span>' +
                         '<span class="quote">"</span>' +
                         '<span class="colon">: </span>';
                     if (childNode.type === 'object' || childNode.type === 'array') {
@@ -2196,6 +2210,7 @@ window.Formatter = (function () {
                 let keys = Object.keys(this.value);
                 keys.forEach((key, index) => {
                     let prop = this.value[key];
+                    let displayKey = _normalizePreservedKey(key);
                     let childNode = createNode(prop);
                     // 判断子节点是否为对象或数组，决定是否加item-block
                     let itemClass = (childNode.type === 'object' || childNode.type === 'array') ? 'item item-block' : 'item';
@@ -2204,7 +2219,7 @@ window.Formatter = (function () {
                         html += '<span class="expand"></span>';
                     }
                     html += '<span class="quote">"</span>' +
-                        '<span class="key">' + htmlspecialchars(key) + '</span>' +
+                        '<span class="key">' + htmlspecialchars(displayKey) + '</span>' +
                         '<span class="quote">"</span>' +
                         '<span class="colon">: </span>';
                     if (childNode.type === 'object' || childNode.type === 'array') {
