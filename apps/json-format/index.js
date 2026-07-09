@@ -250,6 +250,7 @@ new Vue({
         currentLayout: 'left-right',
         uiMode: 'lite',
         windowNote: '',
+        windowNoteEditorOpen: false,
         sortType: '0',
         // JSONPath查询相关
         jsonPathQuery: '',
@@ -352,9 +353,11 @@ new Vue({
         this.loadPatchHotfix();
         this.handleInlineAiLaunch();
         document.addEventListener('keydown', this.handleGlobalKeydown, true);
+        document.addEventListener('click', this.handleWindowNoteOutsideClick, true);
     },
     beforeDestroy: function () {
         document.removeEventListener('keydown', this.handleGlobalKeydown, true);
+        document.removeEventListener('click', this.handleWindowNoteOutsideClick, true);
         window.clearTimeout(this.jsonPathCopyNoticeTimer);
     },
     computed: {
@@ -390,7 +393,10 @@ new Vue({
             }
 
             let handled = false;
-            if (this.aiPanel && this.aiPanel.visible) {
+            if (this.windowNoteEditorOpen) {
+                this.closeWindowNoteEditor();
+                handled = true;
+            } else if (this.aiPanel && this.aiPanel.visible) {
                 this.closeAiPanel();
                 handled = true;
             } else if (this.showJsonPathExamplesModal) {
@@ -758,6 +764,44 @@ new Vue({
                 this.safeRemoveSessionStorage(JSON_WINDOW_NOTE);
                 document.title = 'JSON 格式化工具';
             }
+        },
+
+        toggleWindowNoteEditor() {
+            this.windowNoteEditorOpen = !this.windowNoteEditorOpen;
+            if (this.windowNoteEditorOpen) {
+                this.$nextTick(() => {
+                    if (this.$refs.jsonWindowNote) {
+                        this.$refs.jsonWindowNote.focus();
+                        this.$refs.jsonWindowNote.select();
+                    }
+                });
+            }
+        },
+
+        closeWindowNoteEditor() {
+            this.windowNoteEditorOpen = false;
+        },
+
+        clearWindowNote() {
+            this.windowNote = '';
+            this.syncWindowNote();
+            this.$nextTick(() => {
+                if (this.$refs.jsonWindowNote) {
+                    this.$refs.jsonWindowNote.focus();
+                }
+            });
+        },
+
+        handleWindowNoteOutsideClick(event) {
+            if (!this.windowNoteEditorOpen) {
+                return;
+            }
+            const target = event && event.target;
+            const control = document.querySelector('.fh-window-note-control');
+            if (control && target && control.contains(target)) {
+                return;
+            }
+            this.closeWindowNoteEditor();
         },
 
         handleSortChange() {

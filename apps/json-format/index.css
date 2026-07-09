@@ -156,50 +156,148 @@ html.fh-jf input[type="reset"]:focus {
     white-space: nowrap;
 }
 
-.fh-window-note-control {
-    flex: 0 1 220px;
-    min-width: 150px;
-    max-width: 240px;
-    height: 28px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 2px 3px 2px 7px;
-    border: 1px solid var(--fh-line-soft);
-    border-radius: 8px;
-    background: rgba(248, 250, 252, 0.82);
+.fh-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
 }
 
-.fh-window-note-control label {
+.fh-window-note-control {
+    position: relative;
     flex: 0 0 auto;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.fh-window-note-trigger,
+.fh-window-note-chip {
+    height: 28px;
+    border: 1px solid var(--fh-line-soft);
+    border-radius: 8px;
+    background: rgba(248, 250, 252, 0.72);
+    color: var(--fh-muted);
+    cursor: pointer;
+}
+
+.fh-window-note-trigger {
+    width: 28px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fh-window-note-trigger:hover,
+.fh-window-note-trigger:focus,
+.fh-window-note-control.has-note .fh-window-note-trigger {
+    border-color: rgba(37, 99, 235, 0.24);
+    background: rgba(238, 245, 255, 0.9);
+    color: var(--fh-accent);
+}
+
+.fh-window-note-icon {
+    position: relative;
+    width: 13px;
+    height: 15px;
+    border: 1.6px solid currentColor;
+    border-radius: 3px;
+}
+
+.fh-window-note-icon::after {
+    content: "";
+    position: absolute;
+    top: 4px;
+    left: 3px;
+    width: 5px;
+    height: 1.4px;
+    border-radius: 999px;
+    background: currentColor;
+    box-shadow: 0 4px 0 currentColor;
+    opacity: 0.72;
+}
+
+.fh-window-note-chip {
+    max-width: 128px;
+    padding: 0 8px;
+    overflow: hidden;
+    color: var(--fh-text);
+    font: 720 12px/26px var(--fh-sans);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fh-window-note-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 80;
+    width: 262px;
+    padding: 10px;
+    border: 1px solid rgba(207, 217, 232, 0.96);
+    border-radius: 12px;
+    background: rgba(248, 250, 252, 0.98);
+    box-shadow: 0 16px 32px rgba(31, 42, 68, 0.16);
+}
+
+.fh-window-note-popover label {
+    display: block;
+    margin: 0 0 6px;
     color: var(--fh-muted);
     font-size: 11px;
-    font-weight: 720;
+    font-weight: 760;
     line-height: 1;
 }
 
-.fh-window-note-control input {
-    width: 100%;
+.fh-window-note-editor {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.fh-window-note-editor input {
+    flex: 1 1 auto;
     min-width: 0;
-    height: 22px;
-    padding: 0 6px;
-    border: 0;
-    border-radius: 6px;
-    background: transparent;
+    height: 30px;
+    padding: 0 9px;
+    border: 1px solid rgba(207, 217, 232, 0.96);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.84);
     color: var(--fh-text);
-    font: 720 12px/22px var(--fh-sans);
+    font: 720 12px/30px var(--fh-sans);
     outline: none;
 }
 
-.fh-window-note-control input::placeholder {
-    color: var(--fh-faint);
-    font-weight: 520;
+.fh-window-note-editor input:focus {
+    border-color: rgba(37, 99, 235, 0.42);
+    box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.12);
 }
 
-.fh-window-note-control:focus-within {
-    border-color: rgba(37, 99, 235, 0.36);
-    background: #ffffff;
-    box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.16);
+.fh-window-note-editor input::placeholder {
+    color: var(--fh-faint);
+}
+
+.fh-window-note-editor button {
+    height: 30px;
+    padding: 0 9px;
+    border: 1px solid rgba(207, 217, 232, 0.96);
+    border-radius: 8px;
+    background: rgba(238, 243, 249, 0.92);
+    color: var(--fh-muted);
+    font: 720 12px/1 var(--fh-sans);
+    cursor: pointer;
+}
+
+.fh-window-note-editor button:hover,
+.fh-window-note-editor button:focus {
+    border-color: rgba(37, 99, 235, 0.24);
+    color: var(--fh-accent);
 }
 
 .fh-mode-note {
@@ -355,7 +453,7 @@ html.fh-jf input[type="reset"]:focus {
     gap: 2px;
     padding: 2px;
     border: 1px solid var(--fh-line);
-    border-radius: 999px;
+    border-radius: 12px;
     background: #f3f6fb;
 }
 
@@ -364,7 +462,7 @@ html.fh-jf input[type="reset"]:focus {
     height: 28px;
     padding: 0 12px;
     border: 0;
-    border-radius: 999px;
+    border-radius: 12px;
     background: transparent;
     color: var(--fh-muted);
     font-size: 11px;
@@ -484,6 +582,10 @@ html.fh-jf .x-toolbar.fh-command-bar {
 
 html.fh-jf .x-toolbar.fh-command-bar::-webkit-scrollbar {
     display: none;
+}
+
+html.fh-jf .x-toolbar.fh-command-bar:has(.fh-lite-sort-menu) {
+    overflow: visible;
 }
 
 .fh-command-group {
@@ -823,17 +925,23 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-window-note-control {
-    flex-basis: 168px;
-    min-width: 128px;
     height: 24px;
-    padding: 1px 3px 1px 6px;
-    border-radius: 7px;
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-window-note-control input {
-    height: 20px;
+.fh-json-tool.fh-json-tool-lite .fh-window-note-trigger {
+    width: 24px;
+    height: 24px;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-window-note-chip {
+    max-width: 108px;
+    height: 24px;
     font-size: 11px;
-    line-height: 20px;
+    line-height: 22px;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-window-note-popover {
+    top: calc(100% + 6px);
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-mode-note {
@@ -891,18 +999,24 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
     border-radius: 10px;
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #sortBarLite {
+#sortBar,
+#sortBarLite {
     position: relative;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
     overflow: visible;
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-lite-sort-menu {
+.fh-json-tool .fh-lite-sort-menu {
     position: relative;
     display: inline-flex;
     align-items: center;
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-lite-sort-trigger {
+.fh-json-tool .fh-lite-sort-trigger {
     height: 24px;
     min-width: 112px;
     padding: 0 10px;
@@ -911,7 +1025,7 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
     justify-content: center;
     gap: 7px;
     border: 1px solid rgba(207, 217, 232, 0.96);
-    border-radius: 999px;
+    border-radius: 12px;
     background: rgba(238, 243, 249, 0.92);
     color: var(--fh-text);
     cursor: pointer;
@@ -925,12 +1039,22 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
     transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-lite-sort-trigger strong {
+#sortBar .fh-lite-sort-trigger {
+    height: 32px;
+    line-height: 32px;
+}
+
+#sortBarLite .fh-lite-sort-trigger {
+    height: 30px;
+    line-height: 30px;
+}
+
+.fh-json-tool .fh-lite-sort-trigger strong {
     color: var(--fh-accent);
     font: inherit;
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-lite-sort-trigger i {
+.fh-json-tool .fh-lite-sort-trigger i {
     width: 6px;
     height: 6px;
     border-right: 2px solid currentColor;
@@ -938,14 +1062,14 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
     transform: translateY(-2px) rotate(45deg);
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-lite-sort-trigger:hover,
-.fh-json-tool.fh-json-tool-lite .fh-lite-sort-menu:focus-within .fh-lite-sort-trigger {
+.fh-json-tool .fh-lite-sort-trigger:hover,
+.fh-json-tool .fh-lite-sort-menu:focus-within .fh-lite-sort-trigger {
     border-color: rgba(37, 99, 235, 0.24);
     background: rgba(233, 240, 250, 0.98);
     color: #0f172a;
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-lite-sort-options {
+.fh-json-tool .fh-lite-sort-options {
     position: absolute;
     top: calc(100% + 5px);
     left: 0;
@@ -955,7 +1079,7 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
     display: grid;
     gap: 4px;
     border: 1px solid rgba(207, 217, 232, 0.96);
-    border-radius: 14px;
+    border-radius: 12px;
     background: rgba(238, 243, 249, 0.94);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.78),
@@ -969,15 +1093,15 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
     transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-lite-sort-menu:hover .fh-lite-sort-options,
-.fh-json-tool.fh-json-tool-lite .fh-lite-sort-menu:focus-within .fh-lite-sort-options {
+.fh-json-tool .fh-lite-sort-menu:hover .fh-lite-sort-options,
+.fh-json-tool .fh-lite-sort-menu:focus-within .fh-lite-sort-options {
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
     visibility: visible;
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-lite-sort-options::before {
+.fh-json-tool .fh-lite-sort-options::before {
     content: "";
     position: absolute;
     right: 0;
@@ -986,23 +1110,38 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
     height: 8px;
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-lite-sort-option {
+.fh-json-tool .fh-lite-sort-option {
     width: 100%;
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-lite-sort-option span {
+.fh-json-tool .fh-lite-sort-option span {
     width: 100%;
     height: 32px;
     justify-content: flex-start;
     padding: 0 13px;
-    border-radius: 11px;
+    border-radius: 8px;
     font-size: 14px;
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-lite-sort-option input:checked + span {
+.fh-json-tool .fh-lite-sort-option input:checked + span {
+    border-radius: 8px;
     background: var(--fh-accent);
     color: #ffffff;
     box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.18);
+}
+
+#sortBar .fh-lite-sort-trigger,
+#sortBarLite .fh-lite-sort-trigger,
+#sortBar .fh-lite-sort-options,
+#sortBarLite .fh-lite-sort-options {
+    border-radius: 12px;
+}
+
+#sortBar .fh-lite-sort-option span,
+#sortBarLite .fh-lite-sort-option span,
+#sortBar .fh-lite-sort-option input:checked + span,
+#sortBarLite .fh-lite-sort-option input:checked + span {
+    border-radius: 8px;
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-pane {
@@ -2092,7 +2231,6 @@ body.theme-dark .jsonpath-modal-header {
 }
 
 body.theme-dark .fh-brand,
-body.theme-dark .fh-window-note-control,
 body.theme-dark .fh-command-group,
 body.theme-dark .fh-link-action,
 body.theme-dark .jsonpath-modal-close,
@@ -2106,13 +2244,26 @@ body.theme-dark .jsonpath-header-input {
     color: var(--fh-text) !important;
 }
 
-body.theme-dark .fh-window-note-control:focus-within {
-    border-color: rgba(147, 197, 253, 0.34);
-    background: #222b38 !important;
-    box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.16);
+body.theme-dark .fh-window-note-trigger,
+body.theme-dark .fh-window-note-chip,
+body.theme-dark .fh-window-note-popover,
+body.theme-dark .fh-window-note-editor input,
+body.theme-dark .fh-window-note-editor button {
+    border-color: rgba(148, 163, 184, 0.24);
+    background: rgba(31, 41, 55, 0.9);
+    color: var(--fh-text);
 }
 
-body.theme-dark .fh-json-tool.fh-json-tool-lite .fh-lite-sort-trigger {
+body.theme-dark .fh-window-note-trigger:hover,
+body.theme-dark .fh-window-note-trigger:focus,
+body.theme-dark .fh-window-note-control.has-note .fh-window-note-trigger,
+body.theme-dark .fh-window-note-editor button:hover,
+body.theme-dark .fh-window-note-editor button:focus {
+    border-color: rgba(147, 197, 253, 0.34);
+    color: var(--fh-accent-strong);
+}
+
+body.theme-dark .fh-json-tool .fh-lite-sort-trigger {
     border-color: rgba(148, 163, 184, 0.24);
     background: rgba(31, 41, 55, 0.9);
     color: var(--fh-text);
@@ -2121,11 +2272,11 @@ body.theme-dark .fh-json-tool.fh-json-tool-lite .fh-lite-sort-trigger {
         inset 0 0 0 5px rgba(15, 23, 42, 0.22);
 }
 
-body.theme-dark .fh-json-tool.fh-json-tool-lite .fh-lite-sort-trigger strong {
+body.theme-dark .fh-json-tool .fh-lite-sort-trigger strong {
     color: var(--fh-accent-strong);
 }
 
-body.theme-dark .fh-json-tool.fh-json-tool-lite .fh-lite-sort-options {
+body.theme-dark .fh-json-tool .fh-lite-sort-options {
     border-color: rgba(148, 163, 184, 0.24);
     background: rgba(31, 41, 55, 0.94);
     box-shadow:

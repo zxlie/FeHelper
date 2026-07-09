@@ -20,18 +20,44 @@
                         </a>
                         <span class="fh-title-divider" aria-hidden="true">｜</span>
                         <h1>JSON格式化</h1>
-                        <div class="fh-window-note-control">
-                            <label for="jsonWindowNote">备注</label>
-                            <input
-                                id="jsonWindowNote"
-                                type="text"
-                                maxlength="48"
-                                autocomplete="off"
-                                spellcheck="false"
-                                v-model="windowNote"
-                                @input="syncWindowNote"
-                                placeholder="当前窗口备注"
+                        <div class="fh-window-note-control" :class="{'has-note': windowNote, 'is-open': windowNoteEditorOpen}">
+                            <button
+                                type="button"
+                                class="fh-window-note-trigger"
+                                :title="windowNote ? ('窗口备注：' + windowNote) : '窗口备注'"
+                                aria-haspopup="dialog"
+                                :aria-expanded="windowNoteEditorOpen ? 'true' : 'false'"
+                                @click.stop="toggleWindowNoteEditor"
                             >
+                                <span class="fh-window-note-icon" aria-hidden="true"></span>
+                                <span class="fh-sr-only">窗口备注</span>
+                            </button>
+                            <button
+                                v-if="windowNote"
+                                type="button"
+                                class="fh-window-note-chip"
+                                :title="windowNote"
+                                @click.stop="toggleWindowNoteEditor"
+                            >{{windowNote}}</button>
+                            <div class="fh-window-note-popover" v-if="windowNoteEditorOpen" role="dialog" aria-label="窗口备注" @click.stop>
+                                <label for="jsonWindowNote">窗口备注</label>
+                                <div class="fh-window-note-editor">
+                                    <input
+                                        id="jsonWindowNote"
+                                        ref="jsonWindowNote"
+                                        type="text"
+                                        maxlength="48"
+                                        autocomplete="off"
+                                        spellcheck="false"
+                                        v-model="windowNote"
+                                        @input="syncWindowNote"
+                                        @keydown.enter.prevent="closeWindowNoteEditor"
+                                        @keydown.esc.prevent="closeWindowNoteEditor"
+                                        placeholder="给当前窗口命名"
+                                    >
+                                    <button v-if="windowNote" type="button" @click="clearWindowNote">清空</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <p class="fh-mode-note" v-if="uiMode === 'omni'">支持格式化、排序、解码、JSONPath 提取与表格视图。</p>
@@ -113,20 +139,26 @@
                         <button type="button" id="btnUpDown" ref="btnUpDown" :class="{selected: currentLayout === 'up-down'}" @click="changeLayout('up-down')">上下</button>
                     </div>
 
-                    <div class="fh-command-group x-sort fh-radio-group" role="radiogroup" aria-label="排序">
-                        <span class="x-stitle">排序</span>
-                        <label class="fh-radio-pill" for="sort_null">
-                            <input type="radio" name="jsonsort" id="sort_null" value="0" v-model="sortType" @change="handleSortChange">
-                            <span>默认</span>
-                        </label>
-                        <label class="fh-radio-pill" for="sort_asc">
-                            <input type="radio" name="jsonsort" id="sort_asc" value="1" v-model="sortType" @change="handleSortChange">
-                            <span>升序</span>
-                        </label>
-                        <label class="fh-radio-pill" for="sort_desc">
-                            <input type="radio" name="jsonsort" id="sort_desc" value="-1" v-model="sortType" @change="handleSortChange">
-                            <span>降序</span>
-                        </label>
+                    <div id="sortBar" class="fh-command-group x-sort fh-lite-sort-group" aria-label="排序">
+                        <span class="fh-lite-sort-menu">
+                            <button type="button" class="fh-lite-sort-trigger" aria-haspopup="true" aria-label="JSON 键名排序">
+                                <span>排序</span><strong>{{sortLabel}}</strong><i aria-hidden="true"></i>
+                            </button>
+                            <span class="fh-lite-sort-options" role="radiogroup" aria-label="JSON 键名排序选项">
+                                <label class="fh-radio-pill fh-lite-sort-option" for="sort_null">
+                                    <input type="radio" name="jsonsort" id="sort_null" value="0" v-model="sortType" @change="handleSortChange">
+                                    <span>默认</span>
+                                </label>
+                                <label class="fh-radio-pill fh-lite-sort-option" for="sort_asc">
+                                    <input type="radio" name="jsonsort" id="sort_asc" value="1" v-model="sortType" @change="handleSortChange">
+                                    <span>升序</span>
+                                </label>
+                                <label class="fh-radio-pill fh-lite-sort-option" for="sort_desc">
+                                    <input type="radio" name="jsonsort" id="sort_desc" value="-1" v-model="sortType" @change="handleSortChange">
+                                    <span>降序</span>
+                                </label>
+                            </span>
+                        </span>
                     </div>
                 </template>
 
