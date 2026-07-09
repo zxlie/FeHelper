@@ -61,6 +61,18 @@ describe('json-format settings regression guards', () => {
         expect(html).toContain('class="fh-header-actions fh-header-actions-omni"');
         expect(html).toContain('class="fh-header-tail fh-header-tail-omni"');
         expect(html).toContain('class="fh-lite-support fh-donate-action"');
+        expect(html).toContain('id="jsonWindowNote"');
+        expect(html).toContain('v-model="windowNote"');
+        expect(html).toContain('@input="syncWindowNote"');
+        expect(css).toContain('.fh-window-note-control');
+        expect(css).toContain('.fh-json-tool.fh-json-tool-lite .fh-window-note-control');
+        expect(source).toContain("let JSON_WINDOW_NOTE = 'jsonformat:window-note';");
+        expect(source).toContain("windowNote: ''");
+        expect(source).toContain('safeGetSessionStorage(key)');
+        expect(source).toContain('safeSetSessionStorage(key, value)');
+        expect(source).toContain('safeRemoveSessionStorage(key)');
+        expect(source).toContain('syncWindowNote()');
+        expect(source).toContain("document.title = note + ' - JSON 格式化工具';");
         expect(html).toContain(":class=\"{selected: currentLayout === 'left-right'}\"");
         expect(html).toContain(":class=\"{selected: currentLayout === 'up-down'}\"");
         expect(html).toContain("@click=\"setUiMode('lite')\"");
@@ -71,6 +83,7 @@ describe('json-format settings regression guards', () => {
         expect(css).toContain('.fh-json-tool.fh-json-tool-lite .fh-tool-header {\n    min-height: 38px;\n    padding: 4px 9px;');
         expect(css).toContain('.fh-json-tool.fh-json-tool-lite .fh-mode-note');
         expect(css).toContain('.fh-json-tool.fh-json-tool-lite .fh-lite-support {\n    height: 26px;');
+        expect(css).toContain('.fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #sortBarLite');
         expect(css).toContain('.fh-header-right-omni');
         expect(css).toContain('.fh-toolbar-tail-omni');
         expect(css).toContain('.fh-header-tail-omni');
@@ -82,6 +95,11 @@ describe('json-format settings regression guards', () => {
         expect(source).toContain("const selectedSortInput = document.querySelector('[name=\"jsonsort\"]:checked');");
         expect(source).toContain("const sortType = selectedSortInput ? selectedSortInput.value : '0';");
         expect(html).toContain('<section class="fh-inline-command-bar" aria-label="JSON 主要操作" v-if="uiMode === \'lite\'">');
+        expect(html).toContain('id="sortBarLite"');
+        expect(html).toContain('for="sort_asc_lite"');
+        expect(html).toContain('for="sort_desc_lite"');
+        expect(html).toContain('name="jsonsort" id="sort_asc_lite" value="1" @click="format"');
+        expect(html).toContain('name="jsonsort" id="sort_desc_lite" value="-1" @click="format"');
         expect(html).not.toContain('fh-lite-toggle-group');
         expect(html).not.toContain('@click="toggleNestedEscapeParse"');
         expect(html).toContain('查看原文');

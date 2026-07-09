@@ -38,6 +38,24 @@
                 </div>
                 <div class="checkbox">
                     <label><input type="checkbox" v-model="specialChar" @click="convert()">特殊符号：【<span>{{chars.specialChar}}</span>】</label>
+                    <div class="special-char-editor">
+                        <label for="specialCharSet">特殊符号集合</label>
+                        <div class="special-char-row">
+                            <input
+                                id="specialCharSet"
+                                class="form-control special-char-input"
+                                type="text"
+                                v-model="customSpecialChar"
+                                :disabled="!specialChar"
+                                @input="updateSpecialChars"
+                                @change="convert"
+                                autocomplete="off"
+                                spellcheck="false"
+                            >
+                            <button type="button" class="btn special-char-reset" :disabled="customSpecialChar === defaultSpecialChar" @click="resetSpecialChars">恢复默认</button>
+                        </div>
+                        <p class="special-char-help">勾选特殊符号时，只从这里配置的字符里抽取。</p>
+                    </div>
                 </div>
                 <div class="checkbox">
                     <label>密码长度：<input class="form-control" type="number" min="0" v-model="length" @click="convert()"></label>

@@ -46,6 +46,21 @@ describe('issue #594-#596 regressions', () => {
         expect(source).not.toContain('setTimeout(() => this.compareContent(), 300)');
     });
 
+    it('Issue #616: json-diff exposes a one-click clear action for both panes', () => {
+        const html = readSource('apps/json-diff/index.html');
+        const source = readSource('apps/json-diff/index.js');
+
+        expect(html).toContain('@click="clearBothSides"');
+        expect(html).toContain(':disabled="!hasContent"');
+        expect(source).toContain('hasContent: function()');
+        expect(source).toContain('updateContentState: function()');
+        expect(source).toContain('clearBothSides: function()');
+        expect(source).toContain("jsonBox.left.setValue('');");
+        expect(source).toContain("jsonBox.right.setValue('');");
+        expect(source).toContain('this.resetFeedback();');
+        expect(source).toContain('this.hasPendingChanges = false;');
+    });
+
     it('Issue #611: json-diff is discoverable as a text diff tool', () => {
         const tools = readSource('apps/background/tools.js');
         const popup = readSource('apps/popup/index.js');

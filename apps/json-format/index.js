@@ -21,6 +21,7 @@ let LOCAL_KEY_OF_LAYOUT = 'local-layout-key';
 let JSON_LINT = 'jsonformat:json-lint-switch';
 let EDIT_ON_CLICK = 'jsonformat:edit-on-click';
 let AUTO_DECODE = 'jsonformat:auto-decode';
+let JSON_WINDOW_NOTE = 'jsonformat:window-note';
 let FH_UI_MODE = 'FH_UI_MODE';
 let JSON_FORMAT_UI_MODE = 'JSON_FORMAT_UI_MODE';
 const RAW_FALLBACK_PREVIEW_LIMIT = 12000;
@@ -248,6 +249,7 @@ new Vue({
         nestedEscapeParse: false,
         currentLayout: 'left-right',
         uiMode: 'lite',
+        windowNote: '',
         // JSONPath查询相关
         jsonPathQuery: '',
         showJsonPathModal: false,
@@ -302,6 +304,8 @@ new Vue({
         this.overrideJson = (this.safeGetLocalStorage(EDIT_ON_CLICK) === 'true');
         this.nestedEscapeParse = (this.safeGetLocalStorage('jsonformat:nested-escape-parse') === 'true');
         this.currentLayout = this.normalizeLayout(this.safeGetLocalStorage(LOCAL_KEY_OF_LAYOUT));
+        this.windowNote = this.safeGetSessionStorage(JSON_WINDOW_NOTE) || '';
+        this.syncWindowNote();
         this.changeLayout(this.currentLayout);
         this.loadUiMode();
         this.refreshJsonAiAvailability();
@@ -706,6 +710,45 @@ new Vue({
                 localStorage.setItem(key, value);
             } catch (e) {
                 console.warn('localStorage不可用，跳过保存:', key);
+            }
+        },
+
+        safeGetSessionStorage(key) {
+            try {
+                return sessionStorage.getItem(key);
+            } catch (e) {
+                console.warn('sessionStorage不可用，使用默认值:', key);
+                return null;
+            }
+        },
+
+        safeSetSessionStorage(key, value) {
+            try {
+                sessionStorage.setItem(key, value);
+            } catch (e) {
+                console.warn('sessionStorage不可用，跳过保存:', key);
+            }
+        },
+
+        safeRemoveSessionStorage(key) {
+            try {
+                sessionStorage.removeItem(key);
+            } catch (e) {
+                console.warn('sessionStorage不可用，跳过删除:', key);
+            }
+        },
+
+        syncWindowNote() {
+            const note = String(this.windowNote || '').trim().slice(0, 48);
+            if (note !== this.windowNote) {
+                this.windowNote = note;
+            }
+            if (note) {
+                this.safeSetSessionStorage(JSON_WINDOW_NOTE, note);
+                document.title = note + ' - JSON 格式化工具';
+            } else {
+                this.safeRemoveSessionStorage(JSON_WINDOW_NOTE);
+                document.title = 'JSON 格式化工具';
             }
         },
 

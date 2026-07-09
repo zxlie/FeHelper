@@ -156,6 +156,52 @@ html.fh-jf input[type="reset"]:focus {
     white-space: nowrap;
 }
 
+.fh-window-note-control {
+    flex: 0 1 220px;
+    min-width: 150px;
+    max-width: 240px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 3px 2px 7px;
+    border: 1px solid var(--fh-line-soft);
+    border-radius: 8px;
+    background: rgba(248, 250, 252, 0.82);
+}
+
+.fh-window-note-control label {
+    flex: 0 0 auto;
+    color: var(--fh-muted);
+    font-size: 11px;
+    font-weight: 720;
+    line-height: 1;
+}
+
+.fh-window-note-control input {
+    width: 100%;
+    min-width: 0;
+    height: 22px;
+    padding: 0 6px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--fh-text);
+    font: 720 12px/22px var(--fh-sans);
+    outline: none;
+}
+
+.fh-window-note-control input::placeholder {
+    color: var(--fh-faint);
+    font-weight: 520;
+}
+
+.fh-window-note-control:focus-within {
+    border-color: rgba(37, 99, 235, 0.36);
+    background: #ffffff;
+    box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.16);
+}
+
 .fh-mode-note {
     margin: 0;
     color: var(--fh-muted);
@@ -775,6 +821,20 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
     font-size: 15px;
 }
 
+.fh-json-tool.fh-json-tool-lite .fh-window-note-control {
+    flex-basis: 168px;
+    min-width: 128px;
+    height: 24px;
+    padding: 1px 3px 1px 6px;
+    border-radius: 7px;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-window-note-control input {
+    height: 20px;
+    font-size: 11px;
+    line-height: 20px;
+}
+
 .fh-json-tool.fh-json-tool-lite .fh-mode-note {
     display: none;
 }
@@ -816,6 +876,7 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
 
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar .xjf-btn,
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #layoutBarLite button,
+.fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #sortBarLite .x-stitle,
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar .fh-radio-pill span {
     height: 24px;
 }
@@ -827,6 +888,22 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #layoutBarLite button {
+    border-radius: 10px;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #sortBarLite {
+    gap: 1px;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #sortBarLite .x-stitle {
+    padding: 0 5px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #sortBarLite .fh-radio-pill span {
+    padding: 0 8px;
     border-radius: 10px;
 }
 
@@ -1917,6 +1994,7 @@ body.theme-dark .jsonpath-modal-header {
 }
 
 body.theme-dark .fh-brand,
+body.theme-dark .fh-window-note-control,
 body.theme-dark .fh-command-group,
 body.theme-dark .fh-link-action,
 body.theme-dark .jsonpath-modal-close,
@@ -1928,6 +2006,12 @@ body.theme-dark .xjf-input,
 body.theme-dark .jsonpath-header-input {
     background: var(--fh-surface-soft) !important;
     color: var(--fh-text) !important;
+}
+
+body.theme-dark .fh-window-note-control:focus-within {
+    border-color: rgba(147, 197, 253, 0.34);
+    background: #222b38 !important;
+    box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.16);
 }
 
 body.theme-dark .jsonpath-output-header,

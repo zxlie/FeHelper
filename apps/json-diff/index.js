@@ -237,6 +237,8 @@ window.vueApp = new Vue({
         differenceCount: 0,
         isDifferent: false,
         hasPendingChanges: false,
+        leftContentLength: 0,
+        rightContentLength: 0,
         lineHighlights: {
             left: [],
             right: []
@@ -251,6 +253,10 @@ window.vueApp = new Vue({
                 key,
                 label: source[key].label
             }));
+        },
+
+        hasContent: function() {
+            return this.leftContentLength > 0 || this.rightContentLength > 0;
         }
     },
     methods: {
@@ -431,6 +437,29 @@ window.vueApp = new Vue({
             this.markPendingChange('已美化 JSON，点击「对比」查看差异。');
         },
 
+        updateContentState: function() {
+            if (!jsonBox) {
+                this.leftContentLength = 0;
+                this.rightContentLength = 0;
+                return;
+            }
+            this.leftContentLength = jsonBox.left.getValue().trim().length;
+            this.rightContentLength = jsonBox.right.getValue().trim().length;
+        },
+
+        clearBothSides: function() {
+            if (!jsonBox) return;
+            jsonBox.left.setValue('');
+            jsonBox.right.setValue('');
+            this.clearMarkers();
+            this.resetFeedback();
+            this.hasPendingChanges = false;
+            this.updateContentState();
+            jsonBox.left.refresh();
+            jsonBox.right.refresh();
+            jsonBox.left.focus();
+        },
+
         clearMarkers: function() {
             if (!jsonBox) return;
             jsonBox.left.getAllMarks().forEach(function(marker) {
@@ -598,13 +627,16 @@ window.vueApp = new Vue({
         jsonBox = JsonDiff.init(this.$refs.srcLeft, this.$refs.srcRight);
 
         jsonBox.left.on('change', () => {
+            this.updateContentState();
             this.markPendingChange();
         });
         jsonBox.right.on('change', () => {
+            this.updateContentState();
             this.markPendingChange();
         });
 
         this.applyEditorPlaceholders();
+        this.updateContentState();
         window.jsonBox = jsonBox;
         this.loadPatchHotfix();
     }

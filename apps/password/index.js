@@ -1,6 +1,9 @@
 /**
  * FeHelper 密码随机生成工具
  */
+const DEFAULT_SPECIAL_CHARS = '~!@#$%^&*()[{]}-_=+\|;:\'\",<.>/?`';
+const PASSWORD_SPECIAL_CHARS_KEY = 'password:special-chars';
+
 new Vue({
     el: '#pageContainer',
     data: {
@@ -10,11 +13,13 @@ new Vue({
         specialChar: false,
         length: 20,
         count: 1,
+        defaultSpecialChar: DEFAULT_SPECIAL_CHARS,
+        customSpecialChar: DEFAULT_SPECIAL_CHARS,
         chars: {
             number: '0123456789',
             lowerLetter: 'abcdefghijklmnopqrstuvwxyz',
             upperLetter: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-            specialChar: '~!@#$%^&*()[{]}-_=+\|;:\'\",<.>/?`'
+            specialChar: DEFAULT_SPECIAL_CHARS
         },
         resultContent: '',
         showToast: false,
@@ -22,19 +27,72 @@ new Vue({
     },
 
     mounted: function () {
+        const savedSpecialChars = this.safeGetLocalStorage(PASSWORD_SPECIAL_CHARS_KEY);
+        if (savedSpecialChars) {
+            this.customSpecialChar = savedSpecialChars;
+            this.chars.specialChar = savedSpecialChars;
+        }
         this.loadPatchHotfix();
     },
 
     methods: {
+        safeGetLocalStorage: function(key) {
+            try {
+                return localStorage.getItem(key);
+            } catch (e) {
+                console.warn('localStorage不可用，使用默认值:', key);
+                return null;
+            }
+        },
+
+        safeSetLocalStorage: function(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {
+                console.warn('localStorage不可用，跳过保存:', key);
+            }
+        },
+
+        safeRemoveLocalStorage: function(key) {
+            try {
+                localStorage.removeItem(key);
+            } catch (e) {
+                console.warn('localStorage不可用，跳过删除:', key);
+            }
+        },
+
+        getSelectedCharPool: function() {
+            return ['number', 'lowerLetter', 'upperLetter', 'specialChar']
+                .filter(item => this[item])
+                .map(item => this.chars[item])
+                .join('');
+        },
+
+        normalizeInteger: function(value, fallback, minimum) {
+            const numberValue = parseInt(value, 10);
+            return Number.isFinite(numberValue) && numberValue >= minimum ? numberValue : fallback;
+        },
+
         convert: function () {
             this.$nextTick(() => {
-                let exceptedChars = ['number', 'lowerLetter', 'upperLetter', 'specialChar'].filter(item => this[item]).map(item => this.chars[item]).join('');
+                this.chars.specialChar = this.customSpecialChar;
+                let exceptedChars = this.getSelectedCharPool();
+                let passwordLength = this.normalizeInteger(this.length, 20, 0);
+                let passwordCount = this.normalizeInteger(this.count, 1, 1);
+                this.length = passwordLength;
+                this.count = passwordCount;
+
+                if (!exceptedChars.length) {
+                    this.resultContent = '';
+                    this.showToastMsg(this.specialChar ? '请先配置特殊符号集合' : '请至少选择一种字符');
+                    return;
+                }
 
                 // 生成指定数量的密码
                 let passwords = [];
-                for (let i = 0; i < this.count; i++) {
+                for (let i = 0; i < passwordCount; i++) {
                     let password = [], rands = [], rand = 0;
-                    for (let index = 0; index < this.length; index++) {
+                    for (let index = 0; index < passwordLength; index++) {
                         // 尽可能不让字符重复
                         do {
                             rand = Math.floor(Math.random() * exceptedChars.length);
@@ -47,6 +105,27 @@ new Vue({
                 }
                 this.resultContent = passwords.join('\n');
             });
+        },
+
+        updateSpecialChars: function() {
+            this.chars.specialChar = this.customSpecialChar;
+            if (this.customSpecialChar) {
+                this.safeSetLocalStorage(PASSWORD_SPECIAL_CHARS_KEY, this.customSpecialChar);
+            } else {
+                this.safeRemoveLocalStorage(PASSWORD_SPECIAL_CHARS_KEY);
+            }
+            if (this.specialChar) {
+                this.convert();
+            }
+        },
+
+        resetSpecialChars: function() {
+            this.customSpecialChar = this.defaultSpecialChar;
+            this.chars.specialChar = this.defaultSpecialChar;
+            this.safeRemoveLocalStorage(PASSWORD_SPECIAL_CHARS_KEY);
+            if (this.specialChar) {
+                this.convert();
+            }
         },
 
         getResult: function () {
