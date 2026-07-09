@@ -790,6 +790,7 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
 
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar {
     gap: 5px;
+    overflow: visible;
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-header-actions .fh-link-action {
@@ -876,7 +877,6 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
 
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar .xjf-btn,
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #layoutBarLite button,
-.fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #sortBarLite .x-stitle,
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar .fh-radio-pill span {
     height: 24px;
 }
@@ -892,19 +892,117 @@ html.fh-jf .fh-pane-actions .fh-option-bar .xjf-btn:focus {
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #sortBarLite {
-    gap: 1px;
+    position: relative;
+    overflow: visible;
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #sortBarLite .x-stitle {
-    padding: 0 5px;
+.fh-json-tool.fh-json-tool-lite .fh-lite-sort-menu {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    font-size: 11px;
 }
 
-.fh-json-tool.fh-json-tool-lite .fh-inline-command-bar #sortBarLite .fh-radio-pill span {
-    padding: 0 8px;
-    border-radius: 10px;
+.fh-json-tool.fh-json-tool-lite .fh-lite-sort-trigger {
+    height: 24px;
+    min-width: 112px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid rgba(207, 217, 232, 0.96);
+    border-radius: 999px;
+    background: rgba(238, 243, 249, 0.92);
+    color: var(--fh-text);
+    cursor: pointer;
+    font: 820 13px/24px var(--fh-sans);
+    white-space: nowrap;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.84),
+        inset 0 0 0 5px rgba(247, 249, 252, 0.74);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    backdrop-filter: blur(10px) saturate(140%);
+    transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-lite-sort-trigger strong {
+    color: var(--fh-accent);
+    font: inherit;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-lite-sort-trigger i {
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-lite-sort-trigger:hover,
+.fh-json-tool.fh-json-tool-lite .fh-lite-sort-menu:focus-within .fh-lite-sort-trigger {
+    border-color: rgba(37, 99, 235, 0.24);
+    background: rgba(233, 240, 250, 0.98);
+    color: #0f172a;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-lite-sort-options {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    z-index: 50;
+    width: 132px;
+    padding: 6px;
+    display: grid;
+    gap: 4px;
+    border: 1px solid rgba(207, 217, 232, 0.96);
+    border-radius: 14px;
+    background: rgba(238, 243, 249, 0.94);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.78),
+        0 12px 24px rgba(31, 42, 68, 0.14);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    backdrop-filter: blur(14px) saturate(150%);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    visibility: hidden;
+    transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-lite-sort-menu:hover .fh-lite-sort-options,
+.fh-json-tool.fh-json-tool-lite .fh-lite-sort-menu:focus-within .fh-lite-sort-options {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-lite-sort-options::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+    left: 0;
+    height: 8px;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-lite-sort-option {
+    width: 100%;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-lite-sort-option span {
+    width: 100%;
+    height: 32px;
+    justify-content: flex-start;
+    padding: 0 13px;
+    border-radius: 11px;
+    font-size: 14px;
+}
+
+.fh-json-tool.fh-json-tool-lite .fh-lite-sort-option input:checked + span {
+    background: var(--fh-accent);
+    color: #ffffff;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.18);
 }
 
 .fh-json-tool.fh-json-tool-lite .fh-pane {
@@ -2012,6 +2110,27 @@ body.theme-dark .fh-window-note-control:focus-within {
     border-color: rgba(147, 197, 253, 0.34);
     background: #222b38 !important;
     box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.16);
+}
+
+body.theme-dark .fh-json-tool.fh-json-tool-lite .fh-lite-sort-trigger {
+    border-color: rgba(148, 163, 184, 0.24);
+    background: rgba(31, 41, 55, 0.9);
+    color: var(--fh-text);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        inset 0 0 0 5px rgba(15, 23, 42, 0.22);
+}
+
+body.theme-dark .fh-json-tool.fh-json-tool-lite .fh-lite-sort-trigger strong {
+    color: var(--fh-accent-strong);
+}
+
+body.theme-dark .fh-json-tool.fh-json-tool-lite .fh-lite-sort-options {
+    border-color: rgba(148, 163, 184, 0.24);
+    background: rgba(31, 41, 55, 0.94);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 16px 32px rgba(0, 0, 0, 0.32);
 }
 
 body.theme-dark .jsonpath-output-header,

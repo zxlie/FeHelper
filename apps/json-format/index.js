@@ -250,6 +250,7 @@ new Vue({
         currentLayout: 'left-right',
         uiMode: 'lite',
         windowNote: '',
+        sortType: '0',
         // JSONPath查询相关
         jsonPathQuery: '',
         showJsonPathModal: false,
@@ -373,6 +374,13 @@ new Vue({
         },
         jsonAiControlDisabled() {
             return !this.canUseJsonLocalAi || !!this.aiPanel.loading;
+        },
+        sortLabel() {
+            return {
+                '0': '默认',
+                '1': '升序',
+                '-1': '降序'
+            }[String(this.sortType)] || '默认';
         }
     },
     methods: {
@@ -752,6 +760,12 @@ new Vue({
             }
         },
 
+        handleSortChange() {
+            this.$nextTick(() => {
+                this.format();
+            });
+        },
+
         loadPatchHotfix() {
             if (!window.chrome || !chrome.runtime || !chrome.runtime.sendMessage) {
                 return;
@@ -1013,7 +1027,7 @@ new Vue({
                     }
                     
                     const selectedSortInput = document.querySelector('[name="jsonsort"]:checked');
-                    const sortType = selectedSortInput ? selectedSortInput.value : '0';
+                    const sortType = String(this.sortType || (selectedSortInput ? selectedSortInput.value : '0'));
                     if (sortType !== '0') {
                         jsonObj = JsonABC.sortObj(jsonObj, parseInt(sortType), true);
                     }

@@ -47,20 +47,26 @@
                             <button type="button" :class="{selected: currentLayout === 'left-right'}" @click="changeLayout('left-right')">左右</button>
                             <button type="button" :class="{selected: currentLayout === 'up-down'}" @click="changeLayout('up-down')">上下</button>
                         </div>
-                        <div id="sortBarLite" class="fh-command-group x-sort fh-radio-group fh-lite-sort-group" role="radiogroup" aria-label="排序">
-                            <span class="x-stitle">排序</span>
-                            <label class="fh-radio-pill" for="sort_null_lite">
-                                <input type="radio" name="jsonsort" id="sort_null_lite" value="0" checked @click="format">
-                                <span>默认</span>
-                            </label>
-                            <label class="fh-radio-pill" for="sort_asc_lite">
-                                <input type="radio" name="jsonsort" id="sort_asc_lite" value="1" @click="format">
-                                <span>升序</span>
-                            </label>
-                            <label class="fh-radio-pill" for="sort_desc_lite">
-                                <input type="radio" name="jsonsort" id="sort_desc_lite" value="-1" @click="format">
-                                <span>降序</span>
-                            </label>
+                        <div id="sortBarLite" class="fh-command-group x-sort fh-lite-sort-group" aria-label="排序">
+                            <span class="fh-lite-sort-menu">
+                                <button type="button" class="fh-lite-sort-trigger" aria-haspopup="true" aria-label="JSON 键名排序">
+                                    <span>排序</span><strong>{{sortLabel}}</strong><i aria-hidden="true"></i>
+                                </button>
+                                <span class="fh-lite-sort-options" role="radiogroup" aria-label="JSON 键名排序选项">
+                                    <label class="fh-radio-pill fh-lite-sort-option" for="sort_null_lite">
+                                        <input type="radio" name="jsonsort" id="sort_null_lite" value="0" v-model="sortType" @change="handleSortChange">
+                                        <span>默认</span>
+                                    </label>
+                                    <label class="fh-radio-pill fh-lite-sort-option" for="sort_asc_lite">
+                                        <input type="radio" name="jsonsort" id="sort_asc_lite" value="1" v-model="sortType" @change="handleSortChange">
+                                        <span>升序</span>
+                                    </label>
+                                    <label class="fh-radio-pill fh-lite-sort-option" for="sort_desc_lite">
+                                        <input type="radio" name="jsonsort" id="sort_desc_lite" value="-1" v-model="sortType" @change="handleSortChange">
+                                        <span>降序</span>
+                                    </label>
+                                </span>
+                            </span>
                         </div>
                     </section>
 
@@ -110,15 +116,15 @@
                     <div class="fh-command-group x-sort fh-radio-group" role="radiogroup" aria-label="排序">
                         <span class="x-stitle">排序</span>
                         <label class="fh-radio-pill" for="sort_null">
-                            <input type="radio" name="jsonsort" id="sort_null" value="0" checked @click="format">
+                            <input type="radio" name="jsonsort" id="sort_null" value="0" v-model="sortType" @change="handleSortChange">
                             <span>默认</span>
                         </label>
                         <label class="fh-radio-pill" for="sort_asc">
-                            <input type="radio" name="jsonsort" id="sort_asc" value="1" @click="format">
+                            <input type="radio" name="jsonsort" id="sort_asc" value="1" v-model="sortType" @change="handleSortChange">
                             <span>升序</span>
                         </label>
                         <label class="fh-radio-pill" for="sort_desc">
-                            <input type="radio" name="jsonsort" id="sort_desc" value="-1" @click="format">
+                            <input type="radio" name="jsonsort" id="sort_desc" value="-1" v-model="sortType" @change="handleSortChange">
                             <span>降序</span>
                         </label>
                     </div>
