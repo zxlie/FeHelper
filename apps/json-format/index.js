@@ -247,6 +247,8 @@ new Vue({
         overrideJson: false,
         isInUSAFlag: false,
         nestedEscapeParse: false,
+        nodeEditSnapshot: '',
+        nodeEditActive: false,
         currentLayout: 'left-right',
         uiMode: 'lite',
         windowNote: '',
@@ -326,7 +328,7 @@ new Vue({
         // 格式化以后的JSON，点击以后可以重置原内容
         window._OnJsonItemClickByFH = (jsonTxt) => {
             if (this.overrideJson) {
-                this.disableEditorChange(jsonTxt);
+                this.enterNodeEdit(jsonTxt);
             }
         };
         editor.on('change', (editor, changes) => {
@@ -656,6 +658,14 @@ new Vue({
         // - 普通 number 若为科学计数法，转为完整字符串（仍是数字）
         // - BigNumberLike（json-bigint 对长小数的表示）转换为普通数字文本，避免输出 {s,e,c}
         safeStringify(obj, space) {
+            if (
+                typeof window !== 'undefined' &&
+                window.FHJsonAutoUtils &&
+                typeof window.FHJsonAutoUtils.safeStringify === 'function'
+            ) {
+                return window.FHJsonAutoUtils.safeStringify(obj, space);
+            }
+
             const tagged = JSON.stringify(obj, function(key, value) {
                 if (typeof value === 'bigint') {
                     // 用占位符标记，稍后去掉外层引号
@@ -706,7 +716,8 @@ new Vue({
             return tagged
                 .replace(/"__FH_BIGINT__(-?\d+)"/g, '$1')
                 .replace(/"__FH_NUMSTR__(-?\d+)"/g, '$1')
-                .replace(/"__FH_BIGNUM__(-?\d+(?:\.\d+)?)"/g, '$1');
+                .replace(/"__FH_BIGNUM__(-?\d+(?:\.\d+)?)"/g, '$1')
+                .replace(/"__FH_PRESERVE_INTEGER_KEY__(\d+)":/g, '"$1":');
         },
         // 安全获取localStorage值（在沙盒环境中可能不可用）
         safeGetLocalStorage(key) {
@@ -1197,6 +1208,30 @@ new Vue({
         setCache: function () {
             this.$nextTick(() => {
                 this.safeSetLocalStorage(EDIT_ON_CLICK, this.overrideJson);
+            });
+        },
+
+        enterNodeEdit: function (jsonTxt) {
+            const currentValue = editor && typeof editor.getValue === 'function' ? editor.getValue() : '';
+            if (!this.nodeEditActive) {
+                this.nodeEditSnapshot = currentValue;
+            }
+            this.nodeEditActive = true;
+            this.disableEditorChange(jsonTxt);
+        },
+
+        restoreNodeEditSource: function () {
+            if (!this.nodeEditActive || !this.nodeEditSnapshot) {
+                return;
+            }
+            const source = this.nodeEditSnapshot;
+            this.nodeEditActive = false;
+            this.nodeEditSnapshot = '';
+            this.disableEditorChange(source);
+            this.$nextTick(() => {
+                this.$nextTick(() => {
+                    this.format();
+                });
             });
         },
 

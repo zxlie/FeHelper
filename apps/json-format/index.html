@@ -200,6 +200,9 @@
                         <div>
                             <h2>输入</h2>
                         </div>
+                        <div class="fh-pane-actions" v-if="nodeEditActive">
+                            <button type="button" class="fh-pane-tool-action fh-node-restore-action" @click="restoreNodeEditSource">恢复原 JSON</button>
+                        </div>
                     </div>
                     <div class="row panel-txt">
                         <textarea class="form-control mod-textarea" id="jsonSource" placeholder="在这里粘贴需要格式化的 JSON 代码" ref="jsonBox"></textarea>

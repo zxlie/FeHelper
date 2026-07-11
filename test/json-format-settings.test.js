@@ -103,6 +103,16 @@ describe('json-format settings regression guards', () => {
         expect(css).toContain('html.fh-jf .fh-segmented > button.selected');
         expect(source).toContain("currentLayout: 'left-right'");
         expect(source).toContain("sortType: '0'");
+        expect(source).toContain("nodeEditSnapshot: ''");
+        expect(source).toContain("nodeEditActive: false");
+        expect(source).toContain('this.enterNodeEdit(jsonTxt);');
+        expect(source).toContain('enterNodeEdit: function (jsonTxt)');
+        expect(source).toContain('restoreNodeEditSource: function ()');
+        expect(source).toContain('this.nodeEditSnapshot = currentValue;');
+        expect(source).toContain('this.nodeEditActive = false;');
+        expect(html).toContain('v-if="nodeEditActive"');
+        expect(html).toContain('@click="restoreNodeEditSource"');
+        expect(html).toContain('恢复原 JSON');
         expect(source).toContain('sortLabel()');
         expect(source).toContain('handleSortChange()');
         expect(source).toContain("this.currentLayout = this.normalizeLayout(this.safeGetLocalStorage(LOCAL_KEY_OF_LAYOUT));");
@@ -110,6 +120,9 @@ describe('json-format settings regression guards', () => {
         expect(source).toContain("this.changeLayout(this.currentLayout);");
         expect(source).toContain("const selectedSortInput = document.querySelector('[name=\"jsonsort\"]:checked');");
         expect(source).toContain("const sortType = String(this.sortType || (selectedSortInput ? selectedSortInput.value : '0'));");
+        expect(source).toContain('typeof window.FHJsonAutoUtils.safeStringify === \'function\'');
+        expect(source).toContain('return window.FHJsonAutoUtils.safeStringify(obj, space);');
+        expect(source).toContain('.replace(/"__FH_PRESERVE_INTEGER_KEY__(\\d+)":/g, \'"$1":\');');
         expect(html).toContain('<section class="fh-inline-command-bar" aria-label="JSON 主要操作" v-if="uiMode === \'lite\'">');
         expect(html).toContain('id="sortBar"');
         expect(html).toContain('id="sortBarLite"');
