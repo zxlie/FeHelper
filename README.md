@@ -266,6 +266,6 @@ FeHelper/
 
 **如果 FeHelper 对你有帮助，欢迎给一个 Star。**
 
-[![Star History Chart](https://api.star-history.com/svg?repos=zxlie/FeHelper&type=Date)](https://star-history.com/#zxlie/FeHelper&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=zxlie/FeHelper&type=Date)](https://star-history.dera.page/#zxlie/FeHelper&type=Date)
 
 </div>
