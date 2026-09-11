@@ -206,6 +206,6 @@ FeHelper/
 
 **FeHelper가 도움이 되었다면 Star를 눌러 주세요!**
 
-[![Star History Chart](https://api.star-history.com/svg?repos=zxlie/FeHelper&type=Date)](https://star-history.com/#zxlie/FeHelper&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=zxlie/FeHelper&type=Date)](https://star-history.dera.page/#zxlie/FeHelper&type=Date)
 
 </div>
