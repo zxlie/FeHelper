@@ -100,6 +100,10 @@ window.Formatter = (function () {
     const LARGE_JSON_TEXT_THRESHOLD = 600000;
     let plainJsonViewEnabled = false;
     let largeJsonPlainViewEnabled = false;
+    let largeJsonEditor = null;
+    let largeJsonFoldedDoc = null;
+    let largeJsonExpandedDoc = null;
+    let largeJsonFoldTimer = null;
     let prettyJsonSelectionActive = false;
     let prettyJsonShortcutBound = false;
     
@@ -203,6 +207,7 @@ window.Formatter = (function () {
         if (largeJsonPlainViewEnabled && !enabled) {
             enabled = true;
         }
+        let wasPlainJsonView = plainJsonViewEnabled;
         plainJsonViewEnabled = !!enabled;
         if (!jfPre || !jfContent) {
             _updatePlainJsonControls();
@@ -214,6 +219,7 @@ window.Formatter = (function () {
         } else {
             jfPre.hide();
             jfContent.show();
+            if (wasPlainJsonView && largeJsonEditor) largeJsonEditor.refresh();
         }
         _updatePlainJsonControls();
     };
@@ -296,7 +302,25 @@ window.Formatter = (function () {
         }, true);
     };
 
+    let _resetView = function () {
+        clearTimeout(largeJsonFoldTimer);
+        largeJsonFoldTimer = null;
+        if (largeJsonEditor) {
+            if (largeJsonEditor.state.foldGutter) {
+                clearTimeout(largeJsonEditor.state.foldGutter.changeUpdate);
+            }
+            largeJsonEditor.setOption('foldGutter', false);
+            largeJsonEditor.toTextArea();
+            largeJsonEditor = null;
+        }
+        largeJsonFoldedDoc = largeJsonExpandedDoc = null;
+        largeJsonPlainViewEnabled = false;
+        plainJsonViewEnabled = false;
+        jfContent && jfContent.removeClass('fh-large-json-editor');
+    };
+
     let _initElements = function () {
+        _resetView();
 
         jfContent = $('#jfContent');
         if (!jfContent[0]) {
@@ -1311,8 +1335,9 @@ window.Formatter = (function () {
             query: jsonSearchState.query,
             total: jsonSearchState.matches.length,
             current: jsonSearchState.index >= 0 ? jsonSearchState.index + 1 : 0,
-            disabled: largeJsonPlainViewEnabled,
-            reason: largeJsonPlainViewEnabled ? '大型 JSON 为完整文本视图，请使用浏览器查找' : ''
+            disabled: largeJsonPlainViewEnabled || !!largeJsonEditor,
+            reason: largeJsonPlainViewEnabled ? '大型 JSON 为完整文本视图，请使用浏览器查找'
+                : largeJsonEditor ? '大型 JSON 请切换元数据（全文）视图后使用浏览器查找' : ''
         };
     };
 
@@ -1348,7 +1373,7 @@ window.Formatter = (function () {
         query = String(query || '').trim();
         _clearJsonSearch();
 
-        if (largeJsonPlainViewEnabled) {
+        if (largeJsonPlainViewEnabled || largeJsonEditor) {
             jsonSearchState.query = query;
             return _getSearchResultState();
         }
@@ -1436,7 +1461,49 @@ window.Formatter = (function () {
         });
     }
 
+    let _foldLargeJson = function () {
+        _setPlainJsonView(false);
+        clearTimeout(largeJsonFoldTimer);
+        let editor = largeJsonEditor;
+        if (largeJsonFoldedDoc && editor.getDoc() === largeJsonExpandedDoc) editor.swapDoc(largeJsonFoldedDoc);
+        let foldedLines = new Map(editor.getAllMarks().filter(mark => mark.__isFold)
+            .map(mark => [mark.find(-1).line, mark]));
+        // Fold children before parents to avoid repeatedly updating a huge hidden viewport.
+        let lines = editor.getOption('foldOptions').rangeFinder.foldLines;
+        let index = lines.length - 1;
+        let button = $('#optionBar .fh-json-collapse-toggle');
+        button.prop('disabled', true).text('处理中');
+        let batchSize = 512;
+        let batch = function () {
+            if (largeJsonEditor !== editor) return;
+            let start = window.performance.now();
+            let count = 0;
+            editor.operation(function () {
+                while (index >= 0 && count < batchSize && window.performance.now() - start < 8) {
+                    let line = lines[index--];
+                    let folded = foldedLines.get(line);
+                    if (!folded || !folded.find(-1)) editor.foldCode(CodeMirror.Pos(line, 0), {scanUp: false}, 'fold');
+                    count++;
+                }
+            });
+            // Include CodeMirror's operation commit/layout in the next batch's budget.
+            let elapsed = window.performance.now() - start;
+            batchSize = Math.max(32, Math.min(2048, Math.floor(count * 8 / Math.max(1, elapsed))));
+            if (index >= 0) {
+                largeJsonFoldTimer = setTimeout(batch, 0);
+            } else {
+                largeJsonFoldTimer = null;
+                button.prop('disabled', false).text('展开');
+            }
+        };
+        largeJsonFoldTimer = setTimeout(batch, 0);
+    };
+
     let _collapseAllJsonNodes = function () {
+        if (largeJsonEditor) {
+            _foldLargeJson();
+            return;
+        }
         if (plainJsonViewEnabled) {
             _setPlainJsonView(false);
         }
@@ -1446,6 +1513,23 @@ window.Formatter = (function () {
     };
 
     let _expandAllJsonNodes = function () {
+        if (largeJsonEditor) {
+            clearTimeout(largeJsonFoldTimer);
+            largeJsonFoldTimer = null;
+            // Reuse two read-only documents instead of allocating tens of thousands of lines on every toggle.
+            let current = largeJsonEditor.getDoc();
+            if (!largeJsonExpandedDoc || (current === largeJsonExpandedDoc && current.getAllMarks().some(mark => mark.__isFold))) {
+                largeJsonExpandedDoc = new CodeMirror.Doc(cachedJsonString, largeJsonEditor.getOption('mode'));
+            }
+            if (current !== largeJsonExpandedDoc) {
+                // Manual folds in the cached view are cheap to clear while it is detached from the editor.
+                largeJsonExpandedDoc.getAllMarks().forEach(mark => { if (mark.__isFold) mark.clear(); });
+                largeJsonFoldedDoc = largeJsonEditor.swapDoc(largeJsonExpandedDoc);
+            }
+            _setPlainJsonView(false);
+            $('#optionBar .fh-json-collapse-toggle').prop('disabled', false).text('折叠');
+            return;
+        }
         if (plainJsonViewEnabled) {
             _setPlainJsonView(false);
         }
@@ -1805,7 +1889,7 @@ window.Formatter = (function () {
         return String(source || '').length > LARGE_JSON_TEXT_THRESHOLD;
     };
 
-    let _renderLargeJsonPlainView = function() {
+    let _renderLargeJsonPlainView = function(error) {
         if (!_canRenderFormattedResult()) {
             _clearOptionBar();
             return false;
@@ -1819,9 +1903,101 @@ window.Formatter = (function () {
         _clearJsonSearch();
         _setPlainJsonView(true);
         $('#optionBar .fh-json-meta-toggle, #optionBar .fh-json-collapse-toggle').hide();
-        $('<span class="fh-json-large-mode-note">大型 JSON 已切换为完整文本视图</span>').prependTo('#optionBar');
+        $('<span class="fh-json-large-mode-note"></span>')
+            .text('大型 JSON 已切换为完整文本视图' + (error ? '；折叠视图不可用：' + error.message : ''))
+            .prependTo('#optionBar');
         _emitFormatReady();
         return true;
+    };
+
+    // safeStringify uses fixed indentation and escapes newlines inside strings.
+    // Index it once: the generic indent helper re-tokenizes/scans large blocks on every fold.
+    let _createLargeJsonFoldFinder = function (source) {
+        let lines = source.split('\n');
+        let ranges = [];
+        let stack = [];
+        lines.forEach(function (text, line) {
+            let indent = text.search(/\S/);
+            while (stack.length && indent <= stack[stack.length - 1].indent) {
+                let start = stack.pop();
+                ranges[start.line] = {
+                    from: CodeMirror.Pos(start.line, lines[start.line].length),
+                    to: CodeMirror.Pos(line - 1, lines[line - 1].length)
+                };
+            }
+            if (text.endsWith('{') || text.endsWith('[')) stack.push({line, indent});
+        });
+        let finder = function (_editor, position) {
+            let range = ranges[position.line];
+            // foldcode mutates the returned range with a `cleared` flag on unfold.
+            return range && {from: range.from, to: range.to};
+        };
+        finder.foldLines = Object.keys(ranges).map(Number);
+        return finder;
+    };
+
+    let _protectLargeJsonFolds = function (editor) {
+        let markText = editor.markText;
+        editor.markText = function (from, to, options) {
+            let mark = markText.call(this, from, to, options);
+            if (options && options.__isFold) {
+                let clear = mark.clear;
+                mark.clear = function () {
+                    if (mark.doc.cm !== editor || editor.getOption('lineWrapping')) return clear.call(mark);
+                    return editor.operation(function () {
+                        // CodeMirror 5 otherwise recomputes line lengths across every nested fold.
+                        // Restore wrapping before this operation paints; preserve the child folds.
+                        editor.setOption('lineWrapping', true);
+                        try {
+                            return clear.call(mark);
+                        } finally {
+                            editor.setOption('lineWrapping', false);
+                        }
+                    });
+                };
+            }
+            return mark;
+        };
+    };
+
+    let _renderLargeJsonView = function () {
+        if (!_canRenderFormattedResult()) {
+            _clearOptionBar();
+            return false;
+        }
+        if (!window.CodeMirror || !CodeMirror.fromTextArea || !CodeMirror.fold) {
+            return _renderLargeJsonPlainView(new Error('折叠组件未加载'));
+        }
+        try {
+            formattingMsg.hide();
+            jfPre.text(cachedJsonString);
+            jfContent.empty().addClass('fh-large-json-editor');
+            let textarea = document.createElement('textarea');
+            textarea.value = cachedJsonString;
+            jfContent[0].appendChild(textarea);
+            largeJsonEditor = CodeMirror.fromTextArea(textarea, {
+                mode: {name: 'javascript', json: true},
+                readOnly: true,
+                lineNumbers: true,
+                lineWrapping: false,
+                viewportMargin: 10,
+                workTime: 8,
+                workDelay: 30,
+                foldGutter: true,
+                gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+                foldOptions: {rangeFinder: _createLargeJsonFoldFinder(cachedJsonString), clearOnEnter: false, widget: '…'}
+            });
+            _protectLargeJsonFolds(largeJsonEditor);
+            _buildOptionBar();
+            _downloadSupport(cachedJsonString);
+            _clearJsonSearch();
+            $('<span class="fh-json-large-mode-note" title="可折叠浏览；元数据查看完整文本">大型 JSON</span>').prependTo('#optionBar');
+            _emitFormatReady();
+            return true;
+        } catch (error) {
+            _resetView();
+            return _renderLargeJsonPlainView(error);
+        }
     };
 
     /**
@@ -1850,7 +2026,7 @@ window.Formatter = (function () {
         }
 
         if (_shouldUseLargeJsonPlainView(cachedJsonValue, cachedJsonString)) {
-            _renderLargeJsonPlainView();
+            _renderLargeJsonView();
             return;
         }
 
@@ -1966,7 +2142,7 @@ window.Formatter = (function () {
             jfPre.html(htmlspecialchars(cachedJsonString));
 
             if (_shouldUseLargeJsonPlainView(cachedJsonValue, cachedJsonString)) {
-                _renderLargeJsonPlainView();
+                _renderLargeJsonView();
                 return;
             }
 
@@ -2611,6 +2787,7 @@ window.Formatter = (function () {
     return {
         format: format,
         formatSync: formatSync,
+        resetView: _resetView,
         setEscapeEnabled: function(enabled) {
             escapeJsonStringEnabled = enabled;
         },

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN" class="fh-jf">
+<meta charset="utf-8">
+<title>FeHelper 大 JSON 折叠回归</title>
+<link rel="stylesheet" href="../../apps/json-format/index.css">
+<link rel="stylesheet" href="../../apps/static/vendor/codemirror/foldgutter.css">
+<link rel="stylesheet" href="../../apps/json-format/large-json.css">
+<style>
+body { margin: 20px; font: 14px system-ui; }
+button { margin: 4px; padding: 6px 12px; }
+#result { width: 50vw; }
+#jfContent { font-family: monospace; }
+#jfContent_pre { display: none; max-height: 65vh; overflow: auto; }
+#report { white-space: pre-wrap; max-height: 240px; overflow: auto; }
+</style>
+<h1>大 JSON 折叠回归</h1>
+<p>直接使用仓库 Formatter、CodeMirror 和样式，无替代实现。先载入数据，再运行 30 轮；也可直接点击下方折叠栏和省略号。</p>
+<button id="sample">载入原始样例</button>
+<label>本地样例 <input id="sample-file" type="file" accept=".json,application/json"></label>
+<button id="generated">载入生成数据</button>
+<button id="double">载入 2 倍数据</button>
+<button id="quintuple">载入 5 倍数据</button>
+<button id="run">运行 30 轮</button>
+<button id="collapse">全部折叠</button>
+<button id="expand">全部展开</button>
+<pre id="report">就绪</pre>
+<div id="result"><div id="jfContent"></div><pre id="jfContent_pre"></pre></div>
+<script src="../../apps/static/vendor/jquery/jquery-3.3.1.min.js"></script>
+<script src="../../apps/static/vendor/codemirror/codemirror.js"></script>
+<script src="../../apps/static/vendor/codemirror/javascript.js"></script>
+<script src="../../apps/static/vendor/codemirror/foldcode.js"></script>
+<script src="../../apps/static/vendor/codemirror/foldgutter.js"></script>
+<script src="../../apps/json-format/json-bigint.js"></script>
+<script src="../../apps/json-format/json-auto-utils.js"></script>
+<script src="../../apps/json-format/format-lib.js"></script>
+<script src="json-format-performance.js"></script>
+</html>

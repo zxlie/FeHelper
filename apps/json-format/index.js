@@ -355,6 +355,7 @@ new Vue({
         document.addEventListener('click', this.handleWindowNoteOutsideClick, true);
     },
     beforeDestroy: function () {
+        window.Formatter && Formatter.resetView();
         document.removeEventListener('keydown', this.handleGlobalKeydown, true);
         document.removeEventListener('click', this.handleWindowNoteOutsideClick, true);
         window.clearTimeout(this.jsonPathCopyNoticeTimer);
@@ -481,6 +482,7 @@ new Vue({
         },
 
         setResultPlaceholder(html) {
+            window.Formatter && Formatter.resetView();
             this.placeHolder = html || '';
             const resultEl = document.querySelector('#jfContent');
             if (resultEl) {
@@ -1108,9 +1110,9 @@ new Vue({
                 }
 
                 if (!this.errorMsg.length) {
-                    // Plain rendering can finish synchronously before the first await.
                     this.placeHolder = '';
                     this.jsonFormattedSource = source;
+                    // 大 JSON 会同步渲染，必须先恢复结果可用状态。
                     this.syncResultActions(source);
 
                     if (this.autoDecode) {
@@ -1124,7 +1126,6 @@ new Vue({
                             await Formatter.format(source, null, this.escapeJsonString);
                         })();
                     }
-
 
                     // 如果是JSONP格式的，需要把方法名也显示出来
                     if (funcName != null) {

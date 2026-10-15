@@ -1,0 +1,63 @@
+#jfContent.fh-large-json-editor .CodeMirror {
+    height: 65vh;
+    min-height: 240px;
+    border: 0;
+    background: inherit;
+    color: #57606a;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.62;
+}
+
+.layout-left-right #jfContent.fh-large-json-editor .CodeMirror {
+    height: calc(100dvh - 154px);
+}
+
+#jfContent.fh-large-json-editor .CodeMirror-gutters {
+    border-right: 1px solid var(--fh-line, #d8deea);
+    background: var(--fh-surface-soft, #f8fafc);
+}
+
+#jfContent.fh-large-json-editor .CodeMirror-foldmarker {
+    color: var(--fh-accent, #2563eb);
+    text-shadow: none;
+    font-family: inherit;
+    line-height: inherit;
+}
+
+#jfContent.fh-large-json-editor .cm-string {
+    color: #0b7500;
+}
+
+/* JSON keys also carry cm-string in the bundled JavaScript mode. */
+#jfContent.fh-large-json-editor .cm-property {
+    color: #24292e;
+}
+
+#jfContent.fh-large-json-editor .cm-number {
+    color: #cf222e;
+}
+
+#jfContent.fh-large-json-editor .cm-atom {
+    color: #9a4d00;
+}
+
+.theme-dark #jfContent.fh-large-json-editor .CodeMirror {
+    color: #a7b0c0;
+}
+
+.theme-dark #jfContent.fh-large-json-editor .cm-string {
+    color: #7ee787;
+}
+
+.theme-dark #jfContent.fh-large-json-editor .cm-property {
+    color: #e7ebf2;
+}
+
+.theme-dark #jfContent.fh-large-json-editor .cm-number {
+    color: #ff7b72;
+}
+
+.theme-dark #jfContent.fh-large-json-editor .cm-atom {
+    color: #ffa657;
+}
