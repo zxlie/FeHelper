@@ -100,6 +100,8 @@ window.Formatter = (function () {
     const LARGE_JSON_TEXT_THRESHOLD = 600000;
     let plainJsonViewEnabled = false;
     let largeJsonPlainViewEnabled = false;
+    let largeJsonEditor = null;
+    let largeJsonFoldTimer = null;
     let prettyJsonSelectionActive = false;
     let prettyJsonShortcutBound = false;
     
@@ -214,6 +216,7 @@ window.Formatter = (function () {
         } else {
             jfPre.hide();
             jfContent.show();
+            largeJsonEditor && largeJsonEditor.refresh();
         }
         _updatePlainJsonControls();
     };
@@ -296,7 +299,24 @@ window.Formatter = (function () {
         }, true);
     };
 
+    let _resetView = function () {
+        clearTimeout(largeJsonFoldTimer);
+        largeJsonFoldTimer = null;
+        if (largeJsonEditor) {
+            if (largeJsonEditor.state.foldGutter) {
+                clearTimeout(largeJsonEditor.state.foldGutter.changeUpdate);
+            }
+            largeJsonEditor.setOption('foldGutter', false);
+            largeJsonEditor.toTextArea();
+            largeJsonEditor = null;
+        }
+        largeJsonPlainViewEnabled = false;
+        plainJsonViewEnabled = false;
+        jfContent && jfContent.removeClass('fh-large-json-editor');
+    };
+
     let _initElements = function () {
+        _resetView();
 
         jfContent = $('#jfContent');
         if (!jfContent[0]) {
@@ -1311,8 +1331,9 @@ window.Formatter = (function () {
             query: jsonSearchState.query,
             total: jsonSearchState.matches.length,
             current: jsonSearchState.index >= 0 ? jsonSearchState.index + 1 : 0,
-            disabled: largeJsonPlainViewEnabled,
-            reason: largeJsonPlainViewEnabled ? '大型 JSON 为完整文本视图，请使用浏览器查找' : ''
+            disabled: largeJsonPlainViewEnabled || !!largeJsonEditor,
+            reason: largeJsonPlainViewEnabled ? '大型 JSON 为完整文本视图，请使用浏览器查找'
+                : largeJsonEditor ? '大型 JSON 请切换元数据（全文）视图后使用浏览器查找' : ''
         };
     };
 
@@ -1348,7 +1369,7 @@ window.Formatter = (function () {
         query = String(query || '').trim();
         _clearJsonSearch();
 
-        if (largeJsonPlainViewEnabled) {
+        if (largeJsonPlainViewEnabled || largeJsonEditor) {
             jsonSearchState.query = query;
             return _getSearchResultState();
         }
@@ -1436,7 +1457,37 @@ window.Formatter = (function () {
         });
     }
 
+    let _foldLargeJson = function () {
+        _setPlainJsonView(false);
+        clearTimeout(largeJsonFoldTimer);
+        let editor = largeJsonEditor;
+        // Fold children before parents to avoid repeatedly updating a huge hidden viewport.
+        let line = editor.lastLine();
+        let button = $('#optionBar .fh-json-collapse-toggle');
+        button.prop('disabled', true).text('处理中');
+        let batch = function () {
+            if (largeJsonEditor !== editor) return;
+            let start = window.performance.now();
+            editor.operation(function () {
+                do {
+                    editor.foldCode(CodeMirror.Pos(line--, 0), {scanUp: false}, 'fold');
+                } while (line >= editor.firstLine() && window.performance.now() - start < 12);
+            });
+            if (line >= editor.firstLine()) {
+                largeJsonFoldTimer = setTimeout(batch, 0);
+            } else {
+                largeJsonFoldTimer = null;
+                button.prop('disabled', false).text('展开');
+            }
+        };
+        largeJsonFoldTimer = setTimeout(batch, 0);
+    };
+
     let _collapseAllJsonNodes = function () {
+        if (largeJsonEditor) {
+            _foldLargeJson();
+            return;
+        }
         if (plainJsonViewEnabled) {
             _setPlainJsonView(false);
         }
@@ -1446,6 +1497,16 @@ window.Formatter = (function () {
     };
 
     let _expandAllJsonNodes = function () {
+        if (largeJsonEditor) {
+            clearTimeout(largeJsonFoldTimer);
+            largeJsonFoldTimer = null;
+            // Clearing overlapping marks individually repeatedly restores the same large ranges.
+            // Replacing this read-only document removes every fold in one pass.
+            largeJsonEditor.swapDoc(new CodeMirror.Doc(cachedJsonString, largeJsonEditor.getOption('mode')));
+            _setPlainJsonView(false);
+            $('#optionBar .fh-json-collapse-toggle').prop('disabled', false).text('折叠');
+            return;
+        }
         if (plainJsonViewEnabled) {
             _setPlainJsonView(false);
         }
@@ -1805,7 +1866,7 @@ window.Formatter = (function () {
         return String(source || '').length > LARGE_JSON_TEXT_THRESHOLD;
     };
 
-    let _renderLargeJsonPlainView = function() {
+    let _renderLargeJsonPlainView = function(error) {
         if (!_canRenderFormattedResult()) {
             _clearOptionBar();
             return false;
@@ -1819,9 +1880,68 @@ window.Formatter = (function () {
         _clearJsonSearch();
         _setPlainJsonView(true);
         $('#optionBar .fh-json-meta-toggle, #optionBar .fh-json-collapse-toggle').hide();
-        $('<span class="fh-json-large-mode-note">大型 JSON 已切换为完整文本视图</span>').prependTo('#optionBar');
+        $('<span class="fh-json-large-mode-note"></span>')
+            .text('大型 JSON 已切换为完整文本视图' + (error ? '；折叠视图不可用：' + error.message : ''))
+            .prependTo('#optionBar');
         _emitFormatReady();
         return true;
+    };
+
+    // safeStringify uses fixed indentation and escapes newlines inside strings.
+    // Index it once: the generic indent helper re-tokenizes/scans large blocks on every fold.
+    let _createLargeJsonFoldFinder = function (source) {
+        let lines = source.split('\n');
+        let ranges = [];
+        let stack = [];
+        lines.forEach(function (text, line) {
+            let indent = text.search(/\S/);
+            while (stack.length && indent <= stack[stack.length - 1].indent) {
+                let start = stack.pop();
+                ranges[start.line] = {
+                    from: CodeMirror.Pos(start.line, lines[start.line].length),
+                    to: CodeMirror.Pos(line - 1, lines[line - 1].length)
+                };
+            }
+            if (text.endsWith('{') || text.endsWith('[')) stack.push({line, indent});
+        });
+        return function (_editor, position) { return ranges[position.line]; };
+    };
+
+    let _renderLargeJsonView = function () {
+        if (!_canRenderFormattedResult()) {
+            _clearOptionBar();
+            return false;
+        }
+        if (!window.CodeMirror || !CodeMirror.fromTextArea || !CodeMirror.fold) {
+            return _renderLargeJsonPlainView(new Error('折叠组件未加载'));
+        }
+        try {
+            formattingMsg.hide();
+            jfPre.text(cachedJsonString);
+            jfContent.empty().addClass('fh-large-json-editor');
+            let textarea = document.createElement('textarea');
+            textarea.value = cachedJsonString;
+            jfContent[0].appendChild(textarea);
+            largeJsonEditor = CodeMirror.fromTextArea(textarea, {
+                mode: {name: 'javascript', json: true},
+                readOnly: true,
+                lineNumbers: true,
+                lineWrapping: false,
+                viewportMargin: 10,
+                foldGutter: true,
+                gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+                foldOptions: {rangeFinder: _createLargeJsonFoldFinder(cachedJsonString), clearOnEnter: false, widget: '…'}
+            });
+            _buildOptionBar();
+            _downloadSupport(cachedJsonString);
+            _clearJsonSearch();
+            $('<span class="fh-json-large-mode-note" title="可折叠浏览；元数据查看完整文本">大型 JSON</span>').prependTo('#optionBar');
+            _emitFormatReady();
+            return true;
+        } catch (error) {
+            _resetView();
+            return _renderLargeJsonPlainView(error);
+        }
     };
 
     /**
@@ -1850,7 +1970,7 @@ window.Formatter = (function () {
         }
 
         if (_shouldUseLargeJsonPlainView(cachedJsonValue, cachedJsonString)) {
-            _renderLargeJsonPlainView();
+            _renderLargeJsonView();
             return;
         }
 
@@ -1966,7 +2086,7 @@ window.Formatter = (function () {
             jfPre.html(htmlspecialchars(cachedJsonString));
 
             if (_shouldUseLargeJsonPlainView(cachedJsonValue, cachedJsonString)) {
-                _renderLargeJsonPlainView();
+                _renderLargeJsonView();
                 return;
             }
 
@@ -2611,6 +2731,7 @@ window.Formatter = (function () {
     return {
         format: format,
         formatSync: formatSync,
+        resetView: _resetView,
         setEscapeEnabled: function(enabled) {
             escapeJsonStringEnabled = enabled;
         },
