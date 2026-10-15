@@ -355,6 +355,7 @@ new Vue({
         document.addEventListener('click', this.handleWindowNoteOutsideClick, true);
     },
     beforeDestroy: function () {
+        window.Formatter && Formatter.resetView();
         document.removeEventListener('keydown', this.handleGlobalKeydown, true);
         document.removeEventListener('click', this.handleWindowNoteOutsideClick, true);
         window.clearTimeout(this.jsonPathCopyNoticeTimer);
@@ -473,6 +474,7 @@ new Vue({
         },
 
         setResultPlaceholder(html) {
+            window.Formatter && Formatter.resetView();
             this.placeHolder = html || '';
             const resultEl = document.querySelector('#jfContent');
             if (resultEl) {
