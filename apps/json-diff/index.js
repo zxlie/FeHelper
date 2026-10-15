@@ -194,8 +194,8 @@ const TEXT_EXAMPLES = {
     },
     htmlSnippet: {
         label: 'HTML片段',
-        left: '<section class=\"hero\">\n  <h1>FeHelper</h1>\n  <p>JSON 比对工具</p>\n</section>',
-        right: '<section class=\"hero hero-compact\">\n  <h1>FeHelper</h1>\n  <p>内容比对工具</p>\n  <button>立即试用</button>\n</section>'
+        left: '<section class="hero">\n  <h1>FeHelper</h1>\n  <p>JSON 比对工具</p>\n</section>',
+        right: '<section class="hero hero-compact">\n  <h1>FeHelper</h1>\n  <p>内容比对工具</p>\n  <button>立即试用</button>\n</section>'
     },
     logOutput: {
         label: '日志输出',
@@ -372,7 +372,7 @@ window.vueApp = new Vue({
             this.resetFeedback();
 
             try {
-                const diffs = jsonpatch.compare(leftJson, rightJson);
+                const diffs = window.JsonDiffUtils.compareJsonValues(leftJson, rightJson);
                 this.differenceCount = diffs.length;
                 this.isDifferent = diffs.length > 0;
                 this.diffSummary = this.buildDiffSummary(diffs);
@@ -383,19 +383,21 @@ window.vueApp = new Vue({
                 const leftPointers = diffs.length ? this.parseEditorPointers(jsonBox.left) : {};
                 const rightPointers = diffs.length ? this.parseEditorPointers(jsonBox.right) : {};
 
-                diffs.forEach((diff) => {
-                    try {
-                        if (diff.op === 'remove') {
-                            this.highlightDiff(diff, 'remove', leftPointers, rightPointers);
-                        } else if (diff.op === 'add') {
-                            this.highlightDiff(diff, 'add', leftPointers, rightPointers);
-                        } else if (diff.op === 'replace') {
-                            this.highlightDiff(diff, 'replace', leftPointers, rightPointers);
+                jsonBox.left.operation(() => jsonBox.right.operation(() => {
+                    diffs.forEach((diff) => {
+                        try {
+                            if (diff.op === 'remove') {
+                                this.highlightDiff(diff, 'remove', leftPointers, rightPointers);
+                            } else if (diff.op === 'add') {
+                                this.highlightDiff(diff, 'add', leftPointers, rightPointers);
+                            } else if (diff.op === 'replace') {
+                                this.highlightDiff(diff, 'replace', leftPointers, rightPointers);
+                            }
+                        } catch (e) {
+                            console.warn('error while trying to highlight diff', e);
                         }
-                    } catch (e) {
-                        console.warn('error while trying to highlight diff', e);
-                    }
-                });
+                    });
+                }));
             } catch (e) {
                 console.error('比对过程出错:', e);
                 this.setInputError('left-right', 'JSON 比对过程出错，请确认输入内容是否可解析。');
@@ -507,11 +509,11 @@ window.vueApp = new Vue({
 
         clearMarkers: function() {
             if (!jsonBox) return;
-            jsonBox.left.getAllMarks().forEach(function(marker) {
-                marker.clear();
+            jsonBox.left.operation(() => {
+                jsonBox.left.getAllMarks().forEach(marker => marker.clear());
             });
-            jsonBox.right.getAllMarks().forEach(function(marker) {
-                marker.clear();
+            jsonBox.right.operation(() => {
+                jsonBox.right.getAllMarks().forEach(marker => marker.clear());
             });
             this.clearLineHighlights('left');
             this.clearLineHighlights('right');
@@ -684,7 +686,45 @@ window.vueApp = new Vue({
         }
     },
     mounted: function () {
-        jsonBox = JsonDiff.init(this.$refs.srcLeft, this.$refs.srcRight);
+        // This page compares on demand; the legacy JsonDiff initializer also
+        // compared on every edit and removed the page's own highlight markers.
+        const createEditor = element => CodeMirror.fromTextArea(element, {
+            lineNumbers: true,
+            mode: { name: 'javascript', json: true },
+            matchBrackets: true,
+            theme: 'tomorrow-night'
+        });
+        jsonBox = {
+            left: createEditor(this.$refs.srcLeft),
+            right: createEditor(this.$refs.srcRight)
+        };
+        ['left', 'right'].forEach(side => {
+            jsonBox[side].on('inputRead', (editor, change) => {
+                if (change.origin !== 'paste' || this.compareMode !== 'json') return;
+                try {
+                    editor.setValue(stringifyJSONForEditor(parseJsonForDiff(editor.getValue())));
+                    editor.setCursor(0, 0);
+                } catch {
+                    // Leave incomplete input editable; comparison reports invalid JSON.
+                }
+            });
+        });
+        let syncingScroll = false;
+        ['left', 'right'].forEach(side => {
+            jsonBox[side].on('scroll', () => {
+                if (syncingScroll) return;
+                const target = jsonBox[side === 'left' ? 'right' : 'left'];
+                const source = jsonBox[side].getScrollInfo();
+                const current = target.getScrollInfo();
+                if (current.left === source.left && current.top === source.top) return;
+                syncingScroll = true;
+                try {
+                    target.scrollTo(source.left, source.top);
+                } finally {
+                    syncingScroll = false;
+                }
+            });
+        });
 
         jsonBox.left.on('change', () => {
             this.updateContentState();

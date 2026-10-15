@@ -637,9 +637,9 @@ window.Formatter = (function () {
             }
         }
 
-        let txt = el.clone().children('.boxOpt').remove().end().text()
-            .replace(/复制路径\|复制\|下载\|删除/gm,'')
-            .replace(/复制\|下载\|删除/gm,'')
+        const cleanNode = el.clone();
+        cleanNode.find('.boxOpt').remove();
+        let txt = cleanNode.text()
             .replace(/":\s/gm, '":')
             .replace(/,$/, '')
             .trim();
@@ -1491,7 +1491,7 @@ window.Formatter = (function () {
         if (plainJsonViewEnabled) {
             _setPlainJsonView(false);
         }
-        collapse($('#jfContent .item-object, #jfContent .item-block'));
+        collapse($('#jfContent .item-object, #jfContent .item-array, #jfContent .item-block'));
         $('#optionBar .fh-json-collapse-toggle').text('展开');
         jfStatusBar && jfStatusBar.hide();
     };
@@ -1510,7 +1510,7 @@ window.Formatter = (function () {
         if (plainJsonViewEnabled) {
             _setPlainJsonView(false);
         }
-        $('.item-object,.item-block').removeClass('collapsed');
+        $('#jfContent .item-object, #jfContent .item-array, #jfContent .item-block').removeClass('collapsed');
         $('#optionBar .fh-json-collapse-toggle').text('折叠');
         jfStatusBar && jfStatusBar.hide();
     };

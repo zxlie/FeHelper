@@ -429,6 +429,14 @@ new Vue({
                 message: JSON_AI_STATUS_TEXT.checking
             };
             try {
+                const config = await AI.getConfig();
+                if (config.provider && config.provider !== 'builtin') {
+                    this.aiAvailability = {
+                        supported: true, availability: 'available',
+                        message: '使用全局 AI 配置，内容将发送至所选服务。'
+                    };
+                    return this.aiAvailability;
+                }
                 const state = await AI.getBuiltInAvailability();
                 this.aiAvailability = {
                     supported: !!(state && state.supported),
@@ -456,11 +464,11 @@ new Vue({
             setInlineAiGuide(this.aiPanel, {
                 taskKey: taskKey || 'local-ai-unavailable',
                 title: '本地 AI 不可用',
-                subtitle: 'JSON AI 默认只使用 Chrome 内置 Gemini Nano。',
+                subtitle: 'JSON AI 使用全局 AI 配置。',
                 statusText: this.jsonAiStatusText,
                 result: [
                     state.message || JSON_AI_STATUS_TEXT[state.availability] || JSON_AI_STATUS_TEXT.error,
-                    'FeHelper 不会在本地模型不可用时把 JSON 自动发送到云端。'
+                    '请在全局 AI 设置中选择可用的服务。'
                 ].join('\n')
             });
             return false;
@@ -831,7 +839,7 @@ new Vue({
                     taskKey: task,
                     title: 'JSON 结构助手',
                     subtitle: 'AI 只在 JSON 已成功解析后工作。',
-                    result: '粘贴 JSON 并完成格式化后，解析结果右上角会出现本地 AI 动作：结构体检、TS 类型、Schema、Zod。它们默认使用 Chrome 内置 Gemini Nano，不会静默发送到云端。'
+                    result: '粘贴 JSON 并完成格式化后，解析结果右上角会出现 AI 动作：结构体检、TS 类型、Schema、Zod。它们使用全局 AI 配置；选择云端服务时，内容将发送至所选服务。'
                 });
                 return;
             }
@@ -906,10 +914,9 @@ new Vue({
                 outputHint: '先用一两句话定位错误，再给 ```json 代码块。不要输出无关教程。',
                 canApply: true,
                 applyLabel: '应用修正版',
-                provider: 'builtin',
                 sourceSnapshot: aiContext.sourceSnapshot,
                 meta: {
-                    AI模式: 'Chrome 内置 Gemini Nano，本地执行',
+                    AI模式: '使用全局 AI 配置',
                     JSONLint: this.jsonLintSwitch ? '开启' : '关闭',
                     自动解码: this.autoDecode ? '开启' : '关闭',
                     节点编辑: this.overrideJson ? '开启' : '关闭',
@@ -948,10 +955,9 @@ new Vue({
                 resultLabel: '本地结构摘要',
                 result: aiContext.structureSummary,
                 outputHint: task.outputHint,
-                provider: 'builtin',
                 sourceSnapshot: aiContext.sourceSnapshot,
                 meta: {
-                    AI模式: 'Chrome 内置 Gemini Nano，本地执行',
+                    AI模式: '使用全局 AI 配置',
                     JSONLint: this.jsonLintSwitch ? '开启' : '关闭',
                     自动解码: this.autoDecode ? '开启' : '关闭',
                     嵌套解析: this.nestedEscapeParse ? '开启' : '关闭',
@@ -1152,6 +1158,39 @@ new Vue({
             if (this.format()) {
                 let jsonTxt = this.jfCallbackName_start + this.jsonFormattedSource + this.jfCallbackName_end;
                 this.disableEditorChange(jsonTxt);
+            }
+        },
+
+        transformJsonString: function (unescape) {
+            const input = editor.getValue();
+            try {
+                let output;
+                if (unescape) {
+                    output = JSON.parse(input);
+                    // json-bigint replaces JSON.parse on this page; validate strict string syntax too.
+                    // JSON forbids literal control characters inside string tokens.
+                    // eslint-disable-next-line no-control-regex
+                    if (typeof output !== 'string' || !/^[ \t\r\n]*"(?:[^"\\\u0000-\u001f]|\\(?:["\\/bfnrt]|u[0-9a-fA-F]{4}))*"[ \t\r\n]*$/.test(input)) {
+                        throw new Error('请输入合法的 JSON 字符串（用双引号包裹），仅反转义一层。');
+                    }
+                } else {
+                    output = JSON.stringify(input);
+                }
+                this.errorMsg = '';
+                this.resetResultActions();
+                this.jsonFormattedSource = '';
+                // CodeMirror emits change synchronously; publish the explicit result atomically.
+                this.fireChange = false;
+                try {
+                    editor.setValue(output);
+                } finally {
+                    this.fireChange = true;
+                }
+                this.setResultPlaceholder('<div class="x-placeholder">已完成' + (unescape ? '反转义' : '转义') + '，结果已写回输入框。</div>');
+            } catch {
+                this.errorMsg = '反转义失败：请输入合法的 JSON 字符串（用双引号包裹）。输入内容未改变。';
+                this.resetResultActions();
+                this.setResultPlaceholder(this.buildErrorPlaceholder(this.errorMsg));
             }
         },
 

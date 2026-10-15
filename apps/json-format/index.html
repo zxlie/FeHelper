@@ -70,6 +70,8 @@
                         <div class="fh-command-group fh-command-primary fh-lite-primary-actions" aria-label="JSON 操作">
                             <button type="button" id="btnFormatLite" class="xjf-btn fh-btn-primary" @click="format">格式化</button>
                             <button type="button" id="btnCompressLite" class="xjf-btn fh-btn-secondary" @click="compress">压缩</button>
+                        <button type="button" class="xjf-btn fh-btn-secondary" @click="transformJsonString(false)" title="将原文转为 JSON 字符串，保留空白">转义</button>
+                        <button type="button" class="xjf-btn fh-btn-secondary" @click="transformJsonString(true)" title="将 JSON 字符串还原为原文，仅处理一层">反转义</button>
                         </div>
                         <div id="layoutBarLite" class="fh-command-group fh-segmented" aria-label="布局">
                             <button type="button" :class="{selected: currentLayout === 'left-right'}" @click="changeLayout('left-right')">左右</button>
@@ -134,6 +136,8 @@
                     <div class="fh-command-group fh-command-primary">
                         <button type="button" id="btnFormat" class="xjf-btn fh-btn-primary" @click="format">格式化</button>
                         <button type="button" id="btnCompress" class="xjf-btn fh-btn-secondary" @click="compress">压缩</button>
+                        <button type="button" class="xjf-btn fh-btn-secondary" @click="transformJsonString(false)" title="将原文转为 JSON 字符串，保留空白">转义</button>
+                        <button type="button" class="xjf-btn fh-btn-secondary" @click="transformJsonString(true)" title="将 JSON 字符串还原为原文，仅处理一层">反转义</button>
                     </div>
 
                     <div id="layoutBar" class="fh-command-group fh-segmented" aria-label="布局">

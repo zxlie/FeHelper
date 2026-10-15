@@ -39,8 +39,8 @@ describe('json-format AI actions', () => {
         expect(source).toContain('function buildJsonStructureSummary(source)');
         expect(source).toContain('async refreshJsonAiAvailability()');
         expect(source).toContain('async ensureJsonLocalAiReady(taskKey)');
-        expect(source).toContain("AI模式: 'Chrome 内置 Gemini Nano，本地执行'");
-        expect(source).toContain("provider: 'builtin'");
+        expect(source).toContain("AI.getConfig()");
+        expect(source).not.toContain("provider: 'builtin'");
         expect(source).toContain('sourceSnapshot: aiContext.sourceSnapshot');
         expect(source).toContain('AI 返回的 JSON 未通过本地解析校验');
         expect(source).toContain('JSON Schema Draft 2020-12');

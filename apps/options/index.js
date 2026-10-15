@@ -495,7 +495,6 @@ new Vue({
                         this.applyBuiltInAiStatus(payload);
                     }
                 });
-                await chrome.storage.local.set({ fh_ai_provider: 'builtin' });
                 this.applyBuiltInAiStatus({
                     status: 'available',
                     progress: 1,
@@ -565,7 +564,6 @@ new Vue({
 
         async openAiAgent(prompt, aiFeature) {
             const params = new URLSearchParams();
-            params.set('provider', 'builtin');
             if (aiFeature) {
                 params.set('aiFeature', aiFeature);
             }

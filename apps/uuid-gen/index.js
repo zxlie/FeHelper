@@ -121,11 +121,14 @@
         $('ulidResult').value = results.join('\n');
     }
 
-    function selectAll(e) {
+    function selectLine(e) {
         var el = e && e.target;
-        if (el && typeof el.select === 'function') {
-            el.select();
-        }
+        if (!el || typeof el.setSelectionRange !== 'function') return;
+        var caret = el.selectionStart;
+        var start = el.value.lastIndexOf('\n', caret - 1) + 1;
+        var end = el.value.indexOf('\n', caret);
+        el.setSelectionRange(start, end === -1 ? el.value.length : end);
+        e.preventDefault();
     }
 
     function loadPatchHotfix() {
@@ -172,7 +175,7 @@
     });
 
     document.querySelectorAll('.x-result').forEach(function (el) {
-        el.addEventListener('click', selectAll);
+        el.addEventListener('dblclick', selectLine);
     });
 
     generateUUIDs();

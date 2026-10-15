@@ -60,3 +60,36 @@ describe('json-diff text mode helpers', () => {
         expect(css).toContain('body.fh-modern.theme-dark .fh-json-diff-change');
     });
 });
+
+describe('JSON diff precision and JSON value boundaries', () => {
+    it('Issue #662: compares nested added BigInt values without serializing them', async () => {
+        const { compareJsonValues } = await import('../apps/json-diff/diff-utils.js');
+        const value = { id: 222789022864622592n };
+        expect(compareJsonValues({}, { record: value })).toEqual([{ op: 'add', path: '/record', value }]);
+        expect(compareJsonValues({ record: value }, { record: { id: 222789022864622593n } }))
+            .toEqual([{ op: 'replace', path: '/record/id', value: 222789022864622593n }]);
+        expect(compareJsonValues({ record: value }, { record: { ...value } })).toEqual([]);
+    });
+
+    it('keeps a BigInt distinct from the same digits in a string', async () => {
+        const { compareJsonValues } = await import('../apps/json-diff/diff-utils.js');
+        expect(compareJsonValues({ id: 222789022864622592n }, { id: '222789022864622592' }))
+            .toEqual([{ op: 'replace', path: '/id', value: '222789022864622592' }]);
+    });
+
+    it('preserves the array path and exact BigInt value for an addition', async () => {
+        const { compareJsonValues } = await import('../apps/json-diff/diff-utils.js');
+        expect(compareJsonValues({ ids: [1] }, { ids: [1, 222789022864622592n] }))
+            .toEqual([{ op: 'add', path: '/ids/1', value: 222789022864622592n }]);
+    });
+
+    it('distinguishes types, root values, arrays and escaped keys', async () => {
+        const { compareJsonValues } = await import('../apps/json-diff/diff-utils.js');
+        expect(compareJsonValues({ id: 1 }, { id: '1' })).toEqual([{ op: 'replace', path: '/id', value: '1' }]);
+        expect(compareJsonValues(1, 2)).toEqual([{ op: 'replace', path: '', value: 2 }]);
+        expect(compareJsonValues([], {})).toEqual([{ op: 'replace', path: '', value: {} }]);
+        expect(compareJsonValues({ 'a/~': 1 }, { 'a/~': 2 })).toEqual([{ op: 'replace', path: '/a~1~0', value: 2 }]);
+        expect(compareJsonValues([1, 2, 3], [1])).toEqual([{ op: 'remove', path: '/2' }, { op: 'remove', path: '/1' }]);
+        expect(compareJsonValues({ hasOwnProperty: 1 }, { hasOwnProperty: 2 })).toEqual([{ op: 'replace', path: '/hasOwnProperty', value: 2 }]);
+    });
+});

@@ -329,12 +329,16 @@ async function runInlineToolAi(state, request = {}) {
         canApply: !!request.canApply,
         applyLabel: request.applyLabel || '应用结果',
         sourceSnapshot: request.sourceSnapshot || '',
-        localOnly: request.localOnly !== false,
-        statusText: request.initialResult ? '已完成本地诊断，正在生成 AI 解释' : '正在准备本机 AI'
+        localOnly: false,
+        statusText: request.initialResult ? '已完成本地诊断，正在生成 AI 解释' : '正在读取 AI 配置'
     });
 
     const messages = buildToolAiMessages(request.toolKey, request);
     try {
+        const config = await AI.getConfig();
+        const provider = request.provider || config.provider;
+        state.localOnly = provider === 'builtin';
+        state.statusText = state.localOnly ? '正在准备本机 AI' : '正在连接所选 AI 服务';
         await AI.askCoderLLM(messages, (respJson, done) => {
             if (done) {
                 state.loading = false;
@@ -349,7 +353,7 @@ async function runInlineToolAi(state, request = {}) {
                 state.result = respJson.content;
                 state.statusText = '正在生成';
             }
-        }, null, request.provider || 'builtin');
+        }, null, provider);
     } catch (error) {
         state.loading = false;
         if (request.preserveInitialResultOnError && state.result) {

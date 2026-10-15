@@ -560,7 +560,8 @@ var TimestampApp = {
     // 初始化UI
     initUI: function() {
         // 设置初始标签页
-        this.setActiveTab(AppState.activeTab);
+        this.setActiveTab(window.location && window.location.hash === '#batch-converter'
+            ? 'batch-converter' : AppState.activeTab);
 
         var timezoneSelect = DOMUtils.$('.current-timezone-select');
         if (timezoneSelect) {
@@ -1046,18 +1047,22 @@ var TimestampApp = {
         
         // 显示结果
         var html = '';
+        var escapeText = function(value) {
+            return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        };
         results.forEach(function(result) {
             if (result.success) {
                 html += '<div class="mb-3">';
-                html += '<strong>第' + result.line + '行：</strong> ' + result.input + '<br>';
+                html += '<strong>第' + result.line + '行：</strong> ' + escapeText(result.input) + '<br>';
                 result.results.forEach(function(format) {
                     html += '• ' + format.label + '：' + format.value + '<br>';
                 });
                 html += '</div>';
             } else {
                 html += '<div class="mb-3 text-danger">';
-                html += '<strong>第' + result.line + '行错误：</strong> ' + result.input + '<br>';
-                html += '错误：' + result.error + '<br>';
+                html += '<strong>第' + result.line + '行错误：</strong> ' + escapeText(result.input) + '<br>';
+                html += '错误：' + escapeText(result.error) + '<br>';
                 html += '</div>';
             }
         });

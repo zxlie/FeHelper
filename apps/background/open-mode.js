@@ -43,6 +43,17 @@ function buildPopupWindowOptions(url) {
     };
 }
 
+function buildToolTabOptions(url, activeTab) {
+    const options = {url, active: true};
+    if (activeTab && Number.isInteger(activeTab.index) && activeTab.index >= 0) {
+        options.index = activeTab.index + 1;
+        if (Number.isInteger(activeTab.windowId) && activeTab.windowId >= 0) {
+            options.windowId = activeTab.windowId;
+        }
+    }
+    return options;
+}
+
 async function resolveCreatedWindowTab(createdWindow, queryTabs) {
     const includedTab = createdWindow && createdWindow.tabs && createdWindow.tabs[0];
     if (includedTab && includedTab.id != null) {
@@ -59,6 +70,7 @@ export {
     POPUP_WINDOW_OPTION,
     REUSE_TAB_OPTION,
     buildPopupWindowOptions,
+    buildToolTabOptions,
     buildToolUrl,
     buildToolUrlPattern,
     resolveCreatedWindowTab,
