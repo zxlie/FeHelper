@@ -3,7 +3,7 @@
     min-height: 240px;
     border: 0;
     background: inherit;
-    color: inherit;
+    color: #57606a;
     font-family: inherit;
     font-size: inherit;
     line-height: 1.62;
@@ -31,15 +31,19 @@
 
 /* JSON keys also carry cm-string in the bundled JavaScript mode. */
 #jfContent.fh-large-json-editor .cm-property {
-    color: #0550ae;
+    color: #24292e;
 }
 
 #jfContent.fh-large-json-editor .cm-number {
-    color: #1a01cc;
+    color: #cf222e;
 }
 
 #jfContent.fh-large-json-editor .cm-atom {
     color: #9a4d00;
+}
+
+.theme-dark #jfContent.fh-large-json-editor .CodeMirror {
+    color: #a7b0c0;
 }
 
 .theme-dark #jfContent.fh-large-json-editor .cm-string {
@@ -47,11 +51,11 @@
 }
 
 .theme-dark #jfContent.fh-large-json-editor .cm-property {
-    color: #79c0ff;
+    color: #e7ebf2;
 }
 
 .theme-dark #jfContent.fh-large-json-editor .cm-number {
-    color: #d2a8ff;
+    color: #ff7b72;
 }
 
 .theme-dark #jfContent.fh-large-json-editor .cm-atom {
