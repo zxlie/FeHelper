@@ -143,7 +143,13 @@ let BgPageInstance = (function () {
                     InjectTools.inject(tabId, { css })
                 });
         }else{
-            InjectTools.inject(tabId, {files: [`${toolName}/content-script.css`]});
+            let files = toolName === 'json-format' ? [
+                'static/vendor/codemirror/codemirror.css',
+                'static/vendor/codemirror/foldgutter.css',
+                'json-format/large-json.css',
+                `${toolName}/content-script.css`
+            ] : [`${toolName}/content-script.css`];
+            InjectTools.inject(tabId, {files});
         }
     };
 
@@ -155,6 +161,10 @@ let BgPageInstance = (function () {
             case 'json-format':
                 files.push(
                     'static/vendor/jquery/jquery-3.3.1.min.js',
+                    'static/vendor/codemirror/codemirror.js',
+                    'static/vendor/codemirror/javascript.js',
+                    'static/vendor/codemirror/foldcode.js',
+                    'static/vendor/codemirror/foldgutter.js',
                     'json-format/json-bigint.js',
                     'json-format/json-auto-utils.js',
                     'json-format/format-lib.js',
