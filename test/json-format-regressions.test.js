@@ -33,15 +33,16 @@ function runJsonWorker(jsonString, skin) {
     return messages;
 }
 
-function loadJsonFormatPage() {
+function loadJsonFormatPage(withFolding = false) {
     const elements = new Map();
     const pendingFormats = [];
+    const editors = [];
     let app;
     let options;
 
     function element(id) {
         if (!elements.has(id)) {
-            elements.set(id, { innerHTML: '', textContent: '', style: {} });
+            elements.set(id, { innerHTML: '', textContent: '', style: {}, appendChild() {} });
         }
         return elements.get(id);
     }
@@ -76,14 +77,14 @@ function loadJsonFormatPage() {
             find() { return $(null); },
             first() { return wrapper; }
         };
-        for (const method of ['appendTo', 'prependTo', 'addClass', 'removeClass', 'removeAttr', 'bind', 'click', 'on', 'off']) {
+        for (const method of ['appendTo', 'prependTo', 'addClass', 'removeClass', 'removeAttr', 'bind', 'click', 'on', 'off', 'prop']) {
             wrapper[method] = () => wrapper;
         }
         return wrapper;
     }
 
     const sandbox = {
-        $, Blob, console,
+        $, Blob, console, setTimeout, clearTimeout, performance,
         location: { protocol: 'https:' },
         localStorage: { getItem: () => null, setItem() {} },
         document: {
@@ -91,12 +92,44 @@ function loadJsonFormatPage() {
                 if (selector === '#pageContainer') return { ...element('pageContainer'), __vue__: app };
                 return /^#[\w-]+$/.test(selector) ? element(selector.slice(1)) : null;
             },
+            createElement: () => ({ value: '', style: {} }),
             addEventListener() {}
         },
         Vue: function (config) { options = config; },
         createInlineAiState: () => ({}),
         canBuildTableViewData
     };
+    if (withFolding) {
+        // The real browser tests exercise CodeMirror's folding/viewport code.
+        // This double checks our payload, options, batching and disposal contract.
+        sandbox.CodeMirror = {
+            fold: { indent() {} },
+            Doc: function (value, mode) { this.value = value; this.mode = mode; },
+            Pos: (line, ch) => ({ line, ch }),
+            fromTextArea(textarea, config) {
+                const lines = textarea.value.split('\n');
+                const editor = {
+                    config,
+                    folds: [],
+                    swappedDocuments: [],
+                    state: { foldGutter: null },
+                    disposed: false,
+                    getValue: () => textarea.value,
+                    firstLine: () => 0,
+                    lastLine: () => lines.length - 1,
+                    foldCode(position, options, action) { editor.folds.push({ position, action }); },
+                    operation: callback => callback(),
+                    getOption: name => config[name],
+                    swapDoc(doc) { editor.swappedDocuments.push(doc); },
+                    refresh() {},
+                    setOption(name, value) { editor.config[name] = value; },
+                    toTextArea() { editor.disposed = true; }
+                };
+                editors.push(editor);
+                return editor;
+            }
+        };
+    }
     sandbox.window = sandbox;
     vm.createContext(sandbox);
     for (const file of ['json-auto-utils.js', 'json-decode.js', 'format-lib.js']) {
@@ -122,6 +155,8 @@ function loadJsonFormatPage() {
     return {
         app,
         element,
+        editors,
+        formatter: sandbox.Formatter,
         async format(source) {
             sandbox.inputSource = source;
             pendingFormats.length = 0;
@@ -202,6 +237,111 @@ describe('json-format page rendering', () => {
         expect(page.element('jfContent').innerHTML).toContain(source ? 'fh-error-state' : 'x-placeholder');
         expect(page.app.jsonActionReady).toBe(false);
         expect(page.element('optionBar').style.display).toBe('none');
+    });
+});
+
+describe('large JSON folding view', () => {
+    const value = { payload: 'x'.repeat(600001), tail: '完整末尾' };
+    const source = JSON.stringify(value);
+
+    it('loads the whole document in a read-only viewport with folding enabled', async () => {
+        const page = loadJsonFormatPage(true);
+        await page.format(source);
+
+        expect(page.editors).toHaveLength(1);
+        const editor = page.editors[0];
+        expect(editor.getValue()).toBe(JSON.stringify(value, null, 4));
+        expect(editor.config.readOnly).toBe(true);
+        expect(editor.config.foldGutter).toBe(true);
+        expect(editor.config.viewportMargin).toBe(10);
+        expect(editor.config.lineWrapping).toBe(false);
+        expect(page.element('jfContent').style.display).not.toBe('none');
+        expect(page.element('jfContent_pre').style.display).toBe('none');
+    });
+
+    it('switches to full text and back without discarding the folding editor', async () => {
+        const page = loadJsonFormatPage(true);
+        await page.format(source);
+
+        page.formatter.setPlainJsonView(true);
+        expect(page.element('jfContent_pre').textContent).toBe(JSON.stringify(value, null, 4));
+        expect(page.element('jfContent_pre').style.display).not.toBe('none');
+        page.formatter.setPlainJsonView(false);
+
+        expect(page.element('jfContent').style.display).not.toBe('none');
+        expect(page.editors).toHaveLength(1);
+        expect(page.editors[0].disposed).toBe(false);
+        expect(page.formatter.getSearchState().disabled).toBe(true);
+    });
+
+    it('indexes nested containers without scanning editor tokens or treating quoted brackets as containers', async () => {
+        const page = loadJsonFormatPage(true);
+        const nested = { payload: 'x'.repeat(600001), child: { items: [{ id: 1 }, [2, 3], {}], text: '{ [ } ]\nescaped' }, tail: 'end' };
+        await page.format(JSON.stringify(nested));
+        const editor = page.editors[0];
+        const lines = editor.getValue().split('\n');
+        const find = editor.config.foldOptions.rangeFinder;
+        const lineOf = text => lines.findIndex(line => line.trim() === text);
+
+        expect(find(null, { line: 0 })).toEqual({ from: { line: 0, ch: 1 }, to: { line: lines.length - 2, ch: lines.at(-2).length } });
+        const child = lineOf('"child": {');
+        const childEnd = lineOf('},');
+        expect(find(null, { line: child }).to.line).toBe(lineOf('"text": "{ [ } ]\\nescaped"'));
+        expect(find(null, { line: child }).from.line).toBe(child);
+        expect(find(null, { line: lineOf('"items": [') }).to.line).toBe(lineOf('{}'));
+        expect(find(null, { line: lineOf('[') }).to.line).toBe(lineOf('3'));
+        expect(find(null, { line: lineOf('{}') })).toBeUndefined();
+        expect(find(null, { line: lineOf('"text": "{ [ } ]\\nescaped"') })).toBeUndefined();
+        expect(find(null, { line: childEnd })).toBeUndefined();
+    });
+
+    it('folds children first and replaces the read-only document to unfold without clearing overlapping marks', async () => {
+        const page = loadJsonFormatPage(true);
+        await page.format(source);
+        expect(page.editors).toHaveLength(1);
+        const editor = page.editors[0];
+
+        page.formatter.collapseAll();
+        await new Promise(resolve => setTimeout(resolve, 20));
+        expect(editor.folds.some(call => call.action === 'fold')).toBe(true);
+        expect(editor.folds[0].position.line).toBe(editor.lastLine());
+        page.formatter.expandAll();
+        await new Promise(resolve => setTimeout(resolve, 20));
+        expect(editor.swappedDocuments).toHaveLength(1);
+        expect(editor.swappedDocuments[0].value).toBe(editor.getValue());
+        expect(editor.swappedDocuments[0].mode).toEqual(editor.config.mode);
+        expect(editor.getValue()).toBe(JSON.stringify(value, null, 4));
+    });
+
+    it.each(['', '{"broken":', '{"status":"small"}'])('disposes the editor and cancels queued folding when input becomes %j', async nextSource => {
+        const page = loadJsonFormatPage(true);
+        page.app.jsonLintSwitch = false;
+        await page.format(source);
+        expect(page.editors).toHaveLength(1);
+        const editor = page.editors[0];
+        page.formatter.collapseAll();
+
+        await page.format(nextSource);
+        await new Promise(resolve => setTimeout(resolve, 20));
+
+        expect(editor.disposed).toBe(true);
+        expect(editor.folds).toHaveLength(0);
+        expect(page.element('jfContent').style.display).not.toBe('none');
+        expect(page.element('jfContent_pre').style.display).toBe('none');
+    });
+
+    it('cancels the folding addon viewport timer when disposing the result editor', async () => {
+        const page = loadJsonFormatPage(true);
+        await page.format(source);
+        const editor = page.editors[0];
+        let staleUpdate = false;
+        editor.state.foldGutter = { changeUpdate: setTimeout(() => { staleUpdate = true; }, 0) };
+
+        await page.format('');
+        await new Promise(resolve => setTimeout(resolve, 10));
+
+        expect(staleUpdate).toBe(false);
+        expect(editor.config.foldGutter).toBe(false);
     });
 });
 
