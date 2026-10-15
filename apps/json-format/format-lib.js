@@ -101,6 +101,8 @@ window.Formatter = (function () {
     let plainJsonViewEnabled = false;
     let largeJsonPlainViewEnabled = false;
     let largeJsonEditor = null;
+    let largeJsonFoldedDoc = null;
+    let largeJsonExpandedDoc = null;
     let largeJsonFoldTimer = null;
     let prettyJsonSelectionActive = false;
     let prettyJsonShortcutBound = false;
@@ -205,6 +207,7 @@ window.Formatter = (function () {
         if (largeJsonPlainViewEnabled && !enabled) {
             enabled = true;
         }
+        let wasPlainJsonView = plainJsonViewEnabled;
         plainJsonViewEnabled = !!enabled;
         if (!jfPre || !jfContent) {
             _updatePlainJsonControls();
@@ -216,7 +219,7 @@ window.Formatter = (function () {
         } else {
             jfPre.hide();
             jfContent.show();
-            largeJsonEditor && largeJsonEditor.refresh();
+            if (wasPlainJsonView && largeJsonEditor) largeJsonEditor.refresh();
         }
         _updatePlainJsonControls();
     };
@@ -310,6 +313,7 @@ window.Formatter = (function () {
             largeJsonEditor.toTextArea();
             largeJsonEditor = null;
         }
+        largeJsonFoldedDoc = largeJsonExpandedDoc = null;
         largeJsonPlainViewEnabled = false;
         plainJsonViewEnabled = false;
         jfContent && jfContent.removeClass('fh-large-json-editor');
@@ -1461,19 +1465,31 @@ window.Formatter = (function () {
         _setPlainJsonView(false);
         clearTimeout(largeJsonFoldTimer);
         let editor = largeJsonEditor;
+        if (largeJsonFoldedDoc && editor.getDoc() === largeJsonExpandedDoc) editor.swapDoc(largeJsonFoldedDoc);
+        let foldedLines = new Map(editor.getAllMarks().filter(mark => mark.__isFold)
+            .map(mark => [mark.find(-1).line, mark]));
         // Fold children before parents to avoid repeatedly updating a huge hidden viewport.
-        let line = editor.lastLine();
+        let lines = editor.getOption('foldOptions').rangeFinder.foldLines;
+        let index = lines.length - 1;
         let button = $('#optionBar .fh-json-collapse-toggle');
         button.prop('disabled', true).text('处理中');
+        let batchSize = 512;
         let batch = function () {
             if (largeJsonEditor !== editor) return;
             let start = window.performance.now();
+            let count = 0;
             editor.operation(function () {
-                do {
-                    editor.foldCode(CodeMirror.Pos(line--, 0), {scanUp: false}, 'fold');
-                } while (line >= editor.firstLine() && window.performance.now() - start < 12);
+                while (index >= 0 && count < batchSize && window.performance.now() - start < 8) {
+                    let line = lines[index--];
+                    let folded = foldedLines.get(line);
+                    if (!folded || !folded.find(-1)) editor.foldCode(CodeMirror.Pos(line, 0), {scanUp: false}, 'fold');
+                    count++;
+                }
             });
-            if (line >= editor.firstLine()) {
+            // Include CodeMirror's operation commit/layout in the next batch's budget.
+            let elapsed = window.performance.now() - start;
+            batchSize = Math.max(32, Math.min(2048, Math.floor(count * 8 / Math.max(1, elapsed))));
+            if (index >= 0) {
                 largeJsonFoldTimer = setTimeout(batch, 0);
             } else {
                 largeJsonFoldTimer = null;
@@ -1500,9 +1516,16 @@ window.Formatter = (function () {
         if (largeJsonEditor) {
             clearTimeout(largeJsonFoldTimer);
             largeJsonFoldTimer = null;
-            // Clearing overlapping marks individually repeatedly restores the same large ranges.
-            // Replacing this read-only document removes every fold in one pass.
-            largeJsonEditor.swapDoc(new CodeMirror.Doc(cachedJsonString, largeJsonEditor.getOption('mode')));
+            // Reuse two read-only documents instead of allocating tens of thousands of lines on every toggle.
+            let current = largeJsonEditor.getDoc();
+            if (!largeJsonExpandedDoc || (current === largeJsonExpandedDoc && current.getAllMarks().some(mark => mark.__isFold))) {
+                largeJsonExpandedDoc = new CodeMirror.Doc(cachedJsonString, largeJsonEditor.getOption('mode'));
+            }
+            if (current !== largeJsonExpandedDoc) {
+                // Manual folds in the cached view are cheap to clear while it is detached from the editor.
+                largeJsonExpandedDoc.getAllMarks().forEach(mark => { if (mark.__isFold) mark.clear(); });
+                largeJsonFoldedDoc = largeJsonEditor.swapDoc(largeJsonExpandedDoc);
+            }
             _setPlainJsonView(false);
             $('#optionBar .fh-json-collapse-toggle').prop('disabled', false).text('折叠');
             return;
@@ -1904,7 +1927,37 @@ window.Formatter = (function () {
             }
             if (text.endsWith('{') || text.endsWith('[')) stack.push({line, indent});
         });
-        return function (_editor, position) { return ranges[position.line]; };
+        let finder = function (_editor, position) {
+            let range = ranges[position.line];
+            // foldcode mutates the returned range with a `cleared` flag on unfold.
+            return range && {from: range.from, to: range.to};
+        };
+        finder.foldLines = Object.keys(ranges).map(Number);
+        return finder;
+    };
+
+    let _protectLargeJsonFolds = function (editor) {
+        let markText = editor.markText;
+        editor.markText = function (from, to, options) {
+            let mark = markText.call(this, from, to, options);
+            if (options && options.__isFold) {
+                let clear = mark.clear;
+                mark.clear = function () {
+                    if (mark.doc.cm !== editor || editor.getOption('lineWrapping')) return clear.call(mark);
+                    return editor.operation(function () {
+                        // CodeMirror 5 otherwise recomputes line lengths across every nested fold.
+                        // Restore wrapping before this operation paints; preserve the child folds.
+                        editor.setOption('lineWrapping', true);
+                        try {
+                            return clear.call(mark);
+                        } finally {
+                            editor.setOption('lineWrapping', false);
+                        }
+                    });
+                };
+            }
+            return mark;
+        };
     };
 
     let _renderLargeJsonView = function () {
@@ -1928,10 +1981,13 @@ window.Formatter = (function () {
                 lineNumbers: true,
                 lineWrapping: false,
                 viewportMargin: 10,
+                workTime: 8,
+                workDelay: 30,
                 foldGutter: true,
                 gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
                 foldOptions: {rangeFinder: _createLargeJsonFoldFinder(cachedJsonString), clearOnEnter: false, widget: '…'}
             });
+            _protectLargeJsonFolds(largeJsonEditor);
             _buildOptionBar();
             _downloadSupport(cachedJsonString);
             _clearJsonSearch();
