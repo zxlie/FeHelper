@@ -13,6 +13,7 @@
 
   CodeMirror.defineOption("foldGutter", false, function(cm, val, old) {
     if (old && old != CodeMirror.Init) {
+      clearTimeout(cm.state.foldGutter.changeUpdate);
       cm.clearGutter(cm.state.foldGutter.options.gutter);
       cm.state.foldGutter = null;
       cm.off("gutterClick", onGutterClick);
@@ -73,31 +74,31 @@
   }
 
   function updateFoldInfo(cm, from, to) {
-    var opts = cm.state.foldGutter.options, cur = from - 1;
+    var opts = cm.state.foldGutter.options;
     var minSize = cm.foldOption(opts, "minFoldSize");
     var func = cm.foldOption(opts, "rangeFinder");
     // we can reuse the built-in indicator element if its className matches the new state
     var clsFolded = typeof opts.indicatorFolded == "string" && classTest(opts.indicatorFolded);
     var clsOpen = typeof opts.indicatorOpen == "string" && classTest(opts.indicatorOpen);
-    cm.eachLine(from, to, function(line) {
-      ++cur;
+    for (var cur = from; cur < to; ++cur) {
+      var line = cm.getLineHandle(cur);
       var mark = null;
       var old = line.gutterMarkers;
       if (old) old = old[opts.gutter];
-      if (isFolded(cm, cur)) {
-        if (clsFolded && old && clsFolded.test(old.className)) return;
-        mark = marker(opts.indicatorFolded);
+      var folded = isFolded(cm, cur);
+      if (folded) {
+        mark = clsFolded && old && clsFolded.test(old.className) ? old : marker(opts.indicatorFolded);
       } else {
         var pos = Pos(cur, 0);
         var range = func && func(cm, pos);
         if (range && range.to.line - range.from.line >= minSize) {
-          if (clsOpen && old && clsOpen.test(old.className)) return;
-          mark = marker(opts.indicatorOpen);
+          mark = clsOpen && old && clsOpen.test(old.className) ? old : marker(opts.indicatorOpen);
         }
       }
-      if (!mark && !old) return;
-      cm.setGutterMarker(line, opts.gutter, mark);
-    });
+      if (mark != old && (mark || old)) cm.setGutterMarker(line, opts.gutter, mark);
+      // A viewport may span thousands of logical lines hidden by this fold.
+      if (folded) cur = Math.max(cur, folded.find(1).line);
+    }
   }
 
   // copied from CodeMirror/src/util/dom.js
@@ -156,7 +157,7 @@
           }
         });
       }
-    }, opts.updateViewportTimeSpan || 400);
+    }, state.from == state.to ? 0 : opts.updateViewportTimeSpan || 400);
   }
 
   function onFold(cm, from) {
@@ -165,5 +166,9 @@
     var line = from.line;
     if (line >= state.from && line < state.to)
       updateFoldInfo(cm, line, line + 1);
+    state.from = state.to = 0;
+    clearTimeout(state.changeUpdate);
+    // Newly exposed child lines may remain inside the same logical viewport.
+    state.changeUpdate = setTimeout(function() { updateInViewport(cm); }, 0);
   }
 });
