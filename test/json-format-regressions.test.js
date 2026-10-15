@@ -469,7 +469,7 @@ function createFormatPage() {
         return wrapper;
     }
     const context = vm.createContext({
-        console, $, Blob,
+        console, $, Blob, clearTimeout,
         location: {protocol: 'https:'},
         localStorage: {getItem: () => null},
         document: {
@@ -568,7 +568,7 @@ describe('tree data integrity', () => {
             text() {}
         };
         const sandbox = {
-            plainJsonViewEnabled: false, jfStatusBar: null,
+            plainJsonViewEnabled: false, largeJsonEditor: null, jfStatusBar: null,
             $(selector) { return selector.includes('.item-array') ? rootArray : {text() {}, removeClass() {}}; },
             collapse(target) { if (target === rootArray) collapsed = true; }
         };
