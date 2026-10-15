@@ -303,7 +303,7 @@ window.JsonAutoFormat = (() => {
             .toggleClass('has-result', !!state.total);
         $('#fhJsonSearchInput')
             .prop('disabled', searchDisabled || !_isOmniMode())
-            .attr('placeholder', searchDisabled ? '请使用浏览器查找' : '搜索 Key / 值');
+            .attr('placeholder', searchDisabled ? '请使用全文视图查找' : '搜索 Key / 值');
         $('#fhJsonSearchPrev,#fhJsonSearchNext').prop('disabled', searchDisabled || !_isOmniMode());
     };
 
