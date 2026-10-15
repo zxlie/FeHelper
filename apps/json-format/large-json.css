@@ -25,11 +25,35 @@
     line-height: inherit;
 }
 
+#jfContent.fh-large-json-editor .cm-string {
+    color: #0b7500;
+}
+
+/* JSON keys also carry cm-string in the bundled JavaScript mode. */
+#jfContent.fh-large-json-editor .cm-property {
+    color: #0550ae;
+}
+
+#jfContent.fh-large-json-editor .cm-number {
+    color: #1a01cc;
+}
+
+#jfContent.fh-large-json-editor .cm-atom {
+    color: #9a4d00;
+}
+
 .theme-dark #jfContent.fh-large-json-editor .cm-string {
     color: #7ee787;
 }
 
-.theme-dark #jfContent.fh-large-json-editor .cm-number,
-.theme-dark #jfContent.fh-large-json-editor .cm-atom {
+.theme-dark #jfContent.fh-large-json-editor .cm-property {
     color: #79c0ff;
+}
+
+.theme-dark #jfContent.fh-large-json-editor .cm-number {
+    color: #d2a8ff;
+}
+
+.theme-dark #jfContent.fh-large-json-editor .cm-atom {
+    color: #ffa657;
 }
