@@ -477,6 +477,12 @@ new Vue({
             const resultEl = document.querySelector('#jfContent');
             if (resultEl) {
                 resultEl.innerHTML = this.placeHolder;
+                resultEl.style.display = '';
+            }
+            const plainResultEl = document.querySelector('#jfContent_pre');
+            if (plainResultEl) {
+                plainResultEl.textContent = '';
+                plainResultEl.style.display = 'none';
             }
         },
 
@@ -1096,6 +1102,10 @@ new Vue({
                 }
 
                 if (!this.errorMsg.length) {
+                    this.placeHolder = '';
+                    this.jsonFormattedSource = source;
+                    // 大 JSON 会同步渲染，必须先恢复结果可用状态。
+                    this.syncResultActions(source);
 
                     if (this.autoDecode) {
                         (async () => {
@@ -1108,10 +1118,6 @@ new Vue({
                             await Formatter.format(source, null, this.escapeJsonString);
                         })();
                     }
-
-                    this.placeHolder = '';
-                    this.jsonFormattedSource = source;
-                    this.syncResultActions(source);
 
                     // 如果是JSONP格式的，需要把方法名也显示出来
                     if (funcName != null) {
