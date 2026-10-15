@@ -47,11 +47,32 @@ function loadDatetimeCalc() {
         window: {}
     };
     sandbox.window = sandbox;
+    sandbox.elements = elements;
     vm.runInNewContext(readSource('apps/datetime-calc/index.js'), sandbox, { filename: 'datetime-calc/index.js' });
     return sandbox;
 }
 
 describe('datetime-calc issue regressions', () => {
+    it('Issue #648: opens the existing batch converter from the legacy timestamp tool', () => {
+        const app = loadDatetimeCalc();
+        app.location = {hash: '#batch-converter'};
+        app.TimestampApp.initUI();
+        expect(app.AppState.activeTab).toBe('batch-converter');
+        expect(readSource('apps/timestamp/index.html')).toContain('../datetime-calc/index.html#batch-converter');
+    });
+
+    it('converts mixed batch rows independently and renders invalid input as text', () => {
+        const app = loadDatetimeCalc();
+        app.AppState.selectedTimezone = 'UTC';
+        app.elements['.batch-input'] = {value: '1700000000\n2023-11-14 22:13:20\n<img src=x onerror=alert(1)>'};
+        app.elements['.batch-results'] = {innerHTML: ''};
+        app.elements['.result-stats'] = {innerHTML: ''};
+        app.TimestampApp.batchConvert();
+        expect(app.elements['.result-stats'].innerHTML).toContain('成功：2，失败：1');
+        expect(app.elements['.batch-results'].innerHTML).toContain('1700000000');
+        expect(app.elements['.batch-results'].innerHTML).toContain('&lt;img');
+        expect(app.elements['.batch-results'].innerHTML).not.toContain('<img');
+    });
     it('Issue #644: parses historical 11-13 digit millisecond timestamps without treating short numbers as timestamps', () => {
         const app = loadDatetimeCalc();
 

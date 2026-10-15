@@ -17,6 +17,7 @@ import {
 } from './url-policy.js';
 import {
     buildPopupWindowOptions,
+    buildToolTabOptions,
     buildToolUrl,
     buildToolUrlPattern,
     resolveCreatedWindowTab,
@@ -384,7 +385,7 @@ let BgPageInstance = (function () {
                     _saveContentForTab(tab.id, withContent);
                     return {ok: true, action: 'create-window', windowId: win && win.id, tabId: tab.id};
                 }
-                let tab = await chrome.tabs.create({ url, active: true });
+                let tab = await chrome.tabs.create(buildToolTabOptions(url, activeTab));
                 _saveContentForTab(tab && tab.id, withContent);
                 return {ok: true, action: 'create', tabId: tab && tab.id};
             }

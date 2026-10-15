@@ -429,15 +429,11 @@ new Vue({
             if (this.initialPromptApplied) return;
             this.initialPromptApplied = true;
             const params = new URL(location.href).searchParams;
-            const provider = params.get('provider');
             const featureKey = params.get('aiFeature');
             const featurePack = getAiFeaturePack(featureKey);
             const prompt = params.get('prompt') || (featurePack && featurePack.prompt);
             const autoSend = params.get('autoSend') === '1';
 
-            if (provider && this.providers[provider]) {
-                this.aiProvider = provider;
-            }
             if (featurePack) {
                 this.activeAiFeature = featurePack;
                 this.activeSystemContext = featurePack.systemContext || '';

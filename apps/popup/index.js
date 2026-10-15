@@ -5,6 +5,7 @@
 import Awesome from '../background/awesome.js'
 import toolMap from '../background/tools.js'
 import MSG_TYPE from '../static/js/common.js';
+import renderPopup from './render.js';
 
 const POPUP_RECENT_TOOLS = 'popup_recent_tools';
 const POPUP_TOOL_CACHE_KEY = 'fh-popup-installed-tools-cache';
@@ -116,6 +117,7 @@ function triggerScreenshot() {
 
 new Vue({
     el: '#pageContainer',
+    render: renderPopup,
     data: {
         manifest: {},
         fhTools: {},

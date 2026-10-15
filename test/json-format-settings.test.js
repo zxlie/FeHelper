@@ -396,16 +396,15 @@ describe('json-format settings regression guards', () => {
     });
 
     it('popup, json, and options keep lite or omni mode preferences scoped', () => {
-        const popupHtml = readSource('apps/popup/index.html');
+        const popupRender = readSource('apps/popup/render.js');
         const popupSource = readSource('apps/popup/index.js');
         const jsonSource = readSource('apps/json-format/index.js');
         const optionsHtml = readSource('apps/options/index.html');
         const optionsSource = readSource('apps/options/index.js');
 
-        expect(popupHtml).toContain('FeHelper 模式切换');
-        expect(popupHtml).toContain("@click=\"setUiMode('lite')\"");
-        expect(popupHtml).toContain("@click=\"setUiMode('omni')\"");
-        expect(popupHtml).toContain("v-if=\"uiMode !== 'lite'\" class=\"fh-search\"");
+        expect(popupRender).toContain('FeHelper 模式切换');
+        // Mode switches and search behavior are exercised under CSP in popup-csp-render.test.js.
+        expect(popupSource).toContain("render: renderPopup");
         expect(popupSource).toContain("const FH_UI_MODE = 'FH_UI_MODE';");
         expect(popupSource).toContain("const FH_POPUP_UI_MODE = 'FH_POPUP_UI_MODE';");
         expect(popupSource).toContain("this.uiMode = String(meta[FH_POPUP_UI_MODE] || meta[FH_UI_MODE] || '').toLowerCase() === 'omni' ? 'omni' : 'lite';");

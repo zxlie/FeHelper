@@ -4,6 +4,7 @@ import vm from 'vm';
 import { describe, expect, it } from 'vitest';
 import {
     buildPopupWindowOptions,
+    buildToolTabOptions,
     buildToolUrl,
     buildToolUrlPattern,
     resolveCreatedWindowTab,
@@ -30,6 +31,14 @@ function loadUlid(overrides = {}) {
 }
 
 describe('Issue #633 popup-window opening mode', () => {
+    it('Issue #668: creates tool tabs immediately after the active tab in its window', () => {
+        expect(buildToolTabOptions('/json-format/index.html', {index: 3, windowId: 7}))
+            .toEqual({url: '/json-format/index.html', active: true, index: 4, windowId: 7});
+        expect(buildToolTabOptions('/json-format/index.html', {index: 0, windowId: 0}))
+            .toEqual({url: '/json-format/index.html', active: true, index: 1, windowId: 0});
+        expect(buildToolTabOptions('/json-format/index.html', null))
+            .toEqual({url: '/json-format/index.html', active: true});
+    });
     it('keeps noPage tools in page injection mode and opens normal tools in popup windows when configured', () => {
         expect(shouldOpenToolInPopup({ noPage: true }, { OPEN_TOOL_IN_POPUP_WINDOW: 'true' })).toBe(false);
         expect(shouldOpenToolInPopup({ tool: 'json-format' }, { OPEN_TOOL_IN_POPUP_WINDOW: 'true' })).toBe(true);

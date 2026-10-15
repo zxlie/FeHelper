@@ -108,6 +108,13 @@
         });
     }
 
+    function normalizeBooleanTokens(text) {
+        // Match strings as whole tokens so escaped quotes and literal text stay intact.
+        return text.replace(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[A-Za-z_$][\w$]*/g, token => {
+            return /^(?:true|false)$/i.test(token) ? token.toLowerCase() : token;
+        });
+    }
+
     function normalizeLooseJSONSource(text) {
         let fixed = String(text).trim();
 
@@ -133,7 +140,7 @@
             },
         );
 
-        return fixed;
+        return normalizeBooleanTokens(fixed);
     }
 
     function isIntegerIndexKey(key) {

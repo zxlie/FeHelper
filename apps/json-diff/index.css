@@ -426,3 +426,15 @@ body.fh-modern.theme-dark .fh-json-diff-change {
         max-height: calc(36vh - 58px);
     }
 }
+
+/* Keep a bounded editor viewport so CodeMirror renders only visible lines.
+   The shared grid's auto-height containers cannot resolve height: 100%. */
+body.fh-modern .wp-json .box-wrapper-left .CodeMirror,
+body.fh-modern .wp-json .box-wrapper-right .CodeMirror {
+    height: calc(100vh - 156px);
+    min-height: 320px;
+}
+
+body.fh-modern .wp-json .CodeMirror .CodeMirror-scroll {
+    min-height: 0;
+}

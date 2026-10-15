@@ -77,7 +77,7 @@
             </div>
         </div>
 
-        <h4 class="x-wd">Unix时间戳 转 当地时间</h4>
+        <h4 class="x-wd">Unix时间戳 转 当地时间 <a href="../datetime-calc/index.html#batch-converter" target="_blank">批量转换</a></h4>
         <div class="row x-cnt">
             <input class="form-control ui-d-ib" id="txtSrcStamp" ref="txtSrcStamp" v-model="txtSrcStamp" type="text" placeholder="时间戳(eg:1388307215)" tabindex="1">
             <select ref="selSecFrom" id="selSecFrom" v-model="secFrom" class="form-control x-sel-sec">
@@ -88,7 +88,7 @@
             <input class="form-control ui-d-ib" id="txtDesDate" ref="txtDesDate" v-model="txtDesDate" type="text" readonly @click="copyToClipboard($event.target.value)">
         </div>
 
-        <h4 class="x-wd">当地时间 转 Unix时间戳</h4>
+        <h4 class="x-wd">当地时间 转 Unix时间戳 <a href="../datetime-calc/index.html#batch-converter" target="_blank">批量转换</a></h4>
         <div class="row x-cnt">
             <input class="form-control ui-d-ib" id="txtLocale" ref="txtLocale" v-model="txtLocale" type="text" placeholder="时间(eg:2015-04-01 10:01:01.620)">
             <input class="mod-time-input form-control ui-d-ib btn btn-primary ui-ml-10 ui-mr-10" id="btnLocaleToStamp" @click="localeToStamp()" class="-e-btn" type="button" value="转换" tabindex="-1">

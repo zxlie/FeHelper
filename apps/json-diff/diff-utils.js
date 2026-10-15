@@ -99,8 +99,35 @@ export function compareTextByLine(leftText, rightText) {
     };
 }
 
+// Compare parsed JSON values directly: JSON-based cloning loses BigInt support.
+// Patch values are read-only references used only by the summary and highlighting.
+export function compareJsonValues(left, right, path = '') {
+    if (left === right) return [];
+    const leftObject = left !== null && typeof left === 'object';
+    const rightObject = right !== null && typeof right === 'object';
+    if (!leftObject || !rightObject || Array.isArray(left) !== Array.isArray(right)) {
+        return [{ op: 'replace', path, value: right }];
+    }
+    const diffs = [];
+    const childPath = key => path + '/' + key.replace(/~/g, '~0').replace(/\//g, '~1');
+    Object.keys(left).reverse().forEach(key => {
+        if (!Object.prototype.hasOwnProperty.call(right, key)) {
+            diffs.push({ op: 'remove', path: childPath(key) });
+        } else {
+            compareJsonValues(left[key], right[key], childPath(key)).forEach(diff => diffs.push(diff));
+        }
+    });
+    Object.keys(right).forEach(key => {
+        if (!Object.prototype.hasOwnProperty.call(left, key)) {
+            diffs.push({ op: 'add', path: childPath(key), value: right[key] });
+        }
+    });
+    return diffs;
+}
+
 if (typeof window !== 'undefined') {
     window.JsonDiffUtils = {
+        compareJsonValues,
         splitLines,
         compareTextByLine,
         compareTextByPosition,

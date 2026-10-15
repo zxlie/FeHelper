@@ -265,3 +265,19 @@ describe('json-auto-utils', () => {
         expect(utils.shouldUsePlainJsonView({ payload: 'x' }, 2000001)).toBe(true);
     });
 });
+
+describe('case-insensitive boolean tokens (#656)', () => {
+    it('accepts booleans without changing quoted text, escaped quotes or key names', () => {
+        const input = '{"TRUE":TRUE,"off":False,"list":[TrUe,FALSE],"text":"True False \\"TRUE\\"","single":\'False\'}';
+        const value = utils.parseWithBigInt(input);
+        expect(value.TRUE).toBe(true);
+        expect(value.off).toBe(false);
+        expect(value.list).toEqual([true, false]);
+        expect(value.text).toBe('True False "TRUE"');
+        expect(value.single).toBe('False');
+    });
+    it('rejects identifiers and does not relax strict auto-detection of non-JSON', () => {
+        expect(() => utils.parseWithBigInt('{"x":trueValue}')).toThrow();
+        expect(() => utils.parseWithBigInt('{"x":FALSE_VALUE}')).toThrow();
+    });
+});
