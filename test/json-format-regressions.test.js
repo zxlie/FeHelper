@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import vm from 'vm';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { canBuildTableViewData } from '../apps/json-format/table-utils.js';
 
 const ROOT = path.resolve(__dirname, '..');
@@ -37,6 +37,7 @@ function loadJsonFormatPage(withFolding = false) {
     const elements = new Map();
     const pendingFormats = [];
     const editors = [];
+    const clock = { now: () => performance.now() };
     let app;
     let options;
 
@@ -84,7 +85,7 @@ function loadJsonFormatPage(withFolding = false) {
     }
 
     const sandbox = {
-        $, Blob, console, setTimeout, clearTimeout, performance,
+        $, Blob, console, setTimeout, clearTimeout, performance: clock,
         location: { protocol: 'https:' },
         localStorage: { getItem: () => null, setItem() {} },
         document: {
@@ -104,27 +105,58 @@ function loadJsonFormatPage(withFolding = false) {
         // This double checks our payload, options, batching and disposal contract.
         sandbox.CodeMirror = {
             fold: { indent() {} },
-            Doc: function (value, mode) { this.value = value; this.mode = mode; },
+            Doc: function (value, mode) {
+                this.value = value;
+                this.mode = mode;
+                this.marks = [];
+                this.getAllMarks = () => this.marks.filter(mark => !mark.cleared);
+            },
             Pos: (line, ch) => ({ line, ch }),
             fromTextArea(textarea, config) {
                 const lines = textarea.value.split('\n');
                 const editor = {
                     config,
+                    doc: new sandbox.CodeMirror.Doc(textarea.value, config.mode),
                     folds: [],
                     swappedDocuments: [],
+                    getAllMarks: () => editor.doc.getAllMarks(),
+                    getDoc: () => editor.doc,
                     state: { foldGutter: null },
                     disposed: false,
-                    getValue: () => textarea.value,
+                    refreshes: 0,
+                    getValue: () => editor.doc.value,
                     firstLine: () => 0,
                     lastLine: () => lines.length - 1,
                     foldCode(position, options, action) { editor.folds.push({ position, action }); },
+                    markText(_from, _to, options) {
+                        const mark = {
+                            doc: editor.doc,
+                            __isFold: options && options.__isFold,
+                            cleared: false,
+                            clear() {
+                                this.wrappingDuringClear = config.lineWrapping;
+                                if (this.clearError) throw this.clearError;
+                                this.cleared = true;
+                            }
+                        };
+                        editor.doc.marks.push(mark);
+                        return mark;
+                    },
                     operation: callback => callback(),
                     getOption: name => config[name],
-                    swapDoc(doc) { editor.swappedDocuments.push(doc); },
-                    refresh() {},
+                    swapDoc(doc) {
+                        const previous = editor.doc;
+                        previous.cm = null;
+                        doc.cm = editor;
+                        editor.doc = doc;
+                        editor.swappedDocuments.push(doc);
+                        return previous;
+                    },
+                    refresh() { editor.refreshes++; },
                     setOption(name, value) { editor.config[name] = value; },
                     toTextArea() { editor.disposed = true; }
                 };
+                editor.doc.cm = editor;
                 editors.push(editor);
                 return editor;
             }
@@ -157,6 +189,7 @@ function loadJsonFormatPage(withFolding = false) {
         element,
         editors,
         formatter: sandbox.Formatter,
+        clock,
         async format(source) {
             sandbox.inputSource = source;
             pendingFormats.length = 0;
@@ -241,6 +274,17 @@ describe('json-format page rendering', () => {
 });
 
 describe('large JSON folding view', () => {
+    it('returns a fresh range after the fold addon flags a previous range as cleared', async () => {
+        const page = loadJsonFormatPage(true);
+        await page.format(JSON.stringify({items: Array(20001).fill(1)}));
+        const editor = page.editors[0];
+        const finder = editor.getOption('foldOptions').rangeFinder;
+        const first = finder(editor, {line: 0});
+        // foldcode.js sets this flag when unfolding, and rejects it on the next fold.
+        first.cleared = true;
+        expect(finder(editor, {line: 0})).toEqual({from: first.from, to: first.to});
+    });
+
     const value = { payload: 'x'.repeat(600001), tail: '完整末尾' };
     const source = JSON.stringify(value);
 
@@ -274,6 +318,113 @@ describe('large JSON folding view', () => {
         expect(page.formatter.getSearchState().disabled).toBe(true);
     });
 
+    it('clears only the selected fold without the legacy non-wrapping width scan', async () => {
+        const page = loadJsonFormatPage(true);
+        await page.format(source);
+        const editor = page.editors[0];
+        const parent = editor.markText({ line: 0 }, { line: 10 }, { __isFold: true });
+        const child = editor.markText({ line: 1 }, { line: 9 }, { __isFold: true });
+        const decoration = editor.markText({ line: 1 }, { line: 1 }, {});
+
+        parent.clear();
+        expect(parent.wrappingDuringClear).toBe(true);
+        expect(parent.cleared).toBe(true);
+        expect(child.cleared).toBe(false);
+        expect(editor.getOption('lineWrapping')).toBe(false);
+        decoration.clear();
+        expect(decoration.wrappingDuringClear).toBe(false);
+    });
+
+    it('restores the wrapping setting after a failed clear and ignores detached documents', async () => {
+        const page = loadJsonFormatPage(true);
+        await page.format(source);
+        const editor = page.editors[0];
+        const mark = editor.markText({}, {}, { __isFold: true });
+        mark.clearError = new Error('clear failed');
+        expect(() => mark.clear()).toThrow('clear failed');
+        expect(mark.wrappingDuringClear).toBe(true);
+        expect(editor.getOption('lineWrapping')).toBe(false);
+
+        mark.clearError = null;
+        mark.doc.cm = null;
+        mark.clear();
+        expect(mark.wrappingDuringClear).toBe(false);
+    });
+
+    it('refreshes the editor only when returning from the hidden full-text view', async () => {
+        const page = loadJsonFormatPage(true);
+        await page.format(source);
+        const editor = page.editors[0];
+        page.formatter.expandAll();
+        page.formatter.setPlainJsonView(false);
+        expect(editor.refreshes).toBe(0);
+        page.formatter.setPlainJsonView(true);
+        page.formatter.setPlainJsonView(false);
+        expect(editor.refreshes).toBe(1);
+    });
+
+    it('reduces the next fold batch when document commits consume the time budget', async () => {
+        vi.useFakeTimers();
+        try {
+            const page = loadJsonFormatPage(true);
+            await page.format(JSON.stringify(Array(20001).fill({id: 1})));
+            const editor = page.editors[0];
+            let elapsed = 0;
+            const batches = [];
+            page.clock.now = () => elapsed;
+            const foldCode = editor.foldCode;
+            editor.foldCode = (...args) => { elapsed += 0.05; foldCode(...args); };
+            editor.operation = callback => {
+                const before = editor.folds.length;
+                callback();
+                batches.push(editor.folds.length - before);
+                elapsed += 32;
+            };
+            page.formatter.collapseAll();
+            vi.advanceTimersToNextTimer();
+            vi.advanceTimersToNextTimer();
+            expect(batches[1]).toBeLessThan(batches[0]);
+
+            const folded = editor.folds.length;
+            page.formatter.expandAll();
+            vi.runAllTimers();
+            expect(editor.folds).toHaveLength(folded);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    it.each([false, true])('does not duplicate existing folds and honors a clear before the batch (cleared=%s)', async cleared => {
+        vi.useFakeTimers();
+        try {
+            const page = loadJsonFormatPage(true);
+            await page.format(source);
+            const editor = page.editors[0];
+            let active = true;
+            editor.getAllMarks = () => [{__isFold: true, find: () => active ? {line: 0} : undefined}];
+            page.formatter.collapseAll();
+            if (cleared) active = false;
+            vi.runAllTimers();
+            expect(editor.folds.some(fold => fold.position.line === 0)).toBe(cleared);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    it('folds only indexed container lines instead of visiting every value and closing brace', async () => {
+        vi.useFakeTimers();
+        try {
+            const page = loadJsonFormatPage(true);
+            await page.format(JSON.stringify({items: Array(20001).fill(1)}));
+            page.formatter.collapseAll();
+            vi.runAllTimers();
+            expect(page.editors[0].folds.length).toBe(2);
+            expect(page.editors[0].folds.map(call => call.position.line)).toEqual([1, 0]);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
     it('indexes nested containers without scanning editor tokens or treating quoted brackets as containers', async () => {
         const page = loadJsonFormatPage(true);
         const nested = { payload: 'x'.repeat(600001), child: { items: [{ id: 1 }, [2, 3], {}], text: '{ [ } ]\nescaped' }, tail: 'end' };
@@ -304,13 +455,62 @@ describe('large JSON folding view', () => {
         page.formatter.collapseAll();
         await new Promise(resolve => setTimeout(resolve, 20));
         expect(editor.folds.some(call => call.action === 'fold')).toBe(true);
-        expect(editor.folds[0].position.line).toBe(editor.lastLine());
+        expect(editor.folds[0].position.line).toBe(0);
         page.formatter.expandAll();
         await new Promise(resolve => setTimeout(resolve, 20));
         expect(editor.swappedDocuments).toHaveLength(1);
         expect(editor.swappedDocuments[0].value).toBe(editor.getValue());
         expect(editor.swappedDocuments[0].mode).toEqual(editor.config.mode);
         expect(editor.getValue()).toBe(JSON.stringify(value, null, 4));
+    });
+
+    it('reuses the folded and expanded documents across repeated toolbar actions', async () => {
+        const page = loadJsonFormatPage(true);
+        await page.format(source);
+        const editor = page.editors[0];
+        const folded = editor.getDoc();
+        page.formatter.expandAll();
+        const expanded = editor.getDoc();
+        page.formatter.collapseAll();
+        expect(editor.getDoc() === folded).toBe(true);
+        page.formatter.expandAll();
+        expect(editor.getDoc() === expanded).toBe(true);
+        page.formatter.expandAll();
+        expect(editor.getDoc() === expanded).toBe(true);
+        expect(editor.getValue()).toBe(JSON.stringify(value, null, 4));
+    });
+
+    it('removes manual folds from the detached expanded cache before showing it again', async () => {
+        const page = loadJsonFormatPage(true);
+        await page.format(source);
+        const editor = page.editors[0];
+        page.formatter.expandAll();
+        const expanded = editor.getDoc();
+        const mark = editor.markText({}, {}, {__isFold: true});
+        mark.find = () => ({line: 0});
+        page.formatter.collapseAll();
+        page.formatter.expandAll();
+        expect(editor.getDoc() === expanded).toBe(true);
+        expect(mark.cleared).toBe(true);
+        expect(mark.wrappingDuringClear).toBe(false);
+        expect(editor.getAllMarks()).toHaveLength(0);
+    });
+
+    it('expands manual folds when already showing the expanded cache and resets caches for new input', async () => {
+        const page = loadJsonFormatPage(true);
+        await page.format(source);
+        const editor = page.editors[0];
+        page.formatter.expandAll();
+        const expanded = editor.getDoc();
+        editor.markText({}, {}, {__isFold: true});
+        page.formatter.expandAll();
+        expect(editor.getDoc() === expanded).toBe(false);
+        expect(editor.getAllMarks()).toHaveLength(0);
+        const next = JSON.stringify({payload: 'z'.repeat(600001)});
+        await page.format(next);
+        page.formatter.expandAll();
+        page.formatter.collapseAll();
+        expect(page.editors[1].getValue()).toBe(JSON.stringify(JSON.parse(next), null, 4));
     });
 
     it.each(['', '{"broken":', '{"status":"small"}'])('disposes the editor and cancels queued folding when input becomes %j', async nextSource => {
