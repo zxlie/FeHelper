@@ -1,0 +1,35 @@
+#jfContent.fh-large-json-editor .CodeMirror {
+    height: 65vh;
+    min-height: 240px;
+    border: 0;
+    background: inherit;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.62;
+}
+
+.layout-left-right #jfContent.fh-large-json-editor .CodeMirror {
+    height: calc(100dvh - 154px);
+}
+
+#jfContent.fh-large-json-editor .CodeMirror-gutters {
+    border-right: 1px solid var(--fh-line, #d8deea);
+    background: var(--fh-surface-soft, #f8fafc);
+}
+
+#jfContent.fh-large-json-editor .CodeMirror-foldmarker {
+    color: var(--fh-accent, #2563eb);
+    text-shadow: none;
+    font-family: inherit;
+    line-height: inherit;
+}
+
+.theme-dark #jfContent.fh-large-json-editor .cm-string {
+    color: #7ee787;
+}
+
+.theme-dark #jfContent.fh-large-json-editor .cm-number,
+.theme-dark #jfContent.fh-large-json-editor .cm-atom {
+    color: #79c0ff;
+}
