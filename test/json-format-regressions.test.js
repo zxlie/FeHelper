@@ -317,3 +317,17 @@ describe('explicit string escape / unescape (#647)', () => {
         expect(page.context.source).toBe('');
     });
 });
+
+describe('node editing keeps derived result actions current', () => {
+    it('updates the source used by extraction and Schema after a node is deleted', () => {
+        const page = createFormatPage();
+        page.app.jsonFormattedSource = '{"keep":1,"removed":2}';
+        page.app.jsonPathResults = [{path: '$.removed', value: 2}];
+        page.node('optionBar').innerHTML = '<button>复制</button>';
+        page.app.handleJsonResultChange({detail: {source: '{"keep":1}'}});
+        expect(page.app.jsonFormattedSource).toBe('{"keep":1}');
+        expect(page.app.jsonPathResults).toEqual([]);
+        expect(page.node('optionBar').innerHTML).toBe('<button>复制</button>');
+        expect(page.app.jsonActionReady).toBe(true);
+    });
+});

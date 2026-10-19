@@ -884,7 +884,7 @@ let BgPageInstance = (function () {
             // SPA 路由变化（pushState / replaceState）
             chrome.webNavigation.onHistoryStateUpdated.addListener((details) => {
                 if (!_isMonkeyTriggerableUrl(details.url)) return;
-                Monkey.start({ tabId: details.tabId, frameId: details.frameId, url: details.url, runAt: 'document-end' });
+                Monkey.start({ tabId: details.tabId, frameId: details.frameId, url: details.url, runAt: 'document-end', navigationOnly: true });
             });
         } catch (e) {
             console.warn('webNavigation listeners 注册失败：', e);

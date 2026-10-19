@@ -2372,6 +2372,23 @@ body.theme-dark .fh-input-pane .CodeMirror {
     color: var(--fh-text);
 }
 
+body.theme-dark .fh-input-pane .cm-string {
+    color: var(--fh-green);
+}
+
+body.theme-dark .fh-input-pane .cm-property {
+    color: var(--fh-text);
+}
+
+body.theme-dark .fh-input-pane .cm-number {
+    color: var(--fh-accent-strong);
+}
+
+body.theme-dark .fh-input-pane .cm-atom,
+body.theme-dark .fh-input-pane .cm-keyword {
+    color: var(--fh-red);
+}
+
 body.theme-dark .fh-input-pane .CodeMirror-activeline-background {
     background: #1f2937;
 }
@@ -2653,6 +2670,12 @@ body.theme-dark .fh-tableview-kv td:first-child {
         width: 100%;
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .fh-json-tool.fh-json-tool-lite .fh-inline-command-bar {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-start;
     }
 
     .fh-header-right-omni {

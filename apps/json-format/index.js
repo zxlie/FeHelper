@@ -351,10 +351,12 @@ new Vue({
         // 页面加载时自动获取并注入json-format页面的补丁
         this.loadPatchHotfix();
         this.handleInlineAiLaunch();
+        document.addEventListener('fh-json-result-change', this.handleJsonResultChange);
         document.addEventListener('keydown', this.handleGlobalKeydown, true);
         document.addEventListener('click', this.handleWindowNoteOutsideClick, true);
     },
     beforeDestroy: function () {
+        document.removeEventListener('fh-json-result-change', this.handleJsonResultChange);
         document.removeEventListener('keydown', this.handleGlobalKeydown, true);
         document.removeEventListener('click', this.handleWindowNoteOutsideClick, true);
         window.clearTimeout(this.jsonPathCopyNoticeTimer);
@@ -386,6 +388,16 @@ new Vue({
         }
     },
     methods: {
+        handleJsonResultChange: function(event) {
+            const source = event && event.detail && event.detail.source;
+            if (typeof source !== 'string') return;
+            this.jsonFormattedSource = source;
+            this.syncResultActions(source, true);
+            this.jsonPathResults = [];
+            this.jsonPathError = '';
+            this.resetTableViewState();
+        },
+
         handleGlobalKeydown(event) {
             if (!event || event.key !== 'Escape') {
                 return;
@@ -560,8 +572,8 @@ new Vue({
             this.tableViewMode = 'grid';
         },
 
-        syncResultActions(source) {
-            this.resetResultActions();
+        syncResultActions(source, preserveToolbar = false) {
+            if (!preserveToolbar) this.resetResultActions();
             if (!source || this.errorMsg) {
                 return;
             }

@@ -100,6 +100,7 @@ window.Formatter = (function () {
     const LARGE_JSON_TEXT_THRESHOLD = 600000;
     let plainJsonViewEnabled = false;
     let largeJsonPlainViewEnabled = false;
+    let largeJsonNodeViewEnabled = false;
     let prettyJsonSelectionActive = false;
     let prettyJsonShortcutBound = false;
     
@@ -323,6 +324,7 @@ window.Formatter = (function () {
         try {
             jsonSearchIndex = null;
             largeJsonPlainViewEnabled = false;
+            largeJsonNodeViewEnabled = false;
             jfContent.html('').show();
             jfPre.html('').hide();
             jfStatusBar && jfStatusBar.hide();
@@ -358,9 +360,7 @@ window.Formatter = (function () {
         }
 
         // 下载链接
-        let filename = getJsonDownloadBasename();
-        let safeContent = String(content || '').replace(/"__FH_PRESERVE_INTEGER_KEY__(\d+)":/g, '"$1":');
-        let blob = new Blob([safeContent], {type: 'application/octet-stream'});
+        let filename, safeContent, blob;
 
         let button = $('<button class="xjf-btn xjf-btn-right">下载</button>').appendTo('#optionBar');
 
@@ -544,6 +544,10 @@ window.Formatter = (function () {
         // 下载按钮点击事件
         button.click(function (e) {
             e.preventDefault();
+            // Node edits and window notes may change after the toolbar was built.
+            filename = getJsonDownloadBasename();
+            safeContent = String(cachedJsonString || content || '').replace(/"__FH_PRESERVE_INTEGER_KEY__(\d+)":/g, '"$1":');
+            blob = new Blob([safeContent], {type: 'application/octet-stream'});
             
             // 如果在沙盒化环境中，在 #formattedJson 中显示内容
             if (isSandboxed()) {
@@ -944,7 +948,7 @@ window.Formatter = (function () {
 
     // 给某个节点增加操作项
     let _addOptForItem = function (el, show) {
-        if (!statusBarEnabled) {
+        if (!statusBarEnabled && !largeJsonNodeViewEnabled) {
             show = false;
         }
 
@@ -1016,7 +1020,12 @@ window.Formatter = (function () {
                 );
             }
             jsonSearchIndex = null;
-            jfStatusBar && jfStatusBar.hide();
+            _clearJsonSearch();
+            _clearSelection();
+            document.dispatchEvent(new window.CustomEvent('fh-json-result-change', {
+                detail: {source: cachedJsonString}
+            }));
+            _emitFormatReady();
             return;
         }
 
@@ -1030,37 +1039,22 @@ window.Formatter = (function () {
             let blob = new Blob([txt], {type: 'application/octet-stream'});
             let filename = getJsonDownloadBasename();
 
-            if (typeof chrome === 'undefined' || !chrome.permissions) {
-                let utils = window.FHJsonAutoUtils || {};
-                if (typeof utils.downloadJsonBlobWithAnchor === 'function') {
-                    utils.downloadJsonBlobWithAnchor(blob, filename + '.json');
-                } else {
-                    let link = document.createElement('a');
-                    link.download = filename + '.json';
-                    link.href = URL.createObjectURL(blob);
-                    link.style.display = 'none';
-                    document.body.appendChild(link);
-                    link.click();
-                    link.remove();
-                    URL.revokeObjectURL(link.href);
-                }
+            // A local Blob download needs no extension-wide downloads permission.
+            let utils = window.FHJsonAutoUtils || {};
+            if (typeof utils.downloadJsonBlobWithAnchor === 'function' &&
+                utils.downloadJsonBlobWithAnchor(blob, filename + '.json')) {
                 return;
             }
-
-            chrome.permissions.request({
-                permissions: ['downloads']
-            }, (granted) => {
-                if (granted) {
-                    chrome.downloads.download({
-                        url: URL.createObjectURL(blob),
-                        saveAs: true,
-                        conflictAction: 'overwrite',
-                        filename: filename + '.json'
-                    });
-                } else {
-                    toast('必须接受授权，才能正常下载！');
-                }
-            });
+            let link = document.createElement('a');
+            link.download = filename + '.json';
+            link.href = URL.createObjectURL(blob);
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => {
+                link.remove();
+                URL.revokeObjectURL(link.href);
+            }, 100);
         }
     };
 
@@ -1805,6 +1799,46 @@ window.Formatter = (function () {
         return String(source || '').length > LARGE_JSON_TEXT_THRESHOLD;
     };
 
+    // Explicit opt-in only: keep automatic rendering conservative, and retain
+    // hard size/node/depth limits even when the user requests the tree.
+    let _canRenderLargeJsonTree = function() {
+        let utils = window.FHJsonAutoUtils || {};
+        return typeof utils.shouldUsePlainJsonView === 'function' &&
+            !utils.shouldUsePlainJsonView(cachedJsonValue, cachedJsonString.length, {
+                characterLimit: 2000000,
+                nodeLimit: 20000,
+                depthLimit: 100,
+            });
+    };
+
+    let _renderLargeJsonTree = function() {
+        if (!_canRenderFormattedResult() || !_canRenderLargeJsonTree()) return false;
+        let previousEscape = escapeJsonStringEnabled;
+        try {
+            // Nested JSON strings remain strings: expanding them would bypass
+            // the node/depth budget checked above.
+            escapeJsonStringEnabled = false;
+            let formattedJsonDiv = $('<div id="formattedJson"></div>');
+            formattedJsonDiv.html(formatJsonToHtml(cachedJsonValue));
+            jfContent.html(formattedJsonDiv);
+            largeJsonPlainViewEnabled = false;
+            // Explicitly opening the node view enables its actions for this result only.
+            largeJsonNodeViewEnabled = true;
+            _buildOptionBar();
+            _addEvents();
+            _downloadSupport(cachedJsonString);
+            _clearJsonSearch();
+            _emitFormatReady();
+            return true;
+        } catch {
+            _renderLargeJsonPlainView();
+            toast('节点视图未能加载，已保留完整文本。');
+            return false;
+        } finally {
+            escapeJsonStringEnabled = previousEscape;
+        }
+    };
+
     let _renderLargeJsonPlainView = function() {
         if (!_canRenderFormattedResult()) {
             _clearOptionBar();
@@ -1816,10 +1850,21 @@ window.Formatter = (function () {
         _buildOptionBar();
         _downloadSupport(cachedJsonString);
         largeJsonPlainViewEnabled = true;
+        largeJsonNodeViewEnabled = false;
         _clearJsonSearch();
         _setPlainJsonView(true);
         $('#optionBar .fh-json-meta-toggle, #optionBar .fh-json-collapse-toggle').hide();
-        $('<span class="fh-json-large-mode-note">大型 JSON 已切换为完整文本视图</span>').prependTo('#optionBar');
+        $('<span class="fh-json-large-mode-note" title="大型 JSON 默认显示完整文本，可按需加载节点操作">大 JSON 文本视图</span>').prependTo('#optionBar');
+        if (_canRenderLargeJsonTree()) {
+            $('<button class="xjf-btn xjf-btn-mid fh-json-large-tree" title="加载节点以复制、查看路径、下载或删除；较大数据可能需要稍候">切换为节点视图</button>')
+                .appendTo('#optionBar').bind('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    _renderLargeJsonTree();
+                });
+        } else {
+            $('<span class="fh-json-large-mode-note">超出节点视图安全范围（200万字符、2万节点或100层），可复制或下载全文</span>').appendTo('#optionBar');
+        }
         _emitFormatReady();
         return true;
     };

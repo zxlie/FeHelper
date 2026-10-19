@@ -2,13 +2,14 @@
  * 网页油猴 - 注入引擎 v2
  *  - 多匹配规则（mIncludes/mExcludes）
  *  - 三档运行时机（document-start / end / idle）
- *  - MAIN/ISOLATED 世界 + CSP 严格站点自动兜底
+ *  - MAIN/ISOLATED 世界 + 执行失败日志
  *  - CSS 独立注入
  *  - GM_* API 注入
  *  - 错误回传到管理界面
  *  - 命中计数
  */
 import InjectTools from './inject-tools.js';
+import { installUrlChangeHook, installUrlChangeListener } from './monkey-url-change.js';
 
 const PAGE_MONKEY_LOCAL_STORAGE_KEY = 'PAGE-MODIFIER-LOCAL-STORAGE-KEY';
 const PAGE_MONKEY_LOG_KEY = 'PAGE-MODIFIER-LOG-KEY';
@@ -289,22 +290,27 @@ const _buildTarget = (tabId, allFrames, frameId) => {
     return { tabId };
 };
 
-const _injectCss = (tabId, allFrames, frameId, css, monkey) => {
+export function claimUserStyle(scriptId, navigationOnly) {
+    var styles = window.__fhMonkeyStyles || (window.__fhMonkeyStyles = Object.create(null));
+    if (navigationOnly && styles[scriptId]) return false;
+    styles[scriptId] = true;
+    return true;
+}
+
+const _injectCss = async (tabId, allFrames, frameId, css, monkey, navigationOnly) => {
     try {
-        chrome.scripting.insertCSS({
-            target: _buildTarget(tabId, allFrames, frameId),
-            css
-        }).catch((err) => {
-            log({
-                id: monkey && monkey.id, name: (monkey && monkey.mName) || '', level: 'error',
-                msg: 'css inject failed: ' + ((err && err.message) || err),
-                url: '(tab ' + tabId + ')', time: Date.now()
-            });
+        const target = _buildTarget(tabId, allFrames, frameId);
+        const frames = await chrome.scripting.executeScript({
+            target, world: 'ISOLATED', func: claimUserStyle,
+            args: [monkey.id, !!navigationOnly], injectImmediately: true
         });
-    } catch (e) {
+        const frameIds = frames.filter(frame => frame.result === true).map(frame => frame.frameId);
+        if (!frameIds.length) return;
+        await chrome.scripting.insertCSS({ target: { tabId, frameIds }, css });
+    } catch (err) {
         log({
             id: monkey && monkey.id, name: (monkey && monkey.mName) || '', level: 'error',
-            msg: 'css inject failed: ' + ((e && e.message) || e),
+            msg: 'css inject failed: ' + ((err && err.message) || err),
             url: '(tab ' + tabId + ')', time: Date.now()
         });
     }
@@ -380,7 +386,34 @@ const _injectLogBridge = (tabId, allFrames, frameId) => {
     }
 };
 
-const _injectScript = (tabId, frameId, monkey) => {
+// Serialized into the selected world. Only automatic SPA retries are deduplicated;
+// explicit runs still execute again, and a full navigation creates a fresh window.
+export function executeUserScript(code, scriptId, scriptName, world, navigationOnly) {
+    var executed = window.__fhMonkeyExecuted || (window.__fhMonkeyExecuted = Object.create(null));
+    if (navigationOnly && executed[scriptId]) return;
+    var previous = executed[scriptId];
+    executed[scriptId] = true;
+    try {
+        (0, eval)(code);
+    } catch (e) {
+        if (!previous) delete executed[scriptId];
+        try {
+            var advice = world === 'ISOLATED'
+                ? 'ISOLATED 脚本未能执行；当前执行方式受浏览器安全策略限制。请在高级设置中改用 MAIN 后刷新页面。'
+                : '脚本未能执行；请检查脚本语法及站点安全策略。';
+            window.postMessage({
+                __fh_monkey_log: true,
+                payload: {
+                    id: scriptId, name: scriptName, level: 'error',
+                    msg: advice + '\n' + ((e && e.stack) || e),
+                    url: window.location.href, time: Date.now()
+                }
+            }, '*');
+        } catch (_) {}
+    }
+}
+
+const _injectScript = (tabId, frameId, monkey, navigationOnly) => {
     let allFrames = !!monkey.mAllFrames;
     let world = monkey.mWorld === 'ISOLATED' ? 'ISOLATED' : 'MAIN';
     let finalCode = buildFinalCode(monkey);
@@ -394,18 +427,8 @@ const _injectScript = (tabId, frameId, monkey) => {
         try {
             chrome.scripting.executeScript({
                 target: _buildTarget(tabId, allFrames, frameId),
-                func: function (code) {
-                    try { (0, eval)(code); } catch (e) {
-                        // 注入阶段的 eval 错误也走桥接
-                        try {
-                            window.postMessage({
-                                __fh_monkey_log: true,
-                                payload: { level: 'error', msg: 'inject eval error: ' + ((e && e.stack) || e), time: Date.now() }
-                            }, '*');
-                        } catch (_) {}
-                    }
-                },
-                args: [finalCode],
+                func: executeUserScript,
+                args: [finalCode, monkey.id, monkey.mName || '', worldOption, !!navigationOnly],
                 world: worldOption,
                 injectImmediately: true
             }).catch((err) => {
@@ -424,15 +447,27 @@ const _injectScript = (tabId, frameId, monkey) => {
             if (!isFallback && worldOption === 'MAIN') exec('ISOLATED', true);
         }
     };
-    bridgeReady.then(() => exec(world, false), () => exec(world, false));
+    // History belongs to MAIN even when the userscript runs in ISOLATED.
+    // Install the listener only after the hook succeeds; otherwise do not advertise support.
+    bridgeReady.then(() => chrome.scripting.executeScript({
+        target: _buildTarget(tabId, allFrames, frameId),
+        func: installUrlChangeHook,
+        world: 'MAIN',
+        injectImmediately: true
+    })).then(results => {
+        if (results.every(result => result.result === true)) {
+            finalCode = '(' + installUrlChangeListener.toString() + ')();\n' + finalCode;
+        }
+        exec(world, false);
+    }, () => exec(world, false));
 };
 
-const injectMonkey = (tabId, frameId, monkey) => {
+const injectMonkey = (tabId, frameId, monkey, navigationOnly) => {
     let allFrames = !!monkey.mAllFrames;
     if (monkey.mStyle && monkey.mStyle.trim()) {
-        _injectCss(tabId, allFrames, frameId, monkey.mStyle, monkey);
+        _injectCss(tabId, allFrames, frameId, monkey.mStyle, monkey, navigationOnly);
     }
-    _injectScript(tabId, frameId, monkey);
+    _injectScript(tabId, frameId, monkey, navigationOnly);
     _hit(monkey.id);
 };
 
@@ -482,7 +517,7 @@ const start = (params) => {
                 .filter(cm => (cm.mRunAt || 'document-end') === runAt)
                 .filter(cm => isMatch(cm, params.url))
                 .filter(cm => frameId === 0 || !!cm.mAllFrames)
-                .forEach(cm => injectMonkey(params.tabId, frameId, cm));
+                .forEach(cm => injectMonkey(params.tabId, frameId, cm, params.navigationOnly));
 
             if (storageMode) {
                 let data = {}; data[PAGE_MONKEY_LOCAL_STORAGE_KEY] = raw;
@@ -496,16 +531,21 @@ const start = (params) => {
 };
 
 /* ================== 日志收集 ================== */
+let logQueue = Promise.resolve();
 const log = (params) => {
-    if (!params) return;
-    chrome.storage.local.get(PAGE_MONKEY_LOG_KEY, resps => {
+    if (!params) return logQueue;
+    // Concurrent scripts can report at the same time; serialize read-modify-write
+    // so an execution error is not overwritten by another script's startup log.
+    logQueue = logQueue.then(async () => {
+        const resps = await chrome.storage.local.get(PAGE_MONKEY_LOG_KEY);
         let arr = [];
         try { arr = JSON.parse((resps && resps[PAGE_MONKEY_LOG_KEY]) || '[]'); } catch (e) {}
         arr.push(Object.assign({ time: Date.now() }, params));
         if (arr.length > 300) arr = arr.slice(-300);
         let data = {}; data[PAGE_MONKEY_LOG_KEY] = JSON.stringify(arr);
-        chrome.storage.local.set(data);
-    });
+        await chrome.storage.local.set(data);
+    }).catch(err => console.warn('page-monkey log failed:', err));
+    return logQueue;
 };
 
 /* ================== @require 白名单校验 ================== */

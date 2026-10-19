@@ -636,11 +636,14 @@
         const nodeLimit = Number(options.nodeLimit) || 20000;
         if (Number(sourceLength) > characterLimit) return true;
 
-        const stack = [value];
+        const depthLimit = Number(options.depthLimit) || 100;
+        const stack = [{value, depth: 0}];
         const seen = typeof WeakSet === 'function' ? new WeakSet() : null;
         let nodeCount = 0;
         while (stack.length) {
-            const current = stack.pop();
+            const entry = stack.pop();
+            const current = entry.value;
+            if (entry.depth > depthLimit) return true;
             nodeCount += 1;
             if (nodeCount > nodeLimit) return true;
             if (!current || typeof current !== 'object' || isBigNumberLike(current)) continue;
@@ -654,7 +657,7 @@
             keys.forEach((key) => {
                 const child = current[key];
                 if (child && typeof child === 'object' && !isBigNumberLike(child)) {
-                    stack.push(child);
+                    stack.push({value: child, depth: entry.depth + 1});
                 }
             });
         }

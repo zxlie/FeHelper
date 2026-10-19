@@ -159,7 +159,7 @@
                     <span class="fh-tag tag-runat">时机 {{ runAtLabel(cm.mRunAt) }}</span>
                     <span class="fh-tag tag-world">{{ cm.mWorld === 'ISOLATED' ? '隔离' : '主世界' }}</span>
                     <span class="fh-tag tag-frame" v-if="cm.mAllFrames">全 frame</span>
-                    <span class="fh-tag tag-hits">执行 {{ cm.mHits || 0 }} 次</span>
+                    <span class="fh-tag tag-hits">命中 {{ cm.mHits || 0 }} 次</span>
                     <span class="fh-tag" v-for="t in (cm.mTags || [])" :key="t">#{{t}}</span>
                 </div>
 
@@ -260,7 +260,7 @@
                         <textarea ref="mScript" id="mScript"></textarea>
                     </div>
                     <div class="fh-help">
-                        提示：脚本默认运行在页面 <kbd>MAIN</kbd> 世界，可访问页面 jQuery、Vue 等全局变量；如需更高隔离请在「高级」中切换为 ISOLATED。
+                        提示：推荐使用 <kbd>MAIN</kbd>，可访问页面全局变量；严格安全策略的站点可能阻止执行，失败原因可在运行日志查看。
                     </div>
                 </div>
 
@@ -300,6 +300,9 @@
                         <div class="fh-segment">
                             <div class="fh-segment-item" :class="{active: editCM.mWorld === 'MAIN'}" @click="editCM.mWorld = 'MAIN'; markUnsaved()">MAIN</div>
                             <div class="fh-segment-item" :class="{active: editCM.mWorld === 'ISOLATED'}" @click="editCM.mWorld = 'ISOLATED'; markUnsaved()">ISOLATED</div>
+                        </div>
+                        <div class="fh-help" v-if="editCM.mWorld === 'ISOLATED'" role="status" style="color:var(--text);">
+                            当前版本的 ISOLATED 脚本执行受浏览器安全策略限制，请使用 MAIN 后刷新目标页面。仅 CSS 样式注入不受此限制。
                         </div>
                     </div>
                     <div class="fh-field">
