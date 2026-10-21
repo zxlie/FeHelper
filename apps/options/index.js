@@ -94,6 +94,7 @@ new Vue({
         showSettingsModal: false,
         defaultKey: 'Alt+Shift+J', // 默认快捷键
         countDown: 0, // 夜间模式倒计时
+        darkModePreviewTimer: null, // 夜间模式体验倒计时句柄
         selectedOpts: [], // 选中的选项（已支持FORBID_STATISTICS）
         menuDownloadCrx: false, // 菜单-插件下载
         menuFeHelperSeting: false, // 菜单-FeHelper设置
@@ -1525,23 +1526,11 @@ new Vue({
 
         // 应用深色模式设置
         applyDarkModeSettings(opts) {
-            const body = document.body;
-            const shouldEnableDarkMode = this.shouldEnableDarkMode(opts);
-            
             // 同时设置localStorage和chrome.storage.local，确保与其他工具兼容
             localStorage.setItem('AUTO_DARK_MODE', opts.AUTO_DARK_MODE);
             localStorage.setItem('ALWAYS_DARK_MODE', opts.ALWAYS_DARK_MODE);
-            
-            if (shouldEnableDarkMode) {
-                body.classList.add('dark-mode');
-                // 设置html属性，方便其他工具检测
-                document.documentElement.setAttribute('data-theme', 'dark');
-                document.documentElement.setAttribute('dark-mode', 'on');
-            } else {
-                body.classList.remove('dark-mode');
-                document.documentElement.setAttribute('data-theme', 'light');
-                document.documentElement.setAttribute('dark-mode', 'off');
-            }
+
+            this.syncDarkModeState(this.shouldEnableDarkMode(opts));
         },
 
         // 判断是否应该启用深色模式
@@ -1764,37 +1753,46 @@ new Vue({
             });
         },
         
-        // 体验夜间模式
-        turnLight(event) {
-            event.preventDefault();
-            
-            // 获取body元素
+        // 仅同步主题类名与 html 属性，不写入存储
+        syncDarkModeState(enabled) {
             const body = document.body;
-            
-            // 切换夜间模式
-            if (body.classList.contains('dark-mode')) {
-                body.classList.remove('dark-mode');
-                document.documentElement.setAttribute('data-theme', 'light');
-                document.documentElement.setAttribute('dark-mode', 'off');
-            } else {
+            if (enabled) {
                 body.classList.add('dark-mode');
                 document.documentElement.setAttribute('data-theme', 'dark');
                 document.documentElement.setAttribute('dark-mode', 'on');
-                
-                // 设置倒计时
-                this.countDown = 10;
-                
-                // 启动倒计时
-                const timer = setInterval(() => {
-                    this.countDown--;
-                    if (this.countDown <= 0) {
-                        clearInterval(timer);
-                        body.classList.remove('dark-mode');
-                        document.documentElement.setAttribute('data-theme', 'light');
-                        document.documentElement.setAttribute('dark-mode', 'off');
-                    }
-                }, 1000);
+            } else {
+                body.classList.remove('dark-mode');
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.documentElement.setAttribute('dark-mode', 'off');
             }
+        },
+
+        // 体验夜间模式：始终进入夜间预览，结束后恢复到当前选择的策略
+        turnLight(event) {
+            event.preventDefault();
+
+            this.syncDarkModeState(true);
+            this.countDown = 10;
+
+            if (this.darkModePreviewTimer) {
+                clearInterval(this.darkModePreviewTimer);
+            }
+
+            this.darkModePreviewTimer = setInterval(() => {
+                this.countDown--;
+                if (this.countDown > 0) {
+                    return;
+                }
+
+                clearInterval(this.darkModePreviewTimer);
+                this.darkModePreviewTimer = null;
+
+                const opts = {
+                    AUTO_DARK_MODE: this.selectedOpts.includes('AUTO_DARK_MODE'),
+                    ALWAYS_DARK_MODE: this.selectedOpts.includes('ALWAYS_DARK_MODE')
+                };
+                this.syncDarkModeState(this.shouldEnableDarkMode(opts));
+            }, 1000);
         },
 
 

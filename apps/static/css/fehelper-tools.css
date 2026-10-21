@@ -1638,3 +1638,452 @@ body.fh-modern img[alt="loading"] {
         margin-left: 0;
     }
 }
+
+/* ===== Tool-specific dark theme fixes =====
+   各工具页自身样式里仍有硬编码的浅色值，这里统一补齐。
+   仅作用于 body.fh-modern.theme-dark，避免影响浅色主题。 */
+
+/* tool-layout 重构头部后，x-switch 会被移动到 .fh-tool-header-actions 内 */
+body.fh-modern.theme-dark .x-switch,
+body.fh-modern.theme-dark .fh-tool-header-actions .x-switch {
+    border-color: rgba(93, 141, 245, 0.42) !important;
+    background: rgba(93, 141, 245, 0.16) !important;
+    color: #8ab0ff !important;
+}
+
+body.fh-modern.theme-dark .fh-ai-tool-btn {
+    border-color: rgba(93, 141, 245, 0.42) !important;
+    background: rgba(93, 141, 245, 0.16) !important;
+    color: #8ab0ff !important;
+}
+
+body.fh-modern.theme-dark .fh-ai-tool-btn:hover,
+body.fh-modern.theme-dark .fh-ai-tool-btn:focus {
+    border-color: rgba(138, 176, 255, 0.64) !important;
+    background: rgba(93, 141, 245, 0.26) !important;
+    color: #c7d8ff !important;
+}
+
+/* byte-unit：预设按钮、空态与结果区 */
+body.fh-modern.theme-dark .fh-byte-preset {
+    border-color: var(--fh-line-strong) !important;
+    background: #202b3a !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .fh-byte-preset:hover {
+    border-color: rgba(93, 141, 245, 0.52) !important;
+    background: rgba(93, 141, 245, 0.16) !important;
+    color: #8ab0ff !important;
+}
+
+body.fh-modern.theme-dark .fh-byte-result-main {
+    border-color: var(--fh-line-strong) !important;
+    background: #171f2b !important;
+    box-shadow: none !important;
+    color: #8ab0ff !important;
+}
+
+body.fh-modern.theme-dark .fh-byte-empty {
+    border-color: var(--fh-line-strong) !important;
+    background: #171f2b !important;
+}
+
+body.fh-modern.theme-dark .fh-byte-empty-mark {
+    color: #8ab0ff !important;
+}
+
+body.fh-modern.theme-dark .fh-byte-table {
+    background: #1b2431 !important;
+}
+
+body.fh-modern.theme-dark .fh-byte-table tbody > tr.active > td {
+    background: rgba(93, 141, 245, 0.16) !important;
+}
+
+/* chart-maker：图表类型卡片 */
+body.fh-modern.theme-dark .chart-type-item {
+    background: #202b3a !important;
+    box-shadow: none !important;
+}
+
+body.fh-modern.theme-dark .chart-type-item:hover {
+    background: #263650 !important;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.32) !important;
+}
+
+body.fh-modern.theme-dark .chart-type-item.active {
+    border-color: #5d8df5 !important;
+    background: linear-gradient(135deg, rgba(69, 104, 220, 0.28), rgba(93, 141, 245, 0.16)) !important;
+}
+
+body.fh-modern.theme-dark .chart-type-item span,
+body.fh-modern.theme-dark .chart-type-group h4,
+body.fh-modern.theme-dark .tips-panel li {
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .chart-type-group h4,
+body.fh-modern.theme-dark .chart-type-gallery,
+body.fh-modern.theme-dark .chart-actions {
+    border-color: var(--fh-line) !important;
+}
+
+body.fh-modern.theme-dark .chart-type-scroller::-webkit-scrollbar-track {
+    background: #1b2431;
+}
+
+/* datetime-calc：快捷按钮 */
+body.fh-modern.theme-dark .quick-btn {
+    background: #202b3a !important;
+    box-shadow: none !important;
+}
+
+body.fh-modern.theme-dark .quick-btn:hover {
+    background: #263650 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.32) !important;
+}
+
+body.fh-modern.theme-dark .quick-btn[data-action="now"] { color: #7aa7ff !important; border-color: #3b6fd8 !important; }
+body.fh-modern.theme-dark .quick-btn[data-action="today"] { color: #6ee7a8 !important; border-color: #2f9e63 !important; }
+body.fh-modern.theme-dark .quick-btn[data-action="yesterday"] { color: #67d6e8 !important; border-color: #2b8fa1 !important; }
+body.fh-modern.theme-dark .quick-btn[data-action="week_start"] { color: #f6c76b !important; border-color: #b58a24 !important; }
+body.fh-modern.theme-dark .quick-btn[data-action="month_start"] { color: #aab4c4 !important; border-color: #5b6675 !important; }
+body.fh-modern.theme-dark .quick-btn[data-action="clear"] { color: #ff8a8a !important; border-color: #b33b3b !important; }
+
+/* json-diff：模式切换与操作按钮 */
+body.fh-modern.theme-dark .compare-mode-switch {
+    border-color: var(--fh-line) !important;
+    background: #171f2b !important;
+}
+
+body.fh-modern.theme-dark .mode-button {
+    color: var(--fh-muted) !important;
+}
+
+body.fh-modern.theme-dark .mode-button.active {
+    background: #5d8df5 !important;
+    color: #ffffff !important;
+}
+
+body.fh-modern.theme-dark .diff-action-button {
+    border-color: var(--fh-line) !important;
+    background: #202b3a !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .diff-action-button:hover,
+body.fh-modern.theme-dark .diff-action-button:focus {
+    border-color: var(--fh-line-strong) !important;
+    background: #263650 !important;
+    color: #c9dcff !important;
+}
+
+body.fh-modern.theme-dark .diff-action-primary {
+    border-color: #5d8df5 !important;
+    background: #4b78df !important;
+    color: #ffffff !important;
+}
+
+body.fh-modern.theme-dark .diff-action-button:disabled {
+    color: var(--fh-faint) !important;
+}
+
+body.fh-modern.theme-dark .json-diff-value {
+    color: var(--fh-muted) !important;
+}
+
+/* loan-rate：还款计划表 */
+body.fh-modern.theme-dark #containerPayback table th {
+    background-color: #202b3a !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark #containerPayback table td.x-bill {
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark #containerPayback table td.x-left {
+    color: var(--fh-faint) !important;
+}
+
+body.fh-modern.theme-dark #containerPayback table tr.x-all,
+body.fh-modern.theme-dark #containerPayback table tr.x-last td.x-total {
+    background-color: rgba(246, 179, 95, 0.14) !important;
+}
+
+body.fh-modern.theme-dark #containerPayback table tr.x-all td.x-name,
+body.fh-modern.theme-dark #containerPayback table tr.x-all td.x-bill,
+body.fh-modern.theme-dark #containerPayback table tr.x-all td.x-amount,
+body.fh-modern.theme-dark #containerPayback table tr.x-all td.x-interest,
+body.fh-modern.theme-dark .x-revrate {
+    color: #ff8a8a !important;
+}
+
+body.fh-modern.theme-dark #containerPayback .x-exchange {
+    color: #8ab0ff !important;
+}
+
+body.fh-modern.theme-dark .x-calc-title {
+    border-color: var(--fh-line) !important;
+}
+
+body.fh-modern.theme-dark .radix-tips,
+body.fh-modern.theme-dark .mod-inputs span,
+body.fh-modern.theme-dark .row.x-tips {
+    color: var(--fh-muted) !important;
+}
+
+/* regexp：匹配标志按钮 */
+body.fh-modern.theme-dark .flag-btn {
+    border-color: var(--fh-line-strong) !important;
+    background: #202b3a !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .flag-btn:hover {
+    border-color: #5d8df5 !important;
+    background: #263650 !important;
+}
+
+body.fh-modern.theme-dark .flag-btn input[type="checkbox"]:checked,
+body.fh-modern.theme-dark .flag-btn input[type="checkbox"]:checked + span {
+    color: #8ab0ff !important;
+}
+
+body.fh-modern.theme-dark .flag-desc {
+    color: var(--fh-muted) !important;
+}
+
+/* svg-converter：面板标题、重置按钮与提示文本 */
+body.fh-modern.theme-dark .x-panel-title {
+    border-color: var(--fh-line) !important;
+    background: #202b3a !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .action-buttons .btn-reset {
+    background-color: #263244 !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .action-buttons .btn-reset:hover {
+    background-color: #2f3c50 !important;
+}
+
+body.fh-modern.theme-dark .x-panel p,
+body.fh-modern.theme-dark .upload-zone p {
+    color: var(--fh-muted) !important;
+}
+
+/* html2markdown：状态栏视图切换按钮 */
+body.fh-modern.theme-dark .status-view-switch {
+    border-color: var(--fh-line) !important;
+    background: #202b3a !important;
+}
+
+body.fh-modern.theme-dark .status-view-switch button {
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .status-view-switch button.active {
+    background: #5d8df5 !important;
+    color: #ffffff !important;
+}
+
+/* image-base64：尺寸文本与输入区 */
+body.fh-modern.theme-dark #sizeOri,
+body.fh-modern.theme-dark #sizeBase {
+    color: #f6b35f !important;
+}
+
+body.fh-modern.theme-dark #base64Input {
+    border-color: var(--fh-line) !important;
+    background: #171f2b !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .x-result-info .x-title {
+    color: var(--fh-muted) !important;
+}
+
+/* page-monkey：版本徽标与统计图标 */
+body.fh-modern.theme-dark .fh-pm-version {
+    background: linear-gradient(135deg, #6366f1, #ec4899) !important;
+    color: #ffffff !important;
+}
+
+body.fh-modern.theme-dark .fh-stat-icon {
+    background: rgba(93, 141, 245, 0.16) !important;
+    color: #8ab0ff !important;
+}
+
+/* password：特殊字符重置按钮 */
+body.fh-modern.theme-dark .password-card .special-char-reset {
+    border-color: var(--fh-line) !important;
+    background: #202b3a !important;
+    color: var(--fh-text) !important;
+}
+
+/* naotu：提示条 */
+body.fh-modern.theme-dark .my-naotu-list .mm-tips {
+    border-color: rgba(93, 141, 245, 0.42) !important;
+    background: rgba(93, 141, 245, 0.14) !important;
+    color: #c7d8ff !important;
+}
+
+/* timestamp：升级提示 */
+body.fh-modern.theme-dark #fh-timestamp-upgrade-tip {
+    border-color: rgba(246, 179, 95, 0.42) !important;
+    color: #f6b35f !important;
+}
+
+body.fh-modern.theme-dark .fh-tip-link {
+    color: #f6b35f !important;
+}
+
+/* excel2json：品牌标题 */
+body.fh-modern.theme-dark .brand-text {
+    color: var(--fh-text) !important;
+}
+
+/* devtools：工具卡片与编辑器 */
+body.fh-modern.theme-dark ul.box-tools li {
+    border-color: var(--fh-line) !important;
+    background: #1d2634 !important;
+    box-shadow: none !important;
+}
+
+body.fh-modern.theme-dark ul.box-tools li i.x-icon {
+    border-color: var(--fh-line) !important;
+    background: #171f2b !important;
+}
+
+body.fh-modern.theme-dark ul.box-tools li .x-tips {
+    color: var(--fh-muted) !important;
+}
+
+body.fh-modern.theme-dark ul.box-tools li .x-btns {
+    border-color: var(--fh-line) !important;
+}
+
+body.fh-modern.theme-dark ul.box-tools li.x-addtool {
+    color: var(--fh-muted) !important;
+    text-shadow: none !important;
+    background: #171f2b !important;
+    border-color: var(--fh-line) !important;
+}
+
+body.fh-modern.theme-dark ul.box-tools li.x-addtool:hover {
+    color: var(--fh-text) !important;
+    background: #202b3a !important;
+    border-color: var(--fh-line-strong) !important;
+}
+
+body.fh-modern.theme-dark .given-icons,
+body.fh-modern.theme-dark .x-new-tool-form form {
+    border-color: var(--fh-line) !important;
+    background: #1d2634 !important;
+    color: var(--fh-text) !important;
+    box-shadow: none !important;
+}
+
+body.fh-modern.theme-dark .given-icons h3 {
+    color: #8ab0ff !important;
+}
+
+body.fh-modern.theme-dark .fh-editor .x-editor-container {
+    border-color: var(--fh-line) !important;
+    box-shadow: none !important;
+}
+
+body.fh-modern.theme-dark .fh-editor .x-editor-container .x-topbar {
+    background: #202b3a !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .fh-editor .x-editor-container .x-leftside {
+    border-color: var(--fh-line) !important;
+    background: #1b2431 !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark ul.box-files li {
+    border-color: var(--fh-line) !important;
+}
+
+body.fh-modern.theme-dark ul.box-files li:hover {
+    background: #263650 !important;
+}
+
+body.fh-modern.theme-dark ul.box-files li .x-folder {
+    color: var(--fh-faint) !important;
+}
+
+/* totp-auth：整页暗色适配 */
+body.fh-modern.theme-dark .totp-header,
+body.fh-modern.theme-dark .totp-vault-panel,
+body.fh-modern.theme-dark .totp-pane {
+    border-color: var(--fh-line) !important;
+    background: var(--fh-panel) !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .totp-brand,
+body.fh-modern.theme-dark .totp-vault-copy h2,
+body.fh-modern.theme-dark .totp-pane-head h2,
+body.fh-modern.theme-dark .totp-empty strong {
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .totp-vault-copy p,
+body.fh-modern.theme-dark .totp-pane-head span,
+body.fh-modern.theme-dark .totp-field,
+body.fh-modern.theme-dark .totp-security-note,
+body.fh-modern.theme-dark .totp-empty,
+body.fh-modern.theme-dark .totp-account-meta span,
+body.fh-modern.theme-dark .totp-account-meta code,
+body.fh-modern.theme-dark .totp-code-box small {
+    color: var(--fh-muted) !important;
+}
+
+body.fh-modern.theme-dark .totp-vault-actions input,
+body.fh-modern.theme-dark .totp-field input,
+body.fh-modern.theme-dark .totp-field select,
+body.fh-modern.theme-dark .totp-field textarea,
+body.fh-modern.theme-dark .totp-secondary-button,
+body.fh-modern.theme-dark .totp-ghost-button,
+body.fh-modern.theme-dark .totp-remove-button {
+    border-color: var(--fh-line) !important;
+    background: #171f2b !important;
+    color: var(--fh-text) !important;
+}
+
+body.fh-modern.theme-dark .totp-account {
+    border-color: var(--fh-line) !important;
+    background: #1b2431 !important;
+}
+
+body.fh-modern.theme-dark .totp-code {
+    border-color: var(--fh-line-strong) !important;
+    background: #202b3a !important;
+    color: #8ab0ff !important;
+}
+
+body.fh-modern.theme-dark .totp-progress {
+    background: #2a3648 !important;
+}
+
+body.fh-modern.theme-dark .totp-uri-box {
+    border-color: var(--fh-line) !important;
+}
+
+body.fh-modern.theme-dark .totp-remove-button {
+    color: #ff8a8a !important;
+}
+
+body.fh-modern.theme-dark .totp-primary-button {
+    border-color: #4b78df !important;
+    background: #4b78df !important;
+    color: #ffffff !important;
+}
