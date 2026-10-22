@@ -3,6 +3,7 @@
  */
 const DEFAULT_SPECIAL_CHARS = '~!@#$%^&*()[{]}-_=+\|;:\'\",<.>/?`';
 const PASSWORD_SPECIAL_CHARS_KEY = 'password:special-chars';
+const PASSWORD_SETTINGS_KEY = 'password:settings';
 
 new Vue({
     el: '#pageContainer',
@@ -26,7 +27,24 @@ new Vue({
         toastMsg: ''
     },
 
+    computed: {
+        passwordSettings: function() {
+            return {
+                number: this.number,
+                lowerLetter: this.lowerLetter,
+                upperLetter: this.upperLetter,
+                specialChar: this.specialChar,
+                length: this.normalizeInteger(this.length, 20, 0),
+                count: this.normalizeInteger(this.count, 1, 1)
+            };
+        }
+    },
+
     mounted: function () {
+        this.loadSettings();
+        this.$watch('passwordSettings', function(settings) {
+            this.safeSetLocalStorage(PASSWORD_SETTINGS_KEY, JSON.stringify(settings));
+        });
         const savedSpecialChars = this.safeGetLocalStorage(PASSWORD_SPECIAL_CHARS_KEY);
         if (savedSpecialChars) {
             this.customSpecialChar = savedSpecialChars;
@@ -36,6 +54,28 @@ new Vue({
     },
 
     methods: {
+        loadSettings: function() {
+            try {
+                const settings = JSON.parse(this.safeGetLocalStorage(PASSWORD_SETTINGS_KEY));
+                if (!settings || typeof settings !== 'object' || Array.isArray(settings)) {
+                    return;
+                }
+                ['number', 'lowerLetter', 'upperLetter', 'specialChar'].forEach(key => {
+                    if (typeof settings[key] === 'boolean') {
+                        this[key] = settings[key];
+                    }
+                });
+                ['length', 'count'].forEach(key => {
+                    const minimum = key === 'length' ? 0 : 1;
+                    if (Number.isInteger(settings[key]) && settings[key] >= minimum) {
+                        this[key] = settings[key];
+                    }
+                });
+            } catch {
+                console.warn('密码生成设置无效，使用默认值');
+            }
+        },
+
         safeGetLocalStorage: function(key) {
             try {
                 return localStorage.getItem(key);
