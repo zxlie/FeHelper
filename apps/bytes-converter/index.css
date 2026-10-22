@@ -1,0 +1,93 @@
+@import url("../static/css/bootstrap.min.css");
+
+.panel-body {
+    background: #f8f9fa;
+    color: #2c3e50;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    margin-top: -1px;
+}
+
+.x-mode-switch {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    padding: 12px 20px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.x-mode-label {
+    font-size: 14px;
+    color: #2c3e50;
+    margin-right: 12px;
+    white-space: nowrap;
+}
+
+select.x-select-mode {
+    width: 160px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    color: #2c3e50;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+select.x-select-mode:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    outline: none;
+}
+
+.x-convert-area {
+    max-width: 620px;
+}
+
+.x-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.x-label {
+    width: 60px;
+    font-size: 14px;
+    color: #2c3e50;
+    text-align: right;
+    margin-right: 12px;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.x-input {
+    flex: 1;
+    max-width: 400px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    color: #2c3e50;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.x-input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    outline: none;
+}
+
+.x-input-error {
+    border-color: #e74c3c !important;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
+}
+
+.panel-body * {
+    transition: all 0.2s ease;
+}
+
+#pageContainer > .panel-body {
+    margin-top: 20px;
+}

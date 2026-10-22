@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    <title>字节大小转换</title>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../static/img/favicon.ico">
+    <link rel="stylesheet" href="index.css" />
+    <script type="text/javascript" src="../static/vendor/evalCore.min.js"></script>
+    <script type="text/javascript" src="../static/vendor/vue/vue.js"></script>
+</head>
+<body>
+
+<div class="wrapper" id="pageContainer">
+    <div class="panel panel-default" style="margin-bottom: 0px;">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a href="https://fehelper.com" target="_blank" class="x-a-high">
+                    <img src="../static/img/fe-16.png" alt="fehelper"/> FeHelper</a>：字节大小转换
+
+                    <a href="#" class="x-donate-link" @click="openDonateModal($event)"><i class="nav-icon">❤&nbsp;</i>打赏鼓励</a>
+                    <a class="x-other-tools" @click="openOptionsPage($event)"><i class="icon-plus-circle"></i> 探索更多实用工具 <span class="tool-market-badge">工具市场</span></a>
+                </h3>
+        </div>
+    </div>
+    <div class="panel-body">
+
+        <div class="row x-mode-switch ui-mt-10">
+            <label class="x-mode-label">换算进制：</label>
+            <select class="form-control x-select-mode" v-model.number="baseMode" @change="onModeChange">
+                <option :value="1024">二进制</option>
+                <option :value="1000">十进制</option>
+            </select>
+        </div>
+
+        <div class="x-convert-area ui-mt-20">
+            <div class="x-row" v-for="unit in units" :key="unit.key">
+                <label class="x-label" :for="'input-' + unit.key">{{ getLabel(unit) }}</label>
+                <input type="text" class="form-control x-input" :id="'input-' + unit.key"
+                       v-model="values[unit.key]" @input="onInput(unit.key)" @focus="$event.target.select()"
+                       :class="{ 'x-input-error': errors[unit.key] }"
+                       maxlength="32">
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="../static/vendor/jquery/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="index.js"></script>
+</body>
+</html>
