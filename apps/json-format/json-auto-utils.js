@@ -669,6 +669,28 @@
         if (!parsed) {
             return source;
         }
+        const original = parseJSONLike(source, options);
+        if (original) {
+            // Decoded quotes/braces can form valid JSON while silently replacing
+            // an object or dropping an array. Automatic decoding may change string
+            // contents, but must preserve every key, array entry and typed value.
+            const pending = [[original.value, parsed.value]];
+            while (pending.length) {
+                const [before, after] = pending.pop();
+                if (typeof before === 'string' && typeof after === 'string') continue;
+                if (before === after) continue;
+                if (!before || !after || typeof before !== 'object' || typeof after !== 'object' ||
+                    Array.isArray(before) !== Array.isArray(after)) {
+                    return source;
+                }
+                const keys = Object.keys(before);
+                if (keys.length !== Object.keys(after).length) return source;
+                for (const key of keys) {
+                    if (!Object.prototype.hasOwnProperty.call(after, key)) return source;
+                    pending.push([before[key], after[key]]);
+                }
+            }
+        }
         return parsed.normalizedSource;
     }
 
