@@ -62,3 +62,31 @@ describe('#658: old Worker results must not replace a newer large JSON', () => {
         expect(page.node('jfContent_pre').textContent).toContain('complete');
     });
 });
+
+
+it('#658 cancels old worker success/error/timeout while the next input is decoding', async () => {
+    vi.useFakeTimers();
+    try {
+        const page = workerPage();
+        page.context.setTimeout = setTimeout;
+        page.context.clearTimeout = clearTimeout;
+        await page.format('{"old":true}');
+        const worker = page.workers[0];
+        const success = worker.onmessage, failure = worker.onerror;
+        page.app.autoDecode = true;
+        let finish;
+        page.context.JsonEnDecode.urlDecodeByFetch = source => new Promise(resolve => { finish = () => resolve(source); });
+        await page.format('{"new":true}');
+        const whileDecoding = page.node('jfContent').innerHTML;
+        success({data: ['FORMATTED', 'OLD TREE']});
+        failure(new Error('old worker failure'));
+        await vi.advanceTimersByTimeAsync(5001);
+        expect(page.node('jfContent').innerHTML).not.toContain('OLD TREE');
+        expect(page.node('jfContent').innerHTML).toBe(whileDecoding);
+        expect(worker.terminated).toBe(true);
+        finish();
+        await flush();
+        page.workers.at(-1).onmessage({data: ['FORMATTED', 'NEW TREE']});
+        expect(page.node('jfContent').innerHTML).toBe('NEW TREE');
+    } finally { vi.useRealTimers(); }
+});

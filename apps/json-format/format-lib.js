@@ -2660,6 +2660,7 @@ window.Formatter = (function () {
 
     return {
         format: format,
+        cancelPendingFormat: _cancelPendingFormat,
         formatSync: formatSync,
         setEscapeEnabled: function(enabled) {
             escapeJsonStringEnabled = enabled;

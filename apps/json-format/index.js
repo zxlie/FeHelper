@@ -559,6 +559,7 @@ new Vue({
         resetResultActions() {
             // Invalid/empty input and explicit transforms also invalidate pending decoding.
             formatRevision++;
+            Formatter.cancelPendingFormat();
             this.jsonActionReady = false;
             this.tableViewReady = false;
             this.setResultActionAvailability(false);
