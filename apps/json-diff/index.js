@@ -1,4 +1,5 @@
 let jsonBox = null;
+const SUMMARY_PAGE_SIZE = 100;
 
 const JSON_EXAMPLES = {
     userInfo: {
@@ -265,6 +266,7 @@ window.vueApp = new Vue({
         leftContentLength: 0,
         rightContentLength: 0,
         diffSummary: [],
+        summaryPage: 0,
         lineHighlights: {
             left: [],
             right: []
@@ -273,6 +275,15 @@ window.vueApp = new Vue({
         textExamples: TEXT_EXAMPLES
     },
     computed: {
+        summaryPageCount: function() {
+            return Math.ceil(this.diffSummary.length / SUMMARY_PAGE_SIZE);
+        },
+
+        visibleDiffSummary: function() {
+            const start = this.summaryPage * SUMMARY_PAGE_SIZE;
+            return this.buildDiffSummary(this.diffSummary.slice(start, start + SUMMARY_PAGE_SIZE));
+        },
+
         activeExamples: function() {
             const source = this.compareMode === 'json' ? this.jsonExamples : this.textExamples;
             return Object.keys(source).map((key) => ({
@@ -375,7 +386,8 @@ window.vueApp = new Vue({
                 const diffs = window.JsonDiffUtils.compareJsonValues(leftJson, rightJson);
                 this.differenceCount = diffs.length;
                 this.isDifferent = diffs.length > 0;
-                this.diffSummary = this.buildDiffSummary(diffs);
+                // Only the visible page needs previews or Vue observation.
+                this.diffSummary = Object.freeze(diffs);
                 this.errorMessage = diffs.length
                     ? '两侧 JSON 比对完成，共有 ' + diffs.length + ' 处不一致！'
                     : '两侧 JSON 比对完成，内容一致！';
@@ -521,22 +533,36 @@ window.vueApp = new Vue({
 
         clearLineHighlights: function(side) {
             if (!jsonBox || !jsonBox[side]) return;
-            this.lineHighlights[side].forEach((item) => {
-                jsonBox[side].removeLineClass(item.line, 'background', item.className);
+            jsonBox[side].operation(() => {
+                this.lineHighlights[side].forEach((item) => {
+                    jsonBox[side].removeLineClass(item.line, 'background', item.className);
+                });
             });
             this.lineHighlights[side] = [];
         },
 
         clearDiffSummary: function() {
             this.diffSummary = [];
+            this.summaryPage = 0;
+        },
+
+        changeSummaryPage: function(offset) {
+            this.summaryPage = Math.max(0, Math.min(this.summaryPageCount - 1, this.summaryPage + offset));
+            this.$nextTick(() => {
+                if (this.$refs.summaryList) this.$refs.summaryList.scrollTop = 0;
+            });
         },
 
         applyLineHighlights: function(side, lines, className) {
             if (!jsonBox || !jsonBox[side]) return;
-            lines.forEach((line) => {
-                jsonBox[side].addLineClass(line, 'background', className);
-                this.lineHighlights[side].push({ line, className });
+            const highlights = [];
+            jsonBox[side].operation(() => {
+                lines.forEach((line) => {
+                    jsonBox[side].addLineClass(line, 'background', className);
+                    highlights.push({ line, className });
+                });
             });
+            this.lineHighlights[side] = this.lineHighlights[side].concat(highlights);
         },
 
         parseEditorPointers: function(editor) {

@@ -51,8 +51,13 @@
                         </div>
                         <button type="button" class="json-diff-summary-close" @click="clearDiffSummary" aria-label="关闭结构化差异摘要">×</button>
                     </div>
-                    <div class="json-diff-summary-list">
-                        <div class="json-diff-summary-item" v-for="item in diffSummary" :key="item.id">
+                    <div class="diff-actions" v-if="summaryPageCount > 1" role="group" aria-label="摘要分页">
+                        <button type="button" class="diff-action-button" @click="changeSummaryPage(-1)" :disabled="summaryPage === 0">上一页</button>
+                        <span>{{ summaryPage + 1 }} / {{ summaryPageCount }}</span>
+                        <button type="button" class="diff-action-button" @click="changeSummaryPage(1)" :disabled="summaryPage + 1 >= summaryPageCount">下一页</button>
+                    </div>
+                    <div class="json-diff-summary-list" ref="summaryList">
+                        <div class="json-diff-summary-item" v-for="item in visibleDiffSummary" :key="item.id">
                             <span class="json-diff-op" :class="'json-diff-op-' + item.op">{{ item.label }}</span>
                             <code>{{ item.path }}</code>
                             <span class="json-diff-from" v-if="item.from">从 {{ item.from }}</span>

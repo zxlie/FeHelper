@@ -139,6 +139,7 @@ body[browser-extension] .wp-json .mod-json {
 }
 
 .json-diff-summary-list {
+    min-height: 0;
     max-height: calc(min(42vh, 360px) - 58px);
     display: grid;
     gap: 6px;

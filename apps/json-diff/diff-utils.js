@@ -39,6 +39,27 @@ export function compareTextByPosition(leftLines, rightLines) {
 export function compareTextByLine(leftText, rightText) {
     const leftLines = splitLines(leftText);
     const rightLines = splitLines(rightText);
+    // A small insertion in a large file must not turn its unchanged suffix into
+    // thousands of highlights. Apply the matrix budget only to the changed span.
+    let start = 0;
+    let leftEnd = leftLines.length;
+    let rightEnd = rightLines.length;
+    while (start < leftEnd && start < rightEnd && leftLines[start] === rightLines[start]) start++;
+    while (leftEnd > start && rightEnd > start && leftLines[leftEnd - 1] === rightLines[rightEnd - 1]) {
+        leftEnd--;
+        rightEnd--;
+    }
+    const result = compareLineRanges(leftLines.slice(start, leftEnd), rightLines.slice(start, rightEnd));
+    return {
+        ...result,
+        leftLines,
+        rightLines,
+        changedLeftLines: result.changedLeftLines.map(line => line + start),
+        changedRightLines: result.changedRightLines.map(line => line + start),
+    };
+}
+
+function compareLineRanges(leftLines, rightLines) {
     const matrixCells = (leftLines.length + 1) * (rightLines.length + 1);
 
     if (matrixCells > MAX_TEXT_DIFF_MATRIX_CELLS) {

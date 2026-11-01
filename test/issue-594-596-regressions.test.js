@@ -34,7 +34,9 @@ describe('issue #594-#596 regressions', () => {
         expect(html).toContain('diffSummary');
         expect(source).toContain('function normalizeDiffPointer(path)');
         expect(source).toContain('normalizePreservedJsonPointer');
-        expect(source).toContain('this.diffSummary = this.buildDiffSummary(diffs);');
+        expect(source).toContain('this.diffSummary = Object.freeze(diffs);');
+        expect(source).toContain('this.buildDiffSummary(this.diffSummary.slice(start, start + SUMMARY_PAGE_SIZE))');
+        expect(html).toContain('visibleDiffSummary');
         expect(source).toContain('const path = normalizeDiffPointer(diff.path);');
         expect(css).toContain('.json-diff-summary');
         expect(css).toContain('position: fixed;');

@@ -35,12 +35,12 @@ describe('json-diff text mode helpers', () => {
         expect(result.changeCount).toBe(1);
     });
 
-    it('Issue #654: falls back to linear text diff for large inputs', () => {
+    it('Issue #654/#663: compares a small changed span in large inputs exactly', () => {
         const left = Array.from({ length: 600 }, (_, index) => 'line-' + index).join('\n');
         const right = Array.from({ length: 600 }, (_, index) => index === 401 ? 'LINE-401' : 'line-' + index).join('\n');
         const result = compareTextByLine(left, right);
 
-        expect(result.algorithm).toBe('position');
+        expect(result.algorithm).toBe('lcs');
         expect(result.changedLeftLines).toEqual([401]);
         expect(result.changedRightLines).toEqual([401]);
         expect(compareTextByPosition(['a'], ['b']).algorithm).toBe('position');
