@@ -106,6 +106,24 @@ window.Formatter = (function () {
     
     // 单例Worker实例
     let workerInstance = null;
+    let workerPending = false;
+    let workerTimeout = null;
+    let formatRevision = 0;
+
+    // A newer input (including a large synchronous result) owns all subsequent UI updates.
+    let _cancelPendingFormat = function () {
+        formatRevision++;
+        if (workerTimeout !== null) clearTimeout(workerTimeout);
+        workerTimeout = null;
+        if (workerPending && workerInstance) {
+            workerInstance.onmessage = null;
+            workerInstance.onerror = null;
+            try { workerInstance.terminate(); } catch (_) {}
+            workerInstance = null;
+        }
+        workerPending = false;
+        return formatRevision;
+    };
     // CSP限制标记，避免重复尝试创建Worker
     let cspRestricted = false;
     // 转义功能开启标记
@@ -1874,6 +1892,7 @@ window.Formatter = (function () {
      * 支持异步worker
      */
     let format = async function (jsonStr, skin, escapeJsonString) {
+        const revision = _cancelPendingFormat();
         _initElements();
         
         // 设置转义功能标志
@@ -1900,93 +1919,79 @@ window.Formatter = (function () {
         }
 
         try {
-            // 获取Worker实例（异步）
+            workerPending = true;
             let worker = await _getWorkerInstance();
-            if (worker) {
-                // 设置错误处理，如果Worker因为CSP等原因失败，回退到同步模式
-                let workerErrorHandler = function(e) {
-                    // 静默处理，不输出日志
-                    cspRestricted = true; // 标记为CSP受限，避免重复尝试
-                    workerInstance = null;
-                    formatSync(jsonStr, skin, escapeJsonString);
-                };
-                worker.onerror = workerErrorHandler;
-                
-                // 设置超时，如果Worker长时间无响应，回退到同步模式
-                let workerTimeout = setTimeout(() => {
-                    // 静默处理，不输出日志
-                    if (workerInstance) {
-                        try {
-                            workerInstance.terminate();
-                        } catch (e) {}
-                        workerInstance = null;
-                    }
-                    formatSync(jsonStr, skin, escapeJsonString);
-                }, 5000);
-                
-                // 设置消息处理程序
-                worker.onmessage = function (evt) {
-                    clearTimeout(workerTimeout);
-                    let msg = evt.data;
-                    switch (msg[0]) {
-                        case 'FORMATTING':
-                            if (!_canRenderFormattedResult()) {
-                                _clearOptionBar();
-                                return;
-                            }
-                            formattingMsg.show();
-                            break;
-                        case 'FORMATTED':
-                            if (!msg[1]) {
-                                formatSync(jsonStr, skin, escapeJsonString);
-                                return;
-                            }
-                            if (!_canRenderFormattedResult()) {
-                                formattingMsg.hide();
-                                _clearOptionBar();
-                                return;
-                            }
+            if (revision !== formatRevision) return;
+            if (!worker) {
+                formatSync(jsonStr, skin, escapeJsonString);
+                return;
+            }
+
+            worker.onerror = function () {
+                if (revision !== formatRevision) return;
+                cspRestricted = true;
+                formatSync(jsonStr, skin, escapeJsonString);
+            };
+            workerTimeout = setTimeout(() => {
+                if (revision !== formatRevision) return;
+                formatSync(jsonStr, skin, escapeJsonString);
+            }, 5000);
+
+            worker.onmessage = function (evt) {
+                if (revision !== formatRevision) return;
+                let msg = evt.data;
+                switch (msg[0]) {
+                    case 'FORMATTING':
+                        // Progress is not completion: keep the stalled-worker fallback armed.
+                        if (!_canRenderFormattedResult()) return;
+                        formattingMsg.show();
+                        break;
+                    case 'FORMATTED':
+                        clearTimeout(workerTimeout);
+                        workerTimeout = null;
+                        workerPending = false;
+                        worker.onmessage = null;
+                        worker.onerror = null;
+                        if (!msg[1]) {
+                            formatSync(jsonStr, skin, escapeJsonString);
+                            return;
+                        }
+                        if (!_canRenderFormattedResult()) {
                             formattingMsg.hide();
-                            jfContent.html(msg[1]);
-                            _buildOptionBar();
-                            // 事件绑定
-                            _addEvents();
-                            // 支持文件下载
-                            _downloadSupport(cachedJsonString);
-                            _clearJsonSearch();
-                            _emitFormatReady();
-                            break;
-                    }
-                };
-                
-                // 发送格式化请求
-                try {
-                    worker.postMessage({
-                        jsonString: jsonStr,
-                        skin: skin,
-                        escapeJsonString: escapeJsonStringEnabled
-                    });
-                } catch (e) {
-                    // 如果发送消息失败（Worker可能已被CSP阻止），回退到同步模式
-                    // 静默处理，不输出日志
-                    cspRestricted = true; // 标记为CSP受限，避免重复尝试
-                    clearTimeout(workerTimeout);
-                    workerInstance = null;
-                    formatSync(jsonStr, skin, escapeJsonString);
+                            _clearOptionBar();
+                            return;
+                        }
+                        formattingMsg.hide();
+                        jfContent.html(msg[1]);
+                        _buildOptionBar();
+                        _addEvents();
+                        _downloadSupport(cachedJsonString);
+                        _clearJsonSearch();
+                        _emitFormatReady();
+                        break;
                 }
-            } else {
-                // Worker创建失败，回退到同步方式
+            };
+
+            try {
+                worker.postMessage({
+                    jsonString: jsonStr,
+                    skin: skin,
+                    escapeJsonString: escapeJsonStringEnabled
+                });
+            } catch (_) {
+                cspRestricted = true;
                 formatSync(jsonStr, skin, escapeJsonString);
             }
         } catch (e) {
+            if (revision !== formatRevision) return;
             console.error('Worker处理失败:', e);
-            // 出现任何错误，回退到同步方式
             formatSync(jsonStr, skin, escapeJsonString);
         }
     };
 
     // 同步的方式格式化
     let formatSync = function (jsonStr, skin, escapeJsonString) {
+        _cancelPendingFormat();
         if (!_canRenderFormattedResult()) {
             _clearOptionBar();
             return;
