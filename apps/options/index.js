@@ -62,7 +62,8 @@ const AI_STATUS_TEXT = {
     unsupported: '当前浏览器不支持 Chrome 内置 AI',
     unavailable: '当前设备暂不满足本机 AI 运行条件',
     downloadable: 'Gemini Nano 模型可下载，点击即可启用',
-    downloading: '正在下载 Gemini Nano 本机模型',
+    downloading: 'Chrome 报告模型正在下载',
+    cancelled: '本次启用已取消',
     available: 'Gemini Nano 已可用，建议优先使用 FeHelper AI',
     error: 'AI 模型状态检测失败'
 };
@@ -125,6 +126,7 @@ new Vue({
         aiModelStatus: 'checking',
         aiModelProgress: 0,
         aiModelBusy: false,
+        aiModelController: null,
         aiModelMessage: AI_STATUS_TEXT.checking,
         aiFeaturePacks: AI_FEATURE_PACKS,
         
@@ -325,7 +327,7 @@ new Vue({
 
         aiPrimaryActionLabel() {
             if (this.aiModelBusy) return this.aiModelStatus === 'downloading' ? '模型下载中' : '正在检测';
-            if (this.aiModelStatus === 'downloadable' || this.aiModelStatus === 'downloading') return '下载并启用模型';
+            if (['downloadable', 'downloading', 'cancelled'].includes(this.aiModelStatus)) return '下载并启用模型';
             if (this.aiModelStatus === 'unsupported' || this.aiModelStatus === 'unavailable') return '打开云端 AI 设置';
             return '检测 AI 能力';
         },
@@ -345,7 +347,9 @@ new Vue({
                 case 'downloadable':
                     return 'Gemini Nano 可下载';
                 case 'downloading':
-                    return '正在下载 Gemini Nano';
+                    return this.aiModelController ? '正在下载 Gemini Nano' : 'Chrome 模型下载状态';
+                case 'cancelled':
+                    return '本次启用已取消';
                 case 'unsupported':
                     return '浏览器暂不支持本机 AI';
                 case 'unavailable':
@@ -479,6 +483,7 @@ new Vue({
         },
 
         async prepareBuiltInAiModel() {
+            if (this.aiModelBusy) return;
             if (this.aiModelStatus === 'available') {
                 this.openAiAgent();
                 return;
@@ -489,12 +494,17 @@ new Vue({
             }
 
             this.aiModelBusy = true;
+            const controller = new globalThis.AbortController();
+            this.aiModelController = controller;
+            const cancelOnLeave = () => controller.abort();
+            window.addEventListener('pagehide', cancelOnLeave, { once: true });
             try {
                 await AI.prepareBuiltInModel(payload => {
-                    if (payload && payload.provider === 'builtin') {
+                    if (!controller.signal.aborted && payload && payload.provider === 'builtin') {
                         this.applyBuiltInAiStatus(payload);
                     }
-                });
+                }, { signal: controller.signal });
+                if (controller.signal.aborted) return;
                 this.applyBuiltInAiStatus({
                     status: 'available',
                     progress: 1,
@@ -505,6 +515,7 @@ new Vue({
                     message: 'Gemini Nano 已准备好，可以使用本机 AI 能力。'
                 });
             } catch (error) {
+                if (controller.signal.aborted) return;
                 const message = this.formatBuiltInAiError(error);
                 this.applyBuiltInAiStatus({ status: 'error', message });
                 this.showInPageNotification({
@@ -512,8 +523,23 @@ new Vue({
                     message
                 });
             } finally {
-                this.aiModelBusy = false;
+                window.removeEventListener('pagehide', cancelOnLeave);
+                if (this.aiModelController === controller) {
+                    this.aiModelController = null;
+                    this.aiModelBusy = false;
+                }
             }
+        },
+
+        cancelBuiltInAiModel() {
+            if (!this.aiModelController) return;
+            this.aiModelController.abort();
+            this.aiModelController = null;
+            this.aiModelBusy = false;
+            this.applyBuiltInAiStatus({
+                status: 'cancelled', progress: 0,
+                message: '本次启用已取消。Chrome 共享模型的下载是否停止由浏览器决定；FeHelper 不会自动重试。'
+            });
         },
 
         applyBuiltInAiStatus(payload) {
@@ -538,6 +564,7 @@ new Vue({
         formatBuiltInAiStatus(status, progress, message) {
             if (message) return message;
             if (status === 'downloading') {
+                if (!this.aiModelController) return 'Chrome 报告共享模型正在下载；本页仅检测状态，未发起下载。';
                 const percent = Math.round(Math.max(0, Math.min(1, progress || 0)) * 100);
                 return percent > 0 && percent < 100
                     ? `正在下载 Gemini Nano 本机模型（${percent}%），完成后会自动启用。`

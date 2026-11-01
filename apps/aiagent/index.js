@@ -9,7 +9,7 @@ import { getAiFeaturePack } from './fh.ai-features.js';
 const AI_STATUS_TEXT = {
     unsupported: '当前浏览器不支持 Chrome 内置 AI',
     unavailable: '当前设备暂不满足 Chrome 内置 AI 运行条件',
-    downloadable: 'Chrome 内置 AI 模型可下载，首次发送时会自动下载',
+    downloadable: 'Chrome 内置 AI 模型可下载，允许下载后点击发送才会下载',
     downloading: 'Chrome 正在下载本机 AI 模型',
     available: 'Chrome 内置 AI 已就绪',
     error: 'Chrome 内置 AI 状态检测失败'
@@ -115,6 +115,8 @@ new Vue({
         aiBuiltinStatus: '',
         aiBuiltinProgress: 0,
         aiBuiltinChecking: false,
+        aiAllowDownload: false,
+        aiRequestController: null,
         aiStatusMessage: '',
         pendingAiStatusId: '',
         initialPromptApplied: false,
@@ -164,6 +166,7 @@ new Vue({
         }
     },
     mounted: function () {
+        window.addEventListener('pagehide', () => this.cancelAiRequest());
         this.$refs.prompt.focus();
         this.hideDemo = !!(new URL(location.href)).searchParams.get('hideDemo');
         const local = localStorage.getItem('fh-aiagent-history');
@@ -270,6 +273,8 @@ new Vue({
             }
 
             this.undergoing = true;
+            const controller = new globalThis.AbortController();
+            this.aiRequestController = controller;
             let sendTime = (new Date()).format('yyyy/MM/dd HH:mm:ss');
             this.$nextTick(() => {
                 this.scrollToBottom();
@@ -289,6 +294,7 @@ new Vue({
             });
 
             AI.askCoderLLM(this.buildAiRequestMessages(), (respJson, done) => {
+                if (controller.signal.aborted) return;
                 if(done){
                     this.undergoing = false;
                     if (this.aiProvider === 'builtin' && this.aiBuiltinStatus === 'available') {
@@ -361,7 +367,10 @@ new Vue({
                     }
                 }
                 this.$nextTick(() => this.scrollToBottom());
-            }, null, this.aiProvider === 'builtin' ? 'builtin' : undefined).catch(err => {
+            }, null, this.aiProvider === 'builtin' ? 'builtin' : undefined, {
+                signal: controller.signal, allowDownload: this.aiAllowDownload
+            }).catch(err => {
+                if (controller.signal.aborted) return;
                 this.undergoing = false;
                 if (err.message && err.message.startsWith('NO_API_KEY:')) {
                     this.showApiKeyWarning = true;
@@ -383,7 +392,20 @@ new Vue({
                     });
                     this.$nextTick(() => this.scrollToBottom());
                 }
-            });            
+            }).finally(() => {
+                if (this.aiRequestController === controller) this.aiRequestController = null;
+            });
+        },
+
+        cancelAiRequest() {
+            if (!this.aiRequestController) return;
+            this.aiRequestController.abort();
+            this.aiRequestController = null;
+            this.undergoing = false;
+            this.aiBuiltinProgress = 0;
+            this.aiBuiltinStatus = '';
+            this.removeBuiltInPendingMessage();
+            this.aiStatusMessage = '本次请求已取消。Chrome 共享模型的下载是否停止由浏览器决定。';
         },
 
         scrollToBottom(){
@@ -432,7 +454,6 @@ new Vue({
             const featureKey = params.get('aiFeature');
             const featurePack = getAiFeaturePack(featureKey);
             const prompt = params.get('prompt') || (featurePack && featurePack.prompt);
-            const autoSend = params.get('autoSend') === '1';
 
             if (featurePack) {
                 this.activeAiFeature = featurePack;
@@ -442,12 +463,7 @@ new Vue({
 
             this.prompt = prompt;
             this.hideDemo = true;
-            if (autoSend) {
-                this.$nextTick(() => {
-                    this.sendMessage(prompt);
-                    this.prompt = '';
-                });
-            }
+            // Restored tabs and shared URLs are drafts, never permission to start AI.
         },
 
         updateBuiltInStatus(payload) {
@@ -465,7 +481,7 @@ new Vue({
                 ? Math.round(Math.max(0, Math.min(1, payload.progress)) * 100)
                 : this.builtinProgressPercent;
             if (status === 'downloadable') {
-                return 'Chrome 内置 AI 模型尚未下载，正在开始首次下载。首次使用可能需要几分钟。';
+                return 'Chrome 内置 AI 模型尚未下载，需先允许下载并点击发送。';
             }
             if (status === 'downloading') {
                 const suffix = progress > 0 && progress < 100 ? `（${progress}%）` : '';

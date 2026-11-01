@@ -84,8 +84,12 @@
                     </template>
                     <template v-if="aiProvider === 'builtin'">
                         <div class="fh-settings-hint fh-settings-hint-local">
-                            直接使用 Chrome 当前浏览器内置的 Gemini Nano，本机运行，不需要 API Key。模型首次使用可能需要下载。
+                            直接使用 Chrome 当前浏览器内置的 Gemini Nano，本机运行，不需要 API Key。页面打开不会下载模型。首次下载可能占用较多流量和磁盘空间。
                         </div>
+                        <label class="fh-settings-hint">
+                            <input type="checkbox" v-model="aiAllowDownload" />
+                            允许本页在点击发送后下载本机模型（重新打开后默认关闭）
+                        </label>
                         <div class="fh-ai-provider-status">
                             <span :class="['fh-ai-status-dot', 'is-' + aiBuiltinStatus]"></span>
                             <span>{{builtinStatusText}}</span>
@@ -122,6 +126,7 @@
                         <span :class="['fh-ai-status-dot', 'is-' + aiBuiltinStatus]"></span>
                         <span>{{aiStatusMessage}}</span>
                     </div>
+                    <button v-if="undergoing && aiProvider === 'builtin'" type="button" class="fh-ai-check-btn" @click="cancelAiRequest">取消本次请求</button>
                     <textarea type="text" id="prompt" ref="prompt" v-model="prompt" class="form-control" placeholder="你有什么内容想要咨询AI的？（按Enter发送，Shift+Enter换行）"
                         @keydown="onPromptKeydown"
                     ></textarea>

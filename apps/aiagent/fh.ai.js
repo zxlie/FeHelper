@@ -206,7 +206,26 @@ let AI = (() => {
         });
     }
 
-    async function askBuiltInLLM(messages, receivingCallback) {
+    function hasUserIntent() {
+        return !!(globalThis.navigator && globalThis.navigator.userActivation &&
+            globalThis.navigator.userActivation.isActive);
+    }
+
+    function requireUserIntent(userInitiated) {
+        if (!userInitiated) {
+            throw createBuiltInError('请点击发送或下载按钮后再使用本机 AI；页面启动不会自动启用模型。');
+        }
+    }
+
+    function checkBuiltInRequest(availability, options) {
+        if (options.signal) options.signal.throwIfAborted();
+        if (availability !== 'available' && !options.allowDownload) {
+            throw createBuiltInError('本机模型尚未就绪。下载可能占用较多流量和磁盘空间，请在 AI 设置中允许下载，或在工具市场点击“下载并启用模型”。');
+        }
+    }
+
+    async function askBuiltInLLM(messages, receivingCallback, options, userInitiated) {
+        requireUserIntent(userInitiated);
         if (!isBuiltInPromptSupported()) {
             throw createBuiltInError('当前浏览器不支持 Chrome 内置 AI，请使用 Chrome 138+ 或切换云端服务。');
         }
@@ -218,6 +237,7 @@ let AI = (() => {
             throw createBuiltInError('当前设备暂不满足 Chrome 内置 AI 运行条件，请切换 SiliconFlow 或自定义服务。');
         }
 
+        checkBuiltInRequest(availability, options);
         const promptParts = buildPromptParts(messages);
         const msg = {
             id: `builtin-${Date.now()}`,
@@ -228,30 +248,36 @@ let AI = (() => {
 
         try {
             session = await globalThis.LanguageModel.create(buildBuiltInCreateOptions({
+                signal: options.signal,
                 initialPrompts: promptParts.initialPrompts,
                 monitor(monitor) {
                     monitor.addEventListener('downloadprogress', event => {
+                        if (options.signal && options.signal.aborted) return;
                         emitStatus(receivingCallback, 'downloading', event.loaded || 0, 'Chrome 正在下载本机 AI 模型。');
                     });
                 }
             }));
 
+            if (options.signal) options.signal.throwIfAborted();
             emitStatus(receivingCallback, 'available', 1, '');
 
             if (typeof session.promptStreaming === 'function') {
-                const stream = session.promptStreaming(promptParts.conversation);
+                const stream = session.promptStreaming(promptParts.conversation, { signal: options.signal });
                 for await (const chunk of stream) {
+                    if (options.signal) options.signal.throwIfAborted();
                     const text = stringifyStreamChunk(chunk);
                     if (!text) continue;
                     msg.content += text;
                     receivingCallback && receivingCallback(msg);
                 }
             } else {
-                const result = await session.prompt(promptParts.conversation);
+                const result = await session.prompt(promptParts.conversation, { signal: options.signal });
+                if (options.signal) options.signal.throwIfAborted();
                 msg.content = stringifyStreamChunk(result);
                 receivingCallback && receivingCallback(msg);
             }
 
+            if (options.signal) options.signal.throwIfAborted();
             receivingCallback && receivingCallback(null, true);
         } finally {
             if (session && typeof session.destroy === 'function') {
@@ -260,7 +286,8 @@ let AI = (() => {
         }
     }
 
-    async function prepareBuiltInModel(receivingCallback) {
+    async function prepareBuiltInModel(receivingCallback, options = {}) {
+        requireUserIntent(hasUserIntent());
         if (!isBuiltInPromptSupported()) {
             throw createBuiltInError('当前浏览器不支持 Chrome 内置 AI，请使用 Chrome 138+ 或切换云端服务。');
         }
@@ -272,16 +299,20 @@ let AI = (() => {
             throw createBuiltInError('当前设备暂不满足 Chrome 内置 AI 运行条件，请切换 SiliconFlow 或自定义服务。');
         }
 
+        checkBuiltInRequest(availability, { ...options, allowDownload: true });
         let session;
         try {
             session = await globalThis.LanguageModel.create(buildBuiltInCreateOptions({
+                signal: options.signal,
                 initialPrompts: [SYSTEM_PROMPT],
                 monitor(monitor) {
                     monitor.addEventListener('downloadprogress', event => {
+                        if (options.signal && options.signal.aborted) return;
                         emitStatus(receivingCallback, 'downloading', event.loaded || 0, 'Chrome 正在下载本机 AI 模型。');
                     });
                 }
             }));
+            if (options.signal) options.signal.throwIfAborted();
             emitStatus(receivingCallback, 'available', 1, 'Chrome 内置 AI 已可用。');
             return getBuiltInAvailability();
         } finally {
@@ -294,9 +325,10 @@ let AI = (() => {
     /**
      * 流式问答
      */
-    async function askCoderLLM(messages, receivingCallback, apiKey, providerOverride) {
+    async function askCoderLLM(messages, receivingCallback, apiKey, providerOverride, options = {}) {
+        const userInitiated = hasUserIntent();
         if (providerOverride === 'builtin') {
-            return askBuiltInLLM(messages, receivingCallback);
+            return askBuiltInLLM(messages, receivingCallback, options, userInitiated);
         }
 
         const config = await getConfig();
@@ -304,7 +336,7 @@ let AI = (() => {
         const provider = PROVIDERS[providerKey] || PROVIDERS.siliconflow;
 
         if (providerKey === 'builtin') {
-            return askBuiltInLLM(messages, receivingCallback);
+            return askBuiltInLLM(messages, receivingCallback, options, userInitiated);
         }
 
         const key = apiKey || config.apiKey;
@@ -328,6 +360,7 @@ let AI = (() => {
 
         const response = await fetch(url, {
             method: 'POST',
+            signal: options.signal,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${key}`

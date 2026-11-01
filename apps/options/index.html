@@ -192,11 +192,13 @@
                             <p class="fh-eyebrow">FeHelper AI</p>
                             <h2>{{aiPanelTitle}}</h2>
                             <p>{{aiModelMessage}}</p>
+                            <p>仅点击“下载并启用模型”才会请求下载，可能占用较多流量和磁盘空间。</p>
                         </div>
                         <div class="fh-ai-console-actions">
                             <button v-if="showAiPrimaryAction" type="button" class="btn btn-success" @click="handleAiPrimaryAction" :disabled="aiModelBusy">
                                 {{aiPrimaryActionLabel}}
                             </button>
+                            <button v-if="aiModelController" type="button" class="btn btn-default" @click="cancelBuiltInAiModel">取消本次启用</button>
                             <button type="button" class="btn btn-default" @click="openAiAgent()">打开 AI 助手</button>
                             <button type="button" class="btn btn-info" @click="checkBuiltInAiStatus({ notify: true })" :disabled="aiModelBusy">
                                 {{aiRefreshActionLabel}}
@@ -209,7 +211,7 @@
                             <strong>{{aiStatusCardTitle}}</strong>
                             <small>Chrome Built-in AI / Gemini Nano</small>
                         </div>
-                        <div class="fh-ai-progress" v-if="aiModelStatus === 'downloading' || aiModelProgressPercent > 0 && aiModelProgressPercent < 100">
+                        <div class="fh-ai-progress" v-if="aiModelController && (aiModelStatus === 'downloading' || aiModelProgressPercent > 0 && aiModelProgressPercent < 100)">
                             <span :style="{ width: aiModelProgressPercent + '%' }"></span>
                             <em>{{aiModelProgressPercent}}%</em>
                         </div>

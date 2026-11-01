@@ -13,7 +13,7 @@ const INLINE_AI_RULES = [
 const STATUS_TEXT = {
     unsupported: '当前浏览器不支持 Chrome 内置 AI',
     unavailable: '当前设备暂不满足本机 AI 运行条件',
-    downloadable: 'Gemini Nano 模型可下载，首次使用会自动下载',
+    downloadable: 'Gemini Nano 模型可下载，请先在工具市场点击“下载并启用模型”',
     downloading: '正在下载 Gemini Nano 本机模型',
     available: 'Gemini Nano 已就绪，正在生成',
     error: 'AI 状态检测失败'

@@ -41,6 +41,7 @@ function installLanguageModelMock(sessionOverrides = {}) {
 describe('Chrome built-in AI language options', () => {
     afterEach(() => {
         delete globalThis.LanguageModel;
+        vi.unstubAllGlobals();
         vi.restoreAllMocks();
     });
 
@@ -75,6 +76,7 @@ describe('Chrome built-in AI language options', () => {
 
     it('creates built-in sessions with expected output languages', async () => {
         const { create, session } = installLanguageModelMock();
+        vi.stubGlobal('navigator', { userActivation: { isActive: true } });
 
         await AI.askCoderLLM('hello', vi.fn(), null, 'builtin');
 
@@ -92,7 +94,7 @@ describe('Chrome built-in AI language options', () => {
         }));
         expect(session.promptStreaming).toHaveBeenCalledWith([
             { role: 'user', content: 'hello' }
-        ]);
+        ], { signal: undefined });
         expect(session.destroy).toHaveBeenCalled();
     });
 });
