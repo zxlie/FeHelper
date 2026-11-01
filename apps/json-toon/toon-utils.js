@@ -125,7 +125,7 @@ function positions(text, symbol) {
     if (quoted) throw new Error('引号未闭合');
     return result;
 }
-function split(text, delimiter) {
+function split(text, delimiter, fields = false) {
     let start = 0;
     const parts = [];
     for (const index of positions(text, delimiter)) {
@@ -133,7 +133,7 @@ function split(text, delimiter) {
         start = index + 1;
     }
     parts.push(trimSpaces(text.slice(start)));
-    if (parts.some(part => !part)) throw new Error('数组值或表格字段为空，请用 "" 表示空字符串');
+    if (fields && parts.some(part => !part)) throw new Error('表格字段不能为空');
     return parts;
 }
 function unquote(token) {
@@ -176,8 +176,8 @@ export function decodeToon(text) {
     validUnicode(text);
     const lines = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').split('\n').map((raw, index) => {
         if (/^ *#/.test(raw)) return null;
-        const indent = raw.match(/^[ \t]*/)[0];
-        if (indent.includes('\t') || indent.length % 2) throw new Error(`第 ${index + 1} 行：仅支持每级 2 个空格缩进`);
+        const indent = raw.match(/^ */)[0];
+        if (indent.length % 2) throw new Error(`第 ${index + 1} 行：仅支持每级 2 个空格缩进`);
         const content = raw.slice(indent.length).replace(/ +$/, '');
         if (content.includes('\r')) throw new Error(`第 ${index + 1} 行：不支持单独的回车字符`);
         return { text: content, depth: indent.length / 2, line: index + 1 };
@@ -201,7 +201,7 @@ export function decodeToon(text) {
             for (const other of [',', '|', '\t'].filter(d => d !== delimiter)) {
                 if (positions(match[3], other).length) throw new Error('表格字段分隔符不匹配');
             }
-            fields = split(match[3], delimiter).map(field => tokenValue(field, true));
+            fields = split(match[3], delimiter, true).map(field => tokenValue(field, true));
             if (new Set(fields).size !== fields.length) throw new Error('表格字段重复');
         }
         return { key: key ? tokenValue(key, true) : null, count: match[1], fields, delimiter, inline: trimSpaces(match[4]) };
@@ -211,7 +211,7 @@ export function decodeToon(text) {
         const result = [];
         if (h.fields && (h.inline || nestedItem)) throw new Error('表格数组不能包含行内值，也不能直接作为列表项');
         if (h.inline) {
-            result.push(...split(h.inline, h.delimiter).map(part => tokenValue(part)));
+            for (const part of split(h.inline, h.delimiter)) result.push(tokenValue(part));
         } else {
             while (cursor < lines.length) {
                 const row = lines[cursor];
@@ -259,6 +259,7 @@ export function decodeToon(text) {
             const row = lines[cursor];
             if (row.depth !== depth) throw new Error(`第 ${row.line} 行：缩进层级不正确`);
             cursor++;
+            if (row.text.startsWith('\t')) throw new Error('仅支持每级 2 个空格缩进');
             const h = header(row.text);
             if (h) {
                 if (h.key === null) throw new Error('对象内数组必须有字段名');
@@ -276,7 +277,7 @@ export function decodeToon(text) {
     skipBlank();
     if (cursor === lines.length) return {};
     const first = lines[cursor];
-    if (first.depth !== 0) throw new Error('第一行不能缩进');
+    if (first.depth !== 0 || first.text.startsWith('\t')) throw new Error('第一行不能缩进');
     const h = header(first.text);
     let result;
     if (h && h.key === null) { cursor++; result = array(h, 0); }

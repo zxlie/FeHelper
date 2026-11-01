@@ -6,7 +6,9 @@ const direction = document.querySelector('#direction');
 const status = document.querySelector('#status');
 const copy = document.querySelector('#copy');
 const example = '{"users":[{"id":1,"name":"Ada","role":"admin"},{"id":2,"name":"Bob","role":"user"}]}';
+let hasResult = false;
 function reset() {
+    hasResult = false;
     output.value = '';
     copy.disabled = true;
     status.textContent = '';
@@ -16,6 +18,7 @@ function convert() {
     reset();
     try {
         output.value = direction.value === 'encode' ? jsonToToon(input.value) : JSON.stringify(decodeToon(input.value), null, 2);
+        hasResult = true;
         copy.disabled = !output.value;
         status.textContent = output.value ? '转换完成' : '转换完成：空对象在 TOON 中表示为空文档';
     } catch (error) {
@@ -31,7 +34,7 @@ document.querySelector('#example').addEventListener('click', () => {
 document.querySelector('#clear').addEventListener('click', () => { input.value = ''; reset(); input.focus(); });
 input.addEventListener('input', reset);
 direction.addEventListener('change', () => {
-    input.value = output.value;
+    if (hasResult) input.value = output.value;
     reset();
     document.querySelector('#input-label').textContent = direction.value === 'encode' ? 'JSON 输入' : 'TOON 输入';
     document.querySelector('#output-label').textContent = direction.value === 'encode' ? 'TOON 结果' : 'JSON 结果';

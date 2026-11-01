@@ -65,3 +65,18 @@ describe('TOON lossless and bounded parsing regressions', () => {
         expect(() => encodeToon('\ud800')).toThrow(/Unicode/);
     });
 });
+
+
+describe('TOON review regressions', () => {
+    it('round trips wide inline arrays within the documented character limit', () => {
+        const values = Array(150000).fill(1);
+        expect(decodeToon(encodeToon(values))).toEqual(values);
+    });
+    it.each([',', '|', '\t'])('accepts leading, internal and trailing empty data cells with %j', delimiter => {
+        const marker = delimiter === ',' ? '' : delimiter;
+        expect(decodeToon(`[4${marker}]: ${delimiter}1${delimiter}${delimiter}`)).toEqual(['', 1, '', '']);
+        expect(decodeToon(`rows[1${marker}]{a${delimiter}b${delimiter}c${delimiter}d}:\n  ${delimiter}1${delimiter}${delimiter}`))
+            .toEqual({rows: [{a: '', b: 1, c: '', d: ''}]});
+        expect(() => decodeToon(`rows[1${marker}]{a${delimiter}}:\n  1${delimiter}2`)).toThrow();
+    });
+});
