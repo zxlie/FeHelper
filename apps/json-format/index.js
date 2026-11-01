@@ -25,6 +25,7 @@ let AUTO_DECODE = 'jsonformat:auto-decode';
 let JSON_WINDOW_NOTE = 'jsonformat:window-note';
 let FH_UI_MODE = 'FH_UI_MODE';
 let JSON_FORMAT_UI_MODE = 'JSON_FORMAT_UI_MODE';
+let formatRevision = 0;
 
 const JSON_DERIVED_AI_TASKS = {
     structure: {
@@ -556,6 +557,8 @@ new Vue({
         },
 
         resetResultActions() {
+            // Invalid/empty input and explicit transforms also invalidate pending decoding.
+            formatRevision++;
             this.jsonActionReady = false;
             this.tableViewReady = false;
             this.setResultActionAvailability(false);
@@ -1125,10 +1128,20 @@ new Vue({
                     this.jsonFormattedSource = source;
                     this.syncResultActions(source);
 
+                    const revision = formatRevision;
                     if (this.autoDecode) {
                         (async () => {
-                            let txt = await JsonEnDecode.urlDecodeByFetch(source);
-                            source = JsonEnDecode.uniDecode(txt);
+                            try {
+                                let txt = await JsonEnDecode.urlDecodeByFetch(source);
+                                source = window.FHJsonAutoUtils.coerceDecodedJSONSource(
+                                    source, JsonEnDecode.uniDecode(txt)
+                                );
+                            } catch (_) {
+                                // Decoding is optional; a blocked data: fetch must not hide valid JSON.
+                            }
+                            if (revision !== formatRevision) return;
+                            this.jsonFormattedSource = source;
+                            this.syncResultActions(source);
                             await Formatter.format(source, null, this.escapeJsonString);
                         })();
                     } else {
