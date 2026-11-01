@@ -11,6 +11,11 @@ let toolMap = {
             contexts: ['page', 'selection', 'editable']
         }]
     },
+    'json-toon': {
+        name: 'JSON / TOON 转换',
+        tips: '本地双向转换 JSON 与 TOON，支持嵌套对象、数组和表格数组',
+        menuConfig: [{ icon: 'TN', text: 'JSON / TOON 转换' }]
+    },
     'json-diff': {
         name: '文本/JSON Diff',
         tips: '支持文本 Diff、JSON 结构化比对，也支持代码、日志、Markdown 的按行对比',

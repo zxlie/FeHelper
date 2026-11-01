@@ -1,0 +1,28 @@
+/* FeHelper existing tokens; one accent = Convert. Font sizes 13/14/16;
+ * spacing 8/16/24, no motion. Existing toolbar/button tokens are intentional exceptions.
+ * Two equal editors keep source/result comparable; 720px switches to a stacked layout. */
+.converter-tool { max-width: 1440px; margin: 0 auto; padding: 8px; }
+.converter-tool main { padding: 16px; }
+.intro { margin: 0 0 16px; color: var(--fh-muted); font-size: 14px; line-height: 1.6; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.converter-tool .btn { min-height: 34px; padding: 8px 16px; cursor: pointer; }
+.converter-tool .btn:disabled { opacity: 0.5; cursor: default; }
+.converter-tool textarea, .converter-tool button { transition: none !important; }
+.converter-tool button:hover, .converter-tool button:active { transform: none; }
+.toolbar select { width: auto; min-width: 160px; }
+#status { min-height: 24px; margin: 8px 0; font-size: 14px; color: var(--fh-muted); overflow-wrap: anywhere; }
+#status[data-error="true"] { color: var(--fh-danger); }
+.editors { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.editor { min-width: 0; }
+.editor-heading { min-height: 40px; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.editor-heading label { font-size: 16px; font-weight: 600; margin: 0; }
+.editor textarea { box-sizing: border-box; display: block; width: 100%; min-height: 360px; height: 55vh; padding: 16px; resize: vertical; border: 1px solid var(--fh-line); border-radius: var(--fh-radius); background: var(--fh-panel-solid); color: var(--fh-text); font: 14px/1.6 var(--fh-mono); tab-size: 2; }
+.editor textarea:focus-visible { outline: 2px solid var(--fh-primary); outline-offset: 2px; }
+.help { margin-top: 24px; color: var(--fh-muted); font-size: 13px; line-height: 1.7; }
+.help summary { cursor: pointer; }
+.help p { max-width: 100ch; }
+@media (max-width: 720px) {
+    .converter-tool main { padding: 8px; }
+    .editors { grid-template-columns: minmax(0, 1fr); }
+    .editor textarea { min-height: 240px; height: 35vh; }
+}

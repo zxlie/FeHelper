@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JSON / TOON 转换 - FeHelper</title>
+    <link rel="shortcut icon" href="../static/img/favicon.ico">
+    <link rel="stylesheet" href="../static/css/fehelper-tools.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body class="fh-modern">
+    <div class="wrapper converter-tool">
+        <header class="main-navbar">
+            <a href="https://fehelper.com" target="_blank" rel="noopener" class="brand-link"><img src="../static/img/fe-16.png" alt=""><span class="brand-text">FeHelper</span></a>
+            <span class="brand-subtitle">JSON / TOON 转换</span>
+            <button id="tools" class="btn btn-default" type="button">工具市场</button>
+        </header>
+        <main>
+            <p class="intro">将 JSON 转为紧凑的 TOON，或还原为 JSON。所有转换均在本地完成。</p>
+            <div class="toolbar">
+                <label for="direction">转换方向</label><select id="direction" class="form-control"><option value="encode">JSON → TOON</option><option value="decode">TOON → JSON</option></select>
+                <button id="convert" class="btn btn-primary" type="button">转换</button>
+                <button id="example" class="btn btn-default" type="button">填入示例</button>
+                <button id="clear" class="btn btn-default" type="button">清空</button>
+            </div>
+            <div id="status" role="status" aria-live="polite"></div>
+            <div class="editors">
+                <section class="editor">
+                    <div class="editor-heading"><label id="input-label" for="input">JSON 输入</label></div>
+                    <textarea id="input" spellcheck="false" autocomplete="off" placeholder="粘贴内容，或点击「填入示例」"></textarea>
+                </section>
+                <section class="editor">
+                    <div class="editor-heading"><label id="output-label" for="output">TOON 结果</label><button id="copy" class="btn btn-default" type="button" disabled>复制结果</button></div>
+                    <textarea id="output" readonly spellcheck="false" placeholder="转换结果将显示在这里"></textarea>
+                </section>
+            </div>
+            <details class="help"><summary>支持范围与使用说明</summary><p>支持嵌套对象、列表、基础表格数组；解码支持逗号、管道和制表符。使用 2 空格缩进，最多 100 层、2 Mi 字符。不支持 keyed tabular 对象或嵌套表格字段，会明确报错。数字按 JavaScript 双精度处理，超出安全范围的整数请用字符串。</p></details>
+        </main>
+    </div>
+    <script src="../static/js/tool-layout.js"></script>
+    <script type="module" src="index.js"></script>
+</body>
+</html>
