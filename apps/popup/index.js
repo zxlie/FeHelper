@@ -313,8 +313,24 @@ new Vue({
             try {
                 const raw = window.localStorage && localStorage.getItem(POPUP_TOOL_CACHE_KEY);
                 const parsed = raw ? JSON.parse(raw) : null;
-                if (!parsed || typeof parsed !== 'object' || !parsed.tools) return null;
-                return parsed.tools;
+                if (!parsed || !parsed.tools || typeof parsed.tools !== 'object' || Array.isArray(parsed.tools)) return null;
+                const tools = {};
+                Object.keys(parsed.tools).forEach(key => {
+                    const cached = parsed.tools[key];
+                    if (!cached || typeof cached !== 'object' || cached.installed !== true) return;
+                    // Built-in definitions can change after an extension update. The cache
+                    // supplies installation state, never stale executable/UI metadata.
+                    const builtin = Object.prototype.hasOwnProperty.call(toolMap, key) && toolMap[key];
+                    if (builtin) {
+                        tools[key] = Object.assign({}, builtin, {installed: true});
+                    } else if (cached._devTool && cached._enable && typeof cached.name === 'string' && cached.name.trim()) {
+                        tools[key] = Object.assign({}, cached, {
+                            tips: typeof cached.tips === 'string' ? cached.tips : '',
+                            menuConfig: []
+                        });
+                    }
+                });
+                return tools;
             } catch (e) {
                 return null;
             }
