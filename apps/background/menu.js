@@ -21,7 +21,7 @@ const TOOL_MENU_GROUPS = [
     {
         id: 'encode-convert',
         title: '编解码转换',
-        tools: ['en-decode', 'json-toon', 'timestamp', 'datetime-calc', 'trans-radix', 'trans-color', 'byte-unit', 'uuid-gen', 'totp-auth']
+        tools: ['en-decode', 'json-toon', 'curl-python', 'timestamp', 'datetime-calc', 'trans-radix', 'trans-color', 'byte-unit', 'uuid-gen', 'totp-auth']
     },
     {
         id: 'page-debug',

@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>curl 转 Python requests - FeHelper</title>
+    <link rel="shortcut icon" href="../static/img/favicon.ico">
+    <link rel="stylesheet" href="../static/css/fehelper-tools.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body class="fh-modern">
+    <div class="wrapper converter-tool">
+        <header class="main-navbar">
+            <a href="https://fehelper.com" target="_blank" rel="noopener" class="brand-link"><img src="../static/img/fe-16.png" alt=""><span class="brand-text">FeHelper</span></a>
+            <span class="brand-subtitle">curl 转 Python requests</span>
+            <button id="tools" class="btn btn-default" type="button">工具市场</button>
+        </header>
+        <main>
+            <p class="intro">粘贴 curl 命令，生成可复制的 Python requests 代码。转换过程不会执行命令或发送请求。</p>
+            <div class="toolbar">
+                
+                <button id="convert" class="btn btn-primary" type="button">转换</button>
+                <button id="example" class="btn btn-default" type="button">填入示例</button>
+                <button id="clear" class="btn btn-default" type="button">清空</button>
+            </div>
+            <div id="status" role="status" aria-live="polite"></div>
+            <div class="editors">
+                <section class="editor">
+                    <div class="editor-heading"><label id="input-label" for="input">curl 命令</label></div>
+                    <textarea id="input" spellcheck="false" autocomplete="off" placeholder="粘贴内容，或点击「填入示例」"></textarea>
+                </section>
+                <section class="editor">
+                    <div class="editor-heading"><label id="output-label" for="output">Python 代码</label><button id="copy" class="btn btn-default" type="button" disabled>复制结果</button></div>
+                    <textarea id="output" readonly spellcheck="false" placeholder="转换结果将显示在这里"></textarea>
+                </section>
+            </div>
+            <details class="help"><summary>支持范围与使用说明</summary><p>支持 POSIX/Bash 引号、续行、-X、-H、-d、--data-raw、--data-binary、--data-urlencode、--json、-G、-I、-u、-b、-A、-e、-L、-k，以及文本 -F 表单。仅支持单个 HTTP(S) URL；文件上传、变量、PowerShell/cmd 语法、--compressed、超时和未知选项会报错。输出适用于 Python 3 + requests，运行前请核对凭据及请求内容。</p></details>
+        </main>
+    </div>
+    <script src="../static/js/tool-layout.js"></script>
+    <script type="module" src="index.js"></script>
+</body>
+</html>

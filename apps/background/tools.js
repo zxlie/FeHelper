@@ -16,6 +16,11 @@ let toolMap = {
         tips: '本地双向转换 JSON 与 TOON，支持嵌套对象、数组和表格数组',
         menuConfig: [{ icon: 'TN', text: 'JSON / TOON 转换' }]
     },
+    'curl-python': {
+        name: 'curl 转 Python',
+        tips: '将 curl 请求转换为 Python requests 代码，支持常用请求头、认证和请求体',
+        menuConfig: [{ icon: 'PY', text: 'curl 转 Python' }]
+    },
     'json-diff': {
         name: '文本/JSON Diff',
         tips: '支持文本 Diff、JSON 结构化比对，也支持代码、日志、Markdown 的按行对比',
