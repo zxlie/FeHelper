@@ -267,7 +267,10 @@ new Vue({
         deferTask(callback, timeout = 250) {
             const runner = () => {
                 try {
-                    callback();
+                    const result = callback();
+                    if (result && typeof result.catch === 'function') {
+                        result.catch(() => {});
+                    }
                 } catch (e) {}
             };
             if (window.requestIdleCallback) {
@@ -428,6 +431,7 @@ new Vue({
                 thing: 'fh-get-tool-patch',
                 toolName: 'popup'
             }, patch => {
+                if (chrome.runtime.lastError) return;
                 if (patch) {
                     if (patch.css) {
                         const style = document.createElement('style');
@@ -534,15 +538,25 @@ new Vue({
 
         storageGet(keys) {
             return new Promise(resolve => {
+                // Optional order/preferences must not hold the installed menu behind
+                // a callback that never arrives during a cold extension startup.
+                let settled = false;
+                const finish = data => {
+                    if (settled) return;
+                    settled = true;
+                    clearTimeout(timer);
+                    resolve(data || {});
+                };
+                const timer = setTimeout(() => finish({}), 1000);
                 try {
                     const result = chrome.storage.local.get(keys, data => {
-                        resolve(data || {});
+                        finish(chrome.runtime.lastError ? {} : data);
                     });
                     if (result && typeof result.then === 'function') {
-                        result.then(data => resolve(data || {})).catch(() => resolve({}));
+                        result.then(finish).catch(() => finish({}));
                     }
                 } catch (e) {
-                    resolve({});
+                    finish({});
                 }
             });
         },
@@ -825,7 +839,7 @@ new Vue({
 
         recordUsage() {
             try {
-                chrome.runtime.sendMessage({
+                return chrome.runtime.sendMessage({
                     type: 'fh-dynamic-any-thing',
                     thing: 'statistics-tool-usage',
                     params: {

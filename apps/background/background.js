@@ -458,6 +458,10 @@ let BgPageInstance = (function () {
         });
     };
 
+    // MV3 must register wakeup listeners synchronously, before storage/timers.
+    // Chrome does not dispatch onClicked while an action popup is configured.
+    chrome.action.onClicked.addListener(browserActionClickedHandler);
+
     /**
      * 更新browser action的点击动作
      * @param action install / upgrade / offload
@@ -480,25 +484,13 @@ let BgPageInstance = (function () {
                 if (installedCount > 1) {
                     // 多个工具：显示popup
                     chrome.action.setPopup({ popup: '/popup/index.html' });
-                    // 移除点击监听器（如果存在）
-                    if (chrome.action.onClicked.hasListener(browserActionClickedHandler)) {
-                        chrome.action.onClicked.removeListener(browserActionClickedHandler);
-                    }
                 } else if (installedCount === 1) {
                     // 只有一个工具：直接打开工具，不显示popup
                     chrome.action.setPopup({ popup: '' });
                     
-                    // 添加点击监听器
-                    if (!chrome.action.onClicked.hasListener(browserActionClickedHandler)) {
-                        chrome.action.onClicked.addListener(browserActionClickedHandler);
-                    }
                 } else {
                     // 没有安装任何工具：显示popup（让用户去安装工具）
                     chrome.action.setPopup({ popup: '/popup/index.html' });
-                    // 移除点击监听器（如果存在）
-                    if (chrome.action.onClicked.hasListener(browserActionClickedHandler)) {
-                        chrome.action.onClicked.removeListener(browserActionClickedHandler);
-                    }
                 }
                 });
             }, delay);

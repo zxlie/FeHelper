@@ -61,7 +61,9 @@
         return;
     }
 
-    root.setAttribute(pendingAttr, 'true');
+    // A cold/failed storage read must never make the whole popup invisible.
+    // Paint the local default immediately and refine it when settings arrive.
+    finish(localSettings);
 
     if (
         typeof chrome === 'undefined' ||
@@ -86,7 +88,14 @@
     };
 
     try {
-        chrome.storage.local.get([autoKey, alwaysKey], resolve);
+        var result = chrome.storage.local.get([autoKey, alwaysKey], function (settings) {
+            resolve(chrome.runtime && chrome.runtime.lastError ? localSettings : settings);
+        });
+        if (result && typeof result.then === 'function') {
+            result.then(resolve).catch(function () {
+                resolve(localSettings);
+            });
+        }
         window.setTimeout(function () {
             resolve(localSettings);
         }, 500);
