@@ -70,3 +70,13 @@ describe('#655: automatic content formatting preserves the runner event array', 
             .toBe('{"items":[1]}');
     });
 });
+
+
+it('#655 rejects same-shape decoding that overwrites a sibling string', () => {
+    for (const b of ['good', '%42']) {
+        const source = JSON.stringify({b, a: '%22%2C%22b%22%3A%22BAD%22%2C%22a%22%3A%22'});
+        const decoded = decodeURIComponent(source);
+        expect(JSON.parse(decoded).b).toBe('BAD');
+        expect(utils.coerceDecodedJSONSource(source, decoded)).toBe(source);
+    }
+});

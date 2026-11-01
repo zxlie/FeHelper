@@ -677,7 +677,15 @@
             const pending = [[original.value, parsed.value]];
             while (pending.length) {
                 const [before, after] = pending.pop();
-                if (typeof before === 'string' && typeof after === 'string') continue;
+                if (typeof before === 'string' && typeof after === 'string') {
+                    if (before === after) continue;
+                    // A string may decode only its own contents. Otherwise encoded
+                    // delimiters can overwrite a sibling without changing the shape.
+                    try {
+                        if (decodeURIComponent(before) === after) continue;
+                    } catch (_) { /* Ambiguous/invalid escapes retain the original JSON. */ }
+                    return source;
+                }
                 if (before === after) continue;
                 if (!before || !after || typeof before !== 'object' || typeof after !== 'object' ||
                     Array.isArray(before) !== Array.isArray(after)) {
