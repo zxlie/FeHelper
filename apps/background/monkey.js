@@ -9,6 +9,7 @@
  *  - 命中计数
  */
 import InjectTools from './inject-tools.js';
+import '../static/js/monkey-free-copy.js';
 import { installUrlChangeHook, installUrlChangeListener } from './monkey-url-change.js';
 
 const PAGE_MONKEY_LOCAL_STORAGE_KEY = 'PAGE-MODIFIER-LOCAL-STORAGE-KEY';
@@ -28,7 +29,7 @@ const migrateMonkey = (cm) => {
     if (!Array.isArray(cm.mTags)) cm.mTags = [];
     if (typeof cm.mHits !== 'number') cm.mHits = 0;
     if (typeof cm.mStyle !== 'string') cm.mStyle = '';
-    return cm;
+    return globalThis.FHMonkeyFreeCopy.migrate(cm);
 };
 
 /* ================== 匹配引擎 ================== */

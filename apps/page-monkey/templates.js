@@ -102,15 +102,7 @@ img, video, picture, iframe, svg, [style*="background-image"] {
                 mName: '通用：自由复制（解除右键禁用 / 文本选择限制）',
                 mIncludes: ['*://*/*'],
                 mExcludes: [],
-                mScript: `(() => {
-  const events = ['contextmenu', 'selectstart', 'copy', 'cut', 'dragstart', 'mousedown'];
-  events.forEach(ev => {
-    document.addEventListener(ev, e => e.stopPropagation(), true);
-    window.addEventListener(ev, e => e.stopPropagation(), true);
-  });
-  document.oncontextmenu = document.onselectstart = document.oncopy = null;
-  console.log('[FeHelper] 已解除复制/右键限制');
-})();`,
+                mScript: globalThis.FHMonkeyFreeCopy.script,
                 mStyle: `* { -webkit-user-select: text !important; user-select: text !important; }`,
                 mRunAt: 'document-start',
                 mAllFrames: true,

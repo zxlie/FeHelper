@@ -84,7 +84,7 @@ const migrate = (cm) => {
     if (typeof cm.mHits !== 'number') cm.mHits = 0;
     if (typeof cm.mStyle !== 'string') cm.mStyle = '';
     if (!cm.mUpdatedAt) cm.mUpdatedAt = '';
-    return cm;
+    return globalThis.FHMonkeyFreeCopy.migrate(cm);
 };
 
 const newMonkey = () => ({
