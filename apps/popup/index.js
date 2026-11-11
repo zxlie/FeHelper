@@ -886,7 +886,9 @@ new Vue({
                 if (response && response.ok === false) {
                     throw new Error(response.error || '后台未能打开工具页面');
                 }
-                !!tool.noPage && setTimeout(window.close, 200);
+                // Firefox keeps the action popup open even after a tool tab opens.
+                // Close only after the background has accepted the launch.
+                setTimeout(() => window.close(), 200);
             } catch (e) {
                 console.error('工具页面打开失败:', e);
             }
