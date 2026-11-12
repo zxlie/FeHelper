@@ -343,6 +343,8 @@ window.Formatter = (function () {
             jsonSearchIndex = null;
             largeJsonPlainViewEnabled = false;
             largeJsonNodeViewEnabled = false;
+            pagedJsonViewEnabled = false;
+            pagedJsonNodes.clear();
             jfContent.html('').show();
             jfPre.html('').hide();
             jfStatusBar && jfStatusBar.hide();
@@ -657,6 +659,10 @@ window.Formatter = (function () {
     };
 
     let _getJsonPathKeys = function (curEl) {
+        if (pagedJsonViewEnabled) {
+            let entry = pagedJsonNodes.get(Number(curEl.attr('data-fh-lazy')));
+            if (entry) return entry.path;
+        }
         let keys = [];
         let current = curEl;
 
@@ -1018,15 +1024,28 @@ window.Formatter = (function () {
                 ? el.parent('.item-array-container')
                 : null;
             let utils = window.FHJsonAutoUtils || {};
-            if (
-                cachedJsonValue !== null &&
-                typeof utils.deletePreservedValueAtPath === 'function' &&
-                utils.deletePreservedValueAtPath(cachedJsonValue, _getJsonPathKeys(el))
-            ) {
+            let deleted = false;
+            let entry = pagedJsonViewEnabled && pagedJsonNodes.get(Number(el.attr('data-fh-lazy')));
+            if (entry && entry.parent) {
+                if (Array.isArray(entry.parent)) entry.parent.splice(entry.key, 1);
+                else delete entry.parent[entry.key];
+                deleted = true;
+            } else if (cachedJsonValue !== null && typeof utils.deletePreservedValueAtPath === 'function') {
+                deleted = utils.deletePreservedValueAtPath(cachedJsonValue, _getJsonPathKeys(el));
+            }
+            if (deleted) {
                 cachedJsonString = _safeStringify(cachedJsonValue, 4);
                 jfPre.text(cachedJsonString);
             }
             toast('节点已删除成功！');
+            if (pagedJsonViewEnabled) {
+                // Rebuild indices and discard stale page cursors after deletion.
+                _renderPagedJsonTree();
+                document.dispatchEvent(new window.CustomEvent('fh-json-result-change', {
+                    detail: {source: cachedJsonString}
+                }));
+                return;
+            }
             el.remove();
             if (
                 arrayContainer && arrayContainer.length &&
@@ -1206,7 +1225,8 @@ window.Formatter = (function () {
             return getJsonText(el);
         }
 
-        let value = _getJsonValueByKeys(_getJsonPathKeys(el));
+        let entry = pagedJsonViewEnabled && pagedJsonNodes.get(Number(el.attr('data-fh-lazy')));
+        let value = entry ? entry.value : _getJsonValueByKeys(_getJsonPathKeys(el));
         let text = _safeStringify(value, 4);
         return text === undefined ? '' : text;
     };
@@ -1323,8 +1343,9 @@ window.Formatter = (function () {
             query: jsonSearchState.query,
             total: jsonSearchState.matches.length,
             current: jsonSearchState.index >= 0 ? jsonSearchState.index + 1 : 0,
-            disabled: largeJsonPlainViewEnabled,
-            reason: largeJsonPlainViewEnabled ? '大型 JSON 为完整文本视图，请使用浏览器查找' : ''
+            disabled: largeJsonPlainViewEnabled || pagedJsonViewEnabled,
+            reason: largeJsonPlainViewEnabled ? '大型 JSON 为完整文本视图，请使用浏览器查找' :
+                (pagedJsonViewEnabled ? '按需节点视图，请切换元数据后使用浏览器查找全文' : '')
         };
     };
 
@@ -1360,7 +1381,7 @@ window.Formatter = (function () {
         query = String(query || '').trim();
         _clearJsonSearch();
 
-        if (largeJsonPlainViewEnabled) {
+        if (largeJsonPlainViewEnabled || pagedJsonViewEnabled) {
             jsonSearchState.query = query;
             return _getSearchResultState();
         }
@@ -1434,7 +1455,9 @@ window.Formatter = (function () {
                 // 只给没有id的节点分配唯一id，并生成注释
                 if (!el.attr('id')) {
                     el.attr('id', 'item' + (++lastItemIdGiven));
-                    let count = el.children('.kv-list').eq(0).children().length;
+                    let entry = pagedJsonViewEnabled && pagedJsonNodes.get(Number(el.attr('data-fh-lazy')));
+                    let count = entry ? (Array.isArray(entry.value) ? entry.value.length : Object.keys(entry.value).length) :
+                        el.children('.kv-list').eq(0).children().length;
                     let comment = count + (count === 1 ? ' item' : ' items');
                     jfStyleEl[0].insertAdjacentHTML(
                         'beforeend',
@@ -1461,7 +1484,8 @@ window.Formatter = (function () {
         if (plainJsonViewEnabled) {
             _setPlainJsonView(false);
         }
-        $('#jfContent .item-object, #jfContent .item-array, #jfContent .item-block').removeClass('collapsed');
+        // Unloaded branches must keep their ellipsis until explicitly opened.
+        $('#jfContent .item-object:not([data-fh-lazy]), #jfContent .item-array:not([data-fh-lazy]), #jfContent .item-block:not([data-fh-lazy]), #jfContent [data-fh-loaded]').removeClass('collapsed');
         $('#optionBar .fh-json-collapse-toggle').text('折叠');
         jfStatusBar && jfStatusBar.hide();
     };
@@ -1537,10 +1561,28 @@ window.Formatter = (function () {
             ev.stopPropagation();
 
             let parentEl = $(this).parent();
+            if (pagedJsonViewEnabled && !parentEl.attr('data-fh-loaded')) {
+                _loadPagedJsonChildren(parentEl, 0);
+                return;
+            }
             parentEl.toggleClass('collapsed');
 
             if (parentEl.hasClass('collapsed')) {
                 collapse(parentEl);
+            }
+        });
+
+        jfContent.on('click.fhJsonTree', '.fh-json-page, .fh-json-full-string', function(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            let button = $(this);
+            let el = button.closest('.item');
+            if (button.hasClass('fh-json-page')) {
+                _loadPagedJsonChildren(el, Number(button.attr('data-offset')));
+            } else {
+                let entry = pagedJsonNodes.get(Number(el.attr('data-fh-lazy')));
+                if (entry) el.children('.string').text(JSON.stringify(entry.value)).addClass('string-long');
+                button.remove();
             }
         });
 
@@ -1817,8 +1859,116 @@ window.Formatter = (function () {
         return String(source || '').length > LARGE_JSON_TEXT_THRESHOLD;
     };
 
-    // Explicit opt-in only: keep automatic rendering conservative, and retain
-    // hard size/node/depth limits even when the user requests the tree.
+    // Large trees are opened one level and one page at a time. Reuse the normal
+    // tree markup/actions; cachedJsonValue remains the source for copy/download.
+    const LARGE_JSON_PAGE_SIZE = 100;
+    const LARGE_JSON_STRING_PREVIEW = 2048;
+    let pagedJsonViewEnabled = false;
+    let pagedJsonNodes = new Map();
+    let pagedJsonNodeId = 0;
+
+    let _pagedJsonNodeHtml = function(value, path, key, arrayIndex, comma, parent) {
+        let id = ++pagedJsonNodeId;
+        pagedJsonNodes.set(id, {value, path, parent, key: arrayIndex === undefined ? key : arrayIndex});
+        let type = getType(value);
+        let container = type === 'array' || type === 'object';
+        let classes = 'item' + (container ? ' item-block collapsed' : ' item-line');
+        if (!path.length) classes += ' rootItem' + (container ? (type === 'array' ? ' item-array' : ' item-object') : '');
+        if (arrayIndex !== undefined) classes += ' item-array-element';
+        if (type === 'string' && shouldWrapLongString(value)) classes += ' item-line-wrap';
+        let html = '<div class="' + classes + '" data-fh-lazy="' + id + '"' +
+            (arrayIndex !== undefined ? ' data-array-index="' + arrayIndex + '"' : '') + '>';
+        if (container) html += '<span class="expand"></span>';
+        if (key !== undefined) {
+            html += '<span class="quote">"</span><span class="key">' +
+                htmlspecialchars(_normalizePreservedKey(key)) + '</span><span class="quote">"</span><span class="colon">: </span>';
+        }
+        if (container) {
+            html += '<span class="brace">' + (type === 'array' ? '[' : '{') + '</span>' +
+                '<span class="ellipsis"></span><div class="kv-list' + (type === 'array' ? ' item-array-container' : '') + '"></div>' +
+                '<span class="brace">' + (type === 'array' ? ']' : '}') + '</span>';
+        } else {
+            // Do not recursively decode JSON-looking strings in this bounded view.
+            let preview = type === 'string' && value.length > LARGE_JSON_STRING_PREVIEW;
+            let previousEscape = escapeJsonStringEnabled;
+            try {
+                escapeJsonStringEnabled = false;
+                html += preview
+                    ? '<span class="string string-long">' + htmlspecialchars(JSON.stringify(value.slice(0, LARGE_JSON_STRING_PREVIEW))) + '</span>'
+                    : createNode(value).getHTML().replace(/^<div class="item item-line(?: item-line-wrap)?">/, '').replace(/<\/div>$/, '');
+            } finally {
+                escapeJsonStringEnabled = previousEscape;
+            }
+            if (preview) html += '<button class="xjf-btn fh-json-full-string" type="button">显示完整字符串（' + value.length + ' 字符）</button>';
+        }
+        return html + (comma ? '<span class="comma">,</span>' : '') + '</div>';
+    };
+
+    let _pagedJsonChildrenHtml = function(entry, offset) {
+        let value = entry.value;
+        let array = Array.isArray(value);
+        // Cache object keys only when this branch is opened; arrays need no key list.
+        if (!array && !entry.keys) entry.keys = Object.keys(value);
+        let count = array ? value.length : entry.keys.length;
+        offset = Math.max(0, Math.min(Math.floor(offset / LARGE_JSON_PAGE_SIZE) * LARGE_JSON_PAGE_SIZE,
+            Math.max(0, Math.ceil(count / LARGE_JSON_PAGE_SIZE) - 1) * LARGE_JSON_PAGE_SIZE));
+        let end = Math.min(count, offset + LARGE_JSON_PAGE_SIZE);
+        let html = '';
+        for (let index = offset; index < end; index++) {
+            let key = array ? index : entry.keys[index];
+            let pathKey = array ? '[' + index + ']' : _normalizePreservedKey(key);
+            html += _pagedJsonNodeHtml(value[key], entry.path.concat(pathKey), array ? undefined : key,
+                array ? index : undefined, index < count - 1, value);
+        }
+        if (count > LARGE_JSON_PAGE_SIZE) {
+            html += '<div class="fh-json-pages">';
+            for (const [label, start, disabled] of [
+                ['首页', 0, offset === 0], ['上一页', offset - LARGE_JSON_PAGE_SIZE, offset === 0],
+                ['下一页', end, end === count], ['末页', count - 1, end === count]
+            ]) {
+                html += '<button type="button" class="xjf-btn fh-json-page" data-offset="' + start + '"' +
+                    (disabled ? ' disabled' : '') + '>' + label + '</button>';
+            }
+            html += '<span> ' + (offset + 1) + '–' + end + ' / ' + count + ' 项</span></div>';
+        }
+        return html;
+    };
+
+    let _loadPagedJsonChildren = function(el, offset) {
+        let entry = pagedJsonNodes.get(Number(el.attr('data-fh-lazy')));
+        if (!entry || !entry.value || typeof entry.value !== 'object') return;
+        let list = el.children('.kv-list');
+        list.find('[data-fh-lazy]').each(function() {
+            pagedJsonNodes.delete(Number($(this).attr('data-fh-lazy')));
+        });
+        list.html(_pagedJsonChildrenHtml(entry, offset));
+        el.attr('data-fh-loaded', '1').removeClass('collapsed');
+        jsonSearchIndex = null;
+        _clearJsonSearch();
+        _clearSelection();
+    };
+
+    let _renderPagedJsonTree = function() {
+        if (!_canRenderFormattedResult()) return false;
+        pagedJsonNodes.clear();
+        pagedJsonNodeId = 0;
+        pagedJsonViewEnabled = true;
+        largeJsonPlainViewEnabled = false;
+        largeJsonNodeViewEnabled = true;
+        jfContent.html('<div id="formattedJson">' + _pagedJsonNodeHtml(cachedJsonValue, []) + '</div>');
+        let root = jfContent.find('[data-fh-lazy]').first();
+        _loadPagedJsonChildren(root, 0);
+        formattingMsg.hide();
+        _buildOptionBar();
+        _addEvents();
+        _downloadSupport(cachedJsonString);
+        $('<span class="fh-json-large-mode-note">按需节点视图 · 每页100项；全文查找请切换元数据</span>').prependTo('#optionBar');
+        $('#optionBar .fh-json-collapse-toggle').attr('title', '仅折叠或展开已加载节点，未加载分支请单独展开');
+        _emitFormatReady();
+        return true;
+    };
+
+    // Fully expanded rendering still obeys its original size/node/depth budget.
     let _canRenderLargeJsonTree = function() {
         let utils = window.FHJsonAutoUtils || {};
         return typeof utils.shouldUsePlainJsonView === 'function' &&
@@ -1881,7 +2031,12 @@ window.Formatter = (function () {
                     _renderLargeJsonTree();
                 });
         } else {
-            $('<span class="fh-json-large-mode-note">超出节点视图安全范围（200万字符、2万节点或100层），可复制或下载全文</span>').appendTo('#optionBar');
+            $('<button class="xjf-btn xjf-btn-mid fh-json-paged-tree" title="逐层展开，每页100项；复制与下载保留完整数据">切换为节点视图</button>')
+                .appendTo('#optionBar').bind('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    _renderPagedJsonTree();
+                });
         }
         _emitFormatReady();
         return true;
