@@ -17,6 +17,10 @@ new Vue({
     el: '#pageContainer',
     data: {
         selectedType: 'uniEncode',
+        autoConvert: true,
+        autoConvertTimer: null,
+        conversionId: 0,
+        converting: false,
         sourceContent: '',
         resultContent: '',
         urlResult: null,
@@ -46,6 +50,9 @@ new Vue({
         this.$refs.srcText.focus();
         this.loadPatchHotfix();
         this.handleInlineAiLaunch();
+    },
+    beforeDestroy() {
+        this.cancelConversion();
     },
     computed: {
         aiPanelResultHtml() {
@@ -81,8 +88,35 @@ new Vue({
             });
         },
         
+        cancelConversion() {
+            clearTimeout(this.autoConvertTimer);
+            this.autoConvertTimer = null;
+            if (this.converting) this.resultContent = '';
+            this.converting = false;
+            // Gzip is asynchronous: superseded results must not overwrite current output.
+            this.conversionId++;
+        },
+
+        scheduleAutoConvert(delay = 200) {
+            this.cancelConversion();
+            if (!this.autoConvert) return;
+            if (!this.sourceContent.length) {
+                this.resultContent = '';
+                this.urlResult = null;
+                return;
+            }
+            if (!delay) {
+                this.convert();
+            } else {
+                this.autoConvertTimer = setTimeout(() => this.convert(), delay);
+            }
+        },
+
         convert: async function () {
+            this.cancelConversion();
+            const conversionId = this.conversionId;
             this.$nextTick(async () => {
+                if (conversionId !== this.conversionId) return;
                 this.urlResult = null;
 
                 try {
@@ -167,7 +201,10 @@ new Vue({
                             return;
                         }
                         this.resultContent = '正在压缩...';
-                        this.resultContent = await EncodeUtils.gzipEncode(this.sourceContent);
+                        this.converting = true;
+                        const result = await EncodeUtils.gzipEncode(this.sourceContent);
+                        if (conversionId !== this.conversionId) return;
+                        this.resultContent = result;
                     } else if (this.selectedType === 'gzipDecode') {
                         // gzip解压缩
                         if (!this.sourceContent.trim()) {
@@ -175,20 +212,26 @@ new Vue({
                             return;
                         }
                         this.resultContent = '正在解压缩...';
-                        this.resultContent = await EncodeUtils.gzipDecode(this.sourceContent);
+                        this.converting = true;
+                        const result = await EncodeUtils.gzipDecode(this.sourceContent);
+                        if (conversionId !== this.conversionId) return;
+                        this.resultContent = result;
                     } else if (this.selectedType === 'stringEscape') {
                         this.resultContent = EncodeUtils.stringEscape(this.sourceContent);
                     } else if (this.selectedType === 'stringUnescape') {
                         this.resultContent = EncodeUtils.stringUnescape(this.sourceContent);
                     }
                 } catch (error) {
+                    if (conversionId !== this.conversionId) return;
                     this.resultContent = '操作失败: ' + error.message;
                 }
+                this.converting = false;
                 this.$forceUpdate();
             });
         },
 
         clear: function () {
+            this.cancelConversion();
             this.sourceContent = '';
             this.resultContent = '';
             this.urlResult = null;
@@ -225,6 +268,7 @@ new Vue({
             }
 
             const candidate = this.aiBestCandidate;
+            this.cancelConversion();
             if (candidate.selectedType) {
                 this.selectedType = candidate.selectedType;
             }

@@ -3,7 +3,7 @@
 body.fh-modern .panel-body.mod-endecode {
     position: relative;
     display: block;
-    min-height: 835px;
+    min-height: 865px;
     gap: 14px;
     padding: 16px 16px 16px 450px;
     border: 1px solid var(--fh-line);
@@ -236,6 +236,23 @@ body.fh-modern .mod-endecode .encode-actions .btn {
     font-weight: 900;
     line-height: 1;
     transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+/* Keep the automatic mode control on its own row using the existing tool tokens. */
+body.fh-modern .mod-endecode .encode-auto-convert {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--fh-text);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+body.fh-modern .mod-endecode .encode-auto-convert input {
+    margin: 0;
+    accent-color: var(--fh-primary);
 }
 
 body.fh-modern .mod-endecode .encode-actions .fh-ai-tool-btn {
