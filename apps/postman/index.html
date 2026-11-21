@@ -73,7 +73,7 @@
                     <div class="ui-mt-10" v-cloak v-show="methodContent === 'POST'">
                         <label for="param">请求参数：</label>
                         <textarea type="text" v-model="paramContent" id="param" class="form-control f-param"
-                            placeholder="请输入参数"></textarea>
+                            placeholder="请输入参数，已支持yaml语法，若解析失败，则回退为json"></textarea>
 
                         <span class="x-xdemo" @click="transParamMode()">参数转<span
                                 v-html="paramModeText">JSON</span>格式</span>
