@@ -1280,6 +1280,17 @@ window.JsonAutoFormat = (() => {
             return false;
         }
 
+        if (document.contentType === 'text/plain') {
+            const source = document.body && document.body.textContent;
+            try {
+                // 只用原生解析判断全文，保留原文供后续 BigInt 解析。
+                const value = JSON.parse(source);
+                return value !== null && typeof value === 'object' ? source : false;
+            } catch {
+                return false;
+            }
+        }
+
         // 如果是 HTML 页面，也要看一下内容是不是明显就是个JSON，如果不是，则也不进行 json 格式化
         if (document.contentType === 'text/html' && document.body) {
             const htmlParseOptions = {

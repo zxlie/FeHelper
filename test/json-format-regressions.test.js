@@ -33,6 +33,42 @@ function runJsonWorker(jsonString, skin) {
 }
 
 describe('json-format issue regressions', () => {
+    it.each([
+        ['三行文件清单', '老软件分享\n[1.01]轩辕剑3简体中文CD1.rar\n解压密码：123456', false],
+        ['带正文的对象', '记录 {"ok":true} 完毕', false],
+        ['JSONP 调用', 'callback({"ok":true})', false],
+        ['宽松对象', "{name:'example'}", false],
+        ['带尾注的数组', '[1.01]\n附注', false],
+        ['独立短数组', '[1.01]', true],
+        ['带空白的独立对象', ' \n{"id":1234567890123456789}\n', true],
+    ])('#688: text/plain 自动启动识别%s', (_label, source, shouldFormat) => {
+        const pre = {textContent: source};
+        const optionRequests = [];
+        const classes = new Set();
+        let start;
+        const context = vm.createContext({
+            location: new URL('file:///catalog.txt'), URL,
+            Node: {TEXT_NODE: 3}, Formatter: {}, Awesome: {collectAndSendClientInfo() {}},
+            setTimeout(callback) { start = callback; }, clearInterval() {},
+            chrome: {runtime: {sendMessage(message, callback) {
+                if (message.thing === 'request-jsonformat-options') optionRequests.push(callback);
+            }}},
+            document: {
+                contentType: 'text/plain',
+                body: {childNodes: [pre], children: [pre], textContent: source},
+                querySelectorAll: selector => selector === 'body>pre' ? [pre] : [],
+                documentElement: {classList: classes},
+                getElementById: id => id === 'jfToolbar' ? {} : null,
+            },
+        });
+        context.window = context;
+        vm.runInContext(readSource('apps/json-format/json-auto-utils.js'), context);
+        vm.runInContext(readSource('apps/json-format/content-script.js'), context);
+        optionRequests.shift()({JSON_PAGE_FORMAT: true});
+        start();
+        expect(classes.has('fh-jf')).toBe(shouldFormat);
+    });
+
     it('Issue #645: JsonLint does not quote pseudo keys inside string timestamps', () => {
         const lint = loadJsonLint();
         const result = lint.lintDetect('{"time":"2026-08-15 00:00:00"}');
