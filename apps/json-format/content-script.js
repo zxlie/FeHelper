@@ -1280,15 +1280,17 @@ window.JsonAutoFormat = (() => {
             return false;
         }
 
-        if (document.contentType === 'text/plain') {
+        const isPlainText = document.contentType === 'text/plain';
+        if (isPlainText || document.contentType === 'application/json' || /\+json$/i.test(document.contentType)) {
+            // 单独拼接直接文本节点可能得到合法但缺字段的 JSON，优先读取完整正文。
             const source = document.body && document.body.textContent;
             try {
-                // 只用原生解析判断全文，保留原文供后续 BigInt 解析。
                 const value = JSON.parse(source);
-                return value !== null && typeof value === 'object' ? source : false;
+                if (value !== null && typeof value === 'object') return source;
             } catch {
-                return false;
+                // JSON 查看器可能在 pre 外附加控件文字，继续检查原有候选节点。
             }
+            if (isPlainText) return false;
         }
 
         // 如果是 HTML 页面，也要看一下内容是不是明显就是个JSON，如果不是，则也不进行 json 格式化
