@@ -69,6 +69,7 @@ const TOOL_ALIASES = {
     'en-decode': 'encode decode url unicode md5 gzip hex base64',
     'code-beautify': 'beautify format js css html sql xml',
     'code-compress': 'minify compress js css html',
+    'source-map': 'sourcemap 源码映射',
     'timestamp': 'time date datetime unix',
     'password': 'password random',
     'totp-auth': '2fa totp otp authenticator authentication mfa code 动态口令 验证码 认证器',

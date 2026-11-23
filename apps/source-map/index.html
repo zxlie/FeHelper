@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Source Map 解析 - FeHelper</title>
+    <link rel="icon" href="../static/img/favicon.ico">
+    <link rel="stylesheet" href="../static/css/fehelper-tools.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body class="fh-modern">
+    <div class="wrapper map-tool">
+        <header class="main-navbar">
+            <a class="brand-link" href="https://fehelper.com" target="_blank" rel="noopener"><img src="../static/img/fe-16.png" alt=""> FeHelper</a>
+            <span class="brand-subtitle">Source Map 解析</span>
+            <button type="button" id="tools" class="btn btn-default">工具市场</button>
+        </header>
+        <main>
+            <section class="tool-panel">
+                <h1><label for="map-input">Source Map</label></h1>
+                <textarea id="map-input" rows="5" spellcheck="false" placeholder="粘贴 v3 Source Map JSON 或 .map 文件的 HTTP(S) 链接"></textarea>
+                <div class="controls">
+                    <button type="button" id="parse" class="btn btn-primary">解析</button>
+                    <label for="map-file">或打开本地文件</label>
+                    <input id="map-file" type="file" accept=".map,.json,application/json">
+                </div>
+                <p id="status" role="status"></p>
+            </section>
+            <section id="results" class="tool-panel" hidden>
+                <h2>定位原始代码</h2>
+                <form id="lookup" class="controls">
+                    <label>生成行 <input id="line" type="number" min="1" step="1" value="1" required></label>
+                    <label>生成列 <input id="column" type="number" min="1" step="1" value="1" required></label>
+                    <button class="btn btn-primary" type="submit">定位</button>
+                    <span class="hint">输入报错位置，行列均从 1 开始。</span>
+                </form>
+                <p id="position" role="status"></p>
+                <pre id="mapped-line" hidden></pre>
+                <h2><label for="sources">原始文件</label></h2>
+                <select id="sources"></select>
+                <pre id="preview" aria-label="内嵌源码"></pre>
+            </section>
+        </main>
+    </div>
+    <script src="../static/js/tool-layout.js"></script>
+    <script type="module" src="index.js"></script>
+</body>
+</html>

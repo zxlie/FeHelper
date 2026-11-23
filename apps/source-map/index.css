@@ -1,0 +1,20 @@
+.map-tool { max-width: 1120px; margin: 0 auto; }
+.map-tool main { display: grid; gap: 12px; padding: 12px 0; }
+.map-tool section { min-width: 0; padding: 16px; background: var(--fh-panel); border: 1px solid var(--fh-line); border-radius: var(--fh-radius); }
+.map-tool [hidden] { display: none; }
+.map-tool h1, .map-tool h2 { font-size: 16px; margin: 0 0 10px; }
+.map-tool .controls { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.map-tool textarea, .map-tool select, .map-tool input[type="number"], .map-tool pre {
+    box-sizing: border-box; max-width: 100%; padding: 8px; color: var(--fh-text);
+    background: var(--fh-panel-solid); border: 1px solid var(--fh-line); border-radius: var(--fh-radius);
+    font: 14px/1.5 var(--fh-mono);
+}
+.map-tool textarea { display: block; width: 100%; margin-bottom: 10px; resize: vertical; }
+.map-tool input[type="number"] { width: 7em; }
+.map-tool input[type="file"] { max-width: 100%; }
+.map-tool select { width: 100%; }
+.map-tool pre { overflow: auto; max-height: 48vh; white-space: pre; }
+.map-tool .hint, .map-tool #status { color: var(--fh-muted); }
+.map-tool #status[data-error="true"] { color: var(--fh-danger); }
+.map-tool #position { overflow-wrap: anywhere; }
+.map-tool p:empty { margin: 0; }

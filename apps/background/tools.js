@@ -72,6 +72,11 @@ let toolMap = {
             contexts: ['page', 'selection', 'editable']
         }]
     },
+    'source-map': {
+        name: 'Source Map 解析',
+        tips: '从 .map 文件、链接或 JSON 定位生成代码对应的原始行列，查看内嵌源码',
+        menuConfig: [{ icon: 'SM', text: 'Source Map 解析' }]
+    },
     'code-compress': {
         name: '代码压缩工具',
         tips: 'Web开发用，提供简单的代码压缩功能，支持HTML、Javascript、CSS代码压缩',

@@ -16,7 +16,7 @@ const TOOL_MENU_GROUPS = [
     {
         id: 'text-code',
         title: '文本与代码',
-        tools: ['json-format', 'json-diff', 'code-beautify', 'code-compress', 'regexp', 'html2markdown']
+        tools: ['json-format', 'json-diff', 'code-beautify', 'code-compress', 'source-map', 'regexp', 'html2markdown']
     },
     {
         id: 'encode-convert',
