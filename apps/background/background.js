@@ -890,14 +890,7 @@ let BgPageInstance = (function () {
                     Statistics.recordInstallation();
                     break;
                 case 'update':
-                    _animateTips('+++1');
                     Statistics.recordUpdate(previousVersion);
-                    if (previousVersion === '2019.12.2415') {
-                        notifyText({
-                            message: '历尽千辛万苦，FeHelper已升级到最新版本，可以到插件设置页去安装旧版功能了！',
-                            autoClose: 5000
-                        });
-                    }
                     break;
             }
             Menu.rebuild();
@@ -916,45 +909,20 @@ let BgPageInstance = (function () {
         return value === true || String(value) === 'true';
     };
 
-    let _notifyExtensionUpdateDeferred = function () {
-        notifyText({
-            title: 'FeHelper 更新',
-            message: '已发现新版本。为避免关闭正在使用的工具页，请到插件设置页手动点击“立即更新”。',
-            autoClose: 8000
-        });
-    };
-
-    let _applyExtensionUpdate = function () {
-        notifyText({
-            title: 'FeHelper 更新',
-            message: '已发现新版本，正在应用更新...',
-            autoClose: 3000
-        });
-        setTimeout(() => chrome.runtime.reload(), 1000);
-    };
-
-    let _handleUpdateCheckStatus = function (result, options) {
+    let _handleUpdateCheckStatus = function (result) {
         const status = typeof result === 'string' ? result : result && result.status;
         if (status !== "update_available") {
             return;
         }
 
-        if (options && options.manualApply) {
-            _applyExtensionUpdate();
-            return;
-        }
-
         Settings.getOptions((opts) => {
             if (_isEnabledSetting(opts.AUTO_APPLY_EXTENSION_UPDATE)) {
-                _applyExtensionUpdate();
-            } else {
-                _notifyExtensionUpdateDeferred();
+                chrome.runtime.reload();
             }
         });
     };
 
-    let runUpdateCheck = function (options) {
-        options = options || {};
+    let runUpdateCheck = function () {
         const requestUpdateCheckKey = 'request' + 'UpdateCheck';
         const requestUpdateCheck = chrome.runtime && chrome.runtime[requestUpdateCheckKey];
         if (typeof requestUpdateCheck === 'function' && navigator.userAgent.indexOf("Firefox") === -1) {
@@ -962,19 +930,19 @@ let BgPageInstance = (function () {
                 let handledByCallback = false;
                 const maybePromise = requestUpdateCheck.call(chrome.runtime, (status) => {
                     handledByCallback = true;
-                    _handleUpdateCheckStatus(status, options);
+                    _handleUpdateCheckStatus(status);
                 });
                 if (maybePromise && typeof maybePromise.then === 'function') {
                     maybePromise.then((result) => {
                         if (!handledByCallback) {
-                            _handleUpdateCheckStatus(result, options);
+                            _handleUpdateCheckStatus(result);
                         }
                     }).catch(() => {});
                 }
             } catch (e) {
                 try {
                     const promise = requestUpdateCheck.call(chrome.runtime);
-                    promise && promise.then && promise.then((result) => _handleUpdateCheckStatus(result, options)).catch(() => {});
+                    promise && promise.then && promise.then((result) => _handleUpdateCheckStatus(result)).catch(() => {});
                 } catch (err) {}
             }
         }

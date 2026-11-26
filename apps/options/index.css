@@ -288,7 +288,6 @@ html.dark-mode .settings-dialog {
 }
 
 .fh-version-top,
-.fh-version-state,
 .fh-section-head,
 .fh-table-head,
 .tool-meta,
@@ -304,7 +303,6 @@ html.dark-mode .settings-dialog {
 }
 
 .fh-version-top span,
-.fh-version-state,
 .fh-side-section h2,
 .fh-table-head span,
 .tool-meta,
@@ -315,34 +313,6 @@ html.dark-mode .settings-dialog {
 .fh-version-top strong {
     color: var(--fh-accent-dark);
     font-size: 16px;
-}
-
-.fh-version-state {
-    justify-content: flex-start;
-    min-height: 28px;
-    color: var(--fh-muted);
-}
-
-.fh-version-state button {
-    height: 28px;
-    padding: 0 10px;
-    border-radius: var(--fh-radius);
-    color: #ffffff;
-    background: var(--fh-accent);
-    cursor: pointer;
-}
-
-.fh-state-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: var(--fh-green);
-    box-shadow: 0 0 0 4px var(--fh-green-soft);
-}
-
-.fh-state-dot.-muted {
-    background: var(--fh-subtle);
-    box-shadow: 0 0 0 4px var(--fh-line-soft);
 }
 
 .fh-side-actions {

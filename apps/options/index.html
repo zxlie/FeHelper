@@ -32,22 +32,6 @@
                 <span>当前版本</span>
                 <strong>v{{manifest.version}}</strong>
             </div>
-            <div class="fh-version-state" v-if="versionChecked">
-                <template v-if="latestVersion && !needUpdate">
-                    <span class="fh-state-dot"></span>
-                    <span>已是最新版</span>
-                </template>
-                <template v-else>
-                    <span>最新版本</span>
-                    <strong v-if="latestVersion">v{{latestVersion}}</strong>
-                    <button v-if="needUpdate" type="button" @click="openStorePage">立即更新</button>
-                    <button v-else type="button" @click="openStorePage">打开商店</button>
-                </template>
-            </div>
-            <div class="fh-version-state" v-else>
-                <span class="fh-state-dot -muted"></span>
-                <span>正在检查版本</span>
-            </div>
         </div>
 
         <nav class="fh-side-actions" aria-label="FeHelper主要操作">
@@ -405,7 +389,7 @@
                                 <span class="setting-switch" aria-hidden="true"></span>
                                 <span class="setting-copy">
                                     <strong>自动应用扩展更新</strong>
-                                    <small>关闭时只提醒有新版本，避免更新重载关闭正在使用的工具页。</small>
+                                    <small>开启后发现新版本会立即重载扩展，可能关闭正在使用的工具页。</small>
                                 </span>
                             </label>
 

@@ -87,10 +87,6 @@ new Vue({
         activeTools: {}, // 当前显示的工具列表
         installedCount: 0, // 已安装工具数量
         
-        // 版本相关
-        latestVersion: '', // 最新版本号
-        needUpdate: false, // 是否需要更新
-        
         // 设置相关
         showSettingsModal: false,
         defaultKey: 'Alt+Shift+J', // 默认快捷键
@@ -122,7 +118,6 @@ new Vue({
         draggedIndex: -1, // 拖拽的工具索引
 
         recentCount: 0,
-        versionChecked: false,
         aiModelStatus: 'checking',
         aiModelProgress: 0,
         aiModelBusy: false,
@@ -193,8 +188,6 @@ new Vue({
         this.loadSettings();
         // 检查浏览器类型
         this.checkBrowserType();
-        // 检查版本更新
-        this.checkVersionUpdate();
         this.checkBuiltInAiStatus();
         
         // 加载远程推荐卡片配置
@@ -643,178 +636,11 @@ new Vue({
             }
         },
 
-        // 检查版本更新
-        async checkVersionUpdate() {
-            try {
-                // 获取已安装的版本号
-                const currentVersion = this.manifest.version;
-                
-                // 尝试从本地存储获取最新版本信息，避免频繁请求
-                const cachedData = await new Promise(resolve => {
-                    chrome.storage.local.get('fehelper_latest_version_data', data => {
-                        resolve(data.fehelper_latest_version_data || null);
-                    });
-                });
-        
-                // 检查是否需要重新获取版本信息：
-                // 1. 缓存不存在
-                // 2. 缓存已过期（超过24小时）
-                // 3. 缓存的当前版本与实际版本不同（说明插件已更新）
-                const now = Date.now();
-                const cacheExpired = !cachedData || !cachedData.timestamp || (now - cachedData.timestamp > 24 * 60 * 60 * 1000);
-                const versionChanged = cachedData && cachedData.currentVersion !== currentVersion;
-                
-                this.versionChecked = !(cacheExpired || versionChanged);
-                if (!this.versionChecked) {
-                    try {
-                        // 使用shields.io的JSON API获取最新版本号
-                        const response = await fetch('https://img.shields.io/chrome-web-store/v/pkgccpejnmalmdinmhkkfafefagiiiad.json');
-                        if (!response.ok) {
-                            throw new Error(`HTTP错误：${response.status}`);
-                        }
-                        this.versionChecked = true;
-                        
-                        const data = await response.json();
-                        // 提取版本号 - shields.io返回的数据中包含版本信息
-                        let latestVersion = '';
-                        if (data && data.value) {
-                            // 去掉版本号前的'v'字符（如果有）
-                            latestVersion = data.value.replace(/^v/, '');
-                        }
-                        
-                        // 比较版本号
-                        const needUpdate = this.compareVersions(currentVersion, latestVersion) < 0;
-                        
-                        // 保存到本地存储中
-                        await chrome.storage.local.set({
-                            'fehelper_latest_version_data': {
-                                timestamp: now,
-                                currentVersion, // 保存当前检查时的版本号
-                                latestVersion,
-                                needUpdate
-                            }
-                        });
-                        
-                        this.latestVersion = latestVersion;
-                        this.needUpdate = needUpdate;
-                    } catch (fetchError) {
-                        // 获取失败时不显示更新按钮
-                        this.needUpdate = false;
-                        
-                        // 如果是版本变更导致的重新检查，但获取失败，则使用缓存数据
-                        if (versionChanged && cachedData) {
-                            this.latestVersion = cachedData.latestVersion || '';
-                            // 比较新的currentVersion和缓存的latestVersion
-                            this.needUpdate = this.compareVersions(currentVersion, cachedData.latestVersion) < 0;
-                        }
-                    }
-                } else {
-                    // 使用缓存数据
-                    this.latestVersion = cachedData.latestVersion || '';
-                    this.needUpdate = cachedData.needUpdate || false;
-                }
-            } catch (error) {
-                this.needUpdate = false; // 出错时不显示更新提示
-            }
-        },
-        
-        // 比较版本号：如果v1 < v2返回-1，v1 = v2返回0，v1 > v2返回1
-        compareVersions(v1, v2) {
-            // 将版本号拆分为数字数组
-            const v1Parts = v1.split('.').map(Number);
-            const v2Parts = v2.split('.').map(Number);
-            
-            // 计算两个版本号中较长的长度
-            const maxLength = Math.max(v1Parts.length, v2Parts.length);
-            
-            // 比较每一部分
-            for (let i = 0; i < maxLength; i++) {
-                // 获取当前部分，如果不存在则视为0
-                const part1 = v1Parts[i] || 0;
-                const part2 = v2Parts[i] || 0;
-                
-                // 比较当前部分
-                if (part1 < part2) return -1;
-                if (part1 > part2) return 1;
-            }
-            
-            // 所有部分都相等
-            return 0;
-        },
-        
-        // 打开Chrome商店页面
-        openStorePage() {
-            try {
-                const requestUpdateCheckKey = 'request' + 'UpdateCheck';
-                const requestUpdateCheck = chrome.runtime && chrome.runtime[requestUpdateCheckKey];
-                if (this.isFirefox || typeof requestUpdateCheck !== 'function') {
-                    this.handleUpdateError(new Error('当前浏览器不支持自动检查扩展更新'));
-                    return;
-                }
-                // 使用Chrome Extension API请求检查更新
-                // Manifest V3中requestUpdateCheck返回Promise，结果是一个对象而不是数组
-                requestUpdateCheck.call(chrome.runtime).then(result => {
-                    // 正确获取status和details，它们是result对象的属性
-                    this.handleUpdateStatus(result.status, result.details);
-                }).catch(error => {
-                    this.handleUpdateError(error);
-                });
-            } catch (error) {
-                this.handleUpdateError(error);
-            }
-        },
-
-        // 处理更新状态
-        handleUpdateStatus(status, details) {
-            if (status === 'update_available') {
-                // 显示更新通知
-                this.showNotification({
-                    title: 'FeHelper 更新',
-                    message: '已发现新版本，正在更新...'
-                });
-                
-                // 重新加载扩展以应用更新
-                setTimeout(() => {
-                    chrome.runtime.reload();
-                }, 1000);
-            } else if (status === 'no_update') {
-                // 如果没有可用更新，但用户点击了更新按钮
-                this.showNotification({
-                    title: 'FeHelper 更新',
-                    message: '您的FeHelper已经是最新版本。'
-                });
-            } else {
-                // 其他情况，如更新检查失败等
-                // 备选方案：跳转到官方网站
-                chrome.tabs.create({ 
-                    url: 'https://fehelper.com/'
-                });
-                
-                this.showNotification({
-                    title: 'FeHelper 更新',
-                    message: '自动更新失败，请访问FeHelper官网手动获取最新版本。'
-                });
-            }
-        },
-
-        // 处理更新错误
-        handleUpdateError(error) {
-            // 出错时跳转到官方网站
-            chrome.tabs.create({ 
-                url: 'https://fehelper.com/'
-            });
-            
-            this.showNotification({
-                title: 'FeHelper 更新错误',
-                message: '更新过程中出现错误，请手动检查更新。'
-            });
-        },
-
         // 显示通知的统一方法
         showNotification(options) {
             try {
                 // 定义通知ID，方便后续关闭
-                const notificationId = 'fehelper-update-notification';
+                const notificationId = 'fehelper-settings-notification';
                 const simpleNotificationId = 'fehelper-simple-notification';
 
                 // 直接尝试创建通知，不检查权限
