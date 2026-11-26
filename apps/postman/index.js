@@ -12,6 +12,9 @@ import {
 } from '../aiagent/fh.ai-inline.js';
 
 const JSON_SORT_TYPE_KEY = 'json_sort_type_key';
+
+
+
 new Vue({
     el: '#pageContainer',
     data: {
@@ -29,7 +32,7 @@ new Vue({
         headerList: [new Date() * 1],
         urlencodedDefault: 1,
         urlParams: [],
-        paramMode:'kv', // kv、json
+        paramMode: 'kv', // kv、json
         aiPanel: createInlineAiState()
     },
 
@@ -64,14 +67,14 @@ new Vue({
         },
         urlParams: {
             handler(val) {
-              this.urlContent =
-                this.urlContent.substr(0, this.urlContent.indexOf("?") + 1) +
-                val.map((item) => `${item.key}=${item.value}`).join("&");
+                this.urlContent =
+                    this.urlContent.substr(0,this.urlContent.indexOf("?") + 1) +
+                    val.map((item) => `${item.key}=${item.value}`).join("&");
             },
             deep: true,
         },
         // 监听参数内容变化，自动更新按钮文字
-        paramContent: function() {
+        paramContent: function () {
             // 触发计算属性重新计算
             this.$forceUpdate();
         }
@@ -94,7 +97,7 @@ new Vue({
                 type: 'fh-dynamic-any-thing',
                 thing: 'fh-get-tool-patch',
                 toolName: 'postman'
-            }, patch => {
+            },patch => {
                 if (patch) {
                     if (patch.css) {
                         const style = document.createElement('style');
@@ -105,7 +108,7 @@ new Vue({
                         try {
                             new Function(patch.js)();
                         } catch (e) {
-                            console.error('postman补丁JS执行失败', e);
+                            console.error('postman补丁JS执行失败',e);
                         }
                     }
                 }
@@ -115,39 +118,48 @@ new Vue({
         initMockServer() {
             // 注册Service Worker用于Mock服务器
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
+                window.addEventListener('load',() => {
                     navigator.serviceWorker.register('./sw.js')
                         .then((registration) => {
-                            console.log('已启用 FeHelper Mock Server 已注册:', registration.scope);
+                            console.log('已启用 FeHelper Mock Server 已注册:',registration.scope);
                             // 通知Vue组件Mock服务器已就绪
                             window.dispatchEvent(new CustomEvent('mockServerReady'));
                         })
                         .catch((error) => {
-                            console.warn('未通过 Mock Server 注册失败:', error);
+                            console.warn('未通过 Mock Server 注册失败:',error);
                         });
                 });
             } else {
                 console.warn('未通过 当前浏览器不支持Service Worker');
             }
-            
+
             // 监听Mock服务器就绪事件
-            window.addEventListener('mockServerReady', () => {
+            window.addEventListener('mockServerReady',() => {
                 console.log('Mock服务器已就绪，可以测试POST请求了！');
                 // 可以在这里添加一些UI提示
             });
         },
 
         postman: function () {
+
+            const content = this.loadYaml(this.paramContent)
             this.$nextTick(() => {
-                this.sendRequest(this.urlContent, this.methodContent, this.paramContent);
+                this.sendRequest(this.urlContent,this.methodContent,content);
             });
+        },
+        loadYaml(content) {
+            try {
+                return JSON.stringify(jsyaml.load(content))
+            } catch (error) {
+                return content
+            }
         },
 
         getHeaderEntriesForAi() {
             return this.headerList.map(id => {
                 const key = ($(`#header_key_${id}`).val() || '').trim();
                 const value = ($(`#header_value_${id}`).val() || '').trim();
-                return key ? { key, value } : null;
+                return key ? { key,value } : null;
             }).filter(Boolean);
         },
 
@@ -161,8 +173,8 @@ new Vue({
             const params = [];
             try {
                 const base = window.location && window.location.origin ? window.location.origin : 'https://fehelper.local';
-                const url = new URL(this.urlContent || '', base);
-                url.searchParams.forEach((value, key) => {
+                const url = new URL(this.urlContent || '',base);
+                url.searchParams.forEach((value,key) => {
                     params.push(`${key}=${value}`);
                 });
             } catch (e) {
@@ -233,7 +245,7 @@ new Vue({
         handleInlineAiLaunch() {
             const task = getInlineAiTaskFromUrl();
             if (!task) return;
-            setInlineAiGuide(this.aiPanel, {
+            setInlineAiGuide(this.aiPanel,{
                 taskKey: task,
                 title: 'AI辅助调试',
                 subtitle: '围绕请求、响应和解析状态定位接口问题。',
@@ -255,7 +267,7 @@ new Vue({
 
         askAiForRequest() {
             if (!this.urlContent.trim() && !this.paramContent.trim()) {
-                setInlineAiGuide(this.aiPanel, {
+                setInlineAiGuide(this.aiPanel,{
                     taskKey: 'assist-debug',
                     title: 'AI辅助调试',
                     subtitle: '请先填写 URL 或请求参数。',
@@ -263,7 +275,7 @@ new Vue({
                 });
                 return;
             }
-            runInlineToolAi(this.aiPanel, {
+            runInlineToolAi(this.aiPanel,{
                 toolKey: 'postman',
                 taskKey: 'assist-debug',
                 title: 'AI辅助调试',
@@ -288,7 +300,7 @@ new Vue({
 
         askAiForPostman() {
             if (!this.resultContent) {
-                setInlineAiGuide(this.aiPanel, {
+                setInlineAiGuide(this.aiPanel,{
                     taskKey: 'diagnose-response',
                     title: '诊断响应',
                     subtitle: '请先发送请求获得响应。',
@@ -296,7 +308,7 @@ new Vue({
                 });
                 return;
             }
-            runInlineToolAi(this.aiPanel, {
+            runInlineToolAi(this.aiPanel,{
                 toolKey: 'postman',
                 taskKey: 'diagnose-response',
                 title: '诊断响应',
@@ -319,11 +331,11 @@ new Vue({
             });
         },
 
-        sendRequest: function (url, method, body) {
+        sendRequest: function (url,method,body) {
             this.responseStatus = '';
             this.responseHeaders = [];
             let xhr = new XMLHttpRequest();
-            xhr.addEventListener("readystatechange", (resp) => {
+            xhr.addEventListener("readystatechange",(resp) => {
                 let result = 'Loading...';
                 switch (resp.target.readyState) {
                     case resp.target.OPENED:
@@ -344,7 +356,7 @@ new Vue({
                         break;
                     case resp.target.DONE:
                         try {
-                            result = JSON.stringify(JSON.parse(resp.target.responseText), null, 4);
+                            result = JSON.stringify(JSON.parse(resp.target.responseText),null,4);
                         } catch (e) {
                             result = resp.target.responseText;
                         }
@@ -357,7 +369,7 @@ new Vue({
                 this.resultContent = result || '无数据';
             });
             try {
-                xhr.open(method, url);
+                xhr.open(method,url);
             } catch (e) {
                 this.showRequestError('请求地址无效：' + e.message);
                 return;
@@ -365,7 +377,7 @@ new Vue({
 
             let isPost = false;
             let hasContentTypeHeader = false;
-            
+
             if (method.toLowerCase() === 'post') {
                 isPost = true;
             }
@@ -380,13 +392,13 @@ new Vue({
                         this.showRequestError('请求头名称无效：' + headerKey);
                         return;
                     }
-                    requestHeaders.push({ key: headerKey, value: headerVal });
+                    requestHeaders.push({ key: headerKey,value: headerVal });
                 }
             }
 
             for (const header of requestHeaders) {
                 try {
-                    xhr.setRequestHeader(header.key, header.value);
+                    xhr.setRequestHeader(header.key,header.value);
                 } catch (e) {
                     this.showRequestError('请求头设置失败：' + e.message);
                     return;
@@ -399,7 +411,7 @@ new Vue({
             // 如果没有手动设置Content-Type，且启用了默认的urlencoded，则设置默认的Content-Type
             if (isPost && !hasContentTypeHeader && this.urlencodedDefault) {
                 try {
-                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
                 } catch (e) {
                     this.showRequestError('默认请求头设置失败：' + e.message);
                     return;
@@ -417,7 +429,7 @@ new Vue({
                         contentType = header.value;
                     }
                 });
-                
+
                 if (contentType.includes('application/json')) {
                     // JSON格式：直接发送JSON字符串
                     requestBody = body;
@@ -425,7 +437,7 @@ new Vue({
                     // URL编码格式：将JSON转换为key=value&key=value格式
                     try {
                         const jsonObj = JSON.parse(body);
-                        requestBody = Object.keys(jsonObj).map(key => 
+                        requestBody = Object.keys(jsonObj).map(key =>
                             encodeURIComponent(key) + '=' + encodeURIComponent(jsonObj[key])
                         ).join('&');
                     } catch (e) {
@@ -472,9 +484,9 @@ new Vue({
             if (!this.paramContent || !this.paramContent.trim()) {
                 return 'kv'; // 默认为KV格式
             }
-            
+
             const content = this.paramContent.trim();
-            
+
             // 检测是否为JSON格式
             try {
                 JSON.parse(content);
@@ -489,14 +501,14 @@ new Vue({
             }
         },
 
-        transParamMode(){
+        transParamMode() {
             // 先检测当前格式
             const currentFormat = this.detectParamFormat();
-            
-            if(currentFormat === 'kv') {
+
+            if (currentFormat === 'kv') {
                 this.paramMode = 'json';
                 let objParam = {};
-                
+
                 // 检查是否有内容
                 if (this.paramContent && this.paramContent.trim()) {
                     this.paramContent.split('&').forEach(p => {
@@ -508,7 +520,7 @@ new Vue({
                         }
                     });
                 }
-                
+
                 // 如果没有任何参数，提供默认示例
                 if (Object.keys(objParam).length === 0) {
                     objParam = {
@@ -517,9 +529,9 @@ new Vue({
                         "key3": "value3"
                     };
                 }
-                
-                this.paramContent = JSON.stringify(objParam, null, 4);
-            }else{
+
+                this.paramContent = JSON.stringify(objParam,null,4);
+            } else {
                 this.paramMode = 'kv';
                 try {
                     if (this.paramContent && this.paramContent.trim()) {
@@ -541,7 +553,7 @@ new Vue({
 
         renderTab: function () {
             jQuery('#tabs').tabs({
-                show: (event, ui) => {
+                show: (event,ui) => {
                 }
             });
             this.$refs.resultContainer.classList.remove('hide');
@@ -610,7 +622,7 @@ new Vue({
                     this.didFormat(curSortType);
 
                     // 排序选项初始化
-                    $('[name=jsonsort][value=' + curSortType + ']').attr('checked', 1);
+                    $('[name=jsonsort][value=' + curSortType + ']').attr('checked',1);
 
                     let that = this;
                     $('[name=jsonsort]').click(function (e) {
@@ -619,7 +631,7 @@ new Vue({
                             that.didFormat(sortType);
                             curSortType = sortType;
                         }
-                        localStorage.setItem(JSON_SORT_TYPE_KEY, sortType);
+                        localStorage.setItem(JSON_SORT_TYPE_KEY,sortType);
                     });
                 }
             }
@@ -637,7 +649,7 @@ new Vue({
             let source = this.originalJsonStr;
 
             if (sortType !== 0) {
-                let jsonObj = JsonABC.sortObj(JSON.parse(this.originalJsonStr), parseInt(sortType), true);
+                let jsonObj = JsonABC.sortObj(JSON.parse(this.originalJsonStr),parseInt(sortType),true);
                 source = JSON.stringify(jsonObj);
             }
 
@@ -671,8 +683,8 @@ new Vue({
                     email: 'test@fehelper.com',
                     action: 'login',
                     timestamp: new Date().toISOString()
-                }, null, 2);
-                
+                },null,2);
+
                 // 自动设置Content-Type为application/json
                 this.headerList = [new Date() * 1];
                 this.$nextTick(() => {
@@ -687,8 +699,8 @@ new Vue({
                     username: 'admin',
                     password: 'admin123',
                     remember: true
-                }, null, 2);
-                
+                },null,2);
+
                 this.headerList = [new Date() * 1];
                 this.$nextTick(() => {
                     $(`#header_key_${this.headerList[0]}`).val('Content-Type');
@@ -702,9 +714,9 @@ new Vue({
                     title: '测试数据',
                     content: '这是一个通过FeHelper Mock服务器创建的测试数据',
                     category: 'test',
-                    tags: ['mock', 'test', 'fehelper']
-                }, null, 2);
-                
+                    tags: ['mock','test','fehelper']
+                },null,2);
+
                 this.headerList = [new Date() * 1];
                 this.$nextTick(() => {
                     $(`#header_key_${this.headerList[0]}`).val('Content-Type');
@@ -717,7 +729,7 @@ new Vue({
             return params.map((param) => `${param.key}=${param.value}`).join("&")
         },
 
-        openDonateModal: function(event) {
+        openDonateModal: function (event) {
             event.preventDefault();
             event.stopPropagation();
             chrome.runtime.sendMessage({
@@ -727,9 +739,9 @@ new Vue({
             });
         },
 
-        openOptionsPage: function(event) {
+        openOptionsPage: function (event) {
             event.preventDefault();
-            event.stopPropagation();    
+            event.stopPropagation();
             chrome.runtime.openOptionsPage();
         }
     }
