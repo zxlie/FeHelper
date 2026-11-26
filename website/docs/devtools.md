@@ -185,13 +185,15 @@ MV3 的 sandbox CSP 必须写在 `content_security_policy.sandbox`，`sandbox` �
 {
   "content_security_policy": {
     "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'self'",
-    "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'"
+    "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-eval'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'"
   },
   "sandbox": {
     "pages": ["dynamic/sandbox.html"]
   }
 }
 ```
+
+`worker-src 'self' blob:` 仅允许沙箱页面运行扩展内或 Blob URL 的 Worker（例如使用内联 Worker 的文本差异库）；不放宽普通扩展页面的 CSP。未设置 `worker-src` 时，浏览器会回退到 `script-src`，从而拦截 Blob Worker。
 
 **页面工具打开后空白**
 

@@ -217,4 +217,18 @@ describe('dynamic runtime developer support', () => {
         expect(manifest.sandbox.pages).toContain('dynamic/sandbox.html');
         expect(manifest.sandbox.content_security_policy).toBeUndefined();
     });
+
+    it('permits blob workers for sandboxed tools without permitting them on extension pages', () => {
+        const manifest = JSON.parse(fs.readFileSync(path.resolve('apps/manifest.json'), 'utf8'));
+        const sourcesFor = (policy, directive) => {
+            const directives = Object.fromEntries(policy.split(';').map(part => {
+                const [name, ...sources] = part.trim().split(/\s+/);
+                return [name, sources];
+            }));
+            return directives[directive] || directives['script-src'] || directives['default-src'] || [];
+        };
+
+        expect(sourcesFor(manifest.content_security_policy.sandbox, 'worker-src')).toContain('blob:');
+        expect(sourcesFor(manifest.content_security_policy.extension_pages, 'worker-src')).not.toContain('blob:');
+    });
 });
